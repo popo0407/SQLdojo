@@ -32,6 +32,27 @@ class DatabaseService:
         """接続テスト"""
         return self.query_executor.test_connection()
     
+    def get_connection_status(self) -> Dict[str, Any]:
+        """接続状態を取得"""
+        try:
+            pool_status = self.query_executor.get_connection_status()
+            return {
+                'connected': self.test_connection(),
+                'active_connections': pool_status.get('active_connections', 0),
+                'total_connections': pool_status.get('total_connections', 0),
+                'max_connections': pool_status.get('max_connections', 0),
+                'pool_status': pool_status
+            }
+        except Exception as e:
+            self.logger.error(f"接続状態取得エラー: {e}")
+            return {
+                'connected': False,
+                'active_connections': 0,
+                'total_connections': 0,
+                'max_connections': 0,
+                'error': str(e)
+            }
+    
     def get_warehouse_info(self) -> QueryResult:
         """ウェアハウス情報を取得"""
         sql = "SHOW WAREHOUSES"

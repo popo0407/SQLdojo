@@ -5811,3 +5811,699 @@ suggestions
 2025-06-24 23:39:59,403 - sql_validator - INFO - SQLバリデーション: SELECT * FROM users WHERE id = 1
 2025-06-24 23:39:59,461 - sql_validator - INFO - SQLバリデーション: SELECT * FROM users WHERE id = 1
 2025-06-24 23:39:59,477 - sql_validator - INFO - SQLバリデーション: SELECT * FROM INFORMATION_SCHEMA.TABLES
+2025-06-25 00:59:08,328 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:08,345 - main - INFO - POST /api/sql/execute
+2025-06-25 00:59:08,427 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:08,427 - main - INFO - POST /api/sql/execute
+2025-06-25 00:59:08,812 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:08,814 - main - INFO - GET /api/metadata/schemas
+2025-06-25 00:59:08,851 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:08,852 - main - INFO - GET /api/metadata/schemas/SCHEMA1/tables
+2025-06-25 00:59:08,944 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:08,945 - main - INFO - GET /api/metadata/schemas/SCHEMA1/tables/TABLE1
+2025-06-25 00:59:08,976 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:08,977 - main - INFO - POST /api/export/csv
+2025-06-25 00:59:09,004 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:09,004 - main - INFO - POST /api/export/csv
+2025-06-25 00:59:09,064 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:09,065 - main - INFO - GET /api/connection/status
+2025-06-25 00:59:09,097 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:09,097 - main - INFO - GET /api/performance/metrics
+2025-06-25 00:59:09,143 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:09,143 - main - INFO - GET /api/metadata/warehouses
+2025-06-25 00:59:09,170 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:09,170 - main - INFO - GET /api/metadata/databases
+2025-06-25 00:59:09,202 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:09,203 - main - INFO - GET /api/invalid/endpoint
+2025-06-25 00:59:09,219 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:09,220 - main - INFO - POST /api/sql/execute
+2025-06-25 00:59:51,942 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:51,942 - main - INFO - POST /api/sql/execute
+2025-06-25 00:59:51,982 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:51,982 - main - INFO - POST /api/sql/execute
+2025-06-25 00:59:52,390 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,390 - main - INFO - GET /api/metadata/schemas
+2025-06-25 00:59:52,432 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,436 - main - INFO - GET /api/metadata/schemas/SCHEMA1/tables
+2025-06-25 00:59:52,464 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,467 - main - INFO - GET /api/metadata/schemas/SCHEMA1/tables/TABLE1
+2025-06-25 00:59:52,493 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,494 - main - INFO - POST /api/export/csv
+2025-06-25 00:59:52,523 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,524 - main - INFO - POST /api/export/csv
+2025-06-25 00:59:52,540 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,540 - main - INFO - GET /api/connection/status
+2025-06-25 00:59:52,583 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,586 - main - INFO - GET /api/performance/metrics
+2025-06-25 00:59:52,611 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,612 - main - INFO - GET /api/metadata/warehouses
+2025-06-25 00:59:52,632 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,632 - main - INFO - GET /api/metadata/databases
+2025-06-25 00:59:52,682 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,682 - main - INFO - GET /api/invalid/endpoint
+2025-06-25 00:59:52,690 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 00:59:52,690 - main - INFO - POST /api/sql/execute
+2025-06-25 01:08:38,243 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,244 - main - INFO - POST /api/sql/execute
+2025-06-25 01:08:38,275 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,275 - main - INFO - POST /api/sql/execute
+2025-06-25 01:08:38,667 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,667 - main - INFO - GET /api/metadata/schemas
+2025-06-25 01:08:38,710 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,711 - main - INFO - GET /api/metadata/schemas/SCHEMA1/tables
+2025-06-25 01:08:38,740 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,740 - main - INFO - GET /api/metadata/schemas/SCHEMA1/tables/TABLE1
+2025-06-25 01:08:38,770 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,770 - main - INFO - POST /api/export/csv
+2025-06-25 01:08:38,795 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,795 - main - INFO - POST /api/export/csv
+2025-06-25 01:08:38,820 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,820 - main - INFO - GET /api/connection/status
+2025-06-25 01:08:38,858 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,858 - main - INFO - GET /api/performance/metrics
+2025-06-25 01:08:38,889 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,890 - main - INFO - GET /api/metadata/all
+2025-06-25 01:08:38,915 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,917 - main - INFO - GET /api/metadata/all
+2025-06-25 01:08:38,944 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,944 - main - INFO - GET /api/invalid/endpoint
+2025-06-25 01:08:38,958 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:08:38,959 - main - INFO - POST /api/sql/execute
+2025-06-25 01:08:40,736 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:08:40,747 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:08:40,754 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:08:41,199 - app - INFO - SQL実行開始
+2025-06-25 01:08:41,200 - app - INFO - SQLバリデーション開始
+2025-06-25 01:08:41,232 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:08:41,308 - app - INFO - SQL実行開始
+2025-06-25 01:08:41,308 - app - INFO - SQLバリデーション開始
+2025-06-25 01:08:41,308 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:13:50,091 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:13:50,110 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-25 01:13:50,110 - app - INFO - SQL実行開始
+2025-06-25 01:13:50,110 - app - INFO - SQLバリデーション開始
+2025-06-25 01:13:50,131 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:13:50,132 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:13:50,132 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:13:50,134 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 42.8ms)
+2025-06-25 01:13:50,134 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-06-25 01:13:50,134 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-06-25 01:13:50,136 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:13:50,167 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:13:50,167 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:13:50,168 - app - INFO - SQL実行開始
+2025-06-25 01:13:50,169 - app - INFO - SQLバリデーション開始
+2025-06-25 01:13:50,170 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:13:50,170 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:13:50,170 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:13:50,170 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.0ms)
+2025-06-25 01:13:50,170 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-06-25 01:13:50,170 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-06-25 01:13:50,175 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:13:50,588 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:13:50,589 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:13:50,589 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:13:50,592 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:50,592 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:50,593 - app - WARNING - データベース接続エラー、モックデータを返します
+2025-06-25 01:13:50,594 - main - INFO - GET /api/v1/metadata/schemas
+2025-06-25 01:13:50,619 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:13:50,620 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:13:50,620 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:13:50,621 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:50,621 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:50,623 - app - WARNING - データベース接続エラー、モックデータを返します
+2025-06-25 01:13:50,624 - main - INFO - GET /api/v1/metadata/schemas/SCHEMA1/tables
+2025-06-25 01:13:50,651 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:13:50,651 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:13:50,658 - main - INFO - GET /api/v1/metadata/schemas/SCHEMA1/tables/TABLE1
+2025-06-25 01:13:50,690 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:13:50,690 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:13:50,691 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 1.2ms)
+2025-06-25 01:13:50,692 - main - INFO - POST /api/v1/export
+2025-06-25 01:13:50,692 - app - INFO - CSVエクスポート開始
+2025-06-25 01:13:50,692 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:13:50,692 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:13:50,692 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:50,692 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:50,692 - app - ERROR - CSVエクスポートエラー
+2025-06-25 01:13:50,692 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:13:50,692 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:13:51,216 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:13:51,216 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:13:51,216 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 0.0ms)
+2025-06-25 01:13:51,216 - main - INFO - POST /api/v1/export
+2025-06-25 01:13:51,216 - app - INFO - CSVエクスポート開始
+2025-06-25 01:13:51,216 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:13:51,216 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:13:51,216 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:51,216 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:51,231 - app - ERROR - CSVエクスポートエラー
+2025-06-25 01:13:51,233 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:13:51,233 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:13:51,704 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:13:51,704 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:13:51,704 - main - INFO - GET /api/v1/connection/status
+2025-06-25 01:13:51,738 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-25 01:13:51,738 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-25 01:13:51,740 - main - INFO - GET /api/v1/performance/metrics
+2025-06-25 01:13:51,759 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:13:51,759 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:13:51,759 - app - INFO - 全メタデータ取得開始
+2025-06-25 01:13:51,777 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-25 01:13:51,778 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 18.1ms)
+2025-06-25 01:13:51,779 - main - INFO - GET /api/v1/metadata/all
+2025-06-25 01:13:51,811 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:13:51,811 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:13:51,813 - app - INFO - 全メタデータ取得開始
+2025-06-25 01:13:51,821 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-25 01:13:51,821 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 10.2ms)
+2025-06-25 01:13:51,822 - main - INFO - GET /api/v1/metadata/all
+2025-06-25 01:13:51,849 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:13:51,849 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:13:51,850 - main - INFO - GET /api/v1/invalid/endpoint
+2025-06-25 01:13:51,859 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-25 01:13:51,859 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-25 01:13:51,859 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:13:53,459 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:13:53,459 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:13:53,468 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:53,468 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:13:53,482 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:13:53,482 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:13:53,629 - app - INFO - SQL実行開始
+2025-06-25 01:13:53,630 - app - INFO - SQLバリデーション開始
+2025-06-25 01:13:53,633 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:13:53,649 - app - INFO - SQL実行開始
+2025-06-25 01:13:53,650 - app - INFO - SQLバリデーション開始
+2025-06-25 01:13:53,657 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:16:22,212 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:16:22,212 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-25 01:16:22,212 - app - INFO - SQL実行開始
+2025-06-25 01:16:22,212 - app - INFO - SQLバリデーション開始
+2025-06-25 01:16:22,238 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:16:22,239 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:16:22,239 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:16:22,240 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 28.7ms)
+2025-06-25 01:16:22,241 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-06-25 01:16:22,241 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-06-25 01:16:22,267 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:16:22,303 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:16:22,303 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:16:22,305 - app - INFO - SQL実行開始
+2025-06-25 01:16:22,305 - app - INFO - SQLバリデーション開始
+2025-06-25 01:16:22,306 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:16:22,306 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:16:22,306 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:16:22,306 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.0ms)
+2025-06-25 01:16:22,306 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-06-25 01:16:22,306 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-06-25 01:16:22,306 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:16:22,751 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:16:22,752 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:16:22,752 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:16:22,754 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:22,754 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:22,755 - app - WARNING - データベース接続エラー、モックデータを返します
+2025-06-25 01:16:22,756 - main - INFO - GET /api/v1/metadata/schemas
+2025-06-25 01:16:22,779 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:16:22,779 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:16:22,779 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:16:22,779 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:22,779 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:22,779 - app - WARNING - データベース接続エラー、モックデータを返します
+2025-06-25 01:16:22,779 - main - INFO - GET /api/v1/metadata/schemas/SCHEMA1/tables
+2025-06-25 01:16:22,821 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:16:22,821 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:16:22,822 - main - INFO - GET /api/v1/metadata/schemas/SCHEMA1/tables/TABLE1
+2025-06-25 01:16:22,846 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:16:22,846 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:16:22,846 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 0.0ms)
+2025-06-25 01:16:22,846 - main - INFO - POST /api/v1/export
+2025-06-25 01:16:22,846 - app - INFO - CSVエクスポート開始
+2025-06-25 01:16:22,846 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:16:22,846 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:16:22,861 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:22,861 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:22,866 - app - ERROR - CSVエクスポートエラー
+2025-06-25 01:16:22,867 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:16:22,867 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:16:23,612 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:16:23,612 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:16:23,612 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 0.0ms)
+2025-06-25 01:16:23,612 - main - INFO - POST /api/v1/export
+2025-06-25 01:16:23,618 - app - INFO - CSVエクスポート開始
+2025-06-25 01:16:23,619 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:16:23,619 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:16:23,621 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:23,621 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:23,622 - app - ERROR - CSVエクスポートエラー
+2025-06-25 01:16:23,622 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:16:23,622 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:16:24,365 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:16:24,365 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:16:24,367 - main - INFO - GET /api/v1/connection/status
+2025-06-25 01:16:24,385 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-25 01:16:24,385 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-25 01:16:24,385 - main - INFO - GET /api/v1/performance/metrics
+2025-06-25 01:16:24,421 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:16:24,421 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:16:24,421 - app - INFO - 全メタデータ取得開始
+2025-06-25 01:16:24,421 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-25 01:16:24,428 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 7.3ms)
+2025-06-25 01:16:24,431 - main - INFO - GET /api/v1/metadata/all
+2025-06-25 01:16:24,457 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:16:24,457 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:16:24,463 - app - INFO - 全メタデータ取得開始
+2025-06-25 01:16:24,470 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-25 01:16:24,470 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 12.6ms)
+2025-06-25 01:16:24,472 - main - INFO - GET /api/v1/metadata/all
+2025-06-25 01:16:24,495 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:16:24,495 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:16:24,495 - main - INFO - GET /api/v1/invalid/endpoint
+2025-06-25 01:16:24,518 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-25 01:16:24,518 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-25 01:16:24,520 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:16:26,339 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:16:26,339 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:16:26,351 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:26,351 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:16:26,365 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:16:26,365 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:16:26,513 - app - INFO - SQL実行開始
+2025-06-25 01:16:26,513 - app - INFO - SQLバリデーション開始
+2025-06-25 01:16:26,529 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:16:26,529 - app - INFO - SQL実行開始
+2025-06-25 01:16:26,547 - app - INFO - SQLバリデーション開始
+2025-06-25 01:16:26,551 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:22:10,638 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:22:10,639 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:22:10,646 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:22:10,647 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:22:10,656 - app - INFO - テーブル詳細情報取得開始
+2025-06-25 01:22:10,657 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:22:10,658 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:22:10,659 - app - INFO - カラム情報取得開始
+2025-06-25 01:22:10,660 - app - INFO - カラム情報取得完了
+2025-06-25 01:22:10,660 - app - INFO - テーブル詳細情報取得完了
+2025-06-25 01:22:10,666 - app - INFO - ウェアハウス情報取得開始
+2025-06-25 01:22:10,669 - app - INFO - ウェアハウス情報取得完了
+2025-06-25 01:22:11,153 - app - INFO - データベース情報取得開始
+2025-06-25 01:22:11,153 - app - INFO - データベース情報取得完了
+2025-06-25 01:22:11,200 - app - INFO - CSVエクスポート開始
+2025-06-25 01:22:11,210 - app - INFO - データをCSV形式に変換開始
+2025-06-25 01:22:11,211 - app - INFO - CSV形式への変換完了
+2025-06-25 01:22:11,228 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:22:11,228 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:22:11,259 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:22:11,259 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:22:11,272 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:22:11,272 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:22:11,308 - app - INFO - SQL実行開始
+2025-06-25 01:22:11,309 - app - INFO - SQLバリデーション開始
+2025-06-25 01:22:11,309 - app - INFO - SQLバリデーション成功
+2025-06-25 01:22:11,310 - app - INFO - SQL実行完了
+2025-06-25 01:22:11,318 - app - INFO - SQL実行開始
+2025-06-25 01:22:11,318 - app - INFO - SQLバリデーション開始
+2025-06-25 01:22:11,318 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:23:36,628 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:23:36,628 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:23:36,637 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:23:36,638 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:23:36,647 - app - INFO - テーブル詳細情報取得開始
+2025-06-25 01:23:36,648 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:23:36,649 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:23:36,649 - app - INFO - カラム情報取得開始
+2025-06-25 01:23:36,650 - app - INFO - カラム情報取得完了
+2025-06-25 01:23:36,650 - app - INFO - テーブル詳細情報取得完了
+2025-06-25 01:23:36,657 - app - INFO - ウェアハウス情報取得開始
+2025-06-25 01:23:36,657 - app - INFO - ウェアハウス情報取得完了
+2025-06-25 01:23:36,667 - app - INFO - データベース情報取得開始
+2025-06-25 01:23:36,667 - app - INFO - データベース情報取得完了
+2025-06-25 01:23:36,682 - app - INFO - CSVエクスポート開始
+2025-06-25 01:23:36,686 - app - INFO - データをCSV形式に変換開始
+2025-06-25 01:23:36,687 - app - INFO - CSV形式への変換完了
+2025-06-25 01:23:36,703 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:23:36,703 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:23:37,271 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:23:37,271 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:23:37,295 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:23:37,295 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:23:37,337 - app - INFO - SQL実行開始
+2025-06-25 01:23:37,337 - app - INFO - SQLバリデーション開始
+2025-06-25 01:23:37,338 - app - INFO - SQLバリデーション成功
+2025-06-25 01:23:37,341 - app - INFO - SQL実行完了
+2025-06-25 01:23:37,350 - app - INFO - SQL実行開始
+2025-06-25 01:23:37,350 - app - INFO - SQLバリデーション開始
+2025-06-25 01:23:37,351 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:25:30,445 - app.api.routes - INFO - ヘルスチェック要求
+2025-06-25 01:25:30,448 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-25 01:25:30,451 - app.api.error_handlers - ERROR - 予期しない例外: 1 validation error for HealthCheckResponse
+connection_status
+  Input should be a valid dictionary [type=dict_type, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.5/v/dict_type
+2025-06-25 01:25:30,451 - app.api.error_handlers - ERROR - 予期しない例外: 1 validation error for HealthCheckResponse
+connection_status
+  Input should be a valid dictionary [type=dict_type, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.5/v/dict_type
+2025-06-25 01:25:31,647 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:25:31,647 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:25:31,647 - app.api.routes - INFO - SQL実行成功
+2025-06-25 01:25:31,647 - app.api.routes - INFO - SQL実行成功
+2025-06-25 01:25:31,647 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 0.0ms)
+2025-06-25 01:25:31,647 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:25:31,669 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:25:31,669 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:25:31,669 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:25:31,669 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:25:31,669 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 0.0ms)
+2025-06-25 01:25:31,669 - app.api.error_handlers - ERROR - アプリケーション例外: Table not found
+2025-06-25 01:25:31,669 - app.api.error_handlers - ERROR - アプリケーション例外: Table not found
+2025-06-25 01:25:31,669 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:25:31,695 - app.api.routes - INFO - SQL検証要求
+2025-06-25 01:25:31,695 - app.api.routes - INFO - SQL検証要求
+2025-06-25 01:25:31,716 - sql_validator - INFO - SQLバリデーション: SELECT id, name FROM test_table WHERE id = 1
+2025-06-25 01:25:31,716 - app.api.error_handlers - ERROR - 予期しない例外: 'ValidationResult' object has no attribute 'suggestions'
+2025-06-25 01:25:31,716 - app.api.error_handlers - ERROR - 予期しない例外: 'ValidationResult' object has no attribute 'suggestions'
+2025-06-25 01:25:32,224 - app.api.routes - INFO - SQL検証要求
+2025-06-25 01:25:32,224 - app.api.routes - INFO - SQL検証要求
+2025-06-25 01:25:32,239 - app.api.error_handlers - ERROR - 予期しない例外: 'ValidationResult' object has no attribute 'suggestions'
+2025-06-25 01:25:32,239 - app.api.error_handlers - ERROR - 予期しない例外: 'ValidationResult' object has no attribute 'suggestions'
+2025-06-25 01:25:32,940 - app.api.routes - INFO - SQLフォーマット要求
+2025-06-25 01:25:32,940 - app.api.routes - INFO - SQLフォーマット要求
+2025-06-25 01:25:32,949 - app.api.error_handlers - ERROR - 予期しない例外: 'str' object has no attribute 'formatted_sql'
+2025-06-25 01:25:32,949 - app.api.error_handlers - ERROR - 予期しない例外: 'str' object has no attribute 'formatted_sql'
+2025-06-25 01:25:33,564 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:25:41,126 - app.services.connection_manager - INFO - 新しい接続を作成: conn_0_1750782341
+2025-06-25 01:25:41,126 - app.services.connection_manager - INFO - 新しい接続を作成: conn_0_1750782341
+2025-06-25 01:25:42,212 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:25:42,212 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:25:42,212 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:25:42,212 - main - INFO - GET /api/v1/metadata/schemas
+2025-06-25 01:25:42,251 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:25:43,222 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:25:43,222 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:25:43,238 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:25:43,238 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables
+2025-06-25 01:25:43,269 - app - INFO - カラム情報取得開始
+2025-06-25 01:25:44,718 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:25:44,718 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:25:44,718 - app - INFO - カラム情報取得完了
+2025-06-25 01:25:44,718 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables/TEST_TABLE/columns
+2025-06-25 01:25:44,740 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:25:44,740 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:25:44,742 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 2.8ms)
+2025-06-25 01:25:44,743 - main - INFO - POST /api/v1/export
+2025-06-25 01:25:44,765 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:25:44,765 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:25:44,765 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 0.0ms)
+2025-06-25 01:25:44,765 - main - INFO - POST /api/v1/export
+2025-06-25 01:25:44,783 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:25:44,783 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:25:45,622 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:25:45,622 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:25:45,622 - main - INFO - GET /api/v1/connection/status
+2025-06-25 01:25:45,668 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-25 01:25:45,668 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-25 01:25:45,670 - main - INFO - GET /api/v1/performance/metrics
+2025-06-25 01:25:45,957 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:25:45,957 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:25:45,959 - app - INFO - 全メタデータ取得開始
+2025-06-25 01:25:45,970 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-25 01:25:45,970 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 12.8ms)
+2025-06-25 01:25:45,972 - main - INFO - GET /api/v1/metadata/all
+2025-06-25 01:25:45,992 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:25:45,992 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:25:45,993 - app - INFO - 全メタデータ取得開始
+2025-06-25 01:25:46,000 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-25 01:25:46,002 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 9.7ms)
+2025-06-25 01:25:46,003 - main - INFO - GET /api/v1/metadata/all
+2025-06-25 01:25:46,014 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:25:46,014 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:25:46,018 - main - INFO - GET /api/v1/invalid
+2025-06-25 01:25:46,029 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-25 01:25:46,029 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-25 01:25:46,032 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:27:02,670 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:27:02,671 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:27:02,678 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:27:02,679 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:27:02,691 - app - INFO - テーブル詳細情報取得開始
+2025-06-25 01:27:02,692 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:27:02,692 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:27:02,693 - app - INFO - カラム情報取得開始
+2025-06-25 01:27:02,694 - app - INFO - カラム情報取得完了
+2025-06-25 01:27:02,695 - app - INFO - テーブル詳細情報取得完了
+2025-06-25 01:27:02,705 - app - INFO - ウェアハウス情報取得開始
+2025-06-25 01:27:02,706 - app - INFO - ウェアハウス情報取得完了
+2025-06-25 01:27:02,713 - app - INFO - データベース情報取得開始
+2025-06-25 01:27:02,713 - app - INFO - データベース情報取得完了
+2025-06-25 01:27:02,734 - app - INFO - CSVエクスポート開始
+2025-06-25 01:27:02,740 - app - INFO - データをCSV形式に変換開始
+2025-06-25 01:27:02,740 - app - INFO - CSV形式への変換完了
+2025-06-25 01:27:02,760 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:27:02,760 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:27:02,771 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:27:02,771 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:27:02,786 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:27:02,786 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:27:02,801 - app - INFO - SQL実行開始
+2025-06-25 01:27:02,801 - app - INFO - SQLバリデーション開始
+2025-06-25 01:27:02,801 - app - INFO - SQLバリデーション成功
+2025-06-25 01:27:02,801 - app - INFO - SQL実行完了
+2025-06-25 01:27:02,810 - app - INFO - SQL実行開始
+2025-06-25 01:27:02,811 - app - INFO - SQLバリデーション開始
+2025-06-25 01:27:02,811 - app - WARNING - SQLバリデーション失敗
+2025-06-25 01:29:01,526 - main - INFO - アプリケーション起動
+2025-06-25 01:29:01,526 - main - INFO - 設定情報
+2025-06-25 01:29:15,598 - main - INFO - GET /
+2025-06-25 01:29:16,318 - main - INFO - GET /static/js/app.js
+2025-06-25 01:29:16,323 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:29:16,337 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-25 01:29:16,802 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:29:16,808 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-25 01:29:16,823 - app.api.routes - INFO - 初期メタデータ取得要求（スキーマ＆テーブルのみ）
+2025-06-25 01:29:16,823 - app.api.routes - INFO - 初期メタデータ取得要求（スキーマ＆テーブルのみ）
+2025-06-25 01:29:16,831 - main - INFO - GET /api/v1/connection/status
+2025-06-25 01:29:16,830 - app - INFO - スキーマとテーブルの情報のみをDBから取得開始
+2025-06-25 01:29:16,866 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:29:17,807 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:29:17,807 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:29:17,807 - main - INFO - GET /favicon.ico
+2025-06-25 01:29:20,051 - app.services.connection_manager - INFO - 新しい接続を作成: conn_0_1750782560
+2025-06-25 01:29:20,051 - app.services.connection_manager - INFO - 新しい接続を作成: conn_0_1750782560
+2025-06-25 01:29:20,834 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:20,834 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:20,915 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:29:20,916 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:29:21,228 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:29:21,228 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:29:21,232 - app - INFO - SQL実行開始
+2025-06-25 01:29:21,233 - app - INFO - SQLバリデーション開始
+2025-06-25 01:29:21,271 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-25 01:29:21,272 - app - INFO - SQLバリデーション成功
+2025-06-25 01:29:21,738 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:21,738 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:21,738 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:29:21,738 - app - INFO - スキーマとテーブルの情報取得完了
+2025-06-25 01:29:21,738 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 4.9s)
+2025-06-25 01:29:21,738 - main - INFO - GET /api/v1/metadata/initial
+2025-06-25 01:29:21,752 - app - INFO - バックグラウンドで全メタデータのキャッシュ更新を開始
+2025-06-25 01:29:21,757 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:29:22,278 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:22,278 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:22,278 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:29:22,278 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:29:23,045 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:23,045 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:23,045 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:29:23,045 - app - INFO - カラム情報取得開始
+2025-06-25 01:29:23,996 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:23,996 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:23,996 - app - INFO - カラム情報取得完了
+2025-06-25 01:29:23,996 - app - INFO - カラム情報取得開始
+2025-06-25 01:29:24,918 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:24,918 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:24,922 - app - INFO - カラム情報取得完了
+2025-06-25 01:29:24,956 - app.metadata_cache - INFO - 全メタデータを正規化してSQLiteに保存しました。
+2025-06-25 01:29:24,956 - app.metadata_cache - INFO - 全メタデータを正規化してSQLiteに保存しました。
+2025-06-25 01:29:24,959 - app - INFO - バックグラウンドでのキャッシュ更新が完了
+2025-06-25 01:29:24,965 - app - INFO - カラム情報取得開始
+2025-06-25 01:29:25,197 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:25,197 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:25,197 - app - INFO - SQL実行完了
+2025-06-25 01:29:25,234 - app.api.routes - INFO - SQL実行成功
+2025-06-25 01:29:25,234 - app.api.routes - INFO - SQL実行成功
+2025-06-25 01:29:25,238 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 4.0s)
+2025-06-25 01:29:25,272 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:29:25,918 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:25,918 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:25,919 - app - INFO - カラム情報取得完了
+2025-06-25 01:29:25,921 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables/TRA_3/columns
+2025-06-25 01:29:26,883 - app - INFO - カラム情報取得開始
+2025-06-25 01:29:27,747 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:27,747 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:27,749 - app - INFO - カラム情報取得完了
+2025-06-25 01:29:27,750 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables/MASTER_STA/columns
+2025-06-25 01:29:29,868 - app.api.routes - INFO - 初期メタデータ取得要求（スキーマ＆テーブルのみ）
+2025-06-25 01:29:29,868 - app.api.routes - INFO - 初期メタデータ取得要求（スキーマ＆テーブルのみ）
+2025-06-25 01:29:29,871 - app - INFO - スキーマとテーブルの情報のみをDBから取得開始
+2025-06-25 01:29:29,872 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:29:30,237 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:30,237 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:30,238 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:29:30,239 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:29:31,027 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:31,027 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:31,027 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:29:31,027 - app - INFO - スキーマとテーブルの情報取得完了
+2025-06-25 01:29:31,027 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 1.2s)
+2025-06-25 01:29:31,037 - main - INFO - GET /api/v1/metadata/initial
+2025-06-25 01:29:31,040 - app - INFO - バックグラウンドで全メタデータのキャッシュ更新を開始
+2025-06-25 01:29:31,041 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:29:31,359 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:31,359 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:31,360 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:29:31,361 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:29:32,414 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:32,414 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:32,414 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:29:32,414 - app - INFO - カラム情報取得開始
+2025-06-25 01:29:33,440 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:33,440 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:33,442 - app - INFO - カラム情報取得完了
+2025-06-25 01:29:33,443 - app - INFO - カラム情報取得開始
+2025-06-25 01:29:34,317 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:34,317 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:34,332 - app - INFO - カラム情報取得完了
+2025-06-25 01:29:34,360 - app.metadata_cache - INFO - 全メタデータを正規化してSQLiteに保存しました。
+2025-06-25 01:29:34,360 - app.metadata_cache - INFO - 全メタデータを正規化してSQLiteに保存しました。
+2025-06-25 01:29:34,363 - app - INFO - バックグラウンドでのキャッシュ更新が完了
+2025-06-25 01:29:35,209 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:29:35,209 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:29:35,211 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 2.0ms)
+2025-06-25 01:29:35,213 - main - INFO - POST /api/v1/export
+2025-06-25 01:29:35,216 - app - INFO - CSVエクスポート開始
+2025-06-25 01:29:35,828 - app - INFO - カラム情報取得開始
+2025-06-25 01:29:36,794 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:36,794 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:36,798 - app - INFO - カラム情報取得完了
+2025-06-25 01:29:36,799 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables/TRA_3/columns
+2025-06-25 01:29:38,825 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:38,825 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:29:53,391 - main - INFO - アプリケーション終了
+2025-06-25 01:30:30,889 - app.api.routes - INFO - ヘルスチェック要求
+2025-06-25 01:30:30,892 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-25 01:30:30,896 - main - INFO - GET /api/v1/health
+2025-06-25 01:30:30,911 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:30:30,911 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:30:30,913 - app.api.routes - INFO - SQL実行成功
+2025-06-25 01:30:30,913 - app.api.routes - INFO - SQL実行成功
+2025-06-25 01:30:30,915 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 5.0ms)
+2025-06-25 01:30:30,916 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:30:30,937 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:30:30,937 - app.api.routes - INFO - SQL実行要求
+2025-06-25 01:30:30,937 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:30:30,937 - app.api.routes - ERROR - SQL実行失敗
+2025-06-25 01:30:30,937 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 0.0ms)
+2025-06-25 01:30:30,937 - app.api.error_handlers - ERROR - アプリケーション例外: Table not found
+2025-06-25 01:30:30,937 - app.api.error_handlers - ERROR - アプリケーション例外: Table not found
+2025-06-25 01:30:30,942 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:30:31,453 - app.api.routes - INFO - SQL検証要求
+2025-06-25 01:30:31,453 - app.api.routes - INFO - SQL検証要求
+2025-06-25 01:30:31,480 - sql_validator - INFO - SQLバリデーション: SELECT id, name FROM test_table WHERE id = 1
+2025-06-25 01:30:31,481 - app.api.error_handlers - ERROR - 予期しない例外: 'ValidationResult' object has no attribute 'suggestions'
+2025-06-25 01:30:31,481 - app.api.error_handlers - ERROR - 予期しない例外: 'ValidationResult' object has no attribute 'suggestions'
+2025-06-25 01:30:31,905 - app.api.routes - INFO - SQL検証要求
+2025-06-25 01:30:31,905 - app.api.routes - INFO - SQL検証要求
+2025-06-25 01:30:31,905 - app.api.error_handlers - ERROR - 予期しない例外: 'ValidationResult' object has no attribute 'suggestions'
+2025-06-25 01:30:31,905 - app.api.error_handlers - ERROR - 予期しない例外: 'ValidationResult' object has no attribute 'suggestions'
+2025-06-25 01:30:32,281 - app.api.routes - INFO - SQLフォーマット要求
+2025-06-25 01:30:32,281 - app.api.routes - INFO - SQLフォーマット要求
+2025-06-25 01:30:32,281 - app.api.error_handlers - ERROR - 予期しない例外: 'str' object has no attribute 'formatted_sql'
+2025-06-25 01:30:32,281 - app.api.error_handlers - ERROR - 予期しない例外: 'str' object has no attribute 'formatted_sql'
+2025-06-25 01:30:32,711 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:30:32,711 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:30:32,711 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:30:32,711 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:30:32,711 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:30:32,711 - app - WARNING - データベース接続エラー、モックデータを返します
+2025-06-25 01:30:32,711 - main - INFO - GET /api/v1/metadata/schemas
+2025-06-25 01:30:32,733 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:30:32,737 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:30:32,737 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:30:32,738 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:30:32,738 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:30:32,739 - app - WARNING - データベース接続エラー、モックデータを返します
+2025-06-25 01:30:32,740 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables
+2025-06-25 01:30:32,751 - app - INFO - カラム情報取得開始
+2025-06-25 01:30:32,752 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:30:32,752 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: [Errno 2] No such file or directory: '/path/to/key.p8'
+2025-06-25 01:30:32,753 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:30:32,753 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:30:32,754 - app - WARNING - データベース接続エラー、モックデータを返します
+2025-06-25 01:30:32,755 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables/TEST_TABLE/columns
+2025-06-25 01:30:32,768 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:30:32,768 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:30:32,770 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 1.0ms)
+2025-06-25 01:30:32,771 - main - INFO - POST /api/v1/export
+2025-06-25 01:30:32,788 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:30:32,788 - app.api.routes - INFO - データエクスポート要求
+2025-06-25 01:30:32,788 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 0.0ms)
+2025-06-25 01:30:32,788 - main - INFO - POST /api/v1/export
+2025-06-25 01:30:32,793 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:30:32,793 - app.api.error_handlers - ERROR - 予期しない例外: Caught handled exception, but response already started.
+2025-06-25 01:30:33,348 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:30:33,348 - app.api.routes - INFO - 接続状態確認要求
+2025-06-25 01:30:33,348 - main - INFO - GET /api/v1/connection/status
+2025-06-25 01:30:33,372 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-25 01:30:33,372 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-25 01:30:33,373 - main - INFO - GET /api/v1/performance/metrics
+2025-06-25 01:30:33,384 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:30:33,384 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:30:33,386 - app - INFO - 全メタデータ取得開始
+2025-06-25 01:30:33,389 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-25 01:30:33,390 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 6.0ms)
+2025-06-25 01:30:33,391 - main - INFO - GET /api/v1/metadata/all
+2025-06-25 01:30:33,401 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:30:33,401 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-25 01:30:33,403 - app - INFO - 全メタデータ取得開始
+2025-06-25 01:30:33,407 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-25 01:30:33,407 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 6.0ms)
+2025-06-25 01:30:33,409 - main - INFO - GET /api/v1/metadata/all
+2025-06-25 01:30:33,414 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:30:33,414 - app.api.error_handlers - ERROR - Starlette HTTP例外: Not Found
+2025-06-25 01:30:33,414 - main - INFO - GET /api/v1/invalid
+2025-06-25 01:30:33,429 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-25 01:30:33,429 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-25 01:30:33,429 - main - INFO - POST /api/v1/sql/execute
+2025-06-25 01:30:33,458 - app - INFO - スキーマ一覧取得開始
+2025-06-25 01:30:33,459 - app - INFO - スキーマ一覧取得完了
+2025-06-25 01:30:33,467 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:30:33,468 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:30:33,476 - app - INFO - テーブル詳細情報取得開始
+2025-06-25 01:30:33,477 - app - INFO - テーブル一覧取得開始
+2025-06-25 01:30:33,478 - app - INFO - テーブル一覧取得完了
+2025-06-25 01:30:33,478 - app - INFO - カラム情報取得開始
+2025-06-25 01:30:33,479 - app - INFO - カラム情報取得完了
+2025-06-25 01:30:33,480 - app - INFO - テーブル詳細情報取得完了
+2025-06-25 01:30:33,490 - app - INFO - ウェアハウス情報取得開始
+2025-06-25 01:30:33,491 - app - INFO - ウェアハウス情報取得完了
+2025-06-25 01:30:33,494 - app - INFO - データベース情報取得開始
+2025-06-25 01:30:33,494 - app - INFO - データベース情報取得完了
+2025-06-25 01:30:33,523 - app - INFO - CSVエクスポート開始
+2025-06-25 01:30:33,528 - app - INFO - データをCSV形式に変換開始
+2025-06-25 01:30:33,529 - app - INFO - CSV形式への変換完了
+2025-06-25 01:30:33,546 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:30:33,546 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:30:33,553 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:30:33,553 - app.services.query_executor - ERROR - クエリ実行失敗
+2025-06-25 01:30:33,564 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:30:33,564 - app.services.query_executor - INFO - クエリ実行完了
+2025-06-25 01:30:33,577 - app - INFO - SQL実行開始
+2025-06-25 01:30:33,578 - app - INFO - SQLバリデーション開始
+2025-06-25 01:30:33,579 - app - INFO - SQLバリデーション成功
+2025-06-25 01:30:33,580 - app - INFO - SQL実行完了
+2025-06-25 01:30:33,585 - app - INFO - SQL実行開始
+2025-06-25 01:30:33,585 - app - INFO - SQLバリデーション開始
+2025-06-25 01:30:33,586 - app - WARNING - SQLバリデーション失敗

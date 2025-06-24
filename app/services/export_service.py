@@ -67,3 +67,27 @@ class ExportService:
         except Exception as e:
             self.logger.error("CSVエクスポートエラー", exception=e)
             raise ExportError(f"CSVエクスポート中にエラーが発生しました: {e}")
+
+    def export_data_to_csv(self, data: List[Dict[str, Any]], columns: List[str]) -> str:
+        """データをCSV形式に変換"""
+        self.logger.info("データをCSV形式に変換開始", data_count=len(data), columns=columns)
+        try:
+            output = io.StringIO()
+            writer = csv.writer(output)
+            
+            # ヘッダー行を書き込み
+            writer.writerow(columns)
+            
+            # データ行を書き込み
+            for row in data:
+                writer.writerow([row.get(col, '') for col in columns])
+            
+            csv_content = output.getvalue()
+            output.close()
+            
+            self.logger.info("CSV形式への変換完了", csv_length=len(csv_content))
+            return csv_content
+            
+        except Exception as e:
+            self.logger.error("CSV形式への変換エラー", exception=e)
+            raise ExportError(f"CSV形式への変換中にエラーが発生しました: {e}")
