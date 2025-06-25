@@ -105,8 +105,10 @@ class TestAPIIntegration:
             )
             assert response.status_code == 400
             data = response.json()
-            assert 'detail' in data
-            assert 'Table not found' in data['detail']
+            # エラーレスポンスの構造を確認
+            assert 'error' in data
+            assert 'message' in data
+            assert 'Table not found' in data['message']
     
     def test_sql_validation_success(self, client):
         """SQL検証成功のテスト"""
@@ -135,7 +137,7 @@ class TestAPIIntegration:
         with patch('app.sql_validator.validate_sql') as mock_validate:
             mock_result = MagicMock()
             mock_result.is_valid = False
-            mock_result.errors = ["Invalid SQL syntax"]
+            mock_result.errors = ["WHERE句が必須です（システムテーブルを除く）"]
             mock_result.warnings = []
             mock_validate.return_value = mock_result
             
@@ -150,7 +152,7 @@ class TestAPIIntegration:
             assert response.status_code == 200
             data = response.json()
             assert data['is_valid'] is False
-            assert "Invalid SQL syntax" in data['errors']
+            assert "WHERE句が必須です（システムテーブルを除く）" in data['errors']
     
     def test_sql_format_success(self, client):
         """SQLフォーマット成功のテスト"""
@@ -246,9 +248,9 @@ class TestAPIIntegration:
         assert response.status_code == 200
         data = response.json()
         assert 'connected' in data
-        assert 'details' in data
-        assert 'active_connections' in data['details']
-        assert 'total_connections' in data['details']
+        assert 'detail' in data
+        assert 'active_connections' in data['detail']
+        assert 'total_connections' in data['detail']
     
     def test_get_performance_metrics(self, client):
         """パフォーマンスメトリクス取得のテスト"""

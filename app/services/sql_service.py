@@ -53,18 +53,25 @@ class SQLService:
             self.logger.error("SQLバリデーションエラー", exception=e, sql=sql)
             raise SQLValidationError(f"SQLバリデーションエラー: {str(e)}")
     
-    def format_sql(self, sql: str) -> str:
+    def format_sql(self, sql: str):
         """SQLを整形"""
         try:
             self.logger.info("SQL整形開始", sql=sql)
             formatted = self.validator.format_sql(sql)
             self.logger.info("SQL整形完了", 
                            original_sql=sql, formatted_sql=formatted)
-            return formatted
-            
+            return type('FormatResult', (), {
+                'formatted_sql': formatted,
+                'success': True,
+                'error_message': None
+            })()
         except Exception as e:
             self.logger.error("SQL整形エラー", exception=e, sql=sql)
-            raise SQLValidationError(f"SQL整形エラー: {str(e)}")
+            return type('FormatResult', (), {
+                'formatted_sql': '',
+                'success': False,
+                'error_message': f"SQL整形エラー: {str(e)}"
+            })()
     
     def execute_sql(self, sql: str, limit: Optional[int] = None) -> SQLExecutionResult:
         """SQLを実行"""

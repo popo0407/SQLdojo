@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 async def app_exception_handler(request: Request, exc: BaseAppException) -> JSONResponse:
     """アプリケーション例外ハンドラー"""
     logger.error(f"アプリケーション例外: {exc.message}", 
-                details=exc.details, 
+                details=exc.detail, 
                 path=request.url.path,
                 method=request.method)
     
@@ -42,7 +42,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
             "error": True,
             "message": exc.detail,
             "status_code": exc.status_code,
-            "details": {}
+            "detail": {}
         }
     )
 
@@ -59,7 +59,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "error": True,
             "message": "バリデーションエラー",
             "status_code": 422,
-            "details": {
+            "detail": {
                 "validation_errors": exc.errors()
             }
         }
@@ -79,7 +79,7 @@ async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPE
             "error": True,
             "message": exc.detail,
             "status_code": exc.status_code,
-            "details": {}
+            "detail": {}
         }
     )
 
@@ -97,7 +97,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
             "error": True,
             "message": "内部サーバーエラー",
             "status_code": 500,
-            "details": {}
+            "detail": {}
         }
     )
 

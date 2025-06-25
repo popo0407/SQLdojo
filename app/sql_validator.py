@@ -21,11 +21,14 @@ class ValidationResult:
     is_valid: bool
     errors: List[str]
     warnings: List[str]
+    suggestions: List[str] = None
     formatted_sql: Optional[str] = None
     tables: List[str] = None
     columns: List[str] = None
     
     def __post_init__(self):
+        if self.suggestions is None:
+            self.suggestions = []
         if self.tables is None:
             self.tables = []
         if self.columns is None:
@@ -72,34 +75,47 @@ class SQLValidator:
         """
         errors: List[str] = []
         warnings: List[str] = []
+        suggestions: List[str] = []
         
         try:
             # 基本的な構文チェック
             if not self._check_basic_syntax(sql, errors):
-                return ValidationResult(False, errors, warnings)
+                return ValidationResult(False, errors, warnings, suggestions)
             
             # SELECT文のみ許可
             if not self._check_select_only(sql, errors):
-                return ValidationResult(False, errors, warnings)
+                return ValidationResult(False, errors, warnings, suggestions)
             
             # 禁止キーワードチェック
             if not self._check_forbidden_keywords(sql, errors):
-                return ValidationResult(False, errors, warnings)
+                return ValidationResult(False, errors, warnings, suggestions)
             
             # セキュリティチェック
             if not self._check_security(sql, errors):
-                return ValidationResult(False, errors, warnings)
+                return ValidationResult(False, errors, warnings, suggestions)
             
             # WHERE句必須チェック
+            sql_upper = sql.upper()
+            if 'SELECT' in sql_upper and 'WHERE' not in sql_upper:
+                system_tables = ['INFORMATION_SCHEMA', 'SNOWFLAKE_SAMPLE_DATA', 'SYS']
+                if not any(table in sql_upper for table in system_tables):
+                    suggestions.append("WHERE句を追加するとパフォーマンスが向上します")
             if not self._check_where_clause_required(sql, errors):
-                return ValidationResult(False, errors, warnings)
+                return ValidationResult(False, errors, warnings, suggestions)
             
             # 構文の詳細チェック
             if not self._check_detailed_syntax(sql, errors):
-                return ValidationResult(False, errors, warnings)
+                return ValidationResult(False, errors, warnings, suggestions)
             
             # パフォーマンス警告
             self._check_performance_warnings(sql, warnings)
+            if 'SELECT *' in sql_upper:
+                suggestions.append("SELECT * の代わりに必要なカラムのみを指定してください")
+            if 'LIMIT' not in sql_upper and 'TOP' not in sql_upper:
+                suggestions.append("LIMIT句の追加を検討してください")
+            join_count = sql_upper.count('JOIN')
+            if join_count > 3:
+                suggestions.append(f"JOINが多いSQLです（{join_count}個）。パフォーマンスに注意してください")
             
             # 整形されたSQLを取得
             formatted_sql = self.format_sql(sql) if not errors else None
@@ -113,6 +129,7 @@ class SQLValidator:
                 is_valid=is_valid,
                 errors=errors,
                 warnings=warnings,
+                suggestions=suggestions,
                 formatted_sql=formatted_sql,
                 tables=tables,
                 columns=columns
@@ -129,7 +146,7 @@ class SQLValidator:
         except Exception as e:
             error_msg = f"SQLバリデーション中にエラーが発生しました: {str(e)}"
             self.logger.error(error_msg, exception=e)
-            return ValidationResult(False, [error_msg], warnings)
+            return ValidationResult(False, [error_msg], warnings, suggestions)
     
     def _check_basic_syntax(self, sql: str, errors: List[str]) -> bool:
         """基本的な構文チェック"""

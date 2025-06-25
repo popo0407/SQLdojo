@@ -159,17 +159,26 @@ async def format_sql_endpoint(request: SQLFormatRequest):
     sql_validator = get_sql_validator()
     result = await run_in_threadpool(sql_validator.format_sql, request.sql)
     
-    response = SQLFormatResponse(
-        formatted_sql=result.formatted_sql,
-        success=result.success,
-        error_message=result.error_message
-    )
+    # resultが文字列の場合（format_sqlメソッドの戻り値）
+    if isinstance(result, str):
+        response = SQLFormatResponse(
+            formatted_sql=result,
+            success=True,
+            error_message=None
+        )
+    else:
+        # resultがValidationResultの場合
+        response = SQLFormatResponse(
+            formatted_sql=result.formatted_sql,
+            success=result.success,
+            error_message=result.error_message
+        )
     
-    if result.success:
+    if response.success:
         logger.info("SQLフォーマット成功")
     else:
-        logger.error("SQLフォーマット失敗", error=result.error_message)
-        raise SQLValidationError(result.error_message)
+        logger.error("SQLフォーマット失敗", error=response.error_message)
+        raise SQLValidationError(response.error_message)
     
     return response
 
@@ -223,7 +232,7 @@ async def get_connection_status_endpoint():
     
     response = ConnectionStatusResponse(
         connected=connection_status.get('is_connected', False),
-        details=connection_status
+        detail=connection_status
     )
     
     return response
@@ -256,21 +265,36 @@ def export_data_endpoint(request: ExportRequest):
     
     export_service = get_export_service()
     
-    def stream_generator():
-        # BOM (Byte Order Mark) を最初に一度だけ送信
-        yield '\ufeff'.encode('utf-8')
+    # エラーハンドリングのため、まずストリームをテスト
+    try:
+        # 最初のチャンクを取得してエラーをチェック
+        stream = export_service.export_to_csv_stream(request.sql)
+        first_chunk = next(stream, None)
         
-        # CSVデータをストリーミング
-        for chunk in export_service.export_to_csv_stream(request.sql):
-            yield chunk
-    
-    filename = f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    
-    return StreamingResponse(
-        stream_generator(),
-        media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
-    )
+        def stream_generator():
+            # BOM (Byte Order Mark) を最初に一度だけ送信
+            yield '\ufeff'.encode('utf-8')
+            
+            # 最初のチャンクを返す
+            if first_chunk:
+                yield first_chunk
+            
+            # 残りのチャンクをストリーミング
+            for chunk in stream:
+                yield chunk
+        
+        filename = f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        
+        return StreamingResponse(
+            stream_generator(),
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+        
+    except Exception as e:
+        # エラーが発生した場合は例外を再発生
+        logger.error("エクスポートエラー", error=str(e))
+        raise ExportError(f"エクスポートに失敗しました: {str(e)}")
 
 
 @router.get("/metadata/schemas", response_model=List[Dict[str, Any]])

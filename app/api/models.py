@@ -190,4 +190,4 @@ class DatabaseInfo(BaseModel):
 class ConnectionStatusResponse(BaseModel):
     """接続状態レスポンス"""
     connected: bool = Field(..., description="接続状態")
-    details: Dict[str, Any] = Field(..., description="接続詳細情報") 
+    detail: Dict[str, Any] = Field(..., description="接続詳細情報") 

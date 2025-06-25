@@ -548,7 +548,7 @@ class TestConnectionStatusResponse:
         """ConnectionStatusResponse作成のテスト"""
         response = ConnectionStatusResponse(
             connected=True,
-            details={
+            detail={
                 "pool_size": 5,
                 "active_connections": 3,
                 "max_connections": 10
@@ -556,7 +556,7 @@ class TestConnectionStatusResponse:
         )
         
         assert response.connected is True
-        assert response.details == {
+        assert response.detail == {
             "pool_size": 5,
             "active_connections": 3,
             "max_connections": 10
