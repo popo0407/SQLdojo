@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
 """
 メタデータサービス
-スキーマ・テーブル・カラム情報の管理
+データベースのメタデータ（スキーマ、テーブル、カラム）を管理
 """
-from typing import Dict, Any, List, Optional
-from datetime import datetime
+from typing import List, Dict, Any, Optional
+from datetime import datetime, timedelta
 
-from app.logger import Logger
-from app.exceptions import MetadataError
-from app.container import get_app_logger
-from .query_executor import QueryExecutor
+from app.logger import get_logger
 from app.metadata_cache import MetadataCache
+from app.exceptions import MetadataError
+from .query_executor import QueryExecutor, QueryResult
 
 
 class MetadataService:
     """メタデータサービス"""
     
     def __init__(self, query_executor: QueryExecutor, metadata_cache: MetadataCache):
-        self.logger: Logger = get_app_logger()
         self.query_executor = query_executor
-        self.cache: MetadataCache = metadata_cache
+        self.cache = metadata_cache
+        self.logger = get_logger(__name__)
     
     def get_all_metadata(self) -> List[Dict[str, Any]]:
         """全メタデータを取得（キャッシュ優先）"""

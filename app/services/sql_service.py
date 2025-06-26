@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """
 SQLサービス
-SQL関連のビジネスロジックを管理
+SQLの実行、検証、整形を行う
 """
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass
 import time
 
-from app.sql_validator import SQLValidator, ValidationResult
-from app.logger import Logger
-from app.exceptions import SQLValidationError, SQLExecutionError
-from app.container import get_sql_validator, get_app_logger
-from .query_executor import QueryExecutor
+from app.logger import get_logger
+from app.sql_validator import get_validator, ValidationResult
+from app.exceptions import SQLExecutionError, SQLValidationError
+from .query_executor import QueryExecutor, QueryResult
 
 
 @dataclass
@@ -31,8 +30,8 @@ class SQLService:
     """SQLサービス"""
     
     def __init__(self, query_executor: QueryExecutor):
-        self.validator: SQLValidator = get_sql_validator()
-        self.logger: Logger = get_app_logger()
+        self.validator = get_validator()
+        self.logger = get_logger()
         self.query_executor = query_executor
     
     def validate_sql(self, sql: str) -> ValidationResult:

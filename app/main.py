@@ -17,6 +17,8 @@ from app.config_simplified import get_settings
 from app.logger import get_logger
 from app.api.models import ErrorResponse
 from app import __version__
+from app.services.connection_manager import ConnectionManager
+from app.dependencies import get_connection_manager_di
 
 
 # 設定とロガーを取得
@@ -27,7 +29,10 @@ logger = get_logger("main")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """アプリケーションのライフサイクル管理"""
-    # 起動時の処理
+    # ConnectionManagerをシングルトン生成しDIを上書き
+    connection_manager = ConnectionManager()
+    app.dependency_overrides[get_connection_manager_di] = lambda: connection_manager
+
     logger.info("アプリケーション起動", version=__version__)
     logger.info("設定情報", 
                host=settings.app_host, 
@@ -36,6 +41,7 @@ async def lifespan(app: FastAPI):
     
     yield
     # 終了時の処理
+    connection_manager.close_all_connections()
     logger.info("アプリケーション終了")
 
 

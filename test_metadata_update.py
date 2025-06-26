@@ -13,7 +13,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from app.config_simplified import get_settings
-from app.container import get_container
+from app.services.connection_manager import ConnectionManager
+from app.services.query_executor import QueryExecutor
+from app.services.metadata_service import MetadataService
+from app.metadata_cache import MetadataCache
 from app.logger import get_logger
 
 def test_metadata_update_direct():
@@ -26,11 +29,11 @@ def test_metadata_update_direct():
         # 設定を取得
         settings = get_settings()
         
-        # 依存性注入コンテナを取得（本番環境と同じ）
-        container = get_container()
-        
-        # メタデータサービスを取得
-        metadata_service = container.get_metadata_service()
+        # サービスを直接インスタンス化（本番環境と同じ）
+        connection_manager = ConnectionManager()
+        query_executor = QueryExecutor(connection_manager)
+        metadata_cache = MetadataCache()
+        metadata_service = MetadataService(query_executor, metadata_cache)
         
         # メタデータ更新を実行
         logger.info("メタデータキャッシュの強制更新を実行")

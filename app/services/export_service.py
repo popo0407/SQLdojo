@@ -6,9 +6,8 @@ import io
 from typing import Optional, Any, Dict, Generator, List
 from dataclasses import dataclass
 
-from app.logger import Logger
+from app.logger import get_logger
 from app.exceptions import ExportError
-from app.container import get_app_logger
 from .query_executor import QueryExecutor, QueryResult
 
 
@@ -21,7 +20,7 @@ class ExportResult: # このクラスはもう使いませんが、他の部分�
 
 class ExportService:
     def __init__(self, query_executor: QueryExecutor):
-        self.logger: Logger = get_app_logger()
+        self.logger = get_logger()
         self.query_executor = query_executor
 
     def stream_query_results(self, sql: str):

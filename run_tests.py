@@ -61,10 +61,12 @@ def main():
     
     # テストモジュールの定義
     test_modules = [
-        ("設定管理モジュール", "test_config.py"),
-        ("ログ・監視モジュール", "test_logger.py"),
-        ("SQLバリデーションモジュール", "test_sql_validator.py"),
-        ("API管理モジュール", "test_api.py"),
+        ("設定管理モジュール", "test_config_simplified.py"),
+        ("APIモデルモジュール", "test_api_models.py"),
+        ("接続管理モジュール", "test_connection_manager.py"),
+        ("サービスモジュール", "test_services.py"),
+        ("統合テストモジュール", "test_integration.py"),
+        ("メタデータ更新モジュール", "test_metadata_update.py"),
     ]
     
     start_time = time.time()

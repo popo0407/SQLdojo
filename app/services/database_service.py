@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 """
 データベースサービス
-Facadeパターンで他のサービスにシンプルなインターフェースを提供
+データベース接続の管理と監視
 """
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any, List, Optional
+from datetime import datetime, timedelta
+import time
 
-from app.services.connection_manager import ConnectionManager
-from app.services.query_executor import QueryExecutor, QueryResult
 from app.logger import get_logger
 from app.exceptions import DatabaseError
+from .connection_manager import ConnectionManager, ConnectionInfo
+from .query_executor import QueryExecutor, QueryResult
 
 
 class DatabaseService:
@@ -88,17 +90,4 @@ class DatabaseService:
             self.connection_manager.close_all_connections()
             self.logger.info("データベースサービスを閉じました")
         except Exception as e:
-            self.logger.error(f"データベースサービスクローズエラー: {e}")
-
-
-# 後方互換性のための関数
-def get_database_service() -> DatabaseService:
-    """データベースサービスを取得（後方互換性）"""
-    from app.container import get_database_service as get_db_service
-    return get_db_service()
-
-
-def close_database_service():
-    """データベースサービスを閉じる（後方互換性）"""
-    service = get_database_service()
-    service.close() 
+            self.logger.error(f"データベースサービスクローズエラー: {e}") 

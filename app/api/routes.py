@@ -20,17 +20,19 @@ import io
 
 from app.api.models import (
     SQLRequest, SQLResponse, SQLValidationRequest, SQLValidationResponse,
-    SQLFormatRequest, SQLFormatResponse, HealthCheckResponse, ErrorResponse,
+    SQLFormatRequest, SQLFormatResponse, SchemaInfo, TableInfo, ColumnInfo,
+    TableDetailInfo, SchemaListResponse, TableListResponse, DownloadRequest,
+    DownloadResponse, DownloadStatusResponse, HealthCheckResponse,
     PerformanceMetricsResponse, ExportRequest, ExportResponse, ExportHistoryResponse,
-    ConnectionStatusResponse
+    WarehouseInfo, DatabaseInfo, ConnectionStatusResponse
 )
 from app.sql_validator import validate_sql, format_sql
 from app.logger import get_logger, log_execution_time, get_performance_metrics
 from app.config_simplified import get_settings
 from app import __version__
-from app.container import (
-    get_sql_validator, get_sql_service, get_metadata_service,
-    get_performance_service, get_export_service, get_app_logger
+from app.dependencies import (
+    SQLServiceDep, MetadataServiceDep, PerformanceServiceDep, ExportServiceDep,
+    SQLValidatorDep, ConnectionManagerDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
 from app.services.database_service import DatabaseService
@@ -74,16 +76,17 @@ async def chrome_devtools():
 
 
 @router.get("/health", response_model=HealthCheckResponse)
-async def health_check():
+async def health_check(
+    sql_service: SQLServiceDep,
+    performance_service: PerformanceServiceDep
+):
     """ヘルスチェックエンドポイント"""
     logger.info("ヘルスチェック要求")
     
     # 接続状態を確認
-    sql_service = get_sql_service()
     connection_status = sql_service.get_connection_status()
     
     # パフォーマンスメトリクスを取得
-    performance_service = get_performance_service()
     metrics = performance_service.get_metrics()
     
     response = HealthCheckResponse(
@@ -99,14 +102,16 @@ async def health_check():
 
 @router.post("/sql/execute", response_model=SQLResponse)
 @log_execution_time("sql_execute")
-async def execute_sql_endpoint(request: SQLRequest):
+async def execute_sql_endpoint(
+    request: SQLRequest,
+    sql_service: SQLServiceDep
+):
     """SQL実行エンドポイント"""
     logger.info("SQL実行要求", sql=request.sql, limit=request.limit)
     
     if not request.sql:
         raise SQLExecutionError("SQLクエリが必要です。")
 
-    sql_service = get_sql_service()
     result = await run_in_threadpool(
         sql_service.execute_sql,
         request.sql,
@@ -130,14 +135,16 @@ async def execute_sql_endpoint(request: SQLRequest):
 
 
 @router.post("/sql/validate", response_model=SQLValidationResponse)
-async def validate_sql_endpoint(request: SQLValidationRequest):
+async def validate_sql_endpoint(
+    request: SQLValidationRequest,
+    sql_validator: SQLValidatorDep
+):
     """SQL検証エンドポイント"""
     logger.info("SQL検証要求", sql=request.sql)
     
     if not request.sql:
         raise SQLValidationError("SQLクエリが必要です。")
 
-    sql_validator = get_sql_validator()
     result = await run_in_threadpool(sql_validator.validate_sql, request.sql)
     
     response = SQLValidationResponse(
@@ -156,14 +163,16 @@ async def validate_sql_endpoint(request: SQLValidationRequest):
 
 
 @router.post("/sql/format", response_model=SQLFormatResponse)
-async def format_sql_endpoint(request: SQLFormatRequest):
+async def format_sql_endpoint(
+    request: SQLFormatRequest,
+    sql_validator: SQLValidatorDep
+):
     """SQLフォーマットエンドポイント"""
     logger.info("SQLフォーマット要求", sql=request.sql)
     
     if not request.sql:
         raise SQLValidationError("SQLクエリが必要です。")
 
-    sql_validator = get_sql_validator()
     result = await run_in_threadpool(sql_validator.format_sql, request.sql)
     
     # resultが文字列の場合（format_sqlメソッドの戻り値）
@@ -192,23 +201,21 @@ async def format_sql_endpoint(request: SQLFormatRequest):
 
 @router.get("/metadata/all", response_model=List[Dict[str, Any]])
 @log_execution_time("get_all_metadata")
-async def get_all_metadata_endpoint():
+async def get_all_metadata_endpoint(metadata_service: MetadataServiceDep):
     """全てのメタデータを取得（キャッシュ利用）"""
     logger.info("全メタデータ取得要求（キャッシュ利用）")
-    metadata_service = get_metadata_service()
     all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
     return all_metadata
 
 
 @router.get("/metadata/initial", response_model=List[Dict[str, Any]])
 @log_execution_time("get_initial_metadata")
-async def get_initial_metadata_endpoint():
+async def get_initial_metadata_endpoint(metadata_service: MetadataServiceDep):
     """
     キャッシュからスキーマ、テーブル、カラム情報を取得する。
     バックグラウンドでの更新は行わない。
     """
     logger.info("初期メタデータ取得要求（キャッシュのみ）")
-    metadata_service = get_metadata_service()
     
     # キャッシュからスキーマ、テーブル、カラムの情報を取得
     all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
@@ -218,10 +225,9 @@ async def get_initial_metadata_endpoint():
 
 @router.post("/metadata/refresh", response_model=List[Dict[str, Any]])
 @log_execution_time("refresh_all_metadata")
-async def refresh_all_metadata_endpoint():
+async def refresh_all_metadata_endpoint(metadata_service: MetadataServiceDep):
     """メタデータを強制更新（直接Snowflakeから取得）"""
     logger.info("メタデータ強制更新要求")
-    metadata_service = get_metadata_service()
     
     # 直接Snowflakeから取得してキャッシュを更新
     await run_in_threadpool(metadata_service.refresh_full_metadata_cache)
@@ -232,11 +238,10 @@ async def refresh_all_metadata_endpoint():
 
 
 @router.get("/connection/status", response_model=ConnectionStatusResponse)
-async def get_connection_status_endpoint():
+async def get_connection_status_endpoint(sql_service: SQLServiceDep):
     """接続状態を取得"""
     logger.info("接続状態確認要求")
     
-    sql_service = get_sql_service()
     connection_status = sql_service.get_connection_status()
     
     response = ConnectionStatusResponse(
@@ -248,11 +253,10 @@ async def get_connection_status_endpoint():
 
 
 @router.get("/performance/metrics", response_model=PerformanceMetricsResponse)
-async def get_performance_metrics_route():
+async def get_performance_metrics_route(performance_service: PerformanceServiceDep):
     """パフォーマンスメトリクスを取得"""
     logger.info("パフォーマンスメトリクス取得要求")
     
-    performance_service = get_performance_service()
     metrics = performance_service.get_metrics()
     
     response = PerformanceMetricsResponse(
@@ -265,14 +269,12 @@ async def get_performance_metrics_route():
 
 @router.post("/export")
 @log_execution_time("export")
-def export_data_endpoint(request: ExportRequest):
+def export_data_endpoint(request: ExportRequest, export_service: ExportServiceDep):
     """データエクスポートエンドポイント"""
     logger.info("データエクスポート要求", sql=request.sql)
     
     if not request.sql:
         raise ExportError("SQLクエリが必要です。")
-    
-    export_service = get_export_service()
     
     # エラーハンドリングのため、まずストリームをテスト
     try:
@@ -306,40 +308,35 @@ def export_data_endpoint(request: ExportRequest):
 
 
 @router.get("/metadata/schemas", response_model=List[Dict[str, Any]])
-async def get_schemas_endpoint():
+async def get_schemas_endpoint(metadata_service: MetadataServiceDep):
     """スキーマ一覧を取得"""
-    metadata_service = get_metadata_service()
     return await run_in_threadpool(metadata_service.get_schemas)
 
 
 @router.get("/metadata/schemas/{schema_name}/tables", response_model=List[Dict[str, Any]])
-async def get_tables_endpoint(schema_name: str):
+async def get_tables_endpoint(schema_name: str, metadata_service: MetadataServiceDep):
     """テーブル一覧を取得"""
-    metadata_service = get_metadata_service()
     return await run_in_threadpool(metadata_service.get_tables, schema_name)
 
 
 @router.get("/metadata/schemas/{schema_name}/tables/{table_name}/columns", response_model=List[Dict[str, Any]])
-async def get_columns_endpoint(schema_name: str, table_name: str):
+async def get_columns_endpoint(schema_name: str, table_name: str, metadata_service: MetadataServiceDep):
     """カラム一覧を取得"""
-    metadata_service = get_metadata_service()
     return await run_in_threadpool(metadata_service.get_columns, schema_name, table_name)
 
 
 @router.post("/metadata/refresh-cache")
 @log_execution_time("refresh_all_metadata_normalized")
-async def refresh_all_metadata_normalized_endpoint():
+async def refresh_all_metadata_normalized_endpoint(metadata_service: MetadataServiceDep):
     """メタデータキャッシュを更新（正規化版）"""
     logger.info("メタデータキャッシュ更新要求")
-    metadata_service = get_metadata_service()
     await run_in_threadpool(metadata_service.refresh_full_metadata_cache)
     return {"message": "メタデータキャッシュが更新されました"}
 
 
 @router.delete("/metadata/cache")
-async def clear_cache_endpoint():
+async def clear_cache_endpoint(metadata_service: MetadataServiceDep):
     """メタデータキャッシュをクリア"""
     logger.info("メタデータキャッシュクリア要求")
-    metadata_service = get_metadata_service()
     await run_in_threadpool(metadata_service.clear_cache)
     return {"message": "メタデータキャッシュがクリアされました"} 
