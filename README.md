@@ -311,6 +311,12 @@ SQLdojo/
 │   ├── metadata_cache.py # メタデータキャッシュ
 │   ├── sql_validator.py  # SQLバリデーション
 │   └── utils.py          # ユーティリティ
+├── test_api_models.py        # APIモデルテスト
+├── test_config_simplified.py # 設定管理テスト
+├── test_connection_manager.py # 接続管理テスト
+├── test_integration.py       # 統合テスト
+├── test_services.py          # サービス層テスト
+├── run_tests.py              # テスト実行スクリプト
 ├── metadata_cache.db     # メタデータキャッシュDB
 ├── requirements.txt      # 依存関係
 ├── env.example.simplified # キーペア認証用環境変数設定例
@@ -321,12 +327,86 @@ SQLdojo/
 ### テスト
 
 ```bash
-# 新しい設定のテスト
-python test_config_simplified.py
-
 # 全テストの実行
-python run_tests.py
+python -m pytest -v --tb=short
+
+# 個別テストファイルの実行
+python -m pytest test_api_models.py -v
+python -m pytest test_config_simplified.py -v
+python -m pytest test_connection_manager.py -v
+python -m pytest test_integration.py -v
+python -m pytest test_services.py -v
+
+# テストカバレッジの確認
+python -m pytest --cov=app --cov-report=html
 ```
+
+#### テスト構成
+
+**1. API モデルテスト (`test_api_models.py`)**
+
+- SQLRequest/SQLResponse モデルのバリデーション
+- SQLValidationRequest/SQLValidationResponse モデルのテスト
+- SQLFormatRequest/SQLFormatResponse モデルのテスト
+- メタデータ関連モデル（SchemaInfo, TableInfo, ColumnInfo）のテスト
+- エクスポート関連モデル（ExportRequest, ExportResponse）のテスト
+- 接続状態・パフォーマンスメトリクスモデルのテスト
+
+**2. 設定管理テスト (`test_config_simplified.py`)**
+
+- 環境変数からの設定読み込み
+- 必須フィールドのバリデーション
+- デフォルト値の設定
+- 設定の検証機能
+- 後方互換性の確認
+
+**3. 接続管理テスト (`test_connection_manager.py`)**
+
+- Snowflake 接続の作成・管理
+- 接続プールの動作確認
+- 接続状態の監視
+- エラーハンドリング
+
+**4. 統合テスト (`test_integration.py`)**
+
+- API エンドポイントの動作確認
+- SQL 実行・検証・整形機能のテスト
+- メタデータ取得機能のテスト
+- エクスポート機能のテスト
+- エラーレスポンスの確認
+
+**5. サービス層テスト (`test_services.py`)**
+
+- メタデータサービスのテスト
+- エクスポートサービスのテスト
+- クエリ実行サービスのテスト
+- SQL サービスのテスト
+- データベースサービスのテスト
+- パフォーマンスサービスのテスト
+
+#### テスト実行結果
+
+現在のテストスイートは 104 個のテストケースを含み、以下の機能をカバーしています：
+
+- ✅ API モデルのバリデーション（32 テスト）
+- ✅ 設定管理機能（12 テスト）
+- ✅ 接続管理機能（12 テスト）
+- ✅ 統合テスト（16 テスト）
+- ✅ サービス層テスト（32 テスト）
+
+**テスト実行例：**
+
+```bash
+$ python -m pytest -v --tb=short
+==================================== 104 passed, 2 warnings in 13.43s =====================================
+```
+
+#### テスト環境
+
+- **Python**: 3.8 以上
+- **pytest**: テストフレームワーク
+- **モック**: unittest.mock を使用した依存関係の分離
+- **環境変数**: テスト用の設定を自動設定
 
 ### ログ
 
