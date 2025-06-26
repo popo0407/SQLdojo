@@ -76,8 +76,13 @@ class ConnectionManager:
     def _create_connection(self) -> Tuple[str, snowflake.connector.SnowflakeConnection]:
         """新しい接続を作成（キーペア認証のみ）"""
         try:
-            private_key_path = self.config.snowflake_private_key_path
+            private_key_path = os.path.normpath(self.config.snowflake_private_key_path)
             passphrase = self.config.snowflake_private_key_passphrase
+            
+            # ファイルの存在確認
+            if not os.path.exists(private_key_path):
+                raise FileNotFoundError(f"秘密鍵ファイルが見つかりません: {private_key_path}")
+            
             with open(private_key_path, "rb") as key_file:
                 p_key = serialization.load_pem_private_key(
                     key_file.read(),
@@ -102,7 +107,6 @@ class ConnectionManager:
             }
             connection = snowflake.connector.connect(**connection_params)
             connection_id = f"conn_{len(self._connections)}_{int(time.time())}"
-            self.logger.info(f"新しい接続を作成: {connection_id}")
             return connection_id, connection
         except Exception as e:
             self.logger.error(f"Snowflakeへの接続に失敗しました: {e}")
@@ -116,7 +120,6 @@ class ConnectionManager:
                 connection.close()
                 del self._connections[connection_id]
                 del self._connection_info[connection_id]
-                self.logger.info(f"接続を閉じました: {connection_id}")
         except Exception as e:
             self.logger.error(f"接続クローズエラー: {e}")
     

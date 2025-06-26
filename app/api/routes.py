@@ -220,7 +220,7 @@ async def get_initial_metadata_endpoint():
 @log_execution_time("refresh_all_metadata")
 async def refresh_all_metadata_endpoint():
     """メタデータを強制更新（直接Snowflakeから取得）"""
-    logger.info("メタデータ強制更新要求（Snowflakeから直接取得）")
+    logger.info("メタデータ強制更新要求")
     metadata_service = get_metadata_service()
     
     # 直接Snowflakeから取得してキャッシュを更新
@@ -330,7 +330,7 @@ async def get_columns_endpoint(schema_name: str, table_name: str):
 @log_execution_time("refresh_all_metadata_normalized")
 async def refresh_all_metadata_normalized_endpoint():
     """メタデータキャッシュを更新（正規化版）"""
-    logger.info("メタデータキャッシュ更新要求（正規化版）")
+    logger.info("メタデータキャッシュ更新要求")
     metadata_service = get_metadata_service()
     await run_in_threadpool(metadata_service.refresh_full_metadata_cache)
     return {"message": "メタデータキャッシュが更新されました"}

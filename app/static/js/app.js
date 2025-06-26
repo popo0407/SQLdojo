@@ -40,8 +40,8 @@ class SQLWebApp {
         const refreshBtn = document.getElementById('refresh-metadata-btn');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => {
-                // 強制リフレッシュAPIを呼び出す
-                this.loadMetadataTree(); 
+                // メタデータ強制更新APIを呼び出す
+                this.refreshMetadata();
             });
         }
 
@@ -205,6 +205,40 @@ class SQLWebApp {
         } catch (error) {
             console.error('メタデータの取得に失敗:', error);
             metadataTree.innerHTML = `<div class="error">メタデータの取得に失敗しました: ${error.message}</div>`;
+        }
+    }
+
+    async refreshMetadata() {
+        const metadataTree = document.getElementById('metadata-tree');
+        if (!metadataTree) return;
+
+        // 更新中の表示
+        metadataTree.innerHTML = `<div class="loading">メタデータを更新中...</div>`;
+
+        try {
+            // メタデータ強制更新APIを呼び出し
+            const response = await fetch(`${this.apiBase}/metadata/refresh`, { 
+                method: 'POST' 
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // 更新されたメタデータを受け取る
+            const allMetadata = await response.json();
+            this.allMetadata = allMetadata; // プロパティに保存
+
+            // メタデータツリーを構築（カラム情報も含む）
+            this.buildMetadataTree(allMetadata);
+
+            // 成功メッセージを表示
+            this.showSuccess('メタデータが正常に更新されました');
+
+        } catch (error) {
+            console.error('メタデータの更新に失敗:', error);
+            metadataTree.innerHTML = `<div class="error">メタデータの更新に失敗しました: ${error.message}</div>`;
+            this.showError('メタデータの更新に失敗しました');
         }
     }
 

@@ -7380,3 +7380,447 @@ connection_status
 2025-06-26 23:16:40,855 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 7.8ms)
 2025-06-26 23:16:40,859 - main - INFO - GET /api/v1/metadata/initial
 2025-06-26 23:17:35,051 - main - INFO - アプリケーション終了
+2025-06-26 23:51:09,181 - __main__ - INFO - 設定を読み込み中...
+2025-06-26 23:51:09,184 - __main__ - INFO - Snowflakeアカウント: lfbtwxr-hi40950
+2025-06-26 23:51:09,185 - __main__ - INFO - Snowflakeユーザー: Adiantum
+2025-06-26 23:51:09,195 - __main__ - INFO - 秘密鍵パス: C:/Users/user/rsa_key.p8
+2025-06-26 23:51:09,202 - __main__ - INFO - データベース: TEST_DATABASE
+2025-06-26 23:51:09,210 - __main__ - INFO - スキーマ: PUBLIC
+2025-06-26 23:51:09,220 - __main__ - INFO - ウェアハウス: ZHH001
+2025-06-26 23:51:09,236 - __main__ - INFO - 秘密鍵ファイルが存在することを確認
+2025-06-26 23:51:09,253 - __main__ - INFO - 接続マネージャーを初期化中...
+2025-06-26 23:51:09,277 - __main__ - INFO - Snowflakeへの接続をテスト中...
+2025-06-26 23:51:13,804 - app.services.connection_manager - INFO - 新しい接続を作成: conn_0_1750949473
+2025-06-26 23:51:13,970 - __main__ - INFO - ✅ Snowflake接続成功！ (実行時間: 4.692秒)
+2025-06-26 23:51:13,975 - __main__ - INFO - 接続プール状態: {'total_connections': 1, 'max_connections': 10, 'active_connections': 1, 'connection_details': [{'id': 'conn_0_1750949473', 'created_at': '2025-06-26T23:51:13.805323', 'last_used': '2025-06-26T23:51:13.970807', 'query_count': 1, 'is_active': True}]}
+2025-06-26 23:51:13,990 - __main__ - INFO - クエリ実行テストを開始...
+2025-06-26 23:51:16,776 - app.services.connection_manager - INFO - 新しい接続を作成: conn_0_1750949476
+2025-06-26 23:51:17,476 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-26 23:51:17,484 - __main__ - INFO - ✅ クエリ実行成功！
+2025-06-26 23:51:17,487 - __main__ - INFO - 結果: [{'current_time': datetime.datetime(2025, 6, 26, 7, 51, 16, 785000, tzinfo=<DstTzInfo 'America/Los_Angeles' PDT-1 day, 17:00:00 DST>)}]
+2025-06-26 23:55:59,073 - app - INFO - スキーマ一覧取得開始
+2025-06-26 23:55:59,073 - app - INFO - キャッシュからスキーマ一覧取得完了
+2025-06-26 23:55:59,093 - app - INFO - テーブル一覧取得開始
+2025-06-26 23:55:59,093 - app - INFO - キャッシュからテーブル一覧取得完了
+2025-06-26 23:55:59,110 - app - INFO - テーブル詳細情報取得開始
+2025-06-26 23:55:59,110 - app - INFO - テーブル一覧取得開始
+2025-06-26 23:55:59,119 - app - INFO - キャッシュからテーブル一覧取得完了
+2025-06-26 23:55:59,121 - app - INFO - カラム一覧取得開始
+2025-06-26 23:55:59,123 - app - INFO - キャッシュからカラム一覧取得完了
+2025-06-26 23:55:59,125 - app - INFO - テーブル詳細情報取得完了
+2025-06-26 23:55:59,140 - app - INFO - Snowflakeからウェアハウス情報取得開始
+2025-06-26 23:55:59,140 - app - INFO - Snowflakeからウェアハウス情報取得完了
+2025-06-26 23:55:59,157 - app - INFO - Snowflakeからデータベース情報取得開始
+2025-06-26 23:55:59,157 - app - INFO - Snowflakeからデータベース情報取得完了
+2025-06-26 23:55:59,186 - app - INFO - CSVエクスポート開始
+2025-06-26 23:55:59,194 - app - INFO - データをCSV形式に変換開始
+2025-06-26 23:55:59,202 - app - INFO - CSV形式への変換完了
+2025-06-26 23:55:59,239 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-26 23:55:59,239 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-26 23:55:59,256 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-26 23:55:59,256 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-26 23:55:59,271 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-26 23:55:59,271 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-26 23:55:59,309 - app - INFO - SQL実行開始
+2025-06-26 23:55:59,311 - app - INFO - SQLバリデーション開始
+2025-06-26 23:55:59,312 - app - INFO - SQLバリデーション成功
+2025-06-26 23:55:59,314 - app - INFO - SQL実行完了
+2025-06-26 23:55:59,324 - app - INFO - SQL実行開始
+2025-06-26 23:55:59,324 - app - INFO - SQLバリデーション開始
+2025-06-26 23:55:59,329 - app - WARNING - SQLバリデーション失敗
+2025-06-26 23:56:12,210 - app.api.routes - INFO - ヘルスチェック要求
+2025-06-26 23:56:12,283 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-26 23:56:12,304 - main - INFO - GET /api/v1/health
+2025-06-26 23:56:12,359 - app.api.routes - INFO - SQL実行要求
+2025-06-26 23:56:12,359 - app.api.routes - INFO - SQL実行要求
+2025-06-26 23:56:12,370 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 10.7ms)
+2025-06-26 23:56:12,376 - main - INFO - POST /api/v1/sql/execute
+2025-06-26 23:56:12,405 - app.api.routes - INFO - SQL実行要求
+2025-06-26 23:56:12,405 - app.api.routes - INFO - SQL実行要求
+2025-06-26 23:56:12,411 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 5.9ms)
+2025-06-26 23:56:12,411 - app.api.error_handlers - ERROR - アプリケーション例外: Table not found
+2025-06-26 23:56:12,411 - app.api.error_handlers - ERROR - アプリケーション例外: Table not found
+2025-06-26 23:56:12,415 - main - INFO - POST /api/v1/sql/execute
+2025-06-26 23:56:12,445 - app.api.routes - INFO - SQL検証要求
+2025-06-26 23:56:12,445 - app.api.routes - INFO - SQL検証要求
+2025-06-26 23:56:12,479 - sql_validator - INFO - SQLバリデーション: SELECT id, name FROM test_table WHERE id = 1
+2025-06-26 23:56:12,481 - app.api.routes - INFO - SQL検証成功
+2025-06-26 23:56:12,481 - app.api.routes - INFO - SQL検証成功
+2025-06-26 23:56:12,483 - main - INFO - POST /api/v1/sql/validate
+2025-06-26 23:56:12,507 - app.api.routes - INFO - SQL検証要求
+2025-06-26 23:56:12,507 - app.api.routes - INFO - SQL検証要求
+2025-06-26 23:56:12,518 - app.api.routes - WARNING - SQL検証失敗
+2025-06-26 23:56:12,518 - app.api.routes - WARNING - SQL検証失敗
+2025-06-26 23:56:12,519 - main - INFO - POST /api/v1/sql/validate
+2025-06-26 23:56:12,535 - app.api.routes - INFO - SQLフォーマット要求
+2025-06-26 23:56:12,535 - app.api.routes - INFO - SQLフォーマット要求
+2025-06-26 23:56:12,544 - app.api.routes - INFO - SQLフォーマット成功
+2025-06-26 23:56:12,544 - app.api.routes - INFO - SQLフォーマット成功
+2025-06-26 23:56:12,546 - main - INFO - POST /api/v1/sql/format
+2025-06-26 23:56:12,562 - app - INFO - スキーマ一覧取得開始
+2025-06-26 23:56:12,578 - app - INFO - キャッシュからスキーマ一覧取得完了
+2025-06-26 23:56:12,579 - main - INFO - GET /api/v1/metadata/schemas
+2025-06-26 23:56:12,596 - app - INFO - テーブル一覧取得開始
+2025-06-26 23:56:12,603 - app - INFO - キャッシュからテーブル一覧取得完了
+2025-06-26 23:56:12,605 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables
+2025-06-26 23:56:12,628 - app - INFO - カラム一覧取得開始
+2025-06-26 23:56:12,629 - app - WARNING - キャッシュが無効なため、モックデータを返します
+2025-06-26 23:56:12,633 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables/TEST_TABLE/columns
+2025-06-26 23:56:12,652 - app.api.routes - INFO - データエクスポート要求
+2025-06-26 23:56:12,652 - app.api.routes - INFO - データエクスポート要求
+2025-06-26 23:56:12,654 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 2.1ms)
+2025-06-26 23:56:12,656 - main - INFO - POST /api/v1/export
+2025-06-26 23:56:12,679 - app.api.routes - INFO - データエクスポート要求
+2025-06-26 23:56:12,679 - app.api.routes - INFO - データエクスポート要求
+2025-06-26 23:56:12,680 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 1.3ms)
+2025-06-26 23:56:12,680 - app.api.error_handlers - ERROR - アプリケーション例外: エクスポートに失敗しました: Export failed
+2025-06-26 23:56:12,680 - app.api.error_handlers - ERROR - アプリケーション例外: エクスポートに失敗しました: Export failed
+2025-06-26 23:56:12,680 - main - INFO - POST /api/v1/export
+2025-06-26 23:56:12,704 - app.api.routes - INFO - 接続状態確認要求
+2025-06-26 23:56:12,704 - app.api.routes - INFO - 接続状態確認要求
+2025-06-26 23:56:12,795 - main - INFO - GET /api/v1/connection/status
+2025-06-26 23:56:12,818 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-26 23:56:12,818 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-06-26 23:56:12,820 - main - INFO - GET /api/v1/performance/metrics
+2025-06-26 23:56:12,846 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-26 23:56:12,846 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-26 23:56:12,847 - app - INFO - 全メタデータ取得開始
+2025-06-26 23:56:12,858 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-26 23:56:12,860 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 15.1ms)
+2025-06-26 23:56:12,863 - main - INFO - GET /api/v1/metadata/all
+2025-06-26 23:56:12,879 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-26 23:56:12,879 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-26 23:56:12,881 - app - INFO - 全メタデータ取得開始
+2025-06-26 23:56:12,887 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-26 23:56:12,888 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 9.2ms)
+2025-06-26 23:56:12,895 - main - INFO - GET /api/v1/metadata/all
+2025-06-26 23:56:12,912 - main - INFO - GET /api/v1/invalid
+2025-06-26 23:56:12,939 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-26 23:56:12,939 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-06-26 23:56:12,943 - main - INFO - POST /api/v1/sql/execute
+2025-06-26 23:57:10,334 - main - INFO - アプリケーション起動
+2025-06-26 23:57:10,335 - main - INFO - 設定情報
+2025-06-26 23:57:18,370 - main - INFO - GET /
+2025-06-26 23:57:18,552 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-26 23:57:19,179 - main - INFO - GET /static/js/app.js
+2025-06-26 23:57:19,563 - app.api.routes - INFO - 接続状態確認要求
+2025-06-26 23:57:19,572 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-26 23:57:19,595 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-26 23:57:19,595 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-26 23:57:19,819 - main - INFO - GET /api/v1/connection/status
+2025-06-26 23:57:19,819 - app - INFO - 全メタデータ取得開始
+2025-06-26 23:57:19,903 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-26 23:57:19,906 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 311.4ms)
+2025-06-26 23:57:19,909 - main - INFO - GET /api/v1/metadata/initial
+2025-06-26 23:57:20,154 - main - INFO - GET /favicon.ico
+2025-06-26 23:57:30,183 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-26 23:57:30,183 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-26 23:57:30,187 - app - INFO - 全メタデータ取得開始
+2025-06-26 23:57:30,193 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-26 23:57:30,195 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 12.2ms)
+2025-06-26 23:57:30,197 - main - INFO - GET /api/v1/metadata/initial
+2025-06-26 23:57:42,572 - app.api.routes - INFO - SQL実行要求
+2025-06-26 23:57:42,572 - app.api.routes - INFO - SQL実行要求
+2025-06-26 23:57:42,577 - app - INFO - SQL実行開始
+2025-06-26 23:57:42,581 - app - INFO - SQLバリデーション開始
+2025-06-26 23:57:42,655 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-26 23:57:42,658 - app - INFO - SQLバリデーション成功
+2025-06-26 23:57:45,986 - app.services.connection_manager - INFO - 新しい接続を作成: conn_0_1750949865
+2025-06-26 23:57:45,986 - app.services.connection_manager - INFO - 新しい接続を作成: conn_0_1750949865
+2025-06-26 23:57:54,006 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-26 23:57:54,006 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-26 23:57:54,007 - app - INFO - SQL実行完了
+2025-06-26 23:57:54,031 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 11.5s)
+2025-06-26 23:57:54,154 - main - INFO - POST /api/v1/sql/execute
+2025-06-26 23:58:14,645 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-26 23:58:14,645 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-26 23:58:14,645 - app - INFO - 全メタデータ取得開始
+2025-06-26 23:58:14,653 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-26 23:58:14,653 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 8.0ms)
+2025-06-26 23:58:14,661 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:03:13,716 - __main__ - INFO - メタデータ更新テスト開始
+2025-06-27 00:03:18,403 - __main__ - INFO - Snowflake接続成功
+2025-06-27 00:03:18,415 - __main__ - INFO - メタデータキャッシュの強制更新を実行
+2025-06-27 00:03:18,418 - app - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 00:03:18,424 - app - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 00:03:19,772 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:03:19,772 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:03:21,057 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:03:21,057 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:03:22,159 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:03:22,159 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:03:22,168 - app - INFO - Snowflakeからメタデータ取得完了
+2025-06-27 00:03:22,232 - app.metadata_cache - INFO - 全メタデータを正規化してSQLiteに保存しました。
+2025-06-27 00:03:22,232 - app.metadata_cache - INFO - 全メタデータを正規化してSQLiteに保存しました。
+2025-06-27 00:03:22,239 - app - INFO - メタデータキャッシュの更新が完了
+2025-06-27 00:03:22,248 - __main__ - INFO - メタデータ更新完了（実行時間: 3.830秒）
+2025-06-27 00:03:22,258 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:03:22,286 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:03:22,289 - __main__ - INFO - ✅ メタデータ更新成功！
+2025-06-27 00:03:22,291 - __main__ - INFO -   スキーマ数: 1
+2025-06-27 00:03:22,303 - __main__ - INFO -   テーブル数: 2
+2025-06-27 00:03:22,312 - __main__ - INFO -   カラム数: 6
+2025-06-27 00:03:22,323 - __main__ - INFO -   最初のスキーマ: PUBLIC (テーブル数: 2)
+2025-06-27 00:04:30,367 - __main__ - INFO - メタデータ更新テスト開始
+2025-06-27 00:04:33,974 - __main__ - INFO - Snowflake接続成功
+2025-06-27 00:04:33,995 - __main__ - INFO - メタデータキャッシュの強制更新を実行
+2025-06-27 00:04:34,004 - app - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 00:04:34,008 - app - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 00:04:35,014 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:04:35,014 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:04:36,158 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:04:36,158 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:04:37,542 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:04:37,542 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:04:37,548 - app - INFO - Snowflakeからメタデータ取得完了
+2025-06-27 00:04:37,581 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:04:37,581 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:04:37,591 - app - INFO - メタデータキャッシュの更新が完了
+2025-06-27 00:04:37,596 - __main__ - INFO - メタデータ更新完了（実行時間: 3.592秒）
+2025-06-27 00:04:37,601 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:04:37,623 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:04:37,623 - __main__ - INFO - ✅ メタデータ更新成功！
+2025-06-27 00:04:37,635 - __main__ - INFO -   スキーマ数: 1
+2025-06-27 00:04:37,657 - __main__ - INFO -   テーブル数: 2
+2025-06-27 00:04:37,689 - __main__ - INFO -   カラム数: 6
+2025-06-27 00:04:37,702 - __main__ - INFO -   最初のスキーマ: PUBLIC (テーブル数: 2)
+2025-06-27 00:07:31,172 - main - INFO - アプリケーション終了
+2025-06-27 00:07:44,415 - main - INFO - アプリケーション起動
+2025-06-27 00:07:44,415 - main - INFO - 設定情報
+2025-06-27 00:07:45,412 - main - INFO - GET /
+2025-06-27 00:07:46,705 - main - INFO - GET /static/js/app.js
+2025-06-27 00:07:46,992 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 00:07:47,429 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 00:07:47,436 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-27 00:07:47,555 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:07:47,555 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:07:47,761 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:07:47,765 - main - INFO - GET /api/v1/connection/status
+2025-06-27 00:07:47,776 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:07:47,782 - main - INFO - GET /favicon.ico
+2025-06-27 00:07:47,838 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 283.2ms)
+2025-06-27 00:07:47,890 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:08:00,988 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:08:00,988 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:08:00,991 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:08:00,997 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:08:01,000 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 11.7ms)
+2025-06-27 00:08:01,003 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:08:47,850 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:08:47,850 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:08:47,853 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:08:47,859 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:08:47,862 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 12.0ms)
+2025-06-27 00:08:47,866 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:09:19,906 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:09:19,906 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:09:19,906 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:09:19,921 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:09:19,937 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 31.3ms)
+2025-06-27 00:09:19,937 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:09:53,043 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:09:53,043 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:09:53,044 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:09:53,049 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:09:53,049 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 6.7ms)
+2025-06-27 00:09:53,065 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:10:11,932 - main - INFO - GET /
+2025-06-27 00:10:12,098 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 00:10:12,707 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 00:10:12,707 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 00:10:12,771 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:10:12,771 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:10:12,784 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:10:12,801 - main - INFO - GET /api/v1/connection/status
+2025-06-27 00:10:12,798 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:10:12,819 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 48.1ms)
+2025-06-27 00:10:12,840 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:10:21,225 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:10:21,225 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:10:21,231 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:10:21,231 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:10:21,231 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 6.3ms)
+2025-06-27 00:10:21,253 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:10:30,756 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:10:30,756 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:10:30,756 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:10:30,772 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:10:30,787 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 31.9ms)
+2025-06-27 00:10:30,788 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:10:38,142 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:10:38,142 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:10:38,145 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:10:38,148 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:10:38,148 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 5.7ms)
+2025-06-27 00:10:38,153 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:10:58,095 - app.api.routes - INFO - SQL実行要求
+2025-06-27 00:10:58,095 - app.api.routes - INFO - SQL実行要求
+2025-06-27 00:10:58,109 - app - INFO - SQL実行開始
+2025-06-27 00:10:58,116 - app - INFO - SQLバリデーション開始
+2025-06-27 00:10:58,267 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 00:10:58,275 - app - INFO - SQLバリデーション成功
+2025-06-27 00:11:04,309 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:11:04,309 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:11:04,310 - app - INFO - SQL実行完了
+2025-06-27 00:11:04,322 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 6.2s)
+2025-06-27 00:11:04,387 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 00:11:15,624 - main - INFO - GET /
+2025-06-27 00:11:15,808 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 00:11:15,843 - main - INFO - GET /static/js/app.js
+2025-06-27 00:11:16,609 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 00:11:16,609 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 00:11:16,612 - main - INFO - GET /api/v1/connection/status
+2025-06-27 00:11:16,631 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:11:16,631 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:11:16,634 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:11:16,750 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:11:16,765 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 134.6ms)
+2025-06-27 00:11:16,768 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:11:17,194 - main - INFO - GET /favicon.ico
+2025-06-27 00:11:51,511 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:11:51,511 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:11:51,516 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:11:51,531 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:11:51,535 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 24.0ms)
+2025-06-27 00:11:51,540 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:14:11,686 - main - INFO - アプリケーション終了
+2025-06-27 00:14:23,118 - main - INFO - アプリケーション起動
+2025-06-27 00:14:23,119 - main - INFO - 設定情報
+2025-06-27 00:14:38,051 - app.api.routes - INFO - メタデータ強制更新要求
+2025-06-27 00:14:38,054 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-27 00:14:38,073 - app - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 00:14:38,074 - app - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 00:14:42,743 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:14:42,743 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:14:43,739 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:14:43,739 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:14:44,964 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:14:44,964 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:14:44,972 - app - INFO - Snowflakeからメタデータ取得完了
+2025-06-27 00:14:44,997 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:14:44,997 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:14:44,997 - app - INFO - メタデータキャッシュの更新が完了
+2025-06-27 00:14:45,008 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:14:45,015 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:14:45,023 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 7.0s)
+2025-06-27 00:14:45,031 - main - INFO - POST /api/v1/metadata/refresh
+2025-06-27 00:16:23,824 - main - INFO - アプリケーション終了
+2025-06-27 00:16:33,405 - main - INFO - アプリケーション起動
+2025-06-27 00:16:33,456 - main - INFO - 設定情報
+2025-06-27 00:18:17,035 - __main__ - INFO - メタデータ更新直接テスト開始
+2025-06-27 00:18:17,039 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-27 00:18:20,169 - __main__ - INFO - メタデータキャッシュの強制更新を実行
+2025-06-27 00:18:20,171 - app - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 00:18:20,172 - app - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 00:18:24,153 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:24,153 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:25,131 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:25,131 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:26,570 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:26,570 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:26,584 - app - INFO - Snowflakeからメタデータ取得完了
+2025-06-27 00:18:26,637 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:18:26,637 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:18:26,659 - app - INFO - メタデータキャッシュの更新が完了
+2025-06-27 00:18:26,664 - __main__ - INFO - メタデータ更新完了（実行時間: 6.488秒）
+2025-06-27 00:18:26,674 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:18:26,699 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:18:26,707 - __main__ - INFO - ✅ メタデータ更新成功！
+2025-06-27 00:18:26,708 - __main__ - INFO -   スキーマ数: 1
+2025-06-27 00:18:26,708 - __main__ - INFO -   テーブル数: 2
+2025-06-27 00:18:26,708 - __main__ - INFO -   カラム数: 6
+2025-06-27 00:18:26,714 - __main__ - INFO -   最初のスキーマ: PUBLIC (テーブル数: 2)
+2025-06-27 00:18:26,720 - __main__ - INFO - メタデータ更新APIテスト開始
+2025-06-27 00:18:26,720 - __main__ - INFO - APIエンドポイント: http://localhost:8000/api/v1/metadata/refresh
+2025-06-27 00:18:28,783 - app.api.routes - INFO - メタデータ強制更新要求
+2025-06-27 00:18:28,856 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-27 00:18:29,143 - app - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 00:18:29,291 - app - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 00:18:33,940 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:33,940 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:34,791 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:34,791 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:35,977 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:35,977 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:18:35,977 - app - INFO - Snowflakeからメタデータ取得完了
+2025-06-27 00:18:36,021 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:18:36,021 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:18:36,028 - app - INFO - メタデータキャッシュの更新が完了
+2025-06-27 00:18:36,030 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:18:36,052 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:18:36,060 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 7.3s)
+2025-06-27 00:18:36,062 - main - INFO - POST /api/v1/metadata/refresh
+2025-06-27 00:18:36,078 - __main__ - INFO - API応答時間: 9.352秒
+2025-06-27 00:18:36,079 - __main__ - INFO - HTTPステータス: 200
+2025-06-27 00:18:36,089 - __main__ - INFO - ✅ APIテスト成功！
+2025-06-27 00:18:36,089 - __main__ - INFO -   スキーマ数: 1
+2025-06-27 00:18:36,089 - __main__ - INFO -   テーブル数: 2
+2025-06-27 00:18:36,089 - __main__ - INFO -   カラム数: 6
+2025-06-27 00:18:36,098 - __main__ - INFO -   最初のスキーマ: PUBLIC (テーブル数: 2)
+2025-06-27 00:18:36,107 - __main__ - INFO - メタデータ初期取得APIテスト開始
+2025-06-27 00:18:36,109 - __main__ - INFO - APIエンドポイント: http://localhost:8000/api/v1/metadata/initial
+2025-06-27 00:18:38,241 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:18:38,241 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:18:38,241 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:18:38,258 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:18:38,274 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 33.9ms)
+2025-06-27 00:18:38,280 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:18:38,290 - __main__ - INFO - API応答時間: 2.180秒
+2025-06-27 00:18:38,294 - __main__ - INFO - HTTPステータス: 200
+2025-06-27 00:18:38,298 - __main__ - INFO - ✅ 初期取得APIテスト成功！
+2025-06-27 00:18:38,306 - __main__ - INFO -   スキーマ数: 1
+2025-06-27 00:18:38,308 - __main__ - INFO -   テーブル数: 2
+2025-06-27 00:18:38,312 - __main__ - INFO -   カラム数: 6
+2025-06-27 00:18:57,734 - main - INFO - アプリケーション終了
+2025-06-27 00:19:20,450 - main - INFO - アプリケーション起動
+2025-06-27 00:19:20,453 - main - INFO - 設定情報
+2025-06-27 00:19:27,996 - main - INFO - GET /
+2025-06-27 00:19:28,152 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 00:19:28,705 - main - INFO - GET /static/js/app.js
+2025-06-27 00:19:34,768 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 00:19:34,776 - container - INFO - 依存性注入コンテナが初期化されました
+2025-06-27 00:19:34,803 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:19:34,803 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 00:19:34,811 - main - INFO - GET /api/v1/connection/status
+2025-06-27 00:19:34,811 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:19:34,861 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:19:34,863 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 60.0ms)
+2025-06-27 00:19:34,865 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 00:19:34,901 - main - INFO - GET /favicon.ico
+2025-06-27 00:19:42,231 - app.api.routes - INFO - メタデータ強制更新要求
+2025-06-27 00:19:42,231 - app.api.routes - INFO - メタデータ強制更新要求
+2025-06-27 00:19:42,233 - app - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 00:19:42,234 - app - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 00:19:46,135 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:19:46,135 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:19:47,223 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:19:47,223 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:19:48,893 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:19:48,893 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:19:48,901 - app - INFO - Snowflakeからメタデータ取得完了
+2025-06-27 00:19:48,945 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:19:48,945 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 00:19:48,950 - app - INFO - メタデータキャッシュの更新が完了
+2025-06-27 00:19:48,960 - app - INFO - 全メタデータ取得開始
+2025-06-27 00:19:48,967 - app - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 00:19:48,971 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 6.7s)
+2025-06-27 00:19:48,973 - main - INFO - POST /api/v1/metadata/refresh
+2025-06-27 00:19:58,632 - app.api.routes - INFO - SQL実行要求
+2025-06-27 00:19:58,632 - app.api.routes - INFO - SQL実行要求
+2025-06-27 00:19:58,637 - app - INFO - SQL実行開始
+2025-06-27 00:19:58,645 - app - INFO - SQLバリデーション開始
+2025-06-27 00:19:58,716 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 00:19:58,723 - app - INFO - SQLバリデーション成功
+2025-06-27 00:20:02,001 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:20:02,001 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:20:02,008 - app - INFO - SQL実行完了
+2025-06-27 00:20:02,018 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.4s)
+2025-06-27 00:20:02,081 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 00:20:09,423 - app.api.routes - INFO - データエクスポート要求
+2025-06-27 00:20:09,423 - app.api.routes - INFO - データエクスポート要求
+2025-06-27 00:20:09,425 - app - INFO - CSVエクスポート開始
+2025-06-27 00:20:12,600 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:20:12,600 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 00:20:12,611 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 3.2s)
+2025-06-27 00:20:12,613 - main - INFO - POST /api/v1/export
+2025-06-27 00:20:57,683 - main - INFO - アプリケーション終了

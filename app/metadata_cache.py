@@ -102,9 +102,9 @@ class MetadataCache:
                                            column_data.get('data_type'), column_data.get('is_nullable'))
                             cursor.execute(column_sql, column_params)
                 conn.commit()
-                self.logger.info("全メタデータを正規化してSQLiteに保存しました。")
+                self.logger.info("メタデータキャッシュを更新しました")
         except Exception as e:
-            self.logger.error("正規化メタデータキャッシュの保存に失敗", exception=e)
+            self.logger.error("メタデータキャッシュの保存に失敗", error=str(e))
 
     def load_schemas(self) -> List[Dict[str, Any]]:
         """SQLiteからスキーマ一覧を取得"""

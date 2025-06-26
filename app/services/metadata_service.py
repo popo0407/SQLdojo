@@ -118,17 +118,17 @@ class MetadataService:
 
     def refresh_full_metadata_cache(self) -> None:
         """バックグラウンドで全メタデータを取得してキャッシュを更新するメソッド"""
-        self.logger.info("バックグラウンドで全メタデータのキャッシュ更新を開始")
+        self.logger.info("メタデータキャッシュの強制更新を開始")
         try:
             # 直接Snowflakeから全メタデータを取得（キャッシュは使用しない）
             all_metadata = self._fetch_all_from_snowflake_direct()
             if all_metadata:
                 self.cache.save_all_metadata_normalized(all_metadata)
-                self.logger.info("バックグラウンドでのキャッシュ更新が完了", count=len(all_metadata))
+                self.logger.info("メタデータキャッシュの更新が完了", count=len(all_metadata))
             else:
-                self.logger.warning("バックグラウンドでのメタデータ取得に失敗")
+                self.logger.warning("メタデータ取得に失敗しました")
         except Exception as e:
-            self.logger.error("バックグラウンドでのキャッシュ更新に失敗", error=str(e))
+            self.logger.error("メタデータキャッシュの更新に失敗", error=str(e))
 
     def get_schemas(self) -> List[Dict[str, Any]]:
         """スキーマ一覧を取得（キャッシュ優先）"""
@@ -466,11 +466,10 @@ class MetadataService:
 
     def _fetch_all_from_snowflake_direct(self) -> List[Dict[str, Any]]:
         """Snowflakeから全メタデータを直接取得する内部メソッド（キャッシュを使用しない）"""
-        self.logger.info("Snowflakeから全メタデータを直接取得開始")
+        self.logger.info("Snowflakeからメタデータを直接取得開始")
         
         try:
             # 1. スキーマ一覧を直接取得
-            self.logger.info("Snowflakeからスキーマ情報を取得中...")
             schemas_sql = "SELECT SCHEMA_NAME, CREATED, SCHEMA_OWNER FROM INFORMATION_SCHEMA.SCHEMATA"
             schemas_result = self.query_executor.execute_query(schemas_sql)
             
@@ -486,10 +485,7 @@ class MetadataService:
                     "owner": row.get("schema_owner", ""),
                 })
             
-            self.logger.info("スキーマ情報取得完了", count=len(schemas))
-            
             # 2. 全テーブル情報を一度に取得
-            self.logger.info("Snowflakeから全テーブル情報を取得中...")
             all_tables_sql = """
             SELECT 
                 TABLE_SCHEMA,
@@ -524,11 +520,7 @@ class MetadataService:
                     "last_altered": str(row.get("last_altered", "")),
                 })
             
-            self.logger.info("テーブル情報取得完了", 
-                           total_tables=sum(len(tables) for tables in tables_by_schema.values()))
-            
             # 3. 全カラム情報を一度に取得
-            self.logger.info("Snowflakeから全カラム情報を取得中...")
             all_columns_sql = """
             SELECT 
                 TABLE_SCHEMA,
@@ -566,9 +558,6 @@ class MetadataService:
                     "ordinal_position": row.get("ordinal_position", 0),
                 })
             
-            self.logger.info("カラム情報取得完了", 
-                           total_columns=sum(len(columns) for columns in columns_by_table.values()))
-            
             # 4. スキーマ、テーブル、カラム情報を統合
             all_schemas_data = []
             for schema_info in schemas:
@@ -593,15 +582,18 @@ class MetadataService:
                 schema_info["tables"] = tables
                 all_schemas_data.append(schema_info)
             
-            self.logger.info("Snowflakeから全メタデータの直接取得完了", 
+            total_tables = sum(len(schema.get("tables", [])) for schema in all_schemas_data)
+            total_columns = sum(len(table.get("columns", [])) for schema in all_schemas_data for table in schema.get("tables", []))
+            
+            self.logger.info("Snowflakeからメタデータ取得完了", 
                            schema_count=len(all_schemas_data),
-                           total_tables=sum(len(schema.get("tables", [])) for schema in all_schemas_data),
-                           total_columns=sum(len(table.get("columns", [])) for schema in all_schemas_data for table in schema.get("tables", [])))
+                           table_count=total_tables,
+                           column_count=total_columns)
             
             return all_schemas_data
             
         except Exception as e:
-            self.logger.error("全メタデータ直接取得中にエラーが発生", exception=e)
+            self.logger.error("メタデータ取得中にエラーが発生", error=str(e))
             return []
 
     def clear_cache(self):
