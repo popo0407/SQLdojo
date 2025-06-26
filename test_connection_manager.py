@@ -97,7 +97,8 @@ class TestConnectionManager:
     @patch('builtins.open', new_callable=mock_open, read_data=b'fake_private_key_data')
     @patch('cryptography.hazmat.primitives.serialization.load_pem_private_key')
     @patch('snowflake.connector.connect')
-    def test_create_connection_success(self, mock_connect, mock_load_key, mock_file_open, mock_get_logger, mock_get_settings):
+    @patch('os.path.exists', return_value=True)
+    def test_create_connection_success(self, mock_exists, mock_connect, mock_load_key, mock_file_open, mock_get_logger, mock_get_settings):
         """接続作成成功のテスト"""
         # モック設定
         mock_settings = MagicMock()
@@ -143,7 +144,8 @@ class TestConnectionManager:
     @patch('app.services.connection_manager.get_settings')
     @patch('app.services.connection_manager.get_logger')
     @patch('builtins.open', side_effect=FileNotFoundError("File not found"))
-    def test_create_connection_file_not_found(self, mock_file_open, mock_get_logger, mock_get_settings):
+    @patch('os.path.exists', return_value=False)
+    def test_create_connection_file_not_found(self, mock_exists, mock_file_open, mock_get_logger, mock_get_settings):
         """秘密鍵ファイルが見つからない場合のテスト"""
         mock_settings = MagicMock()
         mock_settings.snowflake_private_key_path = '/path/to/key.p8'

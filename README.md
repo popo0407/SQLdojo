@@ -274,8 +274,7 @@ http://localhost:8000
                               ▼
                        ┌─────────────────┐
                        │   Snowflake     │
-                       │   Stage         │
-                       │   (CSV Export)  │
+                       │   (Direct)      │
                        └─────────────────┘
 ```
 
@@ -303,7 +302,6 @@ SQLdojo/
 │   │   └── js/           # JavaScript
 │   ├── templates/        # HTMLテンプレート
 │   ├── config_simplified.py # 簡素化された設定管理（キーペア認証専用）
-│   ├── config.py         # 旧設定管理（後方互換性）
 │   ├── container.py      # 依存性注入
 │   ├── exceptions.py     # 例外定義
 │   ├── logger.py         # ログ設定
@@ -320,7 +318,6 @@ SQLdojo/
 ├── metadata_cache.db     # メタデータキャッシュDB
 ├── requirements.txt      # 依存関係
 ├── env.example.simplified # キーペア認証用環境変数設定例
-├── env.example           # 旧環境変数設定例
 └── README.md            # このファイル
 ```
 
@@ -466,7 +463,7 @@ MIT License
 ### v1.2.0 (2025-01-XX)
 
 - **CSV エクスポート機能の大幅改善**
-  - Snowflake ステージ経由の高速エクスポート
+  - 直接ストリーミングエクスポート
   - BOM 付き UTF-8 形式で Excel 互換性を確保
   - ストリーミング対応で大容量データ処理
   - 文字化け問題の完全解決
