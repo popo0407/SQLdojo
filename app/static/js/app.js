@@ -183,28 +183,28 @@ class SQLWebApp {
         const metadataTree = document.getElementById('metadata-tree');
         if (!metadataTree) return;
 
-        // 【変更】APIエンドポイントを新しいものに
+        // 全メタデータ（スキーマ、テーブル、カラム含む）を取得
         const endpoint = `${this.apiBase}/metadata/initial`;
         
         metadataTree.innerHTML = `<div class="loading">読み込み中...</div>`;
 
         try {
-            const response = await fetch(endpoint, { method: 'GET' }); // GETリクエストに変更
+            const response = await fetch(endpoint, { method: 'GET' });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // スキーマとテーブル情報のみを受け取る
-            const initialMetadata = await response.json();
-            this.allMetadata = initialMetadata; // プロパティに保存
-            this.buildMetadataTree(this.allMetadata);
-            this.updateConnectionStatus(true);
+            // 全メタデータ（スキーマ、テーブル、カラム含む）を受け取る
+            const allMetadata = await response.json();
+            this.allMetadata = allMetadata; // プロパティに保存
+
+            // メタデータツリーを構築（カラム情報も含む）
+            this.buildMetadataTree(allMetadata);
 
         } catch (error) {
-            console.error('メタデータの読み込みに失敗:', error);
-            metadataTree.innerHTML = `<div class="error">メタデータの読み込みに失敗しました: ${error.message}</div>`;
-            this.updateConnectionStatus(false);
+            console.error('メタデータの取得に失敗:', error);
+            metadataTree.innerHTML = `<div class="error">メタデータの取得に失敗しました: ${error.message}</div>`;
         }
     }
 
@@ -270,7 +270,7 @@ class SQLWebApp {
         schemaItem.appendChild(tableList);
     }
 
-    async toggleTable(schemaName, tableName, tableItem) { // 【変更】async関数に
+    async toggleTable(schemaName, tableName, tableItem) {
         const tableLink = tableItem.querySelector('.table-link');
         const icon = tableItem.querySelector('.toggle-icon');
         const isCollapsed = tableLink.classList.contains('collapsed');
@@ -280,32 +280,17 @@ class SQLWebApp {
             tableLink.classList.remove('collapsed');
             icon.textContent = '▼';
             if (!columnList) {
-                // 【ここから変更】
-                // ローディング表示を追加すると親切
-                const loadingColumns = document.createElement('ul');
-                loadingColumns.className = 'column-list';
-                loadingColumns.innerHTML = '<li><div class="column-item"><em>読み込み中...</em></div></li>';
-                tableItem.appendChild(loadingColumns);
-
-                try {
-                    // カラム情報をAPIで非同期に取得
-                    const response = await fetch(`${this.apiBase}/metadata/schemas/${schemaName}/tables/${tableName}/columns`);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const columns = await response.json();
-
-                    // 既存のローディング表示を削除
-                    tableItem.removeChild(loadingColumns);
-
-                    // 取得したカラム情報でリストを構築
+                // 初期データからカラム情報を取得
+                const columns = this.getColumnsFromMetadata(schemaName, tableName);
+                if (columns && columns.length > 0) {
                     this.buildColumnList(columns, tableItem);
-
-                } catch (error) {
-                    console.error('カラムの取得に失敗:', error);
-                    loadingColumns.innerHTML = '<li><div class="column-item text-danger">取得失敗</div></li>';
+                } else {
+                    // カラム情報がない場合はローディング表示
+                    const loadingColumns = document.createElement('ul');
+                    loadingColumns.className = 'column-list';
+                    loadingColumns.innerHTML = '<li><div class="column-item"><em>カラム情報なし</em></div></li>';
+                    tableItem.appendChild(loadingColumns);
                 }
-                // 【ここまで変更】
             } else {
                 columnList.style.display = 'block';
             }
@@ -314,6 +299,22 @@ class SQLWebApp {
             icon.textContent = '▶';
             if (columnList) columnList.style.display = 'none';
         }
+    }
+
+    getColumnsFromMetadata(schemaName, tableName) {
+        // 初期データからカラム情報を取得
+        if (!this.allMetadata) return [];
+        
+        for (const schema of this.allMetadata) {
+            if (schema.name === schemaName) {
+                for (const table of schema.tables || []) {
+                    if (table.name === tableName) {
+                        return table.columns || [];
+                    }
+                }
+            }
+        }
+        return [];
     }
 
     buildColumnList(columns, tableItem) {

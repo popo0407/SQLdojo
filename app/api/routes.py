@@ -56,7 +56,21 @@ logger = Logger(__name__)
 @router.get("/", response_model=Dict[str, str])
 async def root():
     """ルートエンドポイント"""
-    return {"message": "Snowsight風SQL Webアプリ API", "version": "1.0.0"}
+    return {"message": "Snowsight風SQL Webアプリ", "version": "1.3.0"}
+
+
+@router.get("/favicon.ico")
+async def favicon():
+    """Faviconエンドポイント"""
+    from fastapi.responses import Response
+    return Response(status_code=204)  # No Content
+
+
+@router.get("/.well-known/appspecific/com.chrome.devtools.json")
+async def chrome_devtools():
+    """Chrome DevToolsエンドポイント"""
+    from fastapi.responses import Response
+    return Response(status_code=204)  # No Content
 
 
 @router.get("/health", response_model=HealthCheckResponse)
@@ -109,14 +123,7 @@ async def execute_sql_endpoint(request: SQLRequest):
         sql=result.sql
     )
     
-    if result.success:
-        logger.info("SQL実行成功", 
-                   row_count=result.row_count,
-                   execution_time=result.execution_time)
-    else:
-        logger.error("SQL実行失敗", 
-                    error=result.error_message,
-                    execution_time=result.execution_time)
+    if not result.success:
         raise SQLExecutionError(result.error_message)
     
     return response
@@ -195,29 +202,31 @@ async def get_all_metadata_endpoint():
 
 @router.get("/metadata/initial", response_model=List[Dict[str, Any]])
 @log_execution_time("get_initial_metadata")
-async def get_initial_metadata_endpoint(background_tasks: BackgroundTasks):
+async def get_initial_metadata_endpoint():
     """
-    高速化のため、まずスキーマとテーブル情報のみを返す。
-    その後、バックグラウンドで全メタデータ（カラム含む）のキャッシュを更新する。
+    キャッシュからスキーマ、テーブル、カラム情報を取得する。
+    バックグラウンドでの更新は行わない。
     """
-    logger.info("初期メタデータ取得要求（スキーマ＆テーブルのみ）")
+    logger.info("初期メタデータ取得要求（キャッシュのみ）")
     metadata_service = get_metadata_service()
     
-    # 1. まずスキーマとテーブルの情報だけを取得して即座に返す
-    schemas_and_tables = await run_in_threadpool(metadata_service.get_schemas_and_tables)
+    # キャッシュからスキーマ、テーブル、カラムの情報を取得
+    all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
     
-    # 2. 重い処理（全データ取得とキャッシュ作成）をバックグラウンドタスクとして登録
-    background_tasks.add_task(metadata_service.refresh_full_metadata_cache)
-    
-    return schemas_and_tables
+    return all_metadata
 
 
 @router.post("/metadata/refresh", response_model=List[Dict[str, Any]])
 @log_execution_time("refresh_all_metadata")
 async def refresh_all_metadata_endpoint():
-    """メタデータを強制更新"""
-    logger.info("メタデータ強制更新要求")
+    """メタデータを強制更新（直接Snowflakeから取得）"""
+    logger.info("メタデータ強制更新要求（Snowflakeから直接取得）")
     metadata_service = get_metadata_service()
+    
+    # 直接Snowflakeから取得してキャッシュを更新
+    await run_in_threadpool(metadata_service.refresh_full_metadata_cache)
+    
+    # 更新されたキャッシュから全データを返す
     all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
     return all_metadata
 
@@ -293,7 +302,6 @@ def export_data_endpoint(request: ExportRequest):
         
     except Exception as e:
         # エラーが発生した場合は例外を再発生
-        logger.error("エクスポートエラー", error=str(e))
         raise ExportError(f"エクスポートに失敗しました: {str(e)}")
 
 

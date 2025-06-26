@@ -68,10 +68,14 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
     """Starlette HTTP例外ハンドラー"""
-    logger.error(f"Starlette HTTP例外: {exc.detail}", 
-                status_code=exc.status_code,
-                path=request.url.path,
-                method=request.method)
+    # 404エラーはdebugレベルでログ出力
+    if exc.status_code == 404:
+        logger.debug(f"404 Not Found: {request.url.path}")
+    else:
+        logger.error(f"Starlette HTTP例外: {exc.detail}", 
+                    status_code=exc.status_code,
+                    path=request.url.path,
+                    method=request.method)
     
     return JSONResponse(
         status_code=exc.status_code,

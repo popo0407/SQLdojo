@@ -38,15 +38,24 @@ class TestMetadataService:
         assert metadata_service.cache == mock_metadata_cache
         assert metadata_service.logger is not None
     
-    def test_get_schemas(self, metadata_service, mock_query_executor):
-        """スキーマ一覧取得のテスト"""
-        mock_result = MagicMock()
-        mock_result.success = True
-        mock_result.data = [
-            {'schema_name': 'SCHEMA1', 'created': '2023-01-01', 'schema_owner': 'OWNER1'},
-            {'schema_name': 'SCHEMA2', 'created': '2023-01-02', 'schema_owner': 'OWNER2'}
+    def test_get_schemas(self, metadata_service, mock_query_executor, mock_metadata_cache):
+        """スキーマ一覧取得のテスト（キャッシュ有効）"""
+        # キャッシュが有効な場合のモック
+        mock_metadata_cache.is_cache_valid.return_value = True
+        mock_metadata_cache.get_all_metadata_normalized.return_value = [
+            {
+                "name": "SCHEMA1",
+                "created_on": "2023-01-01 00:00:00",
+                "owner": "OWNER1",
+                "tables": []
+            },
+            {
+                "name": "SCHEMA2",
+                "created_on": "2023-01-02 00:00:00",
+                "owner": "OWNER2",
+                "tables": []
+            }
         ]
-        mock_query_executor.execute_query.return_value = mock_result
         
         result = metadata_service.get_schemas()
         
@@ -56,15 +65,37 @@ class TestMetadataService:
         assert result[1]['name'] == 'SCHEMA2'
         assert result[1]['owner'] == 'OWNER2'
     
-    def test_get_tables(self, metadata_service, mock_query_executor):
-        """テーブル一覧取得のテスト"""
-        mock_result = MagicMock()
-        mock_result.success = True
-        mock_result.data = [
-            {'table_name': 'TABLE1', 'table_type': 'TABLE', 'row_count': 100, 'created': '2023-01-01', 'last_altered': '2023-01-01'},
-            {'table_name': 'VIEW1', 'table_type': 'VIEW', 'row_count': None, 'created': '2023-01-02', 'last_altered': '2023-01-02'}
+    def test_get_tables(self, metadata_service, mock_query_executor, mock_metadata_cache):
+        """テーブル一覧取得のテスト（キャッシュ有効）"""
+        # キャッシュが有効な場合のモック
+        mock_metadata_cache.is_cache_valid.return_value = True
+        mock_metadata_cache.get_all_metadata_normalized.return_value = [
+            {
+                "name": "SCHEMA1",
+                "created_on": "2023-01-01 00:00:00",
+                "owner": "OWNER1",
+                "tables": [
+                    {
+                        "name": "TABLE1",
+                        "schema_name": "SCHEMA1",
+                        "table_type": "TABLE",
+                        "row_count": 100,
+                        "created_on": "2023-01-01 00:00:00",
+                        "last_altered": "2023-01-01 00:00:00",
+                        "columns": []
+                    },
+                    {
+                        "name": "VIEW1",
+                        "schema_name": "SCHEMA1",
+                        "table_type": "VIEW",
+                        "row_count": None,
+                        "created_on": "2023-01-02 00:00:00",
+                        "last_altered": "2023-01-02 00:00:00",
+                        "columns": []
+                    }
+                ]
+            }
         ]
-        mock_query_executor.execute_query.return_value = mock_result
         
         result = metadata_service.get_tables('SCHEMA1')
         
@@ -75,24 +106,43 @@ class TestMetadataService:
         assert result[1]['name'] == 'VIEW1'
         assert result[1]['table_type'] == 'VIEW'
     
-    def test_get_table_details(self, metadata_service, mock_query_executor):
-        """テーブル詳細情報取得のテスト"""
-        # テーブル情報のモック
-        table_result = MagicMock()
-        table_result.success = True
-        table_result.data = [
-            {'table_name': 'TABLE1', 'table_type': 'TABLE', 'row_count': 100, 'created': '2023-01-01', 'last_altered': '2023-01-01'}
+    def test_get_table_details(self, metadata_service, mock_query_executor, mock_metadata_cache):
+        """テーブル詳細情報取得のテスト（キャッシュ有効）"""
+        # キャッシュが有効な場合のモック
+        mock_metadata_cache.is_cache_valid.return_value = True
+        mock_metadata_cache.get_all_metadata_normalized.return_value = [
+            {
+                "name": "SCHEMA1",
+                "created_on": "2023-01-01 00:00:00",
+                "owner": "OWNER1",
+                "tables": [
+                    {
+                        "name": "TABLE1",
+                        "schema_name": "SCHEMA1",
+                        "table_type": "TABLE",
+                        "row_count": 100,
+                        "created_on": "2023-01-01 00:00:00",
+                        "last_altered": "2023-01-01 00:00:00",
+                        "columns": [
+                            {
+                                "name": "id",
+                                "data_type": "NUMBER",
+                                "is_nullable": False,
+                                "default_value": None,
+                                "ordinal_position": 1
+                            },
+                            {
+                                "name": "name",
+                                "data_type": "VARCHAR",
+                                "is_nullable": True,
+                                "default_value": None,
+                                "ordinal_position": 2
+                            }
+                        ]
+                    }
+                ]
+            }
         ]
-        
-        # カラム情報のモック
-        column_result = MagicMock()
-        column_result.success = True
-        column_result.data = [
-            {'column_name': 'id', 'data_type': 'NUMBER', 'is_nullable': 'NO'},
-            {'column_name': 'name', 'data_type': 'VARCHAR', 'is_nullable': 'YES'}
-        ]
-        
-        mock_query_executor.execute_query.side_effect = [table_result, column_result]
         
         result = metadata_service.get_table_info('SCHEMA1', 'TABLE1')
         

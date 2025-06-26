@@ -51,10 +51,11 @@ class QueryExecutor:
             result = self._execute_query_internal(connection, sql, params, limit)
             result.execution_time = time.time() - start_time
             
-            self.logger.info(f"クエリ実行完了", 
+            # Snowflakeへのアクセスログを表示
+            self.logger.info(f"Snowflakeクエリ実行完了", 
                            query_id=result.query_id,
                            row_count=result.row_count,
-                           execution_time=result.execution_time)
+                           execution_time=f"{result.execution_time:.3f}s")
             
             return result
             
@@ -62,7 +63,7 @@ class QueryExecutor:
             execution_time = time.time() - start_time
             error_message = f"クエリ実行エラー: {str(e)}"
             
-            self.logger.error(f"クエリ実行失敗", 
+            self.logger.error(f"Snowflakeクエリ実行失敗", 
                             sql=sql,
                             error=error_message,
                             execution_time=execution_time)
