@@ -11,7 +11,7 @@ from app.config_simplified import get_settings
 from app.logger import get_logger
 from app.sql_validator import SQLValidator, get_validator
 from app.metadata_cache import MetadataCache
-from app.services.connection_manager import ConnectionManager
+from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.services.query_executor import QueryExecutor
 from app.services.database_service import DatabaseService
 from app.services.sql_service import SQLService
@@ -49,14 +49,14 @@ def get_metadata_cache_di() -> MetadataCache:
 
 
 # 接続マネージャーの依存性注入
-def get_connection_manager_di() -> ConnectionManager:
+def get_connection_manager_di() -> ConnectionManagerODBC:
     """接続マネージャーを取得"""
-    return ConnectionManager()
+    return ConnectionManagerODBC()
 
 
 # クエリ実行器の依存性注入
 def get_query_executor_di(
-    connection_manager: Annotated[ConnectionManager, Depends(get_connection_manager_di)]
+    connection_manager: Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)]
 ) -> QueryExecutor:
     """クエリ実行器を取得"""
     return QueryExecutor(connection_manager)
@@ -64,7 +64,7 @@ def get_query_executor_di(
 
 # データベースサービスの依存性注入
 def get_database_service_di(
-    connection_manager: Annotated[ConnectionManager, Depends(get_connection_manager_di)],
+    connection_manager: Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)],
     query_executor: Annotated[QueryExecutor, Depends(get_query_executor_di)]
 ) -> DatabaseService:
     """データベースサービスを取得"""
@@ -103,7 +103,7 @@ def get_export_service_di(
 
 
 # 型エイリアス（使用例）
-ConnectionManagerDep = Annotated[ConnectionManager, Depends(get_connection_manager_di)]
+ConnectionManagerDep = Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)]
 QueryExecutorDep = Annotated[QueryExecutor, Depends(get_query_executor_di)]
 DatabaseServiceDep = Annotated[DatabaseService, Depends(get_database_service_di)]
 SQLServiceDep = Annotated[SQLService, Depends(get_sql_service_di)]

@@ -7,16 +7,14 @@ import time
 from typing import Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass
 from contextlib import contextmanager
+import json
+import pandas as pd
+import pyodbc
 
-import snowflake.connector
-from snowflake.connector.errors import ProgrammingError, DatabaseError, OperationalError
-from snowflake.connector.cursor import SnowflakeCursor
-
-from app.services.connection_manager import ConnectionManager
+from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.logger import get_logger
-from app.exceptions import SQLExecutionError, DatabaseError as AppDatabaseError
+from app.exceptions import SQLExecutionError, DatabaseError as AppDatabaseError, ExportError
 from contextlib import contextmanager
-import snowflake.connector
 
 @dataclass
 class QueryResult:
@@ -34,7 +32,7 @@ class QueryResult:
 class QueryExecutor:
     """SQLクエリ実行クラス"""
     
-    def __init__(self, connection_manager: ConnectionManager):
+    def __init__(self, connection_manager: ConnectionManagerODBC):
         self.connection_manager = connection_manager
         self.logger = get_logger(__name__)
     
@@ -80,7 +78,7 @@ class QueryExecutor:
             if conn_id:
                 self.connection_manager.release_connection(conn_id)
     
-    def _execute_query_internal(self, connection: snowflake.connector.SnowflakeConnection, 
+    def _execute_query_internal(self, connection: pyodbc.Connection, 
                                sql: str, params: Optional[Dict[str, Any]] = None, 
                                limit: Optional[int] = None) -> QueryResult:
         """内部クエリ実行処理"""
@@ -95,8 +93,8 @@ class QueryExecutor:
             else:
                 cursor.execute(sql)
             
-            # クエリIDを取得
-            query_id = cursor.sfqid if hasattr(cursor, 'sfqid') else None
+            # クエリIDを取得（ODBCでは利用できないためNone）
+            query_id = None
             
             # 結果を取得
             if cursor.description:
@@ -138,12 +136,8 @@ class QueryExecutor:
                     sql=sql
                 )
         
-        except ProgrammingError as e:
+        except pyodbc.Error as e:
             raise SQLExecutionError(f"SQL構文エラー: {str(e)}")
-        except DatabaseError as e:
-            raise AppDatabaseError(f"データベースエラー: {str(e)}")
-        except OperationalError as e:
-            raise AppDatabaseError(f"操作エラー: {str(e)}")
         except Exception as e:
             raise SQLExecutionError(f"予期しないエラー: {str(e)}")
         
@@ -202,7 +196,7 @@ class QueryExecutor:
         self.logger.info("クエリ結果のストリーミング開始", sql=sql)
         try:
             # Query Executorの新しいストリーミングメソッドを呼び出す
-            return self.query_executor.execute_query_and_stream(sql)
+            return self.execute_query_and_stream(sql)
         except Exception as e:
             self.logger.error("クエリ結果のストリーミング中にエラー", exception=e)
             raise ExportError(f"データのエクスポート中にエラーが発生しました: {e}")

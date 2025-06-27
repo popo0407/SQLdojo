@@ -142,3 +142,227 @@
 2025-06-27 01:10:54,222 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 1.8s)
 2025-06-27 01:10:54,237 - main - INFO - POST /api/v1/export
 2025-06-27 01:11:12,913 - main - INFO - アプリケーション終了
+2025-06-27 01:17:57,169 - main - INFO - アプリケーション起動
+2025-06-27 01:17:57,169 - main - INFO - 設定情報
+2025-06-27 01:18:06,615 - main - INFO - GET /
+2025-06-27 01:18:06,944 - main - INFO - GET /static/js/app.js
+2025-06-27 01:18:06,954 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 01:18:07,454 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 01:18:07,455 - main - INFO - GET /api/v1/connection/status
+2025-06-27 01:18:07,498 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 01:18:07,626 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 01:18:07,648 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 01:18:07,673 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 174.5ms)
+2025-06-27 01:18:07,738 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 01:18:07,900 - main - INFO - GET /favicon.ico
+2025-06-27 01:18:09,387 - app.api.routes - INFO - メタデータ強制更新要求
+2025-06-27 01:18:09,389 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 01:18:09,390 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 01:18:12,228 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 01:18:13,116 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 01:18:14,031 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 01:18:14,031 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-06-27 01:18:14,065 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 01:18:14,067 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-06-27 01:18:14,069 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 01:18:14,069 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 01:18:14,069 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 4.7s)
+2025-06-27 01:18:14,069 - main - INFO - POST /api/v1/metadata/refresh
+2025-06-27 20:36:32,896 - main - INFO - アプリケーション起動
+2025-06-27 20:36:32,896 - main - INFO - 設定情報
+2025-06-27 20:38:22,699 - main - INFO - GET /
+2025-06-27 20:38:23,434 - main - INFO - GET /static/js/app.js
+2025-06-27 20:38:23,564 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 20:38:24,282 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 20:38:24,326 - main - INFO - GET /api/v1/connection/status
+2025-06-27 20:38:24,475 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 20:38:24,496 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 20:38:24,579 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 20:38:24,584 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 109.3ms)
+2025-06-27 20:38:24,622 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 20:38:24,833 - main - INFO - GET /favicon.ico
+2025-06-27 20:38:26,563 - app.api.routes - INFO - メタデータ強制更新要求
+2025-06-27 20:38:26,564 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 20:38:26,566 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 20:38:36,996 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 20:38:36,996 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 20:38:38,009 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 20:38:38,009 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 20:38:39,135 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 20:38:39,135 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 20:38:39,136 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-06-27 20:38:39,186 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-06-27 20:38:39,188 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-06-27 20:38:39,188 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 20:38:39,197 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 20:38:39,199 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 12.6s)
+2025-06-27 20:38:39,201 - main - INFO - POST /api/v1/metadata/refresh
+2025-06-27 20:39:53,920 - app.api.routes - INFO - SQL実行要求
+2025-06-27 20:39:53,920 - snowsight_app - INFO - SQL実行開始
+2025-06-27 20:39:53,936 - snowsight_app - INFO - SQLバリデーション開始
+2025-06-27 20:39:53,992 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 20:39:53,993 - snowsight_app - INFO - SQLバリデーション成功
+2025-06-27 20:39:56,887 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 20:39:56,887 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 20:39:56,888 - snowsight_app - INFO - SQL実行完了
+2025-06-27 20:39:56,888 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.0s)
+2025-06-27 20:39:56,950 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 20:40:38,926 - main - INFO - アプリケーション終了
+2025-06-27 20:41:50,872 - main - INFO - アプリケーション起動
+2025-06-27 20:41:50,873 - main - INFO - 設定情報
+2025-06-27 20:41:56,772 - app.api.routes - INFO - メタデータ強制更新要求
+2025-06-27 20:41:56,772 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-06-27 20:41:56,792 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-27 20:41:56,798 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-27 20:41:56,801 - app.services.metadata_service - ERROR - スキーマ情報の取得に失敗
+2025-06-27 20:41:56,804 - app.services.metadata_service - WARNING - メタデータ取得に失敗しました
+2025-06-27 20:41:56,808 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 20:41:56,823 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 20:41:56,823 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 51.2ms)
+2025-06-27 20:41:56,823 - main - INFO - POST /api/v1/metadata/refresh
+2025-06-27 20:42:00,902 - app.api.routes - INFO - SQL実行要求
+2025-06-27 20:42:00,903 - snowsight_app - INFO - SQL実行開始
+2025-06-27 20:42:00,904 - snowsight_app - INFO - SQLバリデーション開始
+2025-06-27 20:42:00,931 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 20:42:00,933 - snowsight_app - INFO - SQLバリデーション成功
+2025-06-27 20:42:00,934 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-27 20:42:00,942 - snowsight_app - ERROR - SQL実行失敗
+2025-06-27 20:42:00,944 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 41.3ms)
+2025-06-27 20:42:00,945 - app.api.error_handlers - ERROR - アプリケーション例外: クエリ実行エラー: 'ConnectionManager' object has no attribute '_connections'
+2025-06-27 20:42:00,947 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 20:46:07,037 - main - INFO - アプリケーション起動
+2025-06-27 20:46:07,038 - main - INFO - 設定情報
+2025-06-27 20:46:15,294 - main - INFO - GET /
+2025-06-27 20:46:16,742 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 20:46:17,858 - main - INFO - GET /static/js/app.js
+2025-06-27 20:46:20,072 - main - INFO - GET /favicon.ico
+2025-06-27 20:46:20,183 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 20:46:20,380 - main - INFO - GET /api/v1/connection/status
+2025-06-27 20:46:20,391 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 20:46:20,548 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 20:46:20,557 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 20:46:20,559 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 167.7ms)
+2025-06-27 20:46:20,561 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 20:46:26,775 - app.api.routes - INFO - SQL検証要求
+2025-06-27 20:46:26,843 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 20:46:26,848 - app.api.routes - INFO - SQL検証成功
+2025-06-27 20:46:26,849 - main - INFO - POST /api/v1/sql/validate
+2025-06-27 20:46:33,577 - app.api.routes - INFO - SQL実行要求
+2025-06-27 20:46:33,577 - snowsight_app - INFO - SQL実行開始
+2025-06-27 20:46:33,618 - snowsight_app - INFO - SQLバリデーション開始
+2025-06-27 20:46:33,636 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 20:46:33,637 - snowsight_app - INFO - SQLバリデーション成功
+2025-06-27 20:46:35,627 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: ('28000', "[28000] [Snowflake][DSI] (20032) Required setting 'PWD' is not present in the connection settings. (20032) (SQLDriverConnect); [28000] [Snowflake][Snowflake] (17) \n      1 invalid keys are found in the connection string: PRIVATE_KEY \n     (17); [28000] [Snowflake][DSI] (20032) Required setting 'PWD' is not present in the connection settings. (20032); [28000] [Snowflake][Snowflake] (17) \n      1 invalid keys are found in the connection string: PRIVATE_KEY \n     (17)")
+2025-06-27 20:46:35,627 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-27 20:46:35,627 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-27 20:46:35,669 - snowsight_app - ERROR - SQL実行失敗
+2025-06-27 20:46:35,669 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 2.1s)
+2025-06-27 20:46:35,681 - app.api.error_handlers - ERROR - アプリケーション例外: クエリ実行エラー: Snowflake(ODBC)接続の作成に失敗しました: ('28000', "[28000] [Snowflake][DSI] (20032) Required setting 'PWD' is not present in the connection settings. (20032) (SQLDriverConnect); [28000] [Snowflake][Snowflake] (17) \n      1 invalid keys are found in the connection string: PRIVATE_KEY \n     (17); [28000] [Snowflake][DSI] (20032) Required setting 'PWD' is not present in the connection settings. (20032); [28000] [Snowflake][Snowflake] (17) \n      1 invalid keys are found in the connection string: PRIVATE_KEY \n     (17)")
+2025-06-27 20:46:35,684 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 20:56:48,357 - main - INFO - アプリケーション終了
+2025-06-27 20:57:04,463 - main - INFO - アプリケーション起動
+2025-06-27 20:57:04,463 - main - INFO - 設定情報
+2025-06-27 20:57:11,412 - main - INFO - GET /
+2025-06-27 20:57:11,551 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 20:57:12,193 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 20:57:12,408 - main - INFO - GET /api/v1/connection/status
+2025-06-27 20:57:12,643 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 20:57:12,770 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 20:57:12,778 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 20:57:12,813 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 170.3ms)
+2025-06-27 20:57:12,815 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 20:57:16,841 - app.api.routes - INFO - SQL実行要求
+2025-06-27 20:57:16,843 - snowsight_app - INFO - SQL実行開始
+2025-06-27 20:57:16,845 - snowsight_app - INFO - SQLバリデーション開始
+2025-06-27 20:57:16,905 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 20:57:16,905 - snowsight_app - INFO - SQLバリデーション成功
+2025-06-27 20:57:19,687 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: ('28000', "[28000] [Snowflake][DSI] (20032) Required setting 'PRIV_KEY_FILE' is not present in the connection settings. (20032) (SQLDriverConnect); [28000] [Snowflake][Snowflake] (17) \n      1 invalid keys are found in the connection string: PRIVATE_KEY \n     (17); [28000] [Snowflake][DSI] (20032) Required setting 'PRIV_KEY_FILE' is not present in the connection settings. (20032); [28000] [Snowflake][Snowflake] (17) \n      1 invalid keys are found in the connection string: PRIVATE_KEY \n     (17)")
+2025-06-27 20:57:19,687 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-27 20:57:19,687 - snowsight_app - ERROR - SQL実行失敗
+2025-06-27 20:57:19,687 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 2.8s)
+2025-06-27 20:57:19,687 - app.api.error_handlers - ERROR - アプリケーション例外: クエリ実行エラー: Snowflake(ODBC)接続の作成に失敗しました: ('28000', "[28000] [Snowflake][DSI] (20032) Required setting 'PRIV_KEY_FILE' is not present in the connection settings. (20032) (SQLDriverConnect); [28000] [Snowflake][Snowflake] (17) \n      1 invalid keys are found in the connection string: PRIVATE_KEY \n     (17); [28000] [Snowflake][DSI] (20032) Required setting 'PRIV_KEY_FILE' is not present in the connection settings. (20032); [28000] [Snowflake][Snowflake] (17) \n      1 invalid keys are found in the connection string: PRIVATE_KEY \n     (17)")
+2025-06-27 20:57:19,698 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 21:07:55,613 - main - INFO - アプリケーション終了
+2025-06-27 21:08:07,991 - main - INFO - アプリケーション起動
+2025-06-27 21:08:07,991 - main - INFO - 設定情報
+2025-06-27 21:08:53,468 - main - INFO - GET /
+2025-06-27 21:08:53,594 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 21:08:55,174 - main - INFO - GET /static/js/app.js
+2025-06-27 21:08:56,807 - main - INFO - GET /favicon.ico
+2025-06-27 21:08:57,009 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 21:08:57,189 - main - INFO - GET /api/v1/connection/status
+2025-06-27 21:08:57,300 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 21:08:57,386 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 21:08:57,402 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 21:08:57,403 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 103.7ms)
+2025-06-27 21:08:57,405 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 21:09:01,758 - app.api.routes - INFO - SQL実行要求
+2025-06-27 21:09:01,764 - snowsight_app - INFO - SQL実行開始
+2025-06-27 21:09:01,767 - snowsight_app - INFO - SQLバリデーション開始
+2025-06-27 21:09:01,903 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 21:09:01,905 - snowsight_app - INFO - SQLバリデーション成功
+2025-06-27 21:09:15,791 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-06-27 21:09:15,796 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-27 21:09:15,799 - snowsight_app - ERROR - SQL実行失敗
+2025-06-27 21:09:15,806 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 14.0s)
+2025-06-27 21:09:15,807 - app.api.error_handlers - ERROR - アプリケーション例外: クエリ実行エラー: Snowflake(ODBC)接続の作成に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-06-27 21:09:15,811 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 21:09:52,018 - main - INFO - アプリケーション終了
+2025-06-27 21:10:10,496 - main - INFO - アプリケーション起動
+2025-06-27 21:10:10,497 - main - INFO - 設定情報
+2025-06-27 21:11:23,973 - main - INFO - アプリケーション終了
+2025-06-27 21:11:28,206 - main - INFO - アプリケーション起動
+2025-06-27 21:11:28,206 - main - INFO - 設定情報
+2025-06-27 21:12:07,871 - main - INFO - アプリケーション終了
+2025-06-27 21:12:12,080 - main - INFO - アプリケーション起動
+2025-06-27 21:12:12,080 - main - INFO - 設定情報
+2025-06-27 21:12:28,843 - main - INFO - GET /
+2025-06-27 21:12:28,972 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 21:12:29,373 - main - INFO - GET /static/js/app.js
+2025-06-27 21:12:30,418 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 21:12:30,436 - main - INFO - GET /api/v1/connection/status
+2025-06-27 21:12:30,440 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 21:12:30,544 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 21:12:30,643 - main - INFO - GET /favicon.ico
+2025-06-27 21:12:30,643 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 21:12:30,647 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 206.4ms)
+2025-06-27 21:12:30,650 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 21:12:43,634 - app.api.routes - INFO - SQL実行要求
+2025-06-27 21:12:43,638 - snowsight_app - INFO - SQL実行開始
+2025-06-27 21:12:43,644 - snowsight_app - INFO - SQLバリデーション開始
+2025-06-27 21:12:43,734 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 21:12:43,735 - snowsight_app - INFO - SQLバリデーション成功
+2025-06-27 21:12:56,558 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-06-27 21:12:56,558 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-27 21:12:56,558 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-06-27 21:12:56,572 - snowsight_app - ERROR - SQL実行失敗
+2025-06-27 21:12:56,578 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 12.9s)
+2025-06-27 21:12:56,581 - app.api.error_handlers - ERROR - アプリケーション例外: クエリ実行エラー: Snowflake(ODBC)接続の作成に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-06-27 21:12:56,590 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 21:27:52,354 - main - INFO - アプリケーション終了
+2025-06-27 21:27:58,317 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-27 21:27:58,320 - main - INFO - アプリケーション起動
+2025-06-27 21:27:58,321 - main - INFO - 設定情報
+2025-06-27 21:28:30,515 - main - INFO - GET /
+2025-06-27 21:28:30,653 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-27 21:28:31,298 - main - INFO - GET /static/js/app.js
+2025-06-27 21:28:32,395 - main - INFO - GET /favicon.ico
+2025-06-27 21:28:32,408 - app.api.routes - INFO - 接続状態確認要求
+2025-06-27 21:28:32,410 - main - INFO - GET /api/v1/connection/status
+2025-06-27 21:28:32,424 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-27 21:28:32,510 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-27 21:28:32,525 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-27 21:28:32,546 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 121.7ms)
+2025-06-27 21:28:32,549 - main - INFO - GET /api/v1/metadata/initial
+2025-06-27 21:28:34,545 - app.api.routes - INFO - SQL実行要求
+2025-06-27 21:28:34,545 - snowsight_app - INFO - SQL実行開始
+2025-06-27 21:28:34,545 - snowsight_app - INFO - SQLバリデーション開始
+2025-06-27 21:28:34,667 - sql_validator - INFO - SQLバリデーション: SELECT *FROM TRA_3 WHERE STA is not null
+2025-06-27 21:28:34,668 - snowsight_app - INFO - SQLバリデーション成功
+2025-06-27 21:28:34,671 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-06-27 21:28:43,786 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 21:28:43,786 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-27 21:28:43,787 - snowsight_app - INFO - SQL実行完了
+2025-06-27 21:28:43,792 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 9.2s)
+2025-06-27 21:28:43,824 - main - INFO - POST /api/v1/sql/execute
+2025-06-27 21:30:39,426 - main - INFO - アプリケーション終了

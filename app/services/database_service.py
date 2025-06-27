@@ -9,14 +9,14 @@ import time
 
 from app.logger import get_logger
 from app.exceptions import DatabaseError
-from .connection_manager import ConnectionManager, ConnectionInfo
+from .connection_manager_odbc import ConnectionManagerODBC, ConnectionInfo
 from .query_executor import QueryExecutor, QueryResult
 
 
 class DatabaseService:
     """データベースサービス（Facadeパターン）"""
     
-    def __init__(self, connection_manager: ConnectionManager, query_executor: QueryExecutor):
+    def __init__(self, connection_manager: ConnectionManagerODBC, query_executor: QueryExecutor):
         self.connection_manager = connection_manager
         self.query_executor = query_executor
         self.logger = get_logger(__name__)

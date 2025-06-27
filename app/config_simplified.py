@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     snowflake_schema: str = Field(default="PUBLIC", description="Snowflakeスキーマ")
     snowflake_role: str = Field(default="", description="Snowflakeロール")
     
+    # ODBC接続設定（キーペア認証またはパスワード認証）
+    snowflake_odbc_dsn: Optional[str] = Field(default=None, description="ODBC DSN名")
+    snowflake_password: Optional[str] = Field(default=None, description="Snowflakeパスワード（ODBC用）")
+    snowflake_use_keypair: bool = Field(default=True, description="キーペア認証を使用するかどうか")
+    
     # アプリケーション設定
     app_host: str = Field(default="0.0.0.0", description="アプリケーションホスト")
     app_port: int = Field(default=8000, description="アプリケーションポート")
