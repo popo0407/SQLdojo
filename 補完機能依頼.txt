@@ -1,0 +1,43 @@
+
+
+# 概要
+
+現在のWebアプリケーションに組み込まれているSQLエディタを、**CodeMirrorからMonaco Editorに載せ替え**てください。その上で、バックエンドのデータベース情報と連携した**SQLオートコンプリート機能**を実装してください。
+
+# 背景
+
+当初、既存のCodeMirrorを拡張する方針を検討しましたが、高度な補完機能の「頭脳」にあたるロジックの実装が非常に複雑になることが分かりました。
+そこで、より強力なコード解析エンジンを内蔵し、高機能な補完機能の実装が比較的容易である**Monaco Editorを導入する方針に切り替えます。**
+
+# 実装要件
+
+### 1. エディタの載せ替え (CodeMirror → Monaco Editor)
+
+- **HTMLの修正 (`app/templates/base.html`, `index.html`)**: CodeMirror関連の`<script>`および`<link>`タグをすべて削除し、Monaco EditorをCDNなどから読み込むように変更してください。
+- **JavaScriptの修正 (`app/static/js/app.js`)**: `CodeMirror.fromTextArea`による初期化処理を削除し、`monaco.editor.create`を使用してMonaco Editorを初期化するロジックに書き換えてください。
+  - エディタの言語モードは `sql` に設定してください。
+  - 既存の「実行」「フォーマット」などのボタンが、新しいMonaco Editorと連携して正しく動作するように修正してください。
+
+### 2. 補完機能の実装
+
+**【重要】** Monaco Editorが提供する標準的な補完機能の枠組みを活用し、**シンプルかつ効果的な実装を最優先**してください。
+
+#### a. バックエンドの実装
+- `POST /api/v1/sql/suggest` というエンドポイントと、それに対応するリクエスト・レスポンスモデル (`SQLCompletionRequest`, `SQLCompletionResponse`)、および補完ロジックを集約した `CompletionService` を、以前の指示通りに作成してください。
+- このバックエンドのロジックは、Monaco Editorから呼び出されることを前提としますが、特定のUIに依存しない汎用的な作りにしてください。
+- `CompletionService` は、既存の `MetadataService` を活用し、データベースのスキーマ、テーブル、カラム情報を動的に取得して候補を生成するようにしてください。
+
+#### b. フロントエンドの実装
+- `app/static/js/app.js`にて、Monaco Editorの**`monaco.languages.registerCompletionItemProvider`** APIを使用してください。
+- このAPIを使い、「SQL言語」に対して補完候補を提供するロジックを登録します。
+- そのロジックの中で、バックエンドの `/api/v1/sql/suggest` を呼び出し、返却された候補リストをMonaco Editorの補完UIに表示させてください。
+
+### 3. スコープ外（今回は実装しない機能）
+
+- 今回はオートコンプリート機能の実装を最優先とします。
+- Monaco Editorが持つ他の多機能（**ミニマップ、コマンドパレット、コード診断による波線表示など**）の積極的な組み込みは、今回のスコープ外とします。まずは、エディタの載せ替えと基本的な補完機能が動作することを目標としてください。
+
+# 設計上の重要事項
+
+- **既存資産の活用**: バックエンドの補完ロジックは、既存の `MetadataService` が提供するデータベースのメタデータ情報を最大限に活用してください。
+- **シンプルさの重視**: 複雑なカスタムロジックよりも、Monaco Editorの標準的なAPIを活かした、保守性の高い実装を目指してください。

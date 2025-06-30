@@ -8,15 +8,134 @@ class SQLWebApp {
         this.currentSortDirection = 'asc';
         this.filterValue = '';
         this.allMetadata = null; // 全メタデータをここに保持
+        this.sqlEditor = null; // Monaco Editorインスタンス
         this.init();
     }
 
     init() {
+        this.initMonacoEditor();
         this.bindEvents();
         this.initResizer(); 
         this.initHorizontalResizer();
         this.loadConnectionStatus();
         this.loadMetadataTree(); // 初回ロード (キャッシュ利用)
+    }
+
+    async initMonacoEditor() {
+        // Monaco Editorの初期化
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
+        
+        require(['vs/editor/editor.main'], () => {
+            this.sqlEditor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
+                value: 'SELECT * FROM table_name LIMIT 100;',
+                language: 'sql',
+                theme: 'vs-dark',
+                fontSize: 14,
+                fontFamily: 'Courier New, monospace',
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+                wordWrap: 'on',
+                lineNumbers: 'on',
+                roundedSelection: false,
+                scrollBeyondLastLine: false,
+                readOnly: false,
+                cursorStyle: 'line',
+                automaticLayout: true,
+                extraEditorClassName: 'monaco-editor'
+            });
+
+            // SQL補完プロバイダーを登録
+            this.registerSQLCompletionProvider();
+
+            // キーボードショートカットを設定
+            this.setupEditorShortcuts();
+
+            // エディタのサイズを調整
+            this.sqlEditor.layout();
+        });
+    }
+
+    registerSQLCompletionProvider() {
+        // Monaco Editorの補完プロバイダーを登録
+        monaco.languages.registerCompletionItemProvider('sql', {
+            provideCompletionItems: async (model, position) => {
+                const textUntilPosition = model.getValueInRange({
+                    startLineNumber: 1,
+                    startColumn: 1,
+                    endLineNumber: position.lineNumber,
+                    endColumn: position.column
+                });
+
+                try {
+                    const response = await fetch(`${this.apiBase}/sql/suggest`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            sql: textUntilPosition,
+                            position: textUntilPosition.length,
+                            context: null
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    // Monaco Editorの補完アイテム形式に変換
+                    const suggestions = result.suggestions.map(item => ({
+                        label: item.label,
+                        kind: this.getMonacoCompletionItemKind(item.kind),
+                        detail: item.detail,
+                        documentation: item.documentation,
+                        insertText: item.insert_text || item.label,
+                        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+                        sortText: item.sort_text || item.label
+                    }));
+
+                    return { suggestions };
+                } catch (error) {
+                    console.error('SQL補完エラー:', error);
+                    return { suggestions: [] };
+                }
+            }
+        });
+    }
+
+    getMonacoCompletionItemKind(kind) {
+        // 補完アイテムの種類をMonaco Editor形式に変換
+        const kindMap = {
+            'keyword': monaco.languages.CompletionItemKind.Keyword,
+            'function': monaco.languages.CompletionItemKind.Function,
+            'table': monaco.languages.CompletionItemKind.Class,
+            'view': monaco.languages.CompletionItemKind.Class,
+            'column': monaco.languages.CompletionItemKind.Field,
+            'schema': monaco.languages.CompletionItemKind.Module
+        };
+        return kindMap[kind] || monaco.languages.CompletionItemKind.Text;
+    }
+
+    setupEditorShortcuts() {
+        // エディタ内のキーボードショートカットを設定
+        this.sqlEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+            this.executeSQL();
+        });
+
+        this.sqlEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, () => {
+            this.formatSQL();
+        });
+
+        this.sqlEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyL, () => {
+            this.clearSQL();
+        });
+
+        this.sqlEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyV, () => {
+            this.validateSQL();
+        });
     }
 
     bindEvents() {
@@ -42,17 +161,6 @@ class SQLWebApp {
             refreshBtn.addEventListener('click', () => {
                 // メタデータ強制更新APIを呼び出す
                 this.refreshMetadata();
-            });
-        }
-
-        // キーボードショートカット
-        const sqlEditorElement = document.getElementById('sql-editor');
-        if (sqlEditorElement) {
-            sqlEditorElement.addEventListener('keydown', (e) => {
-                if (e.ctrlKey && e.key === 'Enter') {
-                    e.preventDefault();
-                    this.executeSQL();
-                }
             });
         }
 
@@ -124,6 +232,10 @@ class SQLWebApp {
             
             if (newHeight >= minHeight && newHeight <= maxHeight) {
                 sqlEditorContainer.style.height = newHeight + 'px';
+                // Monaco Editorのレイアウトを更新
+                if (this.sqlEditor) {
+                    this.sqlEditor.layout();
+                }
             }
         };
 
@@ -199,12 +311,12 @@ class SQLWebApp {
             const allMetadata = await response.json();
             this.allMetadata = allMetadata; // プロパティに保存
 
-            // メタデータツリーを構築（カラム情報も含む）
+            // メタデータツリーを構築
             this.buildMetadataTree(allMetadata);
-
+            
         } catch (error) {
-            console.error('メタデータの取得に失敗:', error);
-            metadataTree.innerHTML = `<div class="error">メタデータの取得に失敗しました: ${error.message}</div>`;
+            console.error('メタデータ読み込みエラー:', error);
+            metadataTree.innerHTML = `<div class="error-message">メタデータの読み込みに失敗しました: ${error.message}</div>`;
         }
     }
 
@@ -212,11 +324,9 @@ class SQLWebApp {
         const metadataTree = document.getElementById('metadata-tree');
         if (!metadataTree) return;
 
-        // 更新中の表示
-        metadataTree.innerHTML = `<div class="loading">メタデータを更新中...</div>`;
+        metadataTree.innerHTML = `<div class="loading">更新中...</div>`;
 
         try {
-            // メタデータ強制更新APIを呼び出し
             const response = await fetch(`${this.apiBase}/metadata/refresh`, { 
                 method: 'POST' 
             });
@@ -225,125 +335,131 @@ class SQLWebApp {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // 更新されたメタデータを受け取る
             const allMetadata = await response.json();
             this.allMetadata = allMetadata; // プロパティに保存
 
-            // メタデータツリーを構築（カラム情報も含む）
+            // メタデータツリーを再構築
             this.buildMetadataTree(allMetadata);
-
-            // 成功メッセージを表示
-            this.showSuccess('メタデータが正常に更新されました');
-
+            
         } catch (error) {
-            console.error('メタデータの更新に失敗:', error);
-            metadataTree.innerHTML = `<div class="error">メタデータの更新に失敗しました: ${error.message}</div>`;
-            this.showError('メタデータの更新に失敗しました');
+            console.error('メタデータ更新エラー:', error);
+            metadataTree.innerHTML = `<div class="error-message">メタデータの更新に失敗しました: ${error.message}</div>`;
         }
     }
 
     buildMetadataTree(allMetadata) {
         const metadataTree = document.getElementById('metadata-tree');
         if (!metadataTree) return;
-        metadataTree.innerHTML = '';
 
-        if (Array.isArray(allMetadata) && allMetadata.length > 0) {
-            const schemaList = document.createElement('ul');
-            schemaList.className = 'schema-list';
-            allMetadata.forEach(schema => {
-                const li = document.createElement('li');
-                const schemaLink = document.createElement('div');
-                schemaLink.className = 'schema-link collapsed';
-                schemaLink.innerHTML = `<span class="toggle-icon">▶</span><span>${schema.name}</span>`;
-                schemaLink.onclick = () => this.toggleSchema(schema.name, li);
-                li.appendChild(schemaLink);
-                schemaList.appendChild(li);
-            });
-            metadataTree.appendChild(schemaList);
-        } else {
-            metadataTree.innerHTML = '<p class="text-muted">スキーマ情報がありません。</p>';
+        let html = '';
+        
+        for (const schemaData of allMetadata) {
+            const schemaName = schemaData.name;
+            const tables = schemaData.tables || [];
+            
+            html += `
+                <div class="schema-item">
+                    <a href="#" class="schema-link" onclick="window.sqlWebApp.toggleSchema('${schemaName}', this)">
+                        <i class="fas fa-folder toggle-icon"></i>
+                        <i class="fas fa-database me-2"></i>
+                        ${schemaName}
+                        <span class="badge bg-secondary ms-2">${tables.length}</span>
+                    </a>
+                    <ul class="table-list" id="tables-${schemaName}" style="display: none;">
+            `;
+            
+            for (const tableData of tables) {
+                const tableName = tableData.name;
+                const tableType = tableData.table_type;
+                const iconClass = tableType === 'VIEW' ? 'fas fa-eye' : 'fas fa-table';
+                
+                html += `
+                    <li>
+                        <a href="#" class="table-link" onclick="window.sqlWebApp.toggleTable('${schemaName}', '${tableName}', this)">
+                            <i class="fas fa-chevron-right toggle-icon"></i>
+                            <i class="${iconClass} me-2"></i>
+                            ${tableName}
+                            <span class="badge bg-info ms-2">${tableType}</span>
+                        </a>
+                        <ul class="column-list" id="columns-${schemaName}-${tableName}" style="display: none;"></ul>
+                    </li>
+                `;
+            }
+            
+            html += `
+                    </ul>
+                </div>
+            `;
         }
+        
+        metadataTree.innerHTML = html;
     }
 
     toggleSchema(schemaName, schemaItem) {
-        const schemaLink = schemaItem.querySelector('.schema-link');
-        const icon = schemaItem.querySelector('.toggle-icon');
-        const isCollapsed = schemaLink.classList.contains('collapsed');
-        let tableList = schemaItem.querySelector('.table-list');
-        
-        if (isCollapsed) {
-            schemaLink.classList.remove('collapsed');
-            icon.textContent = '▼';
-            if (!tableList) {
-                const schemaData = this.allMetadata.find(s => s.name === schemaName);
-                if (schemaData && schemaData.tables) {
-                    this.buildTableList(schemaData.tables, schemaItem);
-                }
-            } else {
-                tableList.style.display = 'block';
-            }
-        } else {
-            schemaLink.classList.add('collapsed');
-            icon.textContent = '▶';
-            if (tableList) tableList.style.display = 'none';
-        }
+        const tableList = document.getElementById(`tables-${schemaName}`);
+        if (!tableList) return;
+
+        const isCollapsed = tableList.style.display === 'none';
+        tableList.style.display = isCollapsed ? 'block' : 'none';
+        schemaItem.classList.toggle('collapsed', !isCollapsed);
     }
 
     buildTableList(tables, schemaItem) {
-        const tableList = document.createElement('ul');
-        tableList.className = 'table-list';
-        tables.forEach(table => {
-            const li = document.createElement('li');
-            const tableLink = document.createElement('div');
-            tableLink.className = 'table-link collapsed';
-            tableLink.innerHTML = `<span class="toggle-icon">▶</span><span>${table.name}</span>`;
-            tableLink.onclick = () => this.toggleTable(table.schema_name, table.name, li);
-            li.appendChild(tableLink);
-            tableList.appendChild(li);
-        });
-        schemaItem.appendChild(tableList);
+        let html = '';
+        for (const table of tables) {
+            const iconClass = table.table_type === 'VIEW' ? 'fas fa-eye' : 'fas fa-table';
+            html += `
+                <li>
+                    <a href="#" class="table-link" onclick="window.sqlWebApp.toggleTable('${table.schema_name}', '${table.name}', this)">
+                        <i class="fas fa-chevron-right toggle-icon"></i>
+                        <i class="${iconClass} me-2"></i>
+                        ${table.name}
+                        <span class="badge bg-info ms-2">${table.table_type}</span>
+                    </a>
+                    <ul class="column-list" id="columns-${table.schema_name}-${table.name}" style="display: none;"></ul>
+                </li>
+            `;
+        }
+        return html;
     }
 
     async toggleTable(schemaName, tableName, tableItem) {
-        const tableLink = tableItem.querySelector('.table-link');
-        const icon = tableItem.querySelector('.toggle-icon');
-        const isCollapsed = tableLink.classList.contains('collapsed');
-        let columnList = tableItem.querySelector('.column-list');
+        const columnList = document.getElementById(`columns-${schemaName}-${tableName}`);
+        if (!columnList) return;
 
-        if (isCollapsed) {
-            tableLink.classList.remove('collapsed');
-            icon.textContent = '▼';
-            if (!columnList) {
-                // 初期データからカラム情報を取得
-                const columns = this.getColumnsFromMetadata(schemaName, tableName);
-                if (columns && columns.length > 0) {
-                    this.buildColumnList(columns, tableItem);
-                } else {
-                    // カラム情報がない場合はローディング表示
-                    const loadingColumns = document.createElement('ul');
-                    loadingColumns.className = 'column-list';
-                    loadingColumns.innerHTML = '<li><div class="column-item"><em>カラム情報なし</em></div></li>';
-                    tableItem.appendChild(loadingColumns);
-                }
+        const isCollapsed = columnList.style.display === 'none';
+        
+        if (isCollapsed && columnList.children.length === 0) {
+            // カラム情報を取得
+            const columns = this.getColumnsFromMetadata(schemaName, tableName);
+            if (columns.length > 0) {
+                this.buildColumnList(columns, columnList);
             } else {
-                columnList.style.display = 'block';
+                // メタデータにカラム情報がない場合はAPIから取得
+                try {
+                    const response = await fetch(`${this.apiBase}/metadata/schemas/${schemaName}/tables/${tableName}/columns`);
+                    if (response.ok) {
+                        const columns = await response.json();
+                        this.buildColumnList(columns, columnList);
+                    }
+                } catch (error) {
+                    console.error('カラム情報取得エラー:', error);
+                }
             }
-        } else {
-            tableLink.classList.add('collapsed');
-            icon.textContent = '▶';
-            if (columnList) columnList.style.display = 'none';
         }
+
+        columnList.style.display = isCollapsed ? 'block' : 'none';
+        tableItem.classList.toggle('collapsed', !isCollapsed);
     }
 
     getColumnsFromMetadata(schemaName, tableName) {
-        // 初期データからカラム情報を取得
         if (!this.allMetadata) return [];
         
-        for (const schema of this.allMetadata) {
-            if (schema.name === schemaName) {
-                for (const table of schema.tables || []) {
-                    if (table.name === tableName) {
-                        return table.columns || [];
+        for (const schemaData of this.allMetadata) {
+            if (schemaData.name === schemaName) {
+                for (const tableData of schemaData.tables || []) {
+                    if (tableData.name === tableName) {
+                        return tableData.columns || [];
                     }
                 }
             }
@@ -352,55 +468,45 @@ class SQLWebApp {
     }
 
     buildColumnList(columns, tableItem) {
-        const columnList = document.createElement('ul');
-        columnList.className = 'column-list';
-        columns.forEach(column => {
-            const li = document.createElement('li');
-            const columnItem = document.createElement('div');
-            columnItem.className = 'column-item';
-            columnItem.innerHTML = `
-                <span class="column-name">${column.name}</span>
-                <span class="column-type">${column.data_type}</span>
+        let html = '';
+        for (const column of columns) {
+            html += `
+                <li class="column-item">
+                    <span class="column-name">${column.name}</span>
+                    <span class="column-type">${column.data_type}</span>
+                </li>
             `;
-            li.appendChild(columnItem);
-            columnList.appendChild(li);
-        });
-        tableItem.appendChild(columnList);
+        }
+        tableItem.innerHTML = html;
     }
 
     setupDataTable() {
-        // データテーブルの初期化
-        const resultsContainer = document.getElementById('resultsContainer');
-        if (resultsContainer) {
-            resultsContainer.innerHTML = `
-                <div class="data-controls">
-                    <div class="filter-section">
-                        <input type="text" id="filterInput" placeholder="フィルター..." class="filter-input">
-                    </div>
-                    <div class="sort-info">
-                        <span id="sortInfo">並び替えなし</span>
-                    </div>
-                </div>
-                <div id="dataTable"></div>
-            `;
+        // データテーブルの設定
+        const dataTable = document.getElementById('dataTable');
+        if (dataTable) {
+            dataTable.innerHTML = '<p class="text-muted">結果がありません</p>';
         }
     }
 
     setupSorting() {
-        const headers = document.querySelectorAll('.sortable-header');
-        headers.forEach(header => {
-            header.addEventListener('click', () => {
+        // 動的に追加されたテーブルヘッダーにソート機能を追加
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.sortable-header')) {
+                const header = e.target.closest('.sortable-header');
                 const column = header.dataset.column;
-                this.sortData(column);
-            });
+                if (column) {
+                    this.sortData(column);
+                }
+            }
         });
     }
 
     async executeSQL() {
-        const sql = sqlEditor ? sqlEditor.getValue().trim() : document.getElementById('sql-editor').value.trim();
+        if (!this.sqlEditor) return;
 
-        if (!sql) {
-            this.showError('SQLクエリを入力してください');
+        const sql = this.sqlEditor.getValue();
+        if (!sql.trim()) {
+            this.showError('SQLクエリを入力してください。');
             return;
         }
 
@@ -408,9 +514,8 @@ class SQLWebApp {
         this.clearMessages();
 
         try {
-            // 結果制限のチェックボックスの状態を取得
             const limitCheck = document.getElementById('limit-check');
-            const limit = limitCheck && limitCheck.checked ? 5000 : 1000;
+            const limit = limitCheck && limitCheck.checked ? 5000 : null;
 
             const response = await fetch(`${this.apiBase}/sql/execute`, {
                 method: 'POST',
@@ -423,33 +528,33 @@ class SQLWebApp {
                 })
             });
 
-            const result = await response.json();
-            console.log('SQL execution result:', result); // デバッグ用
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
 
+            const result = await response.json();
+            
             if (result.success) {
                 this.displayResults(result);
-                this.showSuccess(`クエリが正常に実行されました (${result.row_count}行)`);
-                this.updateConnectionStatus(true); // 成功時に接続状態を更新
+                this.showSuccess(`SQL実行成功: ${result.row_count}件のデータを取得しました。`);
             } else {
-                const errorMessage = result.error_message || '不明なエラーが発生しました';
-                console.error('SQL execution error:', errorMessage);
-                this.showError(`SQL実行エラー: ${errorMessage}`);
-                this.updateConnectionStatus(false); // エラー時に接続状態を更新
+                this.showError(`SQL実行エラー: ${result.error_message}`);
             }
+
         } catch (error) {
-            console.error('SQL execution request error:', error);
-            this.showError(`リクエストエラー: ${error.message}`);
-            this.updateConnectionStatus(false); // エラー時に接続状態を更新
+            console.error('SQL実行エラー:', error);
+            this.showError(`SQL実行エラー: ${error.message}`);
         } finally {
             this.showLoading(false);
         }
     }
 
     async validateSQL() {
-        const sql = sqlEditor ? sqlEditor.getValue().trim() : document.getElementById('sql-editor').value.trim();
+        if (!this.sqlEditor) return;
 
-        if (!sql) {
-            this.showError('SQLクエリを入力してください');
+        const sql = this.sqlEditor.getValue();
+        if (!sql.trim()) {
+            this.showError('SQLクエリを入力してください。');
             return;
         }
 
@@ -464,23 +569,48 @@ class SQLWebApp {
                 body: JSON.stringify({ sql: sql })
             });
 
-            const result = await response.json();
-
-            if (result.is_valid) {
-                this.showSuccess('SQLクエリは有効です');
-            } else {
-                this.showError(`SQLバリデーションエラー: ${result.errors.join(', ')}`);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+
+            const result = await response.json();
+            
+            const validationResult = document.getElementById('validation-result');
+            if (validationResult) {
+                if (result.is_valid) {
+                    validationResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            SQLバリデーション成功
+                            ${result.suggestions.length > 0 ? `<br><small>提案: ${result.suggestions.join(', ')}</small>` : ''}
+                        </div>
+                    `;
+                } else {
+                    validationResult.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            SQLバリデーションエラー
+                            <ul class="mb-0 mt-2">
+                                ${result.errors.map(error => `<li>${error}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                validationResult.style.display = 'block';
+            }
+
         } catch (error) {
-            this.showError(`バリデーションエラー: ${error.message}`);
+            console.error('SQLバリデーションエラー:', error);
+            this.showError(`SQLバリデーションエラー: ${error.message}`);
         }
     }
 
     async formatSQL() {
-        const sql = sqlEditor ? sqlEditor.getValue().trim() : document.getElementById('sql-editor').value.trim();
+        if (!this.sqlEditor) return;
 
-        if (!sql) {
-            this.showError('SQLクエリを入力してください');
+        const sql = this.sqlEditor.getValue();
+        if (!sql.trim()) {
+            this.showError('SQLクエリを入力してください。');
             return;
         }
 
@@ -495,174 +625,107 @@ class SQLWebApp {
                 body: JSON.stringify({ sql: sql })
             });
 
-            const result = await response.json();
-
-            if (result.formatted_sql) {
-                if (sqlEditor) {
-                    sqlEditor.setValue(result.formatted_sql);
-                } else {
-                    document.getElementById('sql-editor').value = result.formatted_sql;
-                }
-                this.showSuccess('SQLクエリを整形しました');
-            } else {
-                this.showError('SQLクエリの整形に失敗しました');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.sqlEditor.setValue(result.formatted_sql);
+                this.showSuccess('SQL整形が完了しました。');
+            } else {
+                this.showError(`SQL整形エラー: ${result.error_message}`);
+            }
+
         } catch (error) {
-            this.showError(`整形エラー: ${error.message}`);
+            console.error('SQL整形エラー:', error);
+            this.showError(`SQL整形エラー: ${error.message}`);
         }
     }
 
     clearSQL() {
-        if (sqlEditor) {
-            sqlEditor.setValue('');
-        } else {
-            document.getElementById('sql-editor').value = '';
+        if (this.sqlEditor) {
+            this.sqlEditor.setValue('');
+            this.sqlEditor.focus();
         }
-        this.clearResults();
-        this.clearMessages();
     }
 
     displayResults(result) {
         this.currentResults = result;
-
-        // 結果コンテナを表示状態にする
+        
         const resultsContainer = document.getElementById('results-container');
+        const resultInfo = document.getElementById('result-info');
+        const executionTime = document.getElementById('execution-time');
+        
         if (resultsContainer) {
             resultsContainer.style.display = 'block';
         }
-
-        // 実行結果の統計情報を更新
-        document.getElementById('result-info').textContent = `${result.row_count}件`;
-        document.getElementById('execution-time').textContent = `${result.execution_time.toFixed(3)}秒`;
-
-        this.setupDataTable();
         
-        const dataTable = document.getElementById('dataTable');
-        if (!dataTable || !result.data || result.data.length === 0) {
-            dataTable.innerHTML = '<p class="text-muted">結果がありません</p>';
-            return;
+        if (resultInfo) {
+            resultInfo.textContent = `${result.row_count}件`;
+        }
+        
+        if (executionTime) {
+            executionTime.textContent = `${result.execution_time.toFixed(3)}秒`;
         }
 
-        // テーブルヘッダーを作成
-        const table = document.createElement('table');
-        table.className = 'table table-striped table-hover';
-        
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        
-        result.columns.forEach(column => {
-            const th = document.createElement('th');
-            th.className = 'sortable-header';
-            th.dataset.column = column;
-            th.innerHTML = `
-                ${column}
-                <span class="sort-icon">↕</span>
-            `;
-            headerRow.appendChild(th);
-        });
-        
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        // テーブルボディを作成
-        const tbody = document.createElement('tbody');
-        result.data.forEach(row => {
-            const tr = document.createElement('tr');
-            result.columns.forEach(column => {
-                const td = document.createElement('td');
-                td.textContent = row[column] !== null ? String(row[column]) : '';
-                tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
-        });
-        
-        table.appendChild(tbody);
-        dataTable.appendChild(table);
-        
-        // 並び替え機能を設定
-        this.setupSorting();
+        this.redrawTable();
     }
 
     clearResults() {
-        this.currentResults = null;
-        this.currentSortColumn = null;
-        this.currentSortDirection = 'asc';
-        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsContainer = document.getElementById('results-container');
         if (resultsContainer) {
-            resultsContainer.innerHTML = '';
+            resultsContainer.style.display = 'none';
         }
+        this.currentResults = null;
     }
 
     async exportData(format = null) {
-        // データではなく、実行されたSQLクエリの存在をチェック
-        if (!this.currentResults || !this.currentResults.sql) {
-            this.showError('エクスポート対象のクエリがありません。まずクエリを実行してください。');
+        if (!this.currentResults || !this.currentResults.data) {
+            this.showError('エクスポートするデータがありません。');
             return;
         }
 
-        const exportCsvBtn = document.getElementById('exportCsvBtn');
-        if (exportCsvBtn) exportCsvBtn.disabled = true;
-
-        this.showSuccess('エクスポート処理を開始しました。データ量に応じて数分かかる場合があります...');
-
         try {
-            // ファイル名を生成
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const filename = `export_${timestamp}.${format === 'excel' ? 'xlsx' : format}`;
-
-            // ストリーミングレスポンスを直接ダウンロード
             const response = await fetch(`${this.apiBase}/export`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    sql: this.currentResults.sql, // 実行したSQLを渡す
-                    format: format,
-                    filename: filename
+                    data: this.currentResults.data,
+                    columns: this.currentResults.columns,
+                    filename: 'export',
+                    format: format || 'csv'
                 })
             });
 
             if (!response.ok) {
-                // エラーレスポンスの場合
-                const errorText = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            // ストリーミングレスポンスからBlobを作成
             const blob = await response.blob();
+            const filename = `export_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
+            this.downloadBlob(blob, filename);
             
-            // ファイル名を取得（Content-Dispositionヘッダーから）
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let finalFilename = filename;
-            if (contentDisposition) {
-                const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
-                if (filenameMatch) {
-                    finalFilename = filenameMatch[1];
-                }
-            }
-
-            // ダウンロードを実行
-            this.downloadBlob(blob, finalFilename);
-            this.showSuccess(`ダウンロードを開始します: ${finalFilename}`);
+            this.showSuccess('CSVファイルのエクスポートが完了しました。');
 
         } catch (error) {
-            console.error('Export error:', error);
+            console.error('エクスポートエラー:', error);
             this.showError(`エクスポートエラー: ${error.message}`);
-        } finally {
-            // エクスポートボタンを再有効化
-            if (exportCsvBtn) exportCsvBtn.disabled = false;
         }
     }
 
     downloadBlob(blob, filename) {
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = filename;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(downloadLink.href);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
     }
 
     showLoading(show) {
@@ -830,34 +893,6 @@ function toggleSchema(schemaId) {
 
 // DOMContentLoadedイベント
 document.addEventListener('DOMContentLoaded', function() {
-    // SQLエディタの初期化
-    const sqlEditorElement = document.getElementById('sql-editor');
-    if (sqlEditorElement) {
-        sqlEditor = CodeMirror.fromTextArea(sqlEditorElement, {
-            mode: 'text/x-sql',
-            theme: 'monokai',
-            lineNumbers: true,
-            matchBrackets: true,
-            autoCloseBrackets: true,
-            styleActiveLine: true,
-            indentUnit: 4,
-            tabSize: 4,
-            lineWrapping: true,
-            extraKeys: {
-                'Ctrl-Enter': function() { window.sqlWebApp.executeSQL(); },
-                'Ctrl-Space': 'autocomplete',
-                'Ctrl-Shift-F': function() { window.sqlWebApp.formatSQL(); },
-                'Ctrl-L': function() { window.sqlWebApp.clearSQL(); },
-                'Ctrl-Shift-V': function() { window.sqlWebApp.validateSQL(); },
-                'F11': toggleFullscreen,
-                'F1': showKeyboardShortcuts
-            }
-        });
-        
-        // エディタのサイズを調整
-        sqlEditor.setSize('100%', '100%');
-    }
-    
     // SQLWebAppインスタンスを作成
     window.sqlWebApp = new SQLWebApp();
 });

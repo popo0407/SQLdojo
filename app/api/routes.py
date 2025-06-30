@@ -20,7 +20,8 @@ import io
 
 from app.api.models import (
     SQLRequest, SQLResponse, SQLValidationRequest, SQLValidationResponse,
-    SQLFormatRequest, SQLFormatResponse, SchemaInfo, TableInfo, ColumnInfo,
+    SQLFormatRequest, SQLFormatResponse, SQLCompletionRequest, SQLCompletionResponse,
+    SchemaInfo, TableInfo, ColumnInfo,
     TableDetailInfo, SchemaListResponse, TableListResponse, DownloadRequest,
     DownloadResponse, DownloadStatusResponse, HealthCheckResponse,
     PerformanceMetricsResponse, ExportRequest, ExportResponse, ExportHistoryResponse,
@@ -32,7 +33,7 @@ from app.config_simplified import get_settings
 from app import __version__
 from app.dependencies import (
     SQLServiceDep, MetadataServiceDep, PerformanceServiceDep, ExportServiceDep,
-    SQLValidatorDep, ConnectionManagerDep
+    SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
 from app.services.database_service import DatabaseService
@@ -40,6 +41,7 @@ from app.services.metadata_service import MetadataService
 from app.services.export_service import ExportService
 from app.services.performance_service import PerformanceService
 from app.services.sql_service import SQLService
+from app.services.completion_service import CompletionService
 from app.logger import Logger
 
 # グローバルなThreadPoolExecutorを作成
@@ -339,4 +341,28 @@ async def clear_cache_endpoint(metadata_service: MetadataServiceDep):
     """メタデータキャッシュをクリア"""
     logger.info("メタデータキャッシュクリア要求")
     await run_in_threadpool(metadata_service.clear_cache)
-    return {"message": "メタデータキャッシュがクリアされました"} 
+    return {"message": "メタデータキャッシュがクリアされました"}
+
+
+@router.post("/sql/suggest", response_model=SQLCompletionResponse)
+@log_execution_time("sql_suggest")
+async def suggest_sql_endpoint(
+    request: SQLCompletionRequest,
+    completion_service: CompletionServiceDep
+):
+    """SQL補完候補取得エンドポイント"""
+    logger.info("SQL補完候補要求", position=request.position, sql_length=len(request.sql))
+    
+    if not request.sql:
+        raise SQLValidationError("SQLクエリが必要です。")
+
+    result = await run_in_threadpool(
+        completion_service.get_completions,
+        request.sql,
+        request.position,
+        request.context
+    )
+    
+    logger.info("SQL補完候補取得完了", suggestion_count=len(result.suggestions))
+    
+    return result 

@@ -18,6 +18,7 @@ from app.services.sql_service import SQLService
 from app.services.metadata_service import MetadataService
 from app.services.performance_service import PerformanceService
 from app.services.export_service import ExportService
+from app.services.completion_service import CompletionService
 
 
 # 設定の依存性注入
@@ -102,6 +103,14 @@ def get_export_service_di(
     return ExportService(query_executor)
 
 
+# 補完サービスの依存性注入
+def get_completion_service_di(
+    metadata_service: Annotated[MetadataService, Depends(get_metadata_service_di)]
+) -> CompletionService:
+    """補完サービスを取得"""
+    return CompletionService(metadata_service)
+
+
 # 型エイリアス（使用例）
 ConnectionManagerDep = Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)]
 QueryExecutorDep = Annotated[QueryExecutor, Depends(get_query_executor_di)]
@@ -110,5 +119,6 @@ SQLServiceDep = Annotated[SQLService, Depends(get_sql_service_di)]
 MetadataServiceDep = Annotated[MetadataService, Depends(get_metadata_service_di)]
 PerformanceServiceDep = Annotated[PerformanceService, Depends(get_performance_service_di)]
 ExportServiceDep = Annotated[ExportService, Depends(get_export_service_di)]
+CompletionServiceDep = Annotated[CompletionService, Depends(get_completion_service_di)]
 SQLValidatorDep = Annotated[SQLValidator, Depends(get_sql_validator_di)]
 MetadataCacheDep = Annotated[MetadataCache, Depends(get_metadata_cache_di)] 

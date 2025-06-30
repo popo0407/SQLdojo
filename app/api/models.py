@@ -51,6 +51,29 @@ class SQLFormatResponse(BaseModel):
     error_message: Optional[str] = Field(default=None, description="エラーメッセージ")
 
 
+class SQLCompletionRequest(BaseModel):
+    """SQL補完リクエスト"""
+    sql: str = Field(..., description="現在のSQLクエリ")
+    position: int = Field(..., description="カーソル位置")
+    context: Optional[Dict[str, Any]] = Field(default=None, description="補完コンテキスト")
+
+
+class SQLCompletionItem(BaseModel):
+    """SQL補完アイテム"""
+    label: str = Field(..., description="表示ラベル")
+    kind: str = Field(..., description="アイテム種別（keyword, table, column, schema等）")
+    detail: Optional[str] = Field(default=None, description="詳細説明")
+    documentation: Optional[str] = Field(default=None, description="ドキュメント")
+    insert_text: Optional[str] = Field(default=None, description="挿入テキスト")
+    sort_text: Optional[str] = Field(default=None, description="ソート用テキスト")
+
+
+class SQLCompletionResponse(BaseModel):
+    """SQL補完レスポンス"""
+    suggestions: List[SQLCompletionItem] = Field(default=[], description="補完候補リスト")
+    is_incomplete: bool = Field(default=False, description="候補が不完全かどうか")
+
+
 class SchemaInfo(BaseModel):
     """スキーマ情報"""
     name: str = Field(..., description="スキーマ名")
