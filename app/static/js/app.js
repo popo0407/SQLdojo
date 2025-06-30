@@ -451,16 +451,22 @@ class SQLWebApp {
             schemaItem.className = 'schema-item mb-1';
             
             const schemaHeader = document.createElement('div');
-            schemaHeader.className = 'schema-header d-flex align-items-center p-2 rounded-1 collapsed';
+            schemaHeader.className = 'schema-header d-flex align-items-center p-2 rounded-1';
             schemaHeader.style.cursor = 'pointer';
+            
+            // スキーマのコメント情報を取得
+            const schemaComment = schema.comment || '';
+            const schemaTitle = schemaComment ? `${schema.name} - ${schemaComment}` : schema.name;
+            
             schemaHeader.innerHTML = `
-                <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
+                <i class="fas fa-chevron-down fa-fw me-2 toggle-icon"></i>
                 <i class="fas fa-database fa-fw me-1 text-secondary"></i>
-                <span class="fw-bold">${schema.name}</span>
+                <span class="fw-bold" title="${schemaComment}">${schema.name}</span>
+                ${schemaComment ? `<small class="text-muted ms-2">${schemaComment}</small>` : ''}
             `;
             
             const schemaContent = document.createElement('div');
-            schemaContent.className = 'schema-content collapsed';
+            schemaContent.className = 'schema-content';
             
             const tableList = document.createElement('ul');
             tableList.className = 'list-unstyled ps-3';
@@ -470,24 +476,38 @@ class SQLWebApp {
                     const tableItem = document.createElement('li');
                     
                     const tableHeader = document.createElement('div');
-                    tableHeader.className = 'table-link d-flex align-items-center p-1 rounded-1 collapsed';
+                    tableHeader.className = 'table-link d-flex align-items-center p-1 rounded-1';
                     tableHeader.style.cursor = 'pointer';
+                    
+                    // テーブルのコメント情報を取得
+                    const tableComment = table.comment || '';
+                    const tableTitle = tableComment ? `${table.name} - ${tableComment}` : table.name;
+                    
                     tableHeader.innerHTML = `
-                        <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
+                        <i class="fas fa-chevron-down fa-fw me-2 toggle-icon"></i>
                         <i class="fas ${table.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} fa-fw me-1 text-secondary"></i>
-                        <span>${table.name}</span>
+                        <span title="${tableComment}">${table.name}</span>
+                        ${tableComment ? `<small class="text-muted ms-2">${tableComment}</small>` : ''}
                     `;
 
                     const columnList = document.createElement('ul');
-                    columnList.className = 'column-list list-unstyled ps-4 mt-1 collapsed';
+                    columnList.className = 'column-list list-unstyled ps-4 mt-1';
 
                     if (table.columns && Array.isArray(table.columns)) {
                         table.columns.forEach(column => {
                             const columnItem = document.createElement('li');
                             columnItem.className = 'column-item d-flex justify-content-between align-items-center p-1';
+                            
+                            // カラムのコメント情報を取得
+                            const columnComment = column.comment || '';
+                            const columnTitle = columnComment ? `${column.name} - ${columnComment}` : column.name;
+                            
                             columnItem.innerHTML = `
-                                <span class="column-name text-body-secondary">${column.name}</span>
-                                <span class="column-type text-muted small">${column.data_type}</span>
+                                <span class="column-name text-body-secondary" title="${columnComment}">${column.name}</span>
+                                <div class="d-flex align-items-center">
+                                    <span class="column-type text-muted small me-2">${column.data_type}</span>
+                                    ${columnComment ? `<small class="text-muted">${columnComment}</small>` : ''}
+                                </div>
                             `;
                             columnList.appendChild(columnItem);
                         });
@@ -495,11 +515,21 @@ class SQLWebApp {
 
                     tableHeader.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        tableHeader.classList.toggle('collapsed');
-                        columnList.classList.toggle('collapsed');
-                        const icon = tableHeader.querySelector('.toggle-icon');
-                        icon.classList.toggle('fa-chevron-right');
-                        icon.classList.toggle('fa-chevron-down');
+                        const isCollapsed = tableHeader.classList.contains('collapsed');
+                        
+                        if (isCollapsed) {
+                            tableHeader.classList.remove('collapsed');
+                            columnList.classList.remove('collapsed');
+                            const icon = tableHeader.querySelector('.toggle-icon');
+                            icon.classList.remove('fa-chevron-right');
+                            icon.classList.add('fa-chevron-down');
+                        } else {
+                            tableHeader.classList.add('collapsed');
+                            columnList.classList.add('collapsed');
+                            const icon = tableHeader.querySelector('.toggle-icon');
+                            icon.classList.remove('fa-chevron-down');
+                            icon.classList.add('fa-chevron-right');
+                        }
                     });
 
                     tableItem.appendChild(tableHeader);
@@ -515,11 +545,21 @@ class SQLWebApp {
             
             // スキーマの展開・折りたたみ
             schemaHeader.addEventListener('click', () => {
-                schemaHeader.classList.toggle('collapsed');
-                schemaContent.classList.toggle('collapsed');
-                const icon = schemaHeader.querySelector('.toggle-icon');
-                icon.classList.toggle('fa-chevron-right');
-                icon.classList.toggle('fa-chevron-down');
+                const isCollapsed = schemaHeader.classList.contains('collapsed');
+                
+                if (isCollapsed) {
+                    schemaHeader.classList.remove('collapsed');
+                    schemaContent.classList.remove('collapsed');
+                    const icon = schemaHeader.querySelector('.toggle-icon');
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-down');
+                } else {
+                    schemaHeader.classList.add('collapsed');
+                    schemaContent.classList.add('collapsed');
+                    const icon = schemaHeader.querySelector('.toggle-icon');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-right');
+                }
             });
         });
     }
@@ -563,11 +603,9 @@ class SQLWebApp {
     }
 
     getColumnsFromMetadata(schemaName, tableName) {
-        if (!this.allMetadata || !this.allMetadata.schemas) return [];
-        
-        const schema = this.allMetadata.schemas.find(s => s.name === schemaName);
+        if (!this.allMetadata || !Array.isArray(this.allMetadata)) return [];
+        const schema = this.allMetadata.find(s => s.name === schemaName);
         if (!schema) return [];
-        
         const table = schema.tables.find(t => t.name === tableName);
         return table ? table.columns : [];
     }

@@ -48,6 +48,7 @@ class MetadataCache:
                     row_count INTEGER,
                     created_on TEXT,
                     last_altered TEXT,
+                    comment TEXT,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY (schema_name, name)
                 )
@@ -61,6 +62,7 @@ class MetadataCache:
                     schema_name TEXT NOT NULL,
                     data_type TEXT,
                     is_nullable BOOLEAN,
+                    comment TEXT,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY (schema_name, table_name, name)
                 )
@@ -87,24 +89,49 @@ class MetadataCache:
                     cursor.execute(schema_sql, schema_params)
                     
                     for table_data in schema_data.get('tables', []):
-                        # テーブル情報を保存
-                        table_sql = """INSERT OR IGNORE INTO tables (name, schema_name, table_type, row_count, created_on, last_altered) 
-                                      VALUES (?, ?, ?, ?, ?, ?)"""
-                        table_params = (table_data.get('name'), schema_data.get('name'), table_data.get('table_type'), 
-                                      table_data.get('row_count'), table_data.get('created_on'), table_data.get('last_altered'))
+                        # row_count, created_on, last_altered, comment型変換
+                        row_count = table_data.get('row_count')
+                        if row_count is not None:
+                            try:
+                                row_count = int(row_count)
+                            except Exception:
+                                row_count = None
+                        table_sql = """INSERT OR IGNORE INTO tables (name, schema_name, table_type, row_count, created_on, last_altered, comment) 
+                                      VALUES (?, ?, ?, ?, ?, ?, ?)"""
+                        table_params = (
+                            table_data.get('name'),
+                            schema_data.get('name'),
+                            table_data.get('table_type'),
+                            row_count,
+                            table_data.get('created_on'),
+                            table_data.get('last_altered'),
+                            table_data.get('comment')
+                        )
                         cursor.execute(table_sql, table_params)
                         
                         for column_data in table_data.get('columns', []):
-                            # カラム情報を保存
-                            column_sql = """INSERT OR IGNORE INTO columns (name, table_name, schema_name, data_type, is_nullable)
-                                          VALUES (?, ?, ?, ?, ?)"""
-                            column_params = (column_data.get('name'), table_data.get('name'), schema_data.get('name'),
-                                           column_data.get('data_type'), column_data.get('is_nullable'))
+                            # is_nullable型変換
+                            is_nullable = column_data.get('is_nullable')
+                            if is_nullable is not None:
+                                is_nullable = bool(is_nullable)
+                            # ordinal_position, default_valueは保存しない
+                            column_sql = """INSERT OR IGNORE INTO columns (name, table_name, schema_name, data_type, is_nullable, comment)
+                                          VALUES (?, ?, ?, ?, ?, ?)"""
+                            column_params = (
+                                column_data.get('name'),
+                                table_data.get('name'),
+                                schema_data.get('name'),
+                                column_data.get('data_type'),
+                                is_nullable,
+                                column_data.get('comment')
+                            )
                             cursor.execute(column_sql, column_params)
                 conn.commit()
                 self.logger.info("メタデータキャッシュを更新しました")
         except Exception as e:
             self.logger.error("メタデータキャッシュの保存に失敗", error=str(e))
+            # 例外を再発生させる
+            raise
 
     def load_schemas(self) -> List[Dict[str, Any]]:
         """SQLiteからスキーマ一覧を取得"""

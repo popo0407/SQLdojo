@@ -200,17 +200,23 @@ class CompletionService:
             for table_data in tables:
                 table_name = table_data.get("name", "")
                 table_type = table_data.get("table_type", "TABLE")
+                table_comment = table_data.get("comment", "")
 
                 # Generate label and insert_text without schema name
                 label = table_name
                 insert_text = table_name
 
                 if table_name.upper().startswith(current_word):
+                    # コメント情報を含むドキュメントを作成
+                    documentation = f"{table_type} in schema {schema_name}."
+                    if table_comment:
+                        documentation += f"\n\nComment: {table_comment}"
+
                     suggestions.append(SQLCompletionItem(
                         label=label,
                         kind="table" if table_type == "TABLE" else "view",
                         detail=f"{table_type}: {table_name}",
-                        documentation=f"{table_type} in schema {schema_name}.",
+                        documentation=documentation,
                         insert_text=insert_text,
                         sort_text=f"4_{label}"
                     ))
@@ -297,13 +303,19 @@ class CompletionService:
                     for column_data in columns:
                         column_name = column_data.get("name", "")
                         data_type = column_data.get("data_type", "")
+                        column_comment = column_data.get("comment", "")
                         
                         if not current_word or column_name.upper().startswith(current_word):
+                            # コメント情報を含むドキュメントを作成
+                            documentation = f"Column in table {table_data.get('name', '')}. Data type: {data_type}"
+                            if column_comment:
+                                documentation += f"\n\nComment: {column_comment}"
+                            
                             suggestions.append(SQLCompletionItem(
                                 label=column_name,
                                 kind="column",
                                 detail=f"Column: {column_name} ({data_type})",
-                                documentation=f"Column in table {table_data.get('name', '')}. Data type: {data_type}",
+                                documentation=documentation,
                                 insert_text=column_name,
                                 sort_text=f"5_{table_data.get('name', '')}.{column_name}"
                             ))
@@ -325,13 +337,19 @@ class CompletionService:
                 for column_data in columns:
                     column_name = column_data.get("name", "")
                     data_type = column_data.get("data_type", "")
+                    column_comment = column_data.get("comment", "")
 
                     if not current_word or column_name.upper().startswith(current_word):
+                        # コメント情報を含むドキュメントを作成
+                        documentation = f"Column in table {table_name}. Data type: {data_type}"
+                        if column_comment:
+                            documentation += f"\n\nComment: {column_comment}"
+
                         suggestions.append(SQLCompletionItem(
                             label=column_name,
                             kind="column",
                             detail=f"Column: {column_name} ({data_type})",
-                            documentation=f"Column in table {table_name}. Data type: {data_type}",
+                            documentation=documentation,
                             insert_text=column_name,
                             sort_text=f"5_{table_name}.{column_name}"
                         ))

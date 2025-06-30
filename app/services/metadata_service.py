@@ -484,7 +484,7 @@ class MetadataService:
                     "owner": row.get("schema_owner", ""),
                 })
             
-            # 2. 全テーブル情報を一度に取得
+            # 2. 全テーブル情報を一度に取得（コメント情報を含む）
             all_tables_sql = """
             SELECT 
                 TABLE_SCHEMA,
@@ -492,7 +492,8 @@ class MetadataService:
                 TABLE_TYPE,
                 ROW_COUNT,
                 CREATED,
-                LAST_ALTERED
+                LAST_ALTERED,
+                COMMENT
             FROM INFORMATION_SCHEMA.TABLES 
             WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA')
             ORDER BY TABLE_SCHEMA, TABLE_NAME
@@ -517,9 +518,10 @@ class MetadataService:
                     "row_count": row.get("row_count", 0),
                     "created_on": str(row.get("created", "")),
                     "last_altered": str(row.get("last_altered", "")),
+                    "comment": row.get("comment"),
                 })
             
-            # 3. 全カラム情報を一度に取得
+            # 3. 全カラム情報を一度に取得（コメント情報を含む）
             all_columns_sql = """
             SELECT 
                 TABLE_SCHEMA,
@@ -528,7 +530,8 @@ class MetadataService:
                 DATA_TYPE,
                 IS_NULLABLE,
                 COLUMN_DEFAULT,
-                ORDINAL_POSITION
+                ORDINAL_POSITION,
+                COMMENT
             FROM INFORMATION_SCHEMA.COLUMNS 
             WHERE TABLE_SCHEMA NOT IN ('INFORMATION_SCHEMA')
             ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION
@@ -555,6 +558,7 @@ class MetadataService:
                     "is_nullable": row.get("is_nullable", "YES") == "YES",
                     "default_value": row.get("column_default"),
                     "ordinal_position": row.get("ordinal_position", 0),
+                    "comment": row.get("comment"),
                 })
             
             # 4. スキーマ、テーブル、カラム情報を統合

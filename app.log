@@ -1864,3 +1864,327 @@
 2025-07-01 00:09:21,783 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 216.7ms)
 2025-07-01 00:09:21,793 - main - INFO - POST /api/v1/sql/suggest
 2025-07-01 00:09:32,855 - main - INFO - アプリケーション終了
+2025-07-01 00:30:33,444 - app.metadata_cache - INFO - メタデータキャッシュをクリアしました。
+2025-07-01 00:30:33,456 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-01 00:30:33,458 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:30:33,466 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-01 00:30:33,482 - app.services.metadata_service - ERROR - スキーマ情報の取得に失敗
+2025-07-01 00:30:33,489 - app.services.metadata_service - WARNING - メタデータ取得に失敗しました
+2025-07-01 00:30:33,505 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:30:33,516 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:30:33,530 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:30:33,542 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:30:33,574 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:30:33,582 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:30:33,589 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:30:33,593 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:30:33,626 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:30:33,639 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:30:33,650 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:30:33,654 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:30:57,269 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 00:30:57,273 - main - INFO - アプリケーション起動
+2025-07-01 00:30:57,276 - main - INFO - 設定情報
+2025-07-01 00:34:31,480 - main - INFO - GET /
+2025-07-01 00:34:31,731 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-01 00:34:32,155 - main - INFO - GET /static/js/app.js
+2025-07-01 00:34:32,274 - app.api.routes - INFO - 接続状態確認要求
+2025-07-01 00:34:32,296 - main - INFO - GET /api/v1/connection/status
+2025-07-01 00:34:32,513 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-01 00:34:32,665 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:34:32,846 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:34:32,995 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 482.0ms)
+2025-07-01 00:34:33,142 - main - INFO - GET /api/v1/metadata/all
+2025-07-01 00:34:35,715 - app.api.routes - INFO - メタデータ強制更新要求
+2025-07-01 00:34:35,716 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-01 00:34:35,717 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:34:35,723 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-01 00:34:39,371 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:34:42,441 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:34:43,439 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:34:43,440 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 00:34:43,457 - app.metadata_cache - ERROR - メタデータキャッシュの保存に失敗
+2025-07-01 00:34:43,458 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-01 00:34:43,460 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:34:43,463 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:34:43,465 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 7.7s)
+2025-07-01 00:34:43,468 - main - INFO - POST /api/v1/metadata/refresh
+2025-07-01 00:34:51,032 - main - INFO - GET /
+2025-07-01 00:34:51,172 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-01 00:34:51,549 - app.api.routes - INFO - 接続状態確認要求
+2025-07-01 00:34:51,598 - main - INFO - GET /api/v1/connection/status
+2025-07-01 00:34:51,620 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-01 00:34:51,628 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:34:51,635 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:34:51,645 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 24.9ms)
+2025-07-01 00:34:51,647 - main - INFO - GET /api/v1/metadata/all
+2025-07-01 00:35:08,631 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 00:35:08,634 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:35:08,641 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:35:08,671 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:35:08,676 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:35:08,680 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 00:35:08,681 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 50.8ms)
+2025-07-01 00:35:08,687 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 00:35:17,600 - app.api.routes - INFO - メタデータ強制更新要求
+2025-07-01 00:35:17,602 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-01 00:35:17,604 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:35:17,934 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:35:18,724 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:35:19,591 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:35:19,593 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 00:35:19,757 - app.metadata_cache - ERROR - メタデータキャッシュの保存に失敗
+2025-07-01 00:35:19,766 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-01 00:35:19,776 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:35:19,788 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:35:19,809 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 2.2s)
+2025-07-01 00:35:19,815 - main - INFO - POST /api/v1/metadata/refresh
+2025-07-01 00:38:46,362 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:38:46,365 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-01 00:38:46,386 - app.services.metadata_service - ERROR - スキーマ情報の取得に失敗
+2025-07-01 00:41:41,816 - main - INFO - アプリケーション終了
+2025-07-01 00:41:53,977 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 00:41:53,985 - main - INFO - アプリケーション起動
+2025-07-01 00:41:53,991 - main - INFO - 設定情報
+2025-07-01 00:42:01,385 - main - INFO - GET /
+2025-07-01 00:42:01,730 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-01 00:42:02,377 - main - INFO - GET /static/js/app.js
+2025-07-01 00:42:02,466 - app.api.routes - INFO - 接続状態確認要求
+2025-07-01 00:42:02,486 - main - INFO - GET /api/v1/connection/status
+2025-07-01 00:42:02,993 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-01 00:42:03,000 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:42:03,183 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:42:03,186 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 192.9ms)
+2025-07-01 00:42:03,189 - main - INFO - GET /api/v1/metadata/all
+2025-07-01 00:42:06,870 - app.api.routes - INFO - メタデータ強制更新要求
+2025-07-01 00:42:06,872 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-01 00:42:06,880 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:42:06,883 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-01 00:42:13,591 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:42:14,605 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:42:15,771 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:42:15,772 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 00:42:15,780 - app.metadata_cache - ERROR - メタデータキャッシュの保存に失敗
+2025-07-01 00:42:15,781 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-01 00:42:15,784 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:42:15,787 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:42:15,790 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 8.9s)
+2025-07-01 00:42:15,792 - main - INFO - POST /api/v1/metadata/refresh
+2025-07-01 00:47:37,726 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:47:37,734 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-01 00:47:37,739 - app.services.metadata_service - ERROR - スキーマ情報の取得に失敗
+2025-07-01 00:51:36,379 - app.services.connection_manager - ERROR - Snowflakeへの接続に失敗しました: 250001: Could not connect to Snowflake backend after 11 attempt(s).Aborting
+2025-07-01 00:51:36,387 - app.services.connection_manager - ERROR - 接続テストエラー: Snowflake接続の作成に失敗しました: 250001: Could not connect to Snowflake backend after 11 attempt(s).Aborting
+2025-07-01 00:52:04,033 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 00:52:04,048 - main - INFO - アプリケーション起動
+2025-07-01 00:52:04,050 - main - INFO - 設定情報
+2025-07-01 00:52:09,078 - main - INFO - アプリケーション終了
+2025-07-01 00:53:56,744 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 00:53:56,746 - main - INFO - アプリケーション起動
+2025-07-01 00:53:56,747 - main - INFO - 設定情報
+2025-07-01 00:54:08,999 - main - INFO - GET /
+2025-07-01 00:54:09,196 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-01 00:54:09,739 - main - INFO - GET /static/js/app.js
+2025-07-01 00:54:10,224 - app.api.routes - INFO - 接続状態確認要求
+2025-07-01 00:54:10,226 - main - INFO - GET /api/v1/connection/status
+2025-07-01 00:54:10,772 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-01 00:54:10,939 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:54:10,959 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:54:11,193 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 420.9ms)
+2025-07-01 00:54:11,310 - main - INFO - GET /api/v1/metadata/all
+2025-07-01 00:54:13,818 - app.api.routes - INFO - メタデータ強制更新要求
+2025-07-01 00:54:13,820 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-01 00:54:13,823 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:54:13,827 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-01 00:54:19,989 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:54:21,297 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:54:22,275 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:54:22,277 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 00:54:22,284 - app.metadata_cache - ERROR - メタデータキャッシュの保存に失敗
+2025-07-01 00:54:22,285 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-01 00:54:22,287 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:54:22,289 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 00:54:22,291 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 8.5s)
+2025-07-01 00:54:22,293 - main - INFO - POST /api/v1/metadata/refresh
+2025-07-01 00:57:31,588 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 00:57:31,597 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-01 00:57:37,200 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:57:37,859 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:57:38,546 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:57:39,747 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:57:39,756 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 00:57:39,790 - app.metadata_cache - ERROR - メタデータキャッシュの保存に失敗
+2025-07-01 00:59:38,947 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 00:59:38,950 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-01 00:59:43,557 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 00:59:44,431 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:59:45,283 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:59:46,284 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 00:59:46,287 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 00:59:46,318 - app.metadata_cache - ERROR - メタデータキャッシュの保存に失敗
+2025-07-01 01:01:48,356 - main - INFO - アプリケーション終了
+2025-07-01 01:01:59,231 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 01:01:59,233 - main - INFO - アプリケーション起動
+2025-07-01 01:01:59,235 - main - INFO - 設定情報
+2025-07-01 01:02:01,939 - main - INFO - GET /
+2025-07-01 01:02:02,227 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-01 01:02:03,176 - main - INFO - GET /static/js/app.js
+2025-07-01 01:02:03,731 - app.api.routes - INFO - 接続状態確認要求
+2025-07-01 01:02:03,740 - main - INFO - GET /api/v1/connection/status
+2025-07-01 01:02:03,832 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-01 01:02:04,014 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:02:04,026 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-01 01:02:04,108 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 276.8ms)
+2025-07-01 01:02:04,112 - main - INFO - GET /api/v1/metadata/all
+2025-07-01 01:02:05,787 - app.api.routes - INFO - メタデータ強制更新要求
+2025-07-01 01:02:05,788 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-01 01:02:05,791 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 01:02:05,803 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-01 01:02:09,967 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:02:10,654 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:02:11,677 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:02:11,679 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 01:02:14,305 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-07-01 01:02:14,311 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-01 01:02:14,331 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:02:14,412 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:02:14,474 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 8.7s)
+2025-07-01 01:02:14,479 - main - INFO - POST /api/v1/metadata/refresh
+2025-07-01 01:02:30,447 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:02:30,451 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:02:30,458 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:02:30,542 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:02:30,556 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:02:30,561 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:02:30,564 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 116.7ms)
+2025-07-01 01:02:30,569 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:02:31,496 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:02:31,499 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:02:31,508 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:02:31,574 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:02:31,585 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:02:31,590 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:02:31,593 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 96.9ms)
+2025-07-01 01:02:31,598 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:02:34,167 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:02:34,171 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:02:34,177 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:02:34,293 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:02:34,298 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:02:34,307 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:02:34,308 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 141.8ms)
+2025-07-01 01:02:34,310 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:02:43,084 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:02:43,088 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:02:43,092 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:02:43,148 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:02:43,197 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:02:43,242 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:02:43,244 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 159.7ms)
+2025-07-01 01:02:43,246 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:02:49,458 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:02:49,462 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:02:49,467 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:02:49,596 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:02:49,619 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:02:49,626 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:02:49,629 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 171.0ms)
+2025-07-01 01:02:49,633 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:02:53,419 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:02:53,423 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:02:53,435 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:02:53,459 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:02:53,564 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:02:53,577 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:02:53,580 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 161.2ms)
+2025-07-01 01:02:53,589 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:03:37,979 - app.api.routes - INFO - メタデータ強制更新要求
+2025-07-01 01:03:37,981 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-01 01:03:37,983 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 01:03:38,617 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:03:39,644 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:03:40,664 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:03:40,667 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 01:03:40,710 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-07-01 01:03:40,715 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-01 01:03:40,719 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:03:40,758 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:03:40,763 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 2.8s)
+2025-07-01 01:03:40,768 - main - INFO - POST /api/v1/metadata/refresh
+2025-07-01 01:08:25,552 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 01:08:25,561 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-01 01:08:31,422 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 01:08:32,100 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:08:32,925 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:08:33,803 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:08:33,812 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 01:08:36,572 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-07-01 01:08:58,168 - main - INFO - アプリケーション終了
+2025-07-01 01:09:04,896 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 01:09:04,899 - main - INFO - アプリケーション起動
+2025-07-01 01:09:04,901 - main - INFO - 設定情報
+2025-07-01 01:10:57,348 - main - INFO - GET /
+2025-07-01 01:10:57,464 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-01 01:10:58,094 - main - INFO - GET /static/js/app.js
+2025-07-01 01:10:58,488 - app.api.routes - INFO - 接続状態確認要求
+2025-07-01 01:10:58,602 - main - INFO - GET /api/v1/connection/status
+2025-07-01 01:10:58,698 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-01 01:10:59,102 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:10:59,406 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:10:59,501 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 802.6ms)
+2025-07-01 01:10:59,543 - main - INFO - GET /api/v1/metadata/all
+2025-07-01 01:11:11,081 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:11:11,082 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:11:11,084 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:11:11,102 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:11:11,124 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:11:11,126 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:11:11,128 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 46.9ms)
+2025-07-01 01:11:11,130 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:11:11,916 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:11:11,917 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:11:11,919 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:11:11,927 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:11:11,934 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:11:11,957 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:11:11,959 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 42.9ms)
+2025-07-01 01:11:11,961 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:11:46,574 - app.api.routes - INFO - メタデータ強制更新要求
+2025-07-01 01:11:46,576 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-01 01:11:46,577 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-01 01:11:46,578 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-01 01:11:50,062 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:11:50,959 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:11:51,980 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-01 01:11:51,982 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-01 01:11:52,089 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-07-01 01:11:52,092 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-01 01:11:52,095 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:11:52,137 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:11:52,151 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 5.6s)
+2025-07-01 01:11:52,161 - main - INFO - POST /api/v1/metadata/refresh
+2025-07-01 01:12:19,773 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:12:19,777 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:12:19,783 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:12:19,828 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:12:19,846 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:12:19,872 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:12:19,888 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 115.1ms)
+2025-07-01 01:12:19,898 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:12:22,985 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:12:22,990 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:12:23,002 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:12:23,064 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:12:23,075 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:12:23,121 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:12:23,123 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 138.8ms)
+2025-07-01 01:12:23,128 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:12:24,582 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 01:12:24,587 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 01:12:24,606 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 01:12:24,678 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 01:12:24,688 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 01:12:24,709 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 01:12:24,732 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 150.3ms)
+2025-07-01 01:12:24,741 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 01:12:51,395 - main - INFO - アプリケーション終了

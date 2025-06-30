@@ -89,6 +89,7 @@ class TableInfo(BaseModel):
     row_count: Optional[int] = Field(default=None, description="行数")
     created_on: Optional[datetime] = Field(default=None, description="作成日時")
     last_altered: Optional[datetime] = Field(default=None, description="最終更新日時")
+    comment: Optional[str] = Field(default=None, description="コメント")
 
 
 class ColumnInfo(BaseModel):

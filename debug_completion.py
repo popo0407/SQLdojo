@@ -1,163 +1,89 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-SQL Completion Debug Script
-SQL補完機能のデバッグ用テストスクリプト
+コメント情報を含むSQL補完機能のテストスクリプト
 """
-
+import asyncio
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from unittest.mock import Mock
+# プロジェクトルートをパスに追加
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from app.services.metadata_service import MetadataService
 from app.services.completion_service import CompletionService
-import sqlparse
+from app.services.query_executor import QueryExecutor
+from app.metadata_cache import MetadataCache
+from app.config_simplified import get_settings
+from app.logger import get_logger
 
-def create_mock_metadata_service():
-    """テスト用のメタデータサービスを作成"""
-    mock_service = Mock()
+async def test_completion_with_comments():
+    """コメント情報を含む補完機能をテスト"""
+    print("=== コメント情報を含むSQL補完機能テスト ===")
     
-    # テスト用メタデータ
-    mock_service.get_all_metadata.return_value = [
-        {
-            "name": "PUBLIC",
-            "tables": [
-                {
-                    "name": "SALES_DATA",
-                    "table_type": "TABLE",
-                    "columns": [
-                        {"name": "customer_id", "data_type": "VARCHAR"},
-                        {"name": "product_id", "data_type": "VARCHAR"},
-                        {"name": "amount", "data_type": "DECIMAL"},
-                        {"name": "sale_date", "data_type": "DATE"}
-                    ]
-                },
-                {
-                    "name": "CUSTOMER_MASTER",
-                    "table_type": "TABLE",
-                    "columns": [
-                        {"name": "id", "data_type": "VARCHAR"},
-                        {"name": "name", "data_type": "VARCHAR"},
-                        {"name": "email", "data_type": "VARCHAR"},
-                        {"name": "created_at", "data_type": "TIMESTAMP"}
-                    ]
-                },
-                {
-                    "name": "PRODUCT_MASTER",
-                    "table_type": "TABLE",
-                    "columns": [
-                        {"name": "id", "data_type": "VARCHAR"},
-                        {"name": "name", "data_type": "VARCHAR"},
-                        {"name": "price", "data_type": "DECIMAL"},
-                        {"name": "category", "data_type": "VARCHAR"}
-                    ]
-                }
-            ]
-        }
-    ]
+    # ログ設定
+    logger = get_logger("test_completion")
     
-    return mock_service
-
-def test_sql_parsing():
-    """SQL解析のテスト"""
-    print("=== SQL解析テスト ===")
-    
-    test_sqls = [
-        "SELECT FROM SALES_DATA AS s",
-        "SELECT FROM SALES_DATA s JOIN CUSTOMER_MASTER c ON s.customer_id = c.id",
-        "SELECT FROM PUBLIC.SALES_DATA AS s",
-        "SELECT FROM table1, table2",
-        "SELECT FROM (SELECT * FROM subtable) AS sub",
-    ]
-    
-    for sql in test_sqls:
-        print(f"\nSQL: {sql}")
-        parsed = sqlparse.parse(sql)
-        if parsed:
-            statement = parsed[0]
-            print(f"Parsed successfully: {statement}")
-        else:
-            print("Failed to parse")
-
-def test_table_extraction():
-    """テーブル抽出のテスト"""
-    print("\n=== テーブル抽出テスト ===")
-    
-    completion_service = CompletionService(create_mock_metadata_service())
-    
-    test_cases = [
-        ("SELECT FROM SALES_DATA AS s", ["SALES_DATA"]),
-        ("SELECT FROM SALES_DATA s JOIN CUSTOMER_MASTER c ON s.customer_id = c.id", ["SALES_DATA", "CUSTOMER_MASTER"]),
-        ("SELECT FROM PUBLIC.SALES_DATA AS s", ["PUBLIC.SALES_DATA"]),
-        ("SELECT FROM table1, table2", ["table1", "table2"]),
-    ]
-    
-    for sql, expected_tables in test_cases:
-        print(f"\nSQL: {sql}")
-        tables = completion_service._extract_table_names_from_sql(sql)
-        print(f"Extracted tables: {tables}")
+    try:
+        # 設定を取得
+        settings = get_settings()
         
-        for table in expected_tables:
-            if table in tables:
-                print(f"✅ Found table '{table}'")
-            else:
-                print(f"❌ Expected table '{table}' not found")
-
-def test_select_clause_detection():
-    """SELECT句判定のテスト（削除されたメソッドのため、このテストは削除）"""
-    print("\n=== SELECT句判定テスト（削除済み） ===")
-    print("SELECT句判定は削除され、常にテーブル抽出ベースで動作します")
-
-def test_column_suggestions():
-    """カラム補完のテスト"""
-    print("\n=== カラム補完テスト ===")
-    
-    completion_service = CompletionService(create_mock_metadata_service())
-    
-    test_cases = [
-        ("SELECT FROM SALES_DATA AS s", 7, ["customer_id", "product_id", "amount", "sale_date"]),
-        ("SELECT FROM SALES_DATA s JOIN CUSTOMER_MASTER c ON s.customer_id = c.id", 7, 
-         ["customer_id", "product_id", "amount", "sale_date", "id", "name", "email", "created_at"]),
-        ("SELECT FROM SALES_DATA WHERE", 25, ["customer_id", "product_id", "amount", "sale_date"]),
-    ]
-    
-    for sql, position, expected_columns in test_cases:
-        print(f"\nSQL: {sql}")
-        print(f"Position: {position}")
+        # 依存関係を初期化
+        query_executor = QueryExecutor(settings)
+        metadata_cache = MetadataCache()
+        metadata_service = MetadataService(query_executor, metadata_cache)
+        completion_service = CompletionService(metadata_service)
         
-        result = completion_service.get_completions(sql, position)
-        column_suggestions = [s.label for s in result.suggestions if s.kind == "column"]
+        print("1. メタデータキャッシュをクリア...")
+        metadata_service.clear_cache()
         
-        print(f"Expected columns: {expected_columns}")
-        print(f"Actual columns: {column_suggestions}")
+        print("2. メタデータを再取得（コメント情報を含む）...")
+        metadata_service.refresh_full_metadata_cache()
         
-        # 期待されるカラムが含まれているかチェック
-        missing_columns = [col for col in expected_columns if col not in column_suggestions]
-        unexpected_columns = [col for col in column_suggestions if col not in expected_columns]
+        print("3. 補完機能をテスト...")
         
-        if not missing_columns and not unexpected_columns:
-            print("✅ PASS - All expected columns found")
-        else:
-            if missing_columns:
-                print(f"❌ Missing columns: {missing_columns}")
-            if unexpected_columns:
-                print(f"❌ Unexpected columns: {unexpected_columns}")
-
-def main():
-    print("SQL補完機能デバッグテスト")
-    print("=" * 50)
-    
-    # SQL解析テスト
-    test_sql_parsing()
-    
-    # テーブル抽出テスト
-    test_table_extraction()
-    
-    # カラム補完テスト
-    test_column_suggestions()
-    
-    print("\n" + "=" * 50)
-    print("テスト完了")
+        # テストケース1: テーブル補完
+        print("\n--- テーブル補完テスト ---")
+        sql1 = "SELECT * FROM "
+        position1 = len(sql1)
+        result1 = completion_service.get_completions(sql1, position1)
+        
+        print(f"テーブル補完候補数: {len(result1.suggestions)}")
+        for i, suggestion in enumerate(result1.suggestions[:5]):  # 最初の5件を表示
+            print(f"  {i+1}. {suggestion.label} ({suggestion.kind})")
+            if suggestion.documentation:
+                print(f"     ドキュメント: {suggestion.documentation[:100]}...")
+        
+        # テストケース2: カラム補完（テーブル指定あり）
+        print("\n--- カラム補完テスト（テーブル指定あり）---")
+        sql2 = "SELECT FROM SALES_DATA WHERE "
+        position2 = len(sql2)
+        result2 = completion_service.get_completions(sql2, position2)
+        
+        print(f"カラム補完候補数: {len(result2.suggestions)}")
+        for i, suggestion in enumerate(result2.suggestions[:5]):  # 最初の5件を表示
+            print(f"  {i+1}. {suggestion.label} ({suggestion.kind})")
+            if suggestion.documentation:
+                print(f"     ドキュメント: {suggestion.documentation[:100]}...")
+        
+        # テストケース3: 全カラム補完
+        print("\n--- 全カラム補完テスト ---")
+        sql3 = "SELECT "
+        position3 = len(sql3)
+        result3 = completion_service.get_completions(sql3, position3)
+        
+        print(f"全カラム補完候補数: {len(result3.suggestions)}")
+        for i, suggestion in enumerate(result3.suggestions[:5]):  # 最初の5件を表示
+            print(f"  {i+1}. {suggestion.label} ({suggestion.kind})")
+            if suggestion.documentation:
+                print(f"     ドキュメント: {suggestion.documentation[:100]}...")
+        
+        print("\n=== テスト完了 ===")
+        
+    except Exception as e:
+        print(f"エラーが発生しました: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
-    main() 
+    asyncio.run(test_completion_with_comments()) 
