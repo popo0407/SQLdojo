@@ -13,6 +13,17 @@
         height: 300px; /* 初期高さを設定 */
         display: flex; /* 追加 */
         flex-direction: column; /* 追加 */
+        transition: height 0.3s ease; /* 高さ変更のアニメーション */
+    }
+    
+    /* エディタ最大化時のスタイル */
+    .sql-editor-container.editor-maximized {
+        height: calc(100vh - 200px) !important;
+    }
+    
+    /* エディタ最小化時のスタイル */
+    .sql-editor-container.editor-minimized {
+        height: 120px !important; /* 3行程度の高さ */
     }
     
     /* 追加: CodeMirrorの親コンテナが残りの高さを埋めるようにする */
@@ -313,9 +324,6 @@
 <div class="row">
     <!-- メインコンテンツ -->
     <div class="col-md-12">
-        <!-- Message Container -->
-        <div id="message-container" class="my-3"></div>
-        
         <!-- SQL Editor Card -->
         <div class="card sql-editor-container" id="sql-editor-container">
             <div class="sql-toolbar">
@@ -325,13 +333,13 @@
                             <i class="fas fa-magic me-1"></i>整形
                         </button>
                         <button type="button" id="clearBtn" class="btn btn-light btn-sm" title="SQLをクリア (Ctrl+L)">
-                            <i class="fas fa-eraser me-1"></i>クリア
+                            <i class="fas fa-eraser me-1"></i>SQLクリア
                         </button>
-                    </div>
-                    
-                    <div class="btn-group" role="group">
-                        <button type="button" id="validateBtn" class="btn btn-light btn-sm" title="SQLをバリデーション (Ctrl+Shift+V)">
-                            <i class="fas fa-check me-1"></i>バリデーション
+                        <button type="button" id="clearResultsBtn" class="btn btn-light btn-sm" title="結果をクリア">
+                            <i class="fas fa-trash me-1"></i>結果クリア
+                        </button>
+                        <button type="button" id="testErrorBtn" class="btn btn-danger btn-sm" title="テストエラー表示">
+                            <i class="fas fa-bug me-1"></i>テストエラー
                         </button>
                     </div>
                     
@@ -340,11 +348,11 @@
                             <i class="fas fa-file-code me-1"></i>テンプレート
                         </button>
                         <div class="template-dropdown" id="template-dropdown">
-                            <div class="template-item" onclick="loadTemplate('select', 'SELECT * FROM table_name LIMIT 100;')">
+                            <div class="template-item" onclick="loadTemplate('select', 'SELECT * FROM ;')">
                                 <div class="template-title">基本SELECT</div>
                                 <div class="template-description">テーブルからデータを取得</div>
                             </div>
-                            <div class="template-item" onclick="loadTemplate('count', 'SELECT COUNT(*) as total_count FROM table_name;')">
+                            <div class="template-item" onclick="loadTemplate('count', 'SELECT COUNT(*) as total_count FROM ;')">
                                 <div class="template-title">件数取得</div>
                                 <div class="template-description">レコード数をカウント</div>
                             </div>
@@ -371,6 +379,9 @@
                             結果制限 (5000件)
                         </label>
                     </div>
+                    <button type="button" id="toggleEditorBtn" class="btn btn-light btn-sm" title="エディタの最大化・最小化">
+                        <i class="fas fa-expand me-1"></i>最大化
+                    </button>
                     <button type="button" id="executeBtn" class="btn btn-success" title="SQL実行 (Ctrl+Enter)">
                         <i class="fas fa-play me-1"></i>実行
                     </button>
@@ -379,7 +390,7 @@
             
             <div class="position-relative">
                 <div class="sql-editor">
-                    <div id="monaco-editor-container" style="height: 100%; min-height: 300px;"></div>
+                    <div id="monaco-editor-container" style="height: 100%; min-height: 300px; position: relative;"></div>
                 </div>
                 <div class="loading-overlay" id="sql-loading" style="display: none;">
                     <div class="spinner-border text-primary" role="status">
@@ -455,10 +466,6 @@
                 <div class="shortcut-item">
                     <span>SQLクリア</span>
                     <span><span class="key">Ctrl</span> + <span class="key">L</span></span>
-                </div>
-                <div class="shortcut-item">
-                    <span>SQLバリデーション</span>
-                    <span><span class="key">Ctrl</span> + <span class="key">Shift</span> + <span class="key">V</span></span>
                 </div>
                 <div class="shortcut-item">
                     <span>全画面切り替え</span>
