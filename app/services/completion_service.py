@@ -3,8 +3,11 @@
 SQL Completion Service
 Provides SQL autocompletion for Monaco Editor.
 """
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import re
+import sqlparse
+from sqlparse.sql import Token, TokenList, Identifier, IdentifierList
+from sqlparse.tokens import Keyword, Name, Punctuation, Whitespace
 from app.api.models import SQLCompletionItem, SQLCompletionResponse
 from app.services.metadata_service import MetadataService
 from app.config_simplified import get_settings
@@ -215,11 +218,101 @@ class CompletionService:
         return suggestions
 
     def _get_column_suggestions(self, all_metadata: List[Dict[str, Any]], sql: str, position: int, current_word: str) -> List[SQLCompletionItem]:
-        """Get column suggestions."""
+        """Get column suggestions based on SQL context."""
         suggestions = []
 
-        # Parse tables from SQL to suggest relevant columns
-        tables_in_context = self._extract_tables_from_sql(sql, position)
+        try:
+            # SQL文からテーブル名を抽出（エイリアスは無視）
+            tables = self._extract_table_names_from_sql(sql)
+            
+            if tables:
+                # 抽出されたテーブルのカラムのみを候補として表示
+                relevant_columns = self._get_columns_from_tables(all_metadata, tables, current_word)
+                suggestions.extend(relevant_columns)
+            else:
+                # テーブルが見つからない場合は全カラムを表示
+                suggestions.extend(self._get_all_column_suggestions(all_metadata, current_word))
+
+        except Exception as e:
+            self.logger.error("Error getting column suggestions", error=str(e))
+            # エラー時は全カラムを表示
+            suggestions.extend(self._get_all_column_suggestions(all_metadata, current_word))
+
+        return suggestions
+
+    def _extract_table_names_from_sql(self, sql: str) -> List[str]:
+        """SQL文からテーブル名を抽出（エイリアスは無視、複数テーブル対応、WHERE等で区切る）"""
+        tables = []
+        try:
+            import re
+            # FROM句のテーブル名を抽出（WHEREやJOIN等のキーワードで区切る）
+            from_pattern = r'\bFROM\s+(.+?)(?=\bWHERE|\bJOIN|\bGROUP|\bORDER|\bLIMIT|;|$)'
+            from_matches = re.findall(from_pattern, sql, re.IGNORECASE | re.DOTALL)
+            for match in from_matches:
+                # カンマ区切りで複数テーブル対応
+                for table_name in match.split(','):
+                    table_name = table_name.strip()
+                    # AS以降は無視
+                    if ' AS ' in table_name.upper():
+                        table_name = table_name.split(' AS ')[0].strip()
+                    # スペース区切りでエイリアスがあれば最初の単語のみ
+                    if ' ' in table_name:
+                        table_name = table_name.split(' ')[0].strip()
+                    if table_name:
+                        tables.append(table_name)
+            # JOIN句のテーブル名を抽出
+            join_pattern = r'\b(?:LEFT|RIGHT|INNER|OUTER)?\s*JOIN\s+([^\s,()]+)'
+            join_matches = re.findall(join_pattern, sql, re.IGNORECASE)
+            for match in join_matches:
+                table_name = match.strip()
+                if ' AS ' in table_name.upper():
+                    table_name = table_name.split(' AS ')[0].strip()
+                if ' ' in table_name:
+                    table_name = table_name.split(' ')[0].strip()
+                if table_name:
+                    tables.append(table_name)
+        except Exception as e:
+            self.logger.error("Error extracting table names", error=str(e))
+        return tables
+
+    def _get_columns_from_tables(self, all_metadata: List[Dict[str, Any]], tables: List[str], current_word: str) -> List[SQLCompletionItem]:
+        """指定されたテーブルのカラムを取得"""
+        suggestions = []
+        
+        # テーブル名を大文字に統一
+        target_tables = [table.upper() for table in tables]
+        
+        for schema_data in all_metadata:
+            schema_name = schema_data.get("name", "")
+            schema_tables = schema_data.get("tables", [])
+            
+            for table_data in schema_tables:
+                table_name = table_data.get("name", "").upper()
+                
+                # テーブル名が一致するかチェック（スキーマ名付きでも単体でも）
+                if (table_name in target_tables or 
+                    f"{schema_name}.{table_data.get('name', '')}".upper() in target_tables):
+                    
+                    columns = table_data.get("columns", [])
+                    for column_data in columns:
+                        column_name = column_data.get("name", "")
+                        data_type = column_data.get("data_type", "")
+                        
+                        if not current_word or column_name.upper().startswith(current_word):
+                            suggestions.append(SQLCompletionItem(
+                                label=column_name,
+                                kind="column",
+                                detail=f"Column: {column_name} ({data_type})",
+                                documentation=f"Column in table {table_data.get('name', '')}. Data type: {data_type}",
+                                insert_text=column_name,
+                                sort_text=f"5_{table_data.get('name', '')}.{column_name}"
+                            ))
+        
+        return suggestions
+
+    def _get_all_column_suggestions(self, all_metadata: List[Dict[str, Any]], current_word: str) -> List[SQLCompletionItem]:
+        """Get all column suggestions (fallback method)."""
+        suggestions = []
 
         for schema_data in all_metadata:
             schema_name = schema_data.get("name", "")
@@ -229,47 +322,23 @@ class CompletionService:
                 table_name = table_data.get("name", "")
                 columns = table_data.get("columns", [])
 
-                # Suggest columns only if the table is in context
-                if not tables_in_context or f"{schema_name}.{table_name}" in tables_in_context or table_name in tables_in_context:
-                    for column_data in columns:
-                        column_name = column_data.get("name", "")
-                        data_type = column_data.get("data_type", "")
+                for column_data in columns:
+                    column_name = column_data.get("name", "")
+                    data_type = column_data.get("data_type", "")
 
-                        # Generate label and insert_text without schema and table name
-                        label = column_name
-                        insert_text = column_name
-
-                        if column_name.upper().startswith(current_word):
-                            suggestions.append(SQLCompletionItem(
-                                label=label,
-                                kind="column",
-                                detail=f"Column: {column_name} ({data_type})",
-                                documentation=f"Column in table {table_name}. Data type: {data_type}",
-                                insert_text=insert_text,
-                                sort_text=f"5_{table_name}.{column_name}"
-                            ))
+                    if not current_word or column_name.upper().startswith(current_word):
+                        suggestions.append(SQLCompletionItem(
+                            label=column_name,
+                            kind="column",
+                            detail=f"Column: {column_name} ({data_type})",
+                            documentation=f"Column in table {table_name}. Data type: {data_type}",
+                            insert_text=column_name,
+                            sort_text=f"5_{table_name}.{column_name}"
+                        ))
 
         return suggestions
 
     def _extract_tables_from_sql(self, sql: str, position: int) -> List[str]:
-        """Extract table names from SQL."""
-        tables = []
-
-        try:
-            # Simple extraction from FROM and JOIN clauses
-            sql_before_cursor = sql[:position]
-
-            # Extract tables from FROM clause
-            from_pattern = r'\bFROM\s+([^\s,()]+)'
-            from_matches = re.findall(from_pattern, sql_before_cursor, re.IGNORECASE)
-            tables.extend(from_matches)
-
-            # Extract tables from JOIN clause
-            join_pattern = r'\bJOIN\s+([^\s,()]+)'
-            join_matches = re.findall(join_pattern, sql_before_cursor, re.IGNORECASE)
-            tables.extend(join_matches)
-
-        except Exception as e:
-            self.logger.error("Error extracting tables", error=str(e))
-
-        return tables
+        """Legacy method for backward compatibility."""
+        tables_and_aliases = self._extract_tables_and_aliases_from_sql(sql)
+        return list(tables_and_aliases.keys())

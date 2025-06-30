@@ -150,12 +150,10 @@ class SQLWebApp {
         // Monaco Editorの補完プロバイダーを登録
         monaco.languages.registerCompletionItemProvider('sql', {
             provideCompletionItems: async (model, position) => {
-                const textUntilPosition = model.getValueInRange({
-                    startLineNumber: 1,
-                    startColumn: 1,
-                    endLineNumber: position.lineNumber,
-                    endColumn: position.column
-                });
+                // 変更点：カーソルまでのテキストではなく、エディタの全文を取得
+                const fullSql = model.getValue();
+                // カーソル位置をオフセット（文字列の先頭からの文字数）に変換
+                const offset = model.getOffsetAt(position);
 
                 try {
                     const response = await fetch(`${this.apiBase}/sql/suggest`, {
@@ -164,8 +162,8 @@ class SQLWebApp {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            sql: textUntilPosition,
-                            position: textUntilPosition.length,
+                            sql: fullSql,       // エディタの全文を送信
+                            position: offset,   // カーソル位置のオフセットを送信
                             context: null
                         })
                     });
@@ -176,7 +174,6 @@ class SQLWebApp {
 
                     const result = await response.json();
                     
-                    // Monaco Editorの補完アイテム形式に変換
                     const suggestions = result.suggestions.map(item => ({
                         label: item.label,
                         kind: this.getMonacoCompletionItemKind(item.kind),
@@ -443,37 +440,73 @@ class SQLWebApp {
 
         metadataTree.innerHTML = '';
 
-        if (!allMetadata || !allMetadata.schemas) {
-            metadataTree.innerHTML = '<p class="text-muted">メタデータがありません</p>';
+        if (!allMetadata || !Array.isArray(allMetadata) || allMetadata.length === 0) {
+            metadataTree.innerHTML = '<p class="text-muted p-2">メタデータが見つかりません。<br>右上の更新ボタンを押してください。</p>';
             return;
         }
 
-        allMetadata.schemas.forEach(schema => {
+        // 修正点: allMetadata.schemas ではなく、allMetadata を直接ループする
+        allMetadata.forEach(schema => {
             const schemaItem = document.createElement('div');
-            schemaItem.className = 'schema-item';
+            schemaItem.className = 'schema-item mb-1';
             
             const schemaHeader = document.createElement('div');
-            schemaHeader.className = 'schema-header';
+            schemaHeader.className = 'schema-header d-flex align-items-center p-2 rounded-1 collapsed';
+            schemaHeader.style.cursor = 'pointer';
             schemaHeader.innerHTML = `
-                <i class="fas fa-chevron-down"></i>
-                <span>${schema.name}</span>
+                <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
+                <i class="fas fa-database fa-fw me-1 text-secondary"></i>
+                <span class="fw-bold">${schema.name}</span>
             `;
             
             const schemaContent = document.createElement('div');
-            schemaContent.className = 'schema-content';
+            schemaContent.className = 'schema-content collapsed';
             
             const tableList = document.createElement('ul');
-            tableList.className = 'schema-list';
+            tableList.className = 'list-unstyled ps-3';
             
-            schema.tables.forEach(table => {
-                const tableItem = document.createElement('li');
-                tableItem.innerHTML = `
-                    <a href="#" class="schema-link" onclick="app.toggleTable('${schema.name}', '${table.name}', this)">
-                        <i class="fas fa-table me-1"></i>${table.name}
-                    </a>
-                `;
-                tableList.appendChild(tableItem);
-            });
+            if (schema.tables && Array.isArray(schema.tables)) {
+                schema.tables.forEach(table => {
+                    const tableItem = document.createElement('li');
+                    
+                    const tableHeader = document.createElement('div');
+                    tableHeader.className = 'table-link d-flex align-items-center p-1 rounded-1 collapsed';
+                    tableHeader.style.cursor = 'pointer';
+                    tableHeader.innerHTML = `
+                        <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
+                        <i class="fas ${table.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} fa-fw me-1 text-secondary"></i>
+                        <span>${table.name}</span>
+                    `;
+
+                    const columnList = document.createElement('ul');
+                    columnList.className = 'column-list list-unstyled ps-4 mt-1 collapsed';
+
+                    if (table.columns && Array.isArray(table.columns)) {
+                        table.columns.forEach(column => {
+                            const columnItem = document.createElement('li');
+                            columnItem.className = 'column-item d-flex justify-content-between align-items-center p-1';
+                            columnItem.innerHTML = `
+                                <span class="column-name text-body-secondary">${column.name}</span>
+                                <span class="column-type text-muted small">${column.data_type}</span>
+                            `;
+                            columnList.appendChild(columnItem);
+                        });
+                    }
+
+                    tableHeader.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        tableHeader.classList.toggle('collapsed');
+                        columnList.classList.toggle('collapsed');
+                        const icon = tableHeader.querySelector('.toggle-icon');
+                        icon.classList.toggle('fa-chevron-right');
+                        icon.classList.toggle('fa-chevron-down');
+                    });
+
+                    tableItem.appendChild(tableHeader);
+                    tableItem.appendChild(columnList);
+                    tableList.appendChild(tableItem);
+                });
+            }
             
             schemaContent.appendChild(tableList);
             schemaItem.appendChild(schemaHeader);
@@ -482,8 +515,11 @@ class SQLWebApp {
             
             // スキーマの展開・折りたたみ
             schemaHeader.addEventListener('click', () => {
-                schemaContent.classList.toggle('collapsed');
                 schemaHeader.classList.toggle('collapsed');
+                schemaContent.classList.toggle('collapsed');
+                const icon = schemaHeader.querySelector('.toggle-icon');
+                icon.classList.toggle('fa-chevron-right');
+                icon.classList.toggle('fa-chevron-down');
             });
         });
     }

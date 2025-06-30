@@ -1316,3 +1316,551 @@
 2025-06-30 22:52:56,555 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
 2025-06-30 22:52:56,558 - main - INFO - POST /api/v1/sql/execute
 2025-06-30 22:53:09,340 - main - INFO - アプリケーション終了
+2025-06-30 23:00:27,636 - main - INFO - アプリケーション終了
+2025-06-30 23:00:39,266 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:00:39,278 - main - INFO - アプリケーション起動
+2025-06-30 23:00:39,281 - main - INFO - 設定情報
+2025-06-30 23:04:09,642 - main - INFO - アプリケーション終了
+2025-06-30 23:04:13,465 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:04:13,469 - main - INFO - アプリケーション起動
+2025-06-30 23:04:13,470 - main - INFO - 設定情報
+2025-06-30 23:05:05,032 - main - INFO - アプリケーション終了
+2025-06-30 23:05:24,878 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:05:24,889 - main - INFO - アプリケーション起動
+2025-06-30 23:05:24,891 - main - INFO - 設定情報
+2025-06-30 23:05:53,838 - main - INFO - アプリケーション終了
+2025-06-30 23:06:04,212 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:06:04,214 - main - INFO - アプリケーション起動
+2025-06-30 23:06:04,215 - main - INFO - 設定情報
+2025-06-30 23:07:24,390 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:07:24,392 - main - INFO - アプリケーション起動
+2025-06-30 23:07:24,394 - main - INFO - 設定情報
+2025-06-30 23:07:28,459 - main - INFO - GET /
+2025-06-30 23:07:28,548 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-30 23:07:28,763 - main - INFO - GET /static/js/app.js
+2025-06-30 23:07:30,032 - app.api.routes - INFO - 接続状態確認要求
+2025-06-30 23:07:30,036 - main - INFO - GET /api/v1/connection/status
+2025-06-30 23:07:30,246 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-30 23:07:30,331 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:07:30,381 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:07:30,385 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 138.6ms)
+2025-06-30 23:07:30,390 - main - INFO - GET /api/v1/metadata/all
+2025-06-30 23:07:31,824 - main - INFO - GET /favicon.ico
+2025-06-30 23:07:37,445 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:07:37,447 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:07:37,448 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:07:37,454 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:07:37,491 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:07:37,500 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:07:37,502 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 56.8ms)
+2025-06-30 23:07:37,505 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:07:40,818 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:07:40,819 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:07:40,823 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:07:40,829 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:07:40,832 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:07:40,835 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:07:40,837 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 18.9ms)
+2025-06-30 23:07:40,840 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:07:50,722 - app.api.routes - INFO - メタデータ強制更新要求
+2025-06-30 23:07:50,723 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-06-30 23:07:50,724 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-06-30 23:07:50,726 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-06-30 23:07:54,045 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-30 23:07:54,723 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-30 23:07:55,593 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-06-30 23:07:55,594 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-06-30 23:07:55,604 - app.metadata_cache - ERROR - メタデータキャッシュの保存に失敗
+2025-06-30 23:07:55,605 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-06-30 23:07:55,607 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:07:55,615 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:07:55,617 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 4.9s)
+2025-06-30 23:07:55,620 - main - INFO - POST /api/v1/metadata/refresh
+2025-06-30 23:08:10,188 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:08:10,190 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:08:10,194 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:08:10,200 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:08:10,222 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:08:10,235 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:08:10,236 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 47.9ms)
+2025-06-30 23:08:10,240 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:08:20,138 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:08:20,140 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:08:20,147 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:08:20,177 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:08:20,183 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:08:20,185 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:08:20,186 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 47.9ms)
+2025-06-30 23:08:20,188 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:08:22,604 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:08:22,607 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:08:22,619 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:08:22,640 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:08:22,673 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:08:22,675 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:08:22,677 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 72.8ms)
+2025-06-30 23:08:22,688 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:08:35,770 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:08:35,772 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:08:35,773 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:08:35,781 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:08:35,790 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:08:35,817 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:08:35,818 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 47.9ms)
+2025-06-30 23:08:35,827 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:08:41,359 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:08:41,361 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:08:41,367 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:08:41,382 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:08:41,392 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:08:41,416 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:08:41,418 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 58.8ms)
+2025-06-30 23:08:41,421 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:08:47,257 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:08:47,258 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:08:47,261 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:08:47,275 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:08:47,285 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:08:47,289 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:08:47,297 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 39.9ms)
+2025-06-30 23:08:47,301 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:10:59,435 - main - INFO - アプリケーション終了
+2025-06-30 23:11:03,131 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:11:03,133 - main - INFO - アプリケーション起動
+2025-06-30 23:11:03,134 - main - INFO - 設定情報
+2025-06-30 23:16:57,118 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:16:57,119 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:16:57,120 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:16:57,127 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:16:57,132 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:16:57,133 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:16:57,134 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 16.0ms)
+2025-06-30 23:16:57,136 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:17:05,933 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:17:05,934 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:17:05,936 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:17:05,940 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:17:05,981 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:17:05,993 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:17:05,994 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 61.8ms)
+2025-06-30 23:17:05,996 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:17:09,571 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:17:09,572 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:17:09,574 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:17:09,579 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:17:09,582 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:17:09,587 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:17:09,588 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 17.0ms)
+2025-06-30 23:17:09,589 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:17:11,863 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:17:11,865 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:17:11,866 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:17:11,872 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:17:11,875 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:17:11,880 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:17:11,882 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 18.9ms)
+2025-06-30 23:17:11,885 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:17:14,712 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:17:14,713 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:17:14,715 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:17:14,721 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:17:14,726 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:17:14,745 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:17:14,746 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 33.9ms)
+2025-06-30 23:17:14,748 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:19:39,142 - main - INFO - アプリケーション終了
+2025-06-30 23:19:43,031 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:19:43,034 - main - INFO - アプリケーション起動
+2025-06-30 23:19:43,035 - main - INFO - 設定情報
+2025-06-30 23:19:54,324 - main - INFO - アプリケーション終了
+2025-06-30 23:19:58,401 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:19:58,403 - main - INFO - アプリケーション起動
+2025-06-30 23:19:58,404 - main - INFO - 設定情報
+2025-06-30 23:21:04,238 - main - INFO - アプリケーション終了
+2025-06-30 23:21:15,663 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:21:15,668 - main - INFO - アプリケーション起動
+2025-06-30 23:21:15,668 - main - INFO - 設定情報
+2025-06-30 23:21:38,760 - main - INFO - アプリケーション終了
+2025-06-30 23:21:44,186 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:21:44,189 - main - INFO - アプリケーション起動
+2025-06-30 23:21:44,190 - main - INFO - 設定情報
+2025-06-30 23:21:59,412 - main - INFO - GET /
+2025-06-30 23:21:59,821 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-30 23:22:02,706 - main - INFO - GET /static/js/app.js
+2025-06-30 23:22:03,234 - app.api.routes - INFO - 接続状態確認要求
+2025-06-30 23:22:03,275 - main - INFO - GET /api/v1/connection/status
+2025-06-30 23:22:03,411 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-30 23:22:03,499 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:22:03,582 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:22:03,816 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 404.9ms)
+2025-06-30 23:22:03,927 - main - INFO - GET /api/v1/metadata/all
+2025-06-30 23:22:05,533 - main - INFO - GET /favicon.ico
+2025-06-30 23:22:10,328 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:22:10,332 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:22:10,344 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:22:10,459 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:22:10,527 - app.services.completion_service - ERROR - Error getting column suggestions
+2025-06-30 23:22:10,532 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:22:10,534 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:22:10,535 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 207.4ms)
+2025-06-30 23:22:10,538 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:22:14,668 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:22:14,669 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:22:14,672 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:22:14,678 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:22:14,681 - app.services.completion_service - ERROR - Error getting column suggestions
+2025-06-30 23:22:14,684 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:22:14,687 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:22:14,688 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 20.9ms)
+2025-06-30 23:22:14,692 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:22:33,025 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:22:33,026 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:22:33,028 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:22:33,058 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:22:33,061 - app.services.completion_service - ERROR - Error getting column suggestions
+2025-06-30 23:22:33,063 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:22:33,066 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:22:33,067 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 41.9ms)
+2025-06-30 23:22:33,069 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:22:35,329 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:22:35,331 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:22:35,333 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:22:35,339 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:22:35,342 - app.services.completion_service - ERROR - Error getting column suggestions
+2025-06-30 23:22:35,343 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:22:35,377 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:22:35,379 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 49.9ms)
+2025-06-30 23:22:35,380 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:22:37,070 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:22:37,071 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:22:37,075 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:22:37,095 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:22:37,101 - app.services.completion_service - ERROR - Error getting column suggestions
+2025-06-30 23:22:37,108 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:22:37,115 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:22:37,117 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 46.9ms)
+2025-06-30 23:22:37,120 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:30:41,606 - main - INFO - アプリケーション終了
+2025-06-30 23:30:48,924 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:30:48,926 - main - INFO - アプリケーション起動
+2025-06-30 23:30:48,951 - main - INFO - 設定情報
+2025-06-30 23:31:16,902 - main - INFO - アプリケーション終了
+2025-06-30 23:31:20,193 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:31:20,195 - main - INFO - アプリケーション起動
+2025-06-30 23:31:20,196 - main - INFO - 設定情報
+2025-06-30 23:31:35,013 - main - INFO - アプリケーション終了
+2025-06-30 23:31:39,315 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:31:39,401 - main - INFO - アプリケーション起動
+2025-06-30 23:31:39,402 - main - INFO - 設定情報
+2025-06-30 23:33:02,039 - app.services.completion_service - ERROR - Error in _is_cursor_in_select_clause
+2025-06-30 23:33:02,043 - app.services.completion_service - ERROR - Error in _is_cursor_in_select_clause
+2025-06-30 23:33:02,094 - app.services.completion_service - ERROR - Error in _is_cursor_in_select_clause
+2025-06-30 23:33:02,102 - app.services.completion_service - ERROR - Error in _is_cursor_in_select_clause
+2025-06-30 23:33:02,173 - app.services.completion_service - ERROR - Error in _is_cursor_in_select_clause
+2025-06-30 23:33:02,177 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:33:02,189 - app.services.completion_service - ERROR - Error in _is_cursor_in_select_clause
+2025-06-30 23:33:02,191 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:33:02,228 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:33:02,238 - app.services.completion_service - ERROR - Error in _is_cursor_in_select_clause
+2025-06-30 23:33:02,241 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:33:02,245 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:33:02,250 - app.services.completion_service - ERROR - Error in _is_cursor_in_select_clause
+2025-06-30 23:33:02,258 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:35:52,519 - main - INFO - アプリケーション終了
+2025-06-30 23:35:56,580 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:35:56,582 - main - INFO - アプリケーション起動
+2025-06-30 23:35:56,584 - main - INFO - 設定情報
+2025-06-30 23:36:37,604 - main - INFO - GET /
+2025-06-30 23:36:37,679 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-30 23:36:37,925 - main - INFO - GET /static/js/app.js
+2025-06-30 23:36:38,002 - app.api.routes - INFO - 接続状態確認要求
+2025-06-30 23:36:38,005 - main - INFO - GET /api/v1/connection/status
+2025-06-30 23:36:38,038 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-30 23:36:38,156 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:36:38,184 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:36:38,186 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 148.6ms)
+2025-06-30 23:36:38,200 - main - INFO - GET /api/v1/metadata/all
+2025-06-30 23:36:39,472 - main - INFO - アプリケーション終了
+2025-06-30 23:36:42,070 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:36:42,071 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:36:42,072 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:36:42,079 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:36:42,104 - app.services.completion_service - ERROR - Error getting object suggestions
+2025-06-30 23:36:42,107 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:36:42,108 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:36:42,109 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 39.9ms)
+2025-06-30 23:36:42,111 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:36:44,269 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:36:44,271 - main - INFO - アプリケーション起動
+2025-06-30 23:36:44,273 - main - INFO - 設定情報
+2025-06-30 23:36:46,455 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:36:46,456 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:36:46,459 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:36:46,465 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:36:46,468 - app.services.completion_service - ERROR - Error getting object suggestions
+2025-06-30 23:36:46,475 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:36:46,479 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:36:46,480 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 24.9ms)
+2025-06-30 23:36:46,484 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:36:57,609 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:36:57,610 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:36:57,611 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:36:57,617 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:36:57,620 - app.services.completion_service - ERROR - Error getting object suggestions
+2025-06-30 23:36:57,623 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:36:57,636 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:36:57,637 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 27.9ms)
+2025-06-30 23:36:57,640 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:36:59,700 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:36:59,701 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:36:59,706 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:36:59,711 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:36:59,716 - app.services.completion_service - ERROR - Error getting object suggestions
+2025-06-30 23:36:59,728 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:36:59,735 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:36:59,736 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 35.9ms)
+2025-06-30 23:36:59,742 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:38:25,365 - main - INFO - アプリケーション終了
+2025-06-30 23:38:29,515 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:38:29,517 - main - INFO - アプリケーション起動
+2025-06-30 23:38:29,519 - main - INFO - 設定情報
+2025-06-30 23:38:41,799 - main - INFO - アプリケーション終了
+2025-06-30 23:38:47,328 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:38:47,330 - main - INFO - アプリケーション起動
+2025-06-30 23:38:47,331 - main - INFO - 設定情報
+2025-06-30 23:38:51,650 - main - INFO - GET /
+2025-06-30 23:38:52,036 - main - INFO - GET /static/js/app.js
+2025-06-30 23:38:52,051 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-06-30 23:38:52,398 - app.api.routes - INFO - 接続状態確認要求
+2025-06-30 23:38:52,515 - main - INFO - GET /api/v1/connection/status
+2025-06-30 23:38:53,266 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-06-30 23:38:53,484 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:38:53,812 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:38:54,191 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 925.5ms)
+2025-06-30 23:38:54,235 - main - INFO - GET /api/v1/metadata/all
+2025-06-30 23:38:56,860 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:38:56,862 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:38:56,863 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:38:56,870 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:38:56,896 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:38:56,900 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:38:56,901 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 40.9ms)
+2025-06-30 23:38:56,904 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:00,908 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:00,909 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:00,913 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:00,921 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:00,926 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:00,943 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:00,946 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 37.9ms)
+2025-06-30 23:39:00,955 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:05,487 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:05,488 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:05,490 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:05,495 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:05,509 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:05,525 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:05,527 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 39.9ms)
+2025-06-30 23:39:05,529 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:07,058 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:07,060 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:07,064 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:07,078 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:07,101 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:07,104 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:07,105 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 46.9ms)
+2025-06-30 23:39:07,109 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:19,182 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:19,183 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:19,194 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:19,207 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:19,213 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:19,218 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:19,221 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 37.9ms)
+2025-06-30 23:39:19,223 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:19,672 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:19,674 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:19,675 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:19,680 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:19,684 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:19,716 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:19,727 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 55.9ms)
+2025-06-30 23:39:19,730 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:19,842 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:19,877 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:19,875 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:19,898 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:19,933 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:19,931 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:19,935 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:19,944 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:19,949 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:19,952 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:19,950 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:19,953 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 110.7ms)
+2025-06-30 23:39:19,957 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:19,950 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:19,956 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:19,967 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:19,983 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:19,984 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 106.7ms)
+2025-06-30 23:39:19,987 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:19,990 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:19,993 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:20,002 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:20,005 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 71.8ms)
+2025-06-30 23:39:20,015 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:39:20,874 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:39:20,877 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:39:20,890 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:39:20,918 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:39:20,927 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:39:20,931 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:39:20,932 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 57.8ms)
+2025-06-30 23:39:20,934 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:40:16,551 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:40:16,553 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:40:16,554 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:40:16,559 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:40:16,561 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:40:16,593 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:40:16,594 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 42.9ms)
+2025-06-30 23:40:16,598 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:40:19,605 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 23:40:19,606 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:40:19,608 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 23:40:19,614 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 23:40:19,617 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:40:19,624 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 23:40:19,626 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 20.9ms)
+2025-06-30 23:40:19,628 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 23:46:29,562 - main - INFO - アプリケーション終了
+2025-06-30 23:46:33,592 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:46:33,594 - main - INFO - アプリケーション起動
+2025-06-30 23:46:33,595 - main - INFO - 設定情報
+2025-06-30 23:46:52,332 - main - INFO - アプリケーション終了
+2025-06-30 23:46:56,233 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:46:56,235 - main - INFO - アプリケーション起動
+2025-06-30 23:46:56,236 - main - INFO - 設定情報
+2025-06-30 23:47:45,921 - main - INFO - アプリケーション終了
+2025-06-30 23:47:49,322 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:47:49,324 - main - INFO - アプリケーション起動
+2025-06-30 23:47:49,325 - main - INFO - 設定情報
+2025-06-30 23:47:53,266 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:47:53,272 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:47:53,291 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:47:53,293 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:47:53,298 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:47:53,299 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:48:23,108 - main - INFO - アプリケーション終了
+2025-06-30 23:48:26,822 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:48:26,825 - main - INFO - アプリケーション起動
+2025-06-30 23:48:26,826 - main - INFO - 設定情報
+2025-06-30 23:48:41,835 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:48:41,837 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:48:41,847 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:48:41,851 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:48:41,856 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:48:41,865 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:49:09,793 - main - INFO - アプリケーション終了
+2025-06-30 23:49:13,208 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:49:13,210 - main - INFO - アプリケーション起動
+2025-06-30 23:49:13,211 - main - INFO - 設定情報
+2025-06-30 23:49:17,472 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:49:17,483 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:49:17,496 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:49:17,499 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:49:17,515 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:49:17,516 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:49:53,261 - main - INFO - アプリケーション終了
+2025-06-30 23:49:57,001 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:49:57,003 - main - INFO - アプリケーション起動
+2025-06-30 23:49:57,004 - main - INFO - 設定情報
+2025-06-30 23:50:05,638 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:50:05,640 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:50:05,691 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:50:05,706 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:50:05,736 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:50:05,737 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:50:28,799 - main - INFO - アプリケーション終了
+2025-06-30 23:50:33,187 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 23:50:33,189 - main - INFO - アプリケーション起動
+2025-06-30 23:50:33,193 - main - INFO - 設定情報
+2025-06-30 23:50:36,899 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:50:36,901 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:50:36,907 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:50:36,913 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 23:50:36,918 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 23:50:36,920 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:08:43,896 - main - INFO - アプリケーション終了
+2025-07-01 00:08:51,829 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-01 00:08:51,832 - main - INFO - アプリケーション起動
+2025-07-01 00:08:51,836 - main - INFO - 設定情報
+2025-07-01 00:08:53,554 - main - INFO - GET /
+2025-07-01 00:08:53,683 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-01 00:08:54,273 - main - INFO - GET /static/js/app.js
+2025-07-01 00:08:54,745 - app.api.routes - INFO - 接続状態確認要求
+2025-07-01 00:08:54,768 - main - INFO - GET /api/v1/connection/status
+2025-07-01 00:08:54,791 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-01 00:08:54,863 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:08:55,045 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 00:08:55,108 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 317.3ms)
+2025-07-01 00:08:55,112 - main - INFO - GET /api/v1/metadata/all
+2025-07-01 00:08:56,621 - main - INFO - GET /favicon.ico
+2025-07-01 00:08:58,857 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 00:08:58,860 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:08:58,862 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:08:58,870 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 00:08:58,873 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:08:58,880 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 00:08:58,882 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 25.6ms)
+2025-07-01 00:08:58,884 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 00:09:01,698 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 00:09:01,700 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:09:01,702 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:09:01,893 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 00:09:01,895 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:09:01,898 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 00:09:01,899 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 200.8ms)
+2025-07-01 00:09:01,902 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 00:09:02,997 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 00:09:02,998 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:09:03,004 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:09:03,015 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 00:09:03,057 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:09:03,063 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 00:09:03,065 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 67.6ms)
+2025-07-01 00:09:03,091 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 00:09:07,969 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 00:09:07,971 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:09:07,976 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:09:07,990 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 00:09:08,010 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:09:08,024 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 00:09:08,026 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 56.8ms)
+2025-07-01 00:09:08,033 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 00:09:13,335 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 00:09:13,337 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:09:13,339 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:09:13,354 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 00:09:13,358 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:09:13,361 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 00:09:13,366 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 30.9ms)
+2025-07-01 00:09:13,369 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 00:09:15,877 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 00:09:15,879 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:09:15,880 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:09:15,892 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 00:09:15,908 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:09:15,922 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 00:09:15,925 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 48.8ms)
+2025-07-01 00:09:15,928 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 00:09:21,567 - app.api.routes - INFO - SQL補完候補要求
+2025-07-01 00:09:21,571 - app.services.completion_service - INFO - SQL completion request
+2025-07-01 00:09:21,585 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-01 00:09:21,609 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-01 00:09:21,682 - app.services.completion_service - INFO - Completion suggestions generated
+2025-07-01 00:09:21,754 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-01 00:09:21,783 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 216.7ms)
+2025-07-01 00:09:21,793 - main - INFO - POST /api/v1/sql/suggest
+2025-07-01 00:09:32,855 - main - INFO - アプリケーション終了
