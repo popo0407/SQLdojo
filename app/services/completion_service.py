@@ -1,23 +1,25 @@
 # -*- coding: utf-8 -*-
 """
-SQL補完サービス
-Monaco Editor用のSQLオートコンプリート機能を提供
+SQL Completion Service
+Provides SQL autocompletion for Monaco Editor.
 """
 from typing import List, Dict, Any, Optional
 import re
 from app.api.models import SQLCompletionItem, SQLCompletionResponse
 from app.services.metadata_service import MetadataService
+from app.config_simplified import get_settings
 from app.logger import get_logger
 
 
 class CompletionService:
-    """SQL補完サービス"""
-    
+    """SQL Completion Service"""
+
     def __init__(self, metadata_service: MetadataService):
         self.metadata_service = metadata_service
         self.logger = get_logger(__name__)
-        
-        # SQLキーワードの定義
+        self.settings = get_settings()
+
+        # SQL Keywords
         self.sql_keywords = [
             "SELECT", "FROM", "WHERE", "INSERT", "UPDATE", "DELETE", "CREATE", "DROP", "ALTER",
             "TABLE", "VIEW", "INDEX", "SCHEMA", "DATABASE", "USE", "SHOW", "DESCRIBE", "EXPLAIN",
@@ -29,8 +31,8 @@ class CompletionService:
             "FOLLOWING", "UNBOUNDED", "CURRENT ROW", "LAG", "LEAD", "FIRST_VALUE", "LAST_VALUE",
             "RANK", "DENSE_RANK", "ROW_NUMBER", "NTILE", "PERCENT_RANK", "CUME_DIST"
         ]
-        
-        # 関数の定義
+
+        # SQL Functions
         self.sql_functions = [
             "COUNT", "SUM", "AVG", "MAX", "MIN", "STDDEV", "VARIANCE", "COVAR_POP", "COVAR_SAMP",
             "CORR", "REGR_SLOPE", "REGR_INTERCEPT", "REGR_R2", "REGR_COUNT", "REGR_AVGX",
@@ -48,210 +50,226 @@ class CompletionService:
             "TO_JSON", "ARRAY_CONSTRUCT", "ARRAY_CONTAINS", "ARRAY_INSERT", "ARRAY_POSITION",
             "ARRAY_REMOVE", "ARRAY_REPLACE", "ARRAY_SLICE", "ARRAY_TO_STRING", "STRING_TO_ARRAY"
         ]
-    
+
     def get_completions(self, sql: str, position: int, context: Optional[Dict[str, Any]] = None) -> SQLCompletionResponse:
-        """SQL補完候補を取得"""
-        self.logger.info("SQL補完要求", position=position, sql_length=len(sql))
-        
+        """Get SQL completion suggestions."""
+        self.logger.info("SQL completion request", position=position, sql_length=len(sql))
+
         try:
-            # 現在の単語を取得
+            # Get the current word
             current_word = self._get_current_word(sql, position)
-            self.logger.debug("現在の単語", word=current_word)
-            
-            # 補完候補を生成
+            self.logger.debug("Current word", word=current_word)
+
+            # Generate suggestions
             suggestions = []
-            
-            # キーワードの補完
+
+            # Keyword suggestions
             keyword_suggestions = self._get_keyword_suggestions(current_word)
             suggestions.extend(keyword_suggestions)
-            
-            # 関数の補完
+
+            # Function suggestions
             function_suggestions = self._get_function_suggestions(current_word)
             suggestions.extend(function_suggestions)
-            
-            # データベースオブジェクトの補完
+
+            # Database object suggestions
             object_suggestions = self._get_object_suggestions(sql, position, current_word)
             suggestions.extend(object_suggestions)
-            
-            # 候補をソート
+
+            # Sort suggestions
             suggestions.sort(key=lambda x: x.sort_text or x.label)
-            
-            self.logger.info("補完候補生成完了", count=len(suggestions))
-            
+
+            self.logger.info("Completion suggestions generated", count=len(suggestions))
+
             return SQLCompletionResponse(
                 suggestions=suggestions,
                 is_incomplete=False
             )
-            
+
         except Exception as e:
-            self.logger.error("SQL補完エラー", error=str(e))
+            self.logger.error("SQL completion error", error=str(e))
             return SQLCompletionResponse(suggestions=[], is_incomplete=False)
-    
+
     def _get_current_word(self, sql: str, position: int) -> str:
-        """現在のカーソル位置の単語を取得"""
+        """Get the word at the current cursor position."""
         if position > len(sql):
             position = len(sql)
-        
-        # カーソル位置から左側の単語を取得
+
+        # Get the word to the left of the cursor
         start = position
         while start > 0 and (sql[start - 1].isalnum() or sql[start - 1] in '_'):
             start -= 1
-        
+
         return sql[start:position].upper()
-    
+
     def _get_keyword_suggestions(self, current_word: str) -> List[SQLCompletionItem]:
-        """SQLキーワードの補完候補を取得"""
+        """Get SQL keyword suggestions."""
         suggestions = []
-        
+
         for keyword in self.sql_keywords:
             if keyword.startswith(current_word):
                 suggestions.append(SQLCompletionItem(
                     label=keyword,
                     kind="keyword",
-                    detail=f"SQLキーワード: {keyword}",
-                    documentation=f"SQLの予約語です。{keyword}句で使用されます。",
+                    detail=f"SQL Keyword: {keyword}",
+                    documentation=f"SQL reserved word. Used in {keyword} clause.",
                     insert_text=keyword,
                     sort_text=f"1_{keyword}"
                 ))
-        
+
         return suggestions
-    
+
     def _get_function_suggestions(self, current_word: str) -> List[SQLCompletionItem]:
-        """SQL関数の補完候補を取得"""
+        """Get SQL function suggestions."""
         suggestions = []
-        
+
         for func in self.sql_functions:
             if func.startswith(current_word):
                 suggestions.append(SQLCompletionItem(
                     label=f"{func}()",
                     kind="function",
-                    detail=f"SQL関数: {func}",
-                    documentation=f"SQLの組み込み関数です。{func}関数を呼び出します。",
+                    detail=f"SQL Function: {func}",
+                    documentation=f"Built-in SQL function. Calls the {func} function.",
                     insert_text=f"{func}($1)",
                     sort_text=f"2_{func}"
                 ))
-        
+
         return suggestions
-    
+
     def _get_object_suggestions(self, sql: str, position: int, current_word: str) -> List[SQLCompletionItem]:
-        """データベースオブジェクト（スキーマ、テーブル、カラム）の補完候補を取得"""
+        """Get suggestions for database objects (schemas, tables, columns)."""
         suggestions = []
         
         try:
-            # メタデータからオブジェクト情報を取得
+            # Get all metadata
             all_metadata = self.metadata_service.get_all_metadata()
             
-            # スキーマの補完
-            schema_suggestions = self._get_schema_suggestions(all_metadata, current_word)
-            suggestions.extend(schema_suggestions)
+            # Filter by schemas specified in settings
+            target_schemas = self.settings.completion_target_schemas
+            if target_schemas:
+                all_metadata = [
+                    schema for schema in all_metadata 
+                    if schema.get("name", "").upper() in [s.upper() for s in target_schemas]
+                ]
+
+            # Schema suggestions (if needed)
+            # schema_suggestions = self._get_schema_suggestions(all_metadata, current_word)
+            # suggestions.extend(schema_suggestions)
             
-            # テーブルの補完
+            # Table suggestions
             table_suggestions = self._get_table_suggestions(all_metadata, current_word)
             suggestions.extend(table_suggestions)
             
-            # カラムの補完
+            # Column suggestions
             column_suggestions = self._get_column_suggestions(all_metadata, sql, position, current_word)
             suggestions.extend(column_suggestions)
             
         except Exception as e:
-            self.logger.error("オブジェクト補完候補取得エラー", error=str(e))
+            self.logger.error("Error getting object suggestions", error=str(e))
         
         return suggestions
-    
+
     def _get_schema_suggestions(self, all_metadata: List[Dict[str, Any]], current_word: str) -> List[SQLCompletionItem]:
-        """スキーマの補完候補を取得"""
+        """Get schema suggestions."""
         suggestions = []
-        
+
         for schema_data in all_metadata:
             schema_name = schema_data.get("name", "")
             if schema_name.upper().startswith(current_word):
                 suggestions.append(SQLCompletionItem(
                     label=schema_name,
                     kind="schema",
-                    detail=f"スキーマ: {schema_name}",
-                    documentation=f"データベーススキーマです。テーブルやビューが含まれています。",
+                    detail=f"Schema: {schema_name}",
+                    documentation="Database schema. Contains tables and views.",
                     insert_text=schema_name,
                     sort_text=f"3_{schema_name}"
                 ))
-        
+
         return suggestions
-    
+
     def _get_table_suggestions(self, all_metadata: List[Dict[str, Any]], current_word: str) -> List[SQLCompletionItem]:
-        """テーブルの補完候補を取得"""
+        """Get table suggestions."""
         suggestions = []
-        
+
         for schema_data in all_metadata:
             schema_name = schema_data.get("name", "")
             tables = schema_data.get("tables", [])
-            
+
             for table_data in tables:
                 table_name = table_data.get("name", "")
                 table_type = table_data.get("table_type", "TABLE")
-                
+
+                # Generate label and insert_text without schema name
+                label = table_name
+                insert_text = table_name
+
                 if table_name.upper().startswith(current_word):
                     suggestions.append(SQLCompletionItem(
-                        label=f"{schema_name}.{table_name}",
+                        label=label,
                         kind="table" if table_type == "TABLE" else "view",
-                        detail=f"{table_type}: {schema_name}.{table_name}",
-                        documentation=f"{table_type}です。スキーマ {schema_name} に属しています。",
-                        insert_text=f"{schema_name}.{table_name}",
-                        sort_text=f"4_{schema_name}.{table_name}"
+                        detail=f"{table_type}: {table_name}",
+                        documentation=f"{table_type} in schema {schema_name}.",
+                        insert_text=insert_text,
+                        sort_text=f"4_{label}"
                     ))
-        
+
         return suggestions
-    
+
     def _get_column_suggestions(self, all_metadata: List[Dict[str, Any]], sql: str, position: int, current_word: str) -> List[SQLCompletionItem]:
-        """カラムの補完候補を取得"""
+        """Get column suggestions."""
         suggestions = []
-        
-        # SQLからテーブル情報を解析して、適切なカラムを提案
+
+        # Parse tables from SQL to suggest relevant columns
         tables_in_context = self._extract_tables_from_sql(sql, position)
-        
+
         for schema_data in all_metadata:
             schema_name = schema_data.get("name", "")
             tables = schema_data.get("tables", [])
-            
+
             for table_data in tables:
                 table_name = table_data.get("name", "")
                 columns = table_data.get("columns", [])
-                
-                # コンテキストにテーブルが含まれている場合のみカラムを提案
+
+                # Suggest columns only if the table is in context
                 if not tables_in_context or f"{schema_name}.{table_name}" in tables_in_context or table_name in tables_in_context:
                     for column_data in columns:
                         column_name = column_data.get("name", "")
                         data_type = column_data.get("data_type", "")
-                        
+
+                        # Generate label and insert_text without schema and table name
+                        label = column_name
+                        insert_text = column_name
+
                         if column_name.upper().startswith(current_word):
                             suggestions.append(SQLCompletionItem(
-                                label=f"{schema_name}.{table_name}.{column_name}",
+                                label=label,
                                 kind="column",
-                                detail=f"カラム: {column_name} ({data_type})",
-                                documentation=f"テーブル {schema_name}.{table_name} のカラムです。データ型: {data_type}",
-                                insert_text=f"{schema_name}.{table_name}.{column_name}",
-                                sort_text=f"5_{schema_name}.{table_name}.{column_name}"
+                                detail=f"Column: {column_name} ({data_type})",
+                                documentation=f"Column in table {table_name}. Data type: {data_type}",
+                                insert_text=insert_text,
+                                sort_text=f"5_{table_name}.{column_name}"
                             ))
-        
+
         return suggestions
-    
+
     def _extract_tables_from_sql(self, sql: str, position: int) -> List[str]:
-        """SQLからテーブル情報を抽出"""
+        """Extract table names from SQL."""
         tables = []
-        
+
         try:
-            # 簡易的なテーブル抽出（FROM句とJOIN句から）
+            # Simple extraction from FROM and JOIN clauses
             sql_before_cursor = sql[:position]
-            
-            # FROM句のテーブルを抽出
+
+            # Extract tables from FROM clause
             from_pattern = r'\bFROM\s+([^\s,()]+)'
             from_matches = re.findall(from_pattern, sql_before_cursor, re.IGNORECASE)
             tables.extend(from_matches)
-            
-            # JOIN句のテーブルを抽出
+
+            # Extract tables from JOIN clause
             join_pattern = r'\bJOIN\s+([^\s,()]+)'
             join_matches = re.findall(join_pattern, sql_before_cursor, re.IGNORECASE)
             tables.extend(join_matches)
-            
+
         except Exception as e:
-            self.logger.error("テーブル抽出エラー", error=str(e))
-        
-        return tables 
+            self.logger.error("Error extracting tables", error=str(e))
+
+        return tables

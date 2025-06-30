@@ -3,7 +3,7 @@
 簡素化された設定管理モジュール（キーペア認証専用）
 """
 import os
-from typing import Optional
+from typing import Optional, List
 from pydantic import Field, field_validator, ConfigDict
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     
     # ログ設定
     log_level: str = Field(default="INFO", description="ログレベル")
+
+    # 補完機能設定
+    completion_target_schemas: List[str] = Field(default=["PUBLIC"], description="補完対象のスキーマリスト")
     
     @field_validator('snowflake_account')
     @classmethod

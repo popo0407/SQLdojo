@@ -686,3 +686,55 @@
 2025-06-30 00:12:19,685 - snowsight_app - INFO - SQL実行完了
 2025-06-30 00:12:19,705 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 1.9s)
 2025-06-30 00:12:19,723 - main - INFO - POST /api/v1/sql/execute
+2025-06-30 20:43:58,069 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-06-30 20:43:58,096 - main - INFO - アプリケーション起動
+2025-06-30 20:43:58,097 - main - INFO - 設定情報
+2025-06-30 20:44:12,527 - main - INFO - GET /
+2025-06-30 20:44:12,803 - main - INFO - GET /static/js/app.js
+2025-06-30 20:44:13,154 - app.api.routes - INFO - 接続状態確認要求
+2025-06-30 20:44:13,191 - main - INFO - GET /api/v1/connection/status
+2025-06-30 20:44:13,265 - app.api.routes - INFO - 初期メタデータ取得要求（キャッシュのみ）
+2025-06-30 20:44:13,268 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 20:44:13,275 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 20:44:13,276 - snowsight_app - INFO - パフォーマンス記録: get_initial_metadata (実行時間: 10.3ms)
+2025-06-30 20:44:13,277 - main - INFO - GET /api/v1/metadata/initial
+2025-06-30 20:44:23,991 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 20:44:23,999 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 20:44:23,999 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 20:44:24,014 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 20:44:24,016 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 20:44:24,016 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 20:44:24,022 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 31.0ms)
+2025-06-30 20:44:24,023 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 20:44:28,501 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 20:44:28,501 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 20:44:28,509 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 20:44:28,515 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 20:44:28,515 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 20:44:28,522 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 20:44:28,522 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 20.9ms)
+2025-06-30 20:44:28,526 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 20:44:50,825 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 20:44:50,835 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 20:44:50,836 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 20:44:50,842 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 20:44:50,842 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 20:44:50,842 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 20:44:50,851 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 25.7ms)
+2025-06-30 20:44:50,851 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 20:44:57,263 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 20:44:57,270 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 20:44:57,271 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 20:44:57,281 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 20:44:57,281 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 20:44:57,281 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 20:44:57,288 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 24.4ms)
+2025-06-30 20:44:57,293 - main - INFO - POST /api/v1/sql/suggest
+2025-06-30 20:44:59,985 - app.api.routes - INFO - SQL補完候補要求
+2025-06-30 20:44:59,985 - app.services.completion_service - INFO - SQL completion request
+2025-06-30 20:44:59,991 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-06-30 20:45:00,000 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-06-30 20:45:00,000 - app.services.completion_service - INFO - Completion suggestions generated
+2025-06-30 20:45:00,007 - app.api.routes - INFO - SQL補完候補取得完了
+2025-06-30 20:45:00,008 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 22.5ms)
+2025-06-30 20:45:00,013 - main - INFO - POST /api/v1/sql/suggest
