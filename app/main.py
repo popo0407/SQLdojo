@@ -29,7 +29,7 @@ logger = get_logger("main")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """アプリケーションのライフサイクル管理"""
-    # ConnectionManagerをシングルトン生成しDIを上書き
+    # ConnectionManagerODBCをシングルトン生成しDIを上書き
     connection_manager = ConnectionManagerODBC()
     app.dependency_overrides[get_connection_manager_di] = lambda: connection_manager
 

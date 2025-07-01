@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from app.config_simplified import get_settings
-from app.services.connection_manager import ConnectionManager
+from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.services.query_executor import QueryExecutor
 from app.services.metadata_service import MetadataService
 from app.metadata_cache import MetadataCache
@@ -30,7 +30,7 @@ def test_metadata_update_direct():
         settings = get_settings()
         
         # サービスを直接インスタンス化（本番環境と同じ）
-        connection_manager = ConnectionManager()
+        connection_manager = ConnectionManagerODBC()
         query_executor = QueryExecutor(connection_manager)
         metadata_cache = MetadataCache()
         metadata_service = MetadataService(query_executor, metadata_cache)

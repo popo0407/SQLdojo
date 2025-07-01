@@ -238,32 +238,6 @@ class SQLWebApp {
         replaceBtn('formatBtn', () => this.formatSQL());
         replaceBtn('exportCsvBtn', () => this.exportData('csv'));
         replaceBtn('toggleEditorBtn', () => this.toggleEditorSize());
-        replaceBtn('testErrorBtn', () => {
-            console.log('Test error button clicked'); // デバッグログ
-            const testMessage = 'テストエラーメッセージです。これはSQLエディタ上にオーバーレイ表示されます。';
-            console.log('Showing test error:', testMessage); // デバッグログ
-            
-            // 複数のエラー表示方法をテスト
-            this.showError(testMessage);
-            
-            // 追加のデバッグ情報
-            setTimeout(() => {
-                const overlay = document.getElementById('error-overlay');
-                console.log('Error overlay after 1 second:', overlay); // デバッグログ
-                if (overlay) {
-                    console.log('Overlay styles:', overlay.style.cssText); // デバッグログ
-                    console.log('Overlay computed styles:', getComputedStyle(overlay)); // デバッグログ
-                    console.log('Overlay parent:', overlay.parentNode); // デバッグログ
-                    console.log('Overlay visibility:', overlay.offsetWidth, overlay.offsetHeight); // デバッグログ
-                } else {
-                    console.log('No error overlay found - checking alternatives'); // デバッグログ
-                    const popup = document.querySelector('.popup-notification.popup-error');
-                    console.log('Error popup found:', popup); // デバッグログ
-                    const legacyError = document.querySelector('.error-message');
-                    console.log('Legacy error found:', legacyError); // デバッグログ
-                }
-            }, 1000);
-        });
 
         // メタデータ更新ボタン
         const refreshBtn = document.getElementById('refresh-metadata-btn');
@@ -770,8 +744,14 @@ class SQLWebApp {
     }
 
     async exportData(format = null) {
-        if (!this.currentResults || !this.currentResults.data) {
-            this.showError('エクスポートするデータがありません。');
+        if (!this.sqlEditor) {
+            this.showError('エディタが初期化されていません。');
+            return;
+        }
+
+        const sql = this.sqlEditor.getValue().trim();
+        if (!sql) {
+            this.showError('エクスポートするSQLクエリがありません。');
             return;
         }
 
@@ -782,15 +762,16 @@ class SQLWebApp {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    data: this.currentResults.data,
-                    columns: this.currentResults.columns,
+                    sql: sql,
                     filename: 'export',
                     format: format || 'csv'
                 })
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.detail || errorData.message || `HTTP ${response.status}: ${response.statusText}`;
+                throw new Error(errorMessage);
             }
 
             const blob = await response.blob();

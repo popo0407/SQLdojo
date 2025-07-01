@@ -12,7 +12,7 @@ from app.services.query_executor import QueryExecutor, QueryResult
 from app.services.sql_service import SQLService
 from app.services.database_service import DatabaseService
 from app.services.performance_service import PerformanceService
-from app.services.connection_manager import ConnectionManager
+from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.metadata_cache import MetadataCache
 from app.exceptions import MetadataError, ExportError, SQLValidationError, SQLExecutionError
 
@@ -252,7 +252,7 @@ class TestQueryExecutor:
     
     @pytest.fixture
     def mock_connection_manager(self):
-        return MagicMock(spec=ConnectionManager)
+        return MagicMock(spec=ConnectionManagerODBC)
     
     @pytest.fixture
     def query_executor(self, mock_connection_manager):
@@ -376,7 +376,7 @@ class TestDatabaseService:
     
     @pytest.fixture
     def mock_connection_manager(self):
-        return MagicMock(spec=ConnectionManager)
+        return MagicMock(spec=ConnectionManagerODBC)
     
     @pytest.fixture
     def mock_query_executor(self):

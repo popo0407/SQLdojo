@@ -278,9 +278,8 @@ def export_data_endpoint(request: ExportRequest, export_service: ExportServiceDe
     if not request.sql:
         raise ExportError("SQLクエリが必要です。")
     
-    # エラーハンドリングのため、まずストリームをテスト
     try:
-        # 最初のチャンクを取得してエラーをチェック
+        # エラーハンドリングのため、まずストリームをテスト
         stream = export_service.export_to_csv_stream(request.sql)
         first_chunk = next(stream, None)
         
@@ -306,6 +305,7 @@ def export_data_endpoint(request: ExportRequest, export_service: ExportServiceDe
         
     except Exception as e:
         # エラーが発生した場合は例外を再発生
+        logger.error("エクスポートエラー", error=str(e))
         raise ExportError(f"エクスポートに失敗しました: {str(e)}")
 
 
