@@ -116,22 +116,23 @@ class SQLWebApp {
         require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
         
         require(['vs/editor/editor.main'], () => {
+            // CSS変数を使用してMonaco Editorのカスタムテーマを定義
+            this.defineCustomTheme();
+
             this.sqlEditor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
                 value: 'SELECT * FROM ;',
                 language: 'sql',
-                theme: 'vs-dark',
+                theme: 'customTheme', // カスタムテーマを適用
                 fontSize: 14,
-                fontFamily: 'Courier New, monospace',
+                fontFamily: 'Fira Code, JetBrains Mono, Courier New, monospace',
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,
                 automaticLayout: true,
                 wordWrap: 'on',
                 lineNumbers: 'on',
                 roundedSelection: false,
-                scrollBeyondLastLine: false,
                 readOnly: false,
                 cursorStyle: 'line',
-                automaticLayout: true,
                 extraEditorClassName: 'monaco-editor'
             });
 
@@ -144,6 +145,31 @@ class SQLWebApp {
             // エディタのサイズを調整
             this.sqlEditor.layout();
         });
+    }
+
+    defineCustomTheme() {
+        try {
+            const rootStyles = getComputedStyle(document.documentElement);
+            monaco.editor.defineTheme('customTheme', {
+                base: 'vs',
+                inherit: true,
+                rules: [
+                    { token: '', background: rootStyles.getPropertyValue('--card-background').trim().replace('#', '') },
+                    { token: '', foreground: rootStyles.getPropertyValue('--text-color').trim().replace('#', '') },
+                ],
+                colors: {
+                    'editor.background': rootStyles.getPropertyValue('--card-background').trim(),
+                    'editor.foreground': rootStyles.getPropertyValue('--text-color').trim(),
+                    'editorCursor.foreground': rootStyles.getPropertyValue('--accent-color').trim(),
+                    'editorLineNumber.foreground': rootStyles.getPropertyValue('--text-muted').trim(),
+                    'editor.selectionBackground': rootStyles.getPropertyValue('--secondary-color').trim(),
+                    'editorWidget.background': rootStyles.getPropertyValue('--sidebar-background').trim(),
+                    'editorWidget.border': rootStyles.getPropertyValue('--border-color').trim(),
+                }
+            });
+        } catch (error) {
+            console.error("カスタムテーマの定義に失敗しました。CSS変数が正しく読み込まれているか確認してください。", error);
+        }
     }
 
     registerSQLCompletionProvider() {
@@ -177,8 +203,8 @@ class SQLWebApp {
                     const suggestions = result.suggestions.map(item => ({
                         label: item.label,
                         kind: this.getMonacoCompletionItemKind(item.kind),
-                        detail: item.detail,
-                        documentation: item.documentation,
+                        detail: item.detail,         // ← item.detail をそのまま使うように修正
+                        documentation: item.documentation, // ← item.documentation をそのまま使うように修正
                         insertText: item.insert_text || item.label,
                         insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
                         sortText: item.sort_text || item.label
