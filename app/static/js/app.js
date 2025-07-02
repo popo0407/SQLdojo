@@ -616,10 +616,14 @@ class SQLWebApp {
         
         columns.forEach(column => {
             const columnItem = document.createElement('li');
+            // 型・コメントをカラム名の直後に小さく表示
+            let metaHtml = '';
+            if (column.data_type || column.comment) {
+                metaHtml = `<span class="column-meta text-muted small ms-2">${column.data_type || ''}${column.data_type && column.comment ? ' ' : ''}${column.comment || ''}</span>`;
+            }
             columnItem.innerHTML = `
                 <div class="column-item">
-                    <span class="column-name">${column.name}</span>
-                    <span class="column-type">${column.type}</span>
+                    <span class="column-name">${column.name}${metaHtml}</span>
                 </div>
             `;
             columnList.appendChild(columnItem);
@@ -1070,13 +1074,24 @@ class SQLWebApp {
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
         
+        // カラムメタ情報（型・コメント）を取得
+        const columnMeta = (this.currentResults.column_meta || {});
+
         // ヘッダー行を作成
         this.currentResults.columns.forEach(column => {
             const th = document.createElement('th');
             th.className = 'sortable-header';
             th.dataset.column = column;
+            let metaHtml = '';
+            if (columnMeta[column]) {
+                const type = columnMeta[column].type || '';
+                const comment = columnMeta[column].comment || '';
+                if (type || comment) {
+                    metaHtml = `<span class='column-meta' style='color:#888;font-size:0.8em;margin-left:0.5em;'>${type}${type && comment ? ' ' : ''}${comment}</span>`;
+                }
+            }
             th.innerHTML = `
-                ${column}
+                ${column}${metaHtml}
                 <span class="sort-icon">↕</span>
             `;
             th.addEventListener('click', () => this.sortData(column));
