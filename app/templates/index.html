@@ -167,5 +167,9 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{{ url_for('static', path='js/app.js') }}"></script>
+    {% if public_server_url %}
+        <script src="{{ public_server_url }}/static/js/app.js"></script>
+    {% else %}
+        <script src="{{ url_for('static', path='js/app.js') }}"></script>
+    {% endif %}
 {% endblock %}

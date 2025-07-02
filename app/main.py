@@ -20,6 +20,9 @@ from app import __version__
 from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.dependencies import get_connection_manager_di
 
+from starlette.datastructures import URL
+from app.config_simplified import get_settings
+
 
 # 設定とロガーを取得
 settings = get_settings()
@@ -78,7 +81,8 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
+# async def add_process_time_header(request: Request, call_next):
+async def force_url_middleware(request: Request, call_next):
     """リクエスト処理時間を計測するミドルウェア"""
     start_time = time.time()
     
@@ -99,9 +103,10 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.get("/")
 async def root(request: Request):
-    """ルートエンドポイント"""
-    return templates.TemplateResponse("index.html", {"request": request})
-
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "public_server_url": settings.public_server_url}
+    )
 
 @app.get("/api/health")
 async def health_check():

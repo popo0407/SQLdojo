@@ -48,6 +48,12 @@ class Settings(BaseSettings):
     # 補完機能設定
     completion_target_schemas: List[str] = Field(default=["PUBLIC"], description="補完対象のスキーマリスト")
     
+    # サーバー設定
+    public_server_url: Optional[str] = Field(default=None, description="公開サーバーURL（IIS発行時用）")
+    
+    # 外部サーバーURL
+    public_server_url: Optional[str] = Field(default=None)
+
     @field_validator('snowflake_account')
     @classmethod
     def validate_snowflake_account(cls, v):

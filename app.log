@@ -626,3 +626,55 @@
 2025-07-02 22:29:52,532 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 54.9ms)
 2025-07-02 22:29:52,535 - main - INFO - GET /api/v1/metadata/all
 2025-07-02 22:30:31,158 - main - INFO - アプリケーション終了
+2025-07-02 22:40:24,742 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-02 22:40:24,763 - main - INFO - アプリケーション起動
+2025-07-02 22:40:24,766 - main - INFO - 設定情報
+2025-07-02 22:40:28,226 - app.api.error_handlers - ERROR - 予期しない例外: 'Settings' object has no attribute 'PUBLIC_SERVER_URL'
+2025-07-02 22:40:29,234 - main - INFO - GET /favicon.ico
+2025-07-02 22:43:20,920 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-02 22:43:20,921 - main - INFO - アプリケーション起動
+2025-07-02 22:43:20,923 - main - INFO - 設定情報
+2025-07-02 22:43:25,943 - main - INFO - アプリケーション終了
+2025-07-02 22:45:13,795 - main - INFO - アプリケーション終了
+2025-07-02 22:45:18,025 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-02 22:45:18,027 - main - INFO - アプリケーション起動
+2025-07-02 22:45:18,028 - main - INFO - 設定情報
+2025-07-02 22:45:20,604 - main - INFO - GET /
+2025-07-02 22:45:20,829 - main - INFO - GET /static/css/style.css
+2025-07-02 22:45:20,838 - main - INFO - GET /static/img/hint.png
+2025-07-02 22:45:33,817 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-02 22:45:36,897 - main - INFO - GET /
+2025-07-02 22:45:37,036 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-02 22:45:41,836 - main - INFO - GET /favicon.ico
+2025-07-02 22:47:06,099 - main - INFO - アプリケーション終了
+2025-07-02 22:47:12,674 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-02 22:47:12,675 - main - INFO - アプリケーション起動
+2025-07-02 22:47:12,680 - main - INFO - 設定情報
+2025-07-02 22:47:15,459 - main - INFO - GET /
+2025-07-02 22:47:15,772 - main - INFO - GET /static/css/style.css
+2025-07-02 22:47:15,781 - main - INFO - GET /static/img/hint.png
+2025-07-02 22:47:15,815 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-02 22:47:15,845 - main - INFO - GET /static/js/app.js
+2025-07-02 22:47:16,059 - app.api.routes - INFO - 接続状態確認要求
+2025-07-02 22:47:16,078 - main - INFO - GET /api/v1/connection/status
+2025-07-02 22:47:16,527 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-02 22:47:16,528 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-02 22:47:16,539 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-02 22:47:16,541 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 14.0ms)
+2025-07-02 22:47:16,544 - main - INFO - GET /api/v1/metadata/all
+2025-07-02 22:47:17,601 - main - INFO - GET /favicon.ico
+2025-07-02 22:47:18,671 - app.api.routes - INFO - メタデータ強制更新要求
+2025-07-02 22:47:18,673 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-02 22:47:18,675 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-02 22:47:18,677 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-02 22:47:23,378 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-02 22:47:24,456 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-02 22:47:25,648 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-02 22:47:25,649 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-02 22:47:25,688 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-07-02 22:47:25,691 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-02 22:47:25,692 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-02 22:47:25,699 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-02 22:47:25,701 - snowsight_app - INFO - パフォーマンス記録: refresh_all_metadata (実行時間: 7.0s)
+2025-07-02 22:47:25,705 - main - INFO - POST /api/v1/metadata/refresh
+2025-07-02 22:48:31,297 - main - INFO - アプリケーション終了
