@@ -84,8 +84,8 @@ body {
 }
 
 /* サイドバー */
-#sidebar {
-    width: 280px;
+.sidebar {
+    width: 800px;
     background-color: var(--sidebar-background);
     border-right: 1px solid var(--border-color);
     overflow-y: auto;
@@ -145,6 +145,7 @@ body {
     box-shadow: var(--shadow-light);
     overflow: hidden;
     margin-bottom: 1rem;
+    padding: 1rem;
 }
 
 .sql-toolbar {
@@ -277,6 +278,7 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    padding: 1rem;
 }
 
 .result-card {
