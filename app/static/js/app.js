@@ -1135,5 +1135,32 @@ function toggleSchema(schemaId) {
         app.toggleSchema(schemaId);
     }
 }
+
+// index.htmlから移動したグローバル関数
+function toggleTemplates() {
+    const dropdown = document.getElementById('template-dropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+
+function loadTemplate(type, sql) {
+    if (app && app.sqlEditor) {
+        app.sqlEditor.setValue(sql);
+        document.getElementById('template-dropdown').style.display = 'none';
+        app.sqlEditor.focus();
+    }
+}
+
+function showKeyboardShortcuts() {
+    const modal = new bootstrap.Modal(document.getElementById('shortcutsModal'));
+    modal.show();
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
  
  

@@ -280,7 +280,8 @@ class TestQueryExecutor:
         assert result.data == [{'id': 1, 'name': 'test'}]
         assert result.columns == ['id', 'name']
         assert result.row_count == 1
-        assert result.query_id == 'test-query-id'
+        # ODBC接続ではquery_idは取得できないためNone
+        assert result.query_id is None
     
     def test_execute_query_error(self, query_executor, mock_connection_manager):
         """クエリ実行エラーのテスト"""
@@ -308,7 +309,8 @@ class TestQueryExecutor:
         assert result.success is True
         assert result.data == [{'id': 1}, {'id': 2}]
         assert result.row_count == 2
-        assert result.query_id == 'test-query-id'
+        # ODBC接続ではquery_idは取得できないためNone
+        assert result.query_id is None
 
 
 class TestSQLService:

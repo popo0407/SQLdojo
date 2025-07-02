@@ -168,33 +168,4 @@
 
 {% block extra_js %}
 <script src="{{ url_for('static', path='js/app.js') }}"></script>
-<script>
-    // テンプレートドロップダウンの切り替え
-    function toggleTemplates() {
-        const dropdown = document.getElementById('template-dropdown');
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-    
-    // テンプレート読み込み
-    function loadTemplate(type, sql) {
-        sqlEditor.setValue(sql);
-        document.getElementById('template-dropdown').style.display = 'none';
-        sqlEditor.focus();
-    }
-    
-    // キーボードショートカット表示
-    function showKeyboardShortcuts() {
-        const modal = new bootstrap.Modal(document.getElementById('shortcutsModal'));
-        modal.show();
-    }
-    
-    // 全画面切り替え
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            document.exitFullscreen();
-        }
-    }
-</script>
 {% endblock %}
