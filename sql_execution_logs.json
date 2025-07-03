@@ -1,0 +1,52 @@
+[
+  {
+    "log_id": "b8e5c1fb-42c9-4edf-b804-2a4d05f0810b",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1;",
+    "execution_time": 0.5942518711090088,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-03T23:07:29.016725"
+  },
+  {
+    "log_id": "ed81bcee-b9bc-4723-88f3-e96afbc7df45",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE STA_NAME IS NOT NULL",
+    "execution_time": 0.4809458255767822,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-03T23:54:17.073122"
+  },
+  {
+    "log_id": "b48d9c38-3014-43c7-8b62-37b8aca2fb36",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1;",
+    "execution_time": 0.8812541961669922,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T00:04:16.561551"
+  },
+  {
+    "log_id": "0c9ce4f8-e0e5-4481-af6b-8beb0b9760a5",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE IS NOT NULL;",
+    "execution_time": 0.5254390239715576,
+    "row_count": 0,
+    "success": false,
+    "error_message": "クエリ実行エラー: SQL構文エラー: ('42000', '[42000] SQLコンパイルエラー：\\n位置 31 の構文エラー行 1 、予期しない「IS」。 (1003) (SQLExecDirectW)')",
+    "timestamp": "2025-07-04T00:05:25.483099"
+  },
+  {
+    "log_id": "0c7c95bc-ba2a-4ca8-8bb9-fe8cf53b042d",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE STA IS NOT NULL;",
+    "execution_time": 0.4584174156188965,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T00:05:40.388509"
+  }
+]

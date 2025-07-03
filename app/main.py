@@ -5,7 +5,7 @@ FastAPIアプリケーションのメインファイル
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import time
@@ -22,11 +22,14 @@ from app.dependencies import get_connection_manager_di
 
 from starlette.datastructures import URL
 from app.config_simplified import get_settings
+from starlette.middleware.sessions import SessionMiddleware
 
 
 # 設定とロガーを取得
 settings = get_settings()
 logger = get_logger("main")
+
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 @asynccontextmanager
@@ -70,6 +73,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+
 # ルーターを追加
 app.include_router(router, prefix="/api/v1")
 
@@ -101,12 +106,37 @@ async def force_url_middleware(request: Request, call_next):
     return response
 
 
+@app.get("/login")
+async def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
 @app.get("/")
 async def root(request: Request):
+    # セッションからユーザー情報を確認
+    user = request.session.get("user")
+    if not user:
+        # 未ログイン時はログインページへリダイレクト
+        return RedirectResponse(url="/login")
+    
     return templates.TemplateResponse(
         "index.html",
         {"request": request, "public_server_url": settings.public_server_url}
     )
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    is_admin = request.session.get("is_admin", False)
+    return templates.TemplateResponse("admin.html", {"request": request, "is_admin": is_admin})
+
+@app.get("/user")
+async def user_page(request: Request):
+    # セッションからユーザー情報を確認
+    user = request.session.get("user")
+    if not user:
+        # 未ログイン時はログインページへリダイレクト
+        return RedirectResponse(url="/login")
+    
+    return templates.TemplateResponse("user.html", {"request": request})
 
 @app.get("/api/health")
 async def health_check():

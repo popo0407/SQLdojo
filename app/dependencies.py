@@ -5,7 +5,7 @@ FastAPI依存性注入用の関数
 from functools import lru_cache
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Request, HTTPException, status
 
 from app.config_simplified import get_settings
 from app.logger import get_logger
@@ -19,6 +19,8 @@ from app.services.metadata_service import MetadataService
 from app.services.performance_service import PerformanceService
 from app.services.export_service import ExportService
 from app.services.completion_service import CompletionService
+from app.services.user_service import UserService
+from app.services.sql_log_service import SQLLogService
 
 
 # 設定の依存性注入
@@ -111,6 +113,31 @@ def get_completion_service_di(
     return CompletionService(metadata_service)
 
 
+# 認証チェックの依存性注入
+def get_current_user(request: Request):
+    """現在のユーザーを取得（認証チェック付き）"""
+    user = request.session.get("user")
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="未ログインです")
+    return user
+
+
+# 管理者認証チェックの依存性注入
+def get_current_admin(request: Request):
+    """現在の管理者を取得（管理者認証チェック付き）"""
+    # 管理者認証をチェック
+    is_admin = request.session.get("is_admin")
+    if not is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="管理者権限が必要です")
+    return True
+
+
+# SQLLogServiceの依存性注入
+def get_sql_log_service_di() -> SQLLogService:
+    """SQLLogServiceのインスタンスを取得"""
+    return SQLLogService()
+
+
 # 型エイリアス（使用例）
 ConnectionManagerDep = Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)]
 QueryExecutorDep = Annotated[QueryExecutor, Depends(get_query_executor_di)]
@@ -121,4 +148,7 @@ PerformanceServiceDep = Annotated[PerformanceService, Depends(get_performance_se
 ExportServiceDep = Annotated[ExportService, Depends(get_export_service_di)]
 CompletionServiceDep = Annotated[CompletionService, Depends(get_completion_service_di)]
 SQLValidatorDep = Annotated[SQLValidator, Depends(get_sql_validator_di)]
-MetadataCacheDep = Annotated[MetadataCache, Depends(get_metadata_cache_di)] 
+MetadataCacheDep = Annotated[MetadataCache, Depends(get_metadata_cache_di)]
+CurrentUserDep = Annotated[dict, Depends(get_current_user)]
+CurrentAdminDep = Annotated[bool, Depends(get_current_admin)]
+SQLLogServiceDep = Annotated[SQLLogService, Depends(get_sql_log_service_di)] 

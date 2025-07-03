@@ -16,14 +16,20 @@
 </head>
 <body>
     <!-- ヘッダー -->
-    <header class="header d-flex align-items-center justify-content-between" style="background: var(--primary-color); border-bottom: 1px solid var(--border-color); height: 56px; padding: 0 1.5rem;">
+    <header class="header d-flex align-items-center justify-content-between" style="background: var(--primary-color); border-bottom: 1px solid var(--border-color); height: 56px; padding: 0 1.5rem; min-height:56px; font-size:1.1rem;">
         <div class="d-flex align-items-center gap-2">
             <img src="{{ url_for('static', path='img/hint.png') }}" alt="Hint" style="height:32px;width:64px;object-fit:contain;">
             <span style="font-size:1.25rem;font-weight:600;color:var(--text-color);letter-spacing:0.02em;">SQL道場 Webアプリ</span>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-light btn-sm">SQL解析AI</a>
-            <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-light btn-sm">SQL生成AI</a>
+        <div class="d-flex align-items-center gap-3">
+            <span id="current-user" style="color: var(--text-color);"></span>
+            <a href="/user" class="btn btn-outline-light btn-sm">ユーザーページ</a>
+            {% if request.url.path == '/' %}
+            <a href="#" id="admin-page-btn" class="btn btn-outline-light btn-sm">管理者ページ</a>
+            {% endif %}
+            <a href="/ai/generate" class="btn btn-outline-light btn-sm">生成AI</a>
+            <a href="/ai/analyze" class="btn btn-outline-light btn-sm">解析AI</a>
+            <button onclick="logout()" class="btn btn-outline-light btn-sm">ログアウト</button>
         </div>
     </header>
 
@@ -31,9 +37,6 @@
         <div class="sidebar p-3" id="sidebar">
             <h5 class="mb-3 d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-sitemap me-2"></i>DB情報</span>
-                <button id="refresh-metadata-btn" class="btn btn-sm btn-outline-secondary" title="DB情報を更新">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
             </h5>
             <div class="metadata-tree" id="metadata-tree">
                 <div class="text-center">
@@ -62,6 +65,34 @@
     {% block extra_js %}
     <script>
     // 重複するリサイザーコードを削除 - app.jsで一元管理
+    
+    // ページ読み込み時の処理
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCurrentUser();
+    });
+
+    // 現在のユーザー情報を取得
+    async function loadCurrentUser() {
+        try {
+            const response = await fetch('/api/v1/users/me');
+            if (response.ok) {
+                const user = await response.json();
+                document.getElementById('current-user').textContent = `${user.user_name} (${user.user_id})`;
+            }
+        } catch (error) {
+            console.error('ユーザー情報取得エラー:', error);
+        }
+    }
+
+    // ログアウト
+    async function logout() {
+        try {
+            await fetch('/api/v1/logout', { method: 'POST' });
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('ログアウトエラー:', error);
+        }
+    }
     </script>
     {% endblock %}
 </body>

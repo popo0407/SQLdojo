@@ -21,6 +21,7 @@ class SQLWebApp {
         this.loadConnectionStatus();
         this.loadMetadataTree(); // 初回ロード (キャッシュ利用)
         this.initializeLayout(); // 初期レイアウト設定
+        this.loadAllTemplates();
     }
 
     // 初期レイアウト設定
@@ -248,22 +249,28 @@ class SQLWebApp {
     }
 
     bindEvents() {
-        // イベントリスナーの重複登録を防ぐため、ボタンを再生成してからリスナーを登録
+        // 既存のイベントバインディング
         const replaceBtn = (id, newAction) => {
-            const oldBtn = document.getElementById(id);
-            if (oldBtn) {
-                const newBtn = oldBtn.cloneNode(true);
-                oldBtn.parentNode.replaceChild(newBtn, oldBtn);
-                newBtn.addEventListener('click', newAction);
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.onclick = newAction;
             }
         };
 
         replaceBtn('executeBtn', () => this.executeSQL());
-        replaceBtn('clearBtn', () => this.clearSQL());
-        replaceBtn('clearResultsBtn', () => this.clearResults());
         replaceBtn('formatBtn', () => this.formatSQL());
-        replaceBtn('exportCsvBtn', () => this.exportData('csv'));
+        replaceBtn('clearBtn', () => this.clearSQL());
         replaceBtn('toggleEditorBtn', () => this.toggleEditorSize());
+        replaceBtn('exportCsvBtn', () => this.exportData('csv'));
+
+        // 管理者ページボタンのイベントリスナーを追加
+        const adminPageBtn = document.getElementById('admin-page-btn');
+        if (adminPageBtn) {
+            adminPageBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showAdminLoginModal();
+            });
+        }
 
         // メタデータ更新ボタン
         const refreshBtn = document.getElementById('refresh-metadata-btn');
@@ -1118,6 +1125,53 @@ class SQLWebApp {
         
         // ソートアイコンを更新
         this.updateSortIcons();
+    }
+
+    async loadAllTemplates() {
+        const userTemplates = await fetch('/api/v1/users/templates').then(res => res.json()).catch(() => []);
+        const adminTemplates = await fetch('/api/v1/admin/templates').then(res => res.json()).catch(() => []);
+        const dropdown = document.getElementById('template-dropdown');
+        if (!dropdown) return;
+        let html = '';
+        if (userTemplates.length > 0) {
+            html += '<div class="template-section-label">自分のテンプレート</div>';
+            userTemplates.forEach(t => {
+                html += `<div class="template-item" onclick="loadTemplate('user', \`${this.escapeHtml(t.sql)}\`)"><div class="template-title">${this.escapeHtml(t.name)}</div></div>`;
+            });
+        }
+        if (adminTemplates.length > 0) {
+            html += '<div class="template-section-label">共通テンプレート</div>';
+            adminTemplates.forEach(t => {
+                html += `<div class="template-item" onclick="loadTemplate('admin', \`${this.escapeHtml(t.sql)}\`)"><div class="template-title">${this.escapeHtml(t.name)}</div></div>`;
+            });
+        }
+        if (!html) {
+            html = '<div class="text-muted px-2">テンプレートがありません</div>';
+        }
+        dropdown.innerHTML = html;
+    }
+
+    async showAdminLoginModal() {
+        const password = prompt('管理者パスワードを入力してください');
+        if (!password) return;
+        
+        try {
+            const response = await fetch('/api/v1/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            });
+            
+            if (response.ok) {
+                alert('管理者認証に成功しました');
+                window.location.href = '/admin';
+            } else {
+                const error = await response.json();
+                alert(`認証に失敗しました: ${error.detail || 'パスワードが無効です'}`);
+            }
+        } catch (error) {
+            alert('認証処理中にエラーが発生しました');
+        }
     }
 }
 

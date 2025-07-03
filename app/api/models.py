@@ -9,6 +9,15 @@ from datetime import datetime
 import time
 
 
+class UserLoginRequest(BaseModel):
+    user_id: str
+
+
+class UserInfo(BaseModel):
+    user_id: str
+    user_name: str
+
+
 class SQLRequest(BaseModel):
     """SQL実行リクエスト"""
     sql: str = Field(..., description="実行するSQL")
@@ -214,4 +223,43 @@ class DatabaseInfo(BaseModel):
 class ConnectionStatusResponse(BaseModel):
     """接続状態レスポンス"""
     connected: bool = Field(..., description="接続状態")
-    detail: Dict[str, Any] = Field(..., description="接続詳細情報") 
+    detail: Dict[str, Any] = Field(..., description="接続詳細情報")
+
+
+class TemplateRequest(BaseModel):
+    name: str = Field(..., description="テンプレート名")
+    sql: str = Field(..., description="SQL文")
+
+
+class TemplateResponse(BaseModel):
+    id: str = Field(..., description="テンプレートID")
+    name: str = Field(..., description="テンプレート名")
+    sql: str = Field(..., description="SQL文")
+    created_at: str = Field(..., description="作成日時")
+
+
+class UserRefreshResponse(BaseModel):
+    message: str = Field(..., description="更新メッセージ")
+    user_count: int = Field(..., description="更新されたユーザー数")
+
+
+class AdminLoginRequest(BaseModel):
+    password: str = Field(..., description="管理者パスワード")
+
+
+class SQLExecutionLog(BaseModel):
+    """SQL実行ログ"""
+    log_id: str = Field(..., description="ログID")
+    user_id: str = Field(..., description="ユーザーID")
+    sql: str = Field(..., description="実行されたSQL")
+    execution_time: float = Field(..., description="実行時間（秒）")
+    row_count: int = Field(..., description="取得行数")
+    success: bool = Field(..., description="実行成功フラグ")
+    error_message: Optional[str] = Field(None, description="エラーメッセージ")
+    timestamp: datetime = Field(..., description="実行日時")
+
+
+class SQLExecutionLogResponse(BaseModel):
+    """SQL実行ログレスポンス"""
+    logs: List[SQLExecutionLog] = Field(..., description="ログ一覧")
+    total_count: int = Field(..., description="総件数") 

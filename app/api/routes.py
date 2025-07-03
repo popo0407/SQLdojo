@@ -3,7 +3,7 @@
 APIルート定義
 FastAPIのエンドポイント定義
 """
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, status
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse, StreamingResponse
 from fastapi.concurrency import run_in_threadpool
 from fastapi.staticfiles import StaticFiles
@@ -11,11 +11,13 @@ from fastapi.templating import Jinja2Templates
 from typing import List, Dict, Any, Optional
 import time
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 import httpx
 import csv
 import io
+import os
+import json
 
 
 from app.api.models import (
@@ -25,7 +27,9 @@ from app.api.models import (
     TableDetailInfo, SchemaListResponse, TableListResponse, DownloadRequest,
     DownloadResponse, DownloadStatusResponse, HealthCheckResponse,
     PerformanceMetricsResponse, ExportRequest, ExportResponse, ExportHistoryResponse,
-    WarehouseInfo, DatabaseInfo, ConnectionStatusResponse
+    WarehouseInfo, DatabaseInfo, ConnectionStatusResponse, UserLoginRequest, UserInfo,
+    TemplateRequest, TemplateResponse, UserRefreshResponse, AdminLoginRequest,
+    SQLExecutionLog, SQLExecutionLogResponse
 )
 from app.sql_validator import validate_sql, format_sql
 from app.logger import get_logger, log_execution_time, get_performance_metrics
@@ -33,7 +37,7 @@ from app.config_simplified import get_settings
 from app import __version__
 from app.dependencies import (
     SQLServiceDep, MetadataServiceDep, PerformanceServiceDep, ExportServiceDep,
-    SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep
+    SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep, CurrentUserDep, CurrentAdminDep, SQLLogServiceDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
 from app.services.database_service import DatabaseService
@@ -43,6 +47,7 @@ from app.services.performance_service import PerformanceService
 from app.services.sql_service import SQLService
 from app.services.completion_service import CompletionService
 from app.logger import Logger
+from app.services.user_service import UserService
 
 # グローバルなThreadPoolExecutorを作成
 thread_pool = ThreadPoolExecutor(max_workers=4)
@@ -56,6 +61,20 @@ def run_in_threadpool(func, *args, **kwargs):
 router = APIRouter(tags=["API"])
 logger = Logger(__name__)
 
+TEMPLATES_USER_FILE = os.path.join(os.path.dirname(__file__), '../../templates_user.json')
+TEMPLATES_ADMIN_FILE = os.path.join(os.path.dirname(__file__), '../../templates_admin.json')
+
+def load_templates(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read().strip()
+            if content:
+                return json.loads(content)
+    return []
+
+def save_templates(file_path, templates):
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(templates, f, ensure_ascii=False, indent=2)
 
 @router.get("/", response_model=Dict[str, str])
 async def root():
@@ -106,7 +125,9 @@ async def health_check(
 @log_execution_time("sql_execute")
 async def execute_sql_endpoint(
     request: SQLRequest,
-    sql_service: SQLServiceDep
+    sql_service: SQLServiceDep,
+    current_user: CurrentUserDep,
+    sql_log_service: SQLLogServiceDep
 ):
     """SQL実行エンドポイント"""
     logger.info("SQL実行要求", sql=request.sql, limit=request.limit)
@@ -128,6 +149,16 @@ async def execute_sql_endpoint(
         execution_time=result.execution_time,
         error_message=result.error_message,
         sql=result.sql
+    )
+    
+    # SQL実行ログを記録
+    sql_log_service.add_log(
+        user_id=current_user["user_id"],
+        sql=request.sql,
+        execution_time=result.execution_time,
+        row_count=result.row_count,
+        success=result.success,
+        error_message=result.error_message
     )
     
     if not result.success:
@@ -365,4 +396,228 @@ async def suggest_sql_endpoint(
     
     logger.info("SQL補完候補取得完了", suggestion_count=len(result.suggestions))
     
-    return result 
+    return result
+
+
+# 認証API
+@router.post("/login")
+async def login(request: Request, login_req: UserLoginRequest):
+    user_service = UserService()
+    user = user_service.authenticate_user(login_req.user_id)
+    if user:
+        request.session["user"] = user
+        return {"message": "ログイン成功", "user": user}
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="ユーザーIDが無効です")
+
+@router.post("/logout")
+async def logout(request: Request):
+    request.session.clear()
+    return {"message": "ログアウトしました"}
+
+@router.get("/users/me", response_model=UserInfo)
+async def get_current_user(request: Request):
+    user = request.session.get("user")
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="未ログインです")
+    return user
+
+# 管理者API
+@router.post("/admin/users/refresh", response_model=UserRefreshResponse)
+async def refresh_users_from_db(
+    request: Request,
+    current_admin: CurrentAdminDep,
+    connection_manager: ConnectionManagerDep
+):
+    """HF3IGM01からユーザー情報を取得し、user_data.jsonを更新"""
+    user_service = UserService()
+    users = user_service.refresh_users_from_db(connection_manager)
+    return UserRefreshResponse(
+        message="ユーザー情報を更新しました",
+        user_count=len(users)
+    )
+
+@router.get("/admin/templates", response_model=List[TemplateResponse])
+async def get_templates(current_admin: CurrentAdminDep):
+    return load_templates(TEMPLATES_ADMIN_FILE)
+
+@router.post("/admin/templates", response_model=TemplateResponse)
+async def create_template(request: TemplateRequest, current_admin: CurrentAdminDep):
+    import uuid
+    from datetime import datetime
+    templates = load_templates(TEMPLATES_ADMIN_FILE)
+    new_template = {
+        "id": str(uuid.uuid4()),
+        "name": request.name,
+        "sql": request.sql,
+        "created_at": datetime.now().isoformat()
+    }
+    templates.append(new_template)
+    save_templates(TEMPLATES_ADMIN_FILE, templates)
+    return new_template
+
+@router.delete("/admin/templates/{template_id}")
+async def delete_template(template_id: str, current_admin: CurrentAdminDep):
+    templates = load_templates(TEMPLATES_ADMIN_FILE)
+    templates = [t for t in templates if t["id"] != template_id]
+    save_templates(TEMPLATES_ADMIN_FILE, templates)
+    return {"message": "テンプレートを削除しました"}
+
+# ユーザーAPI
+@router.get("/users/history")
+async def get_user_history(
+    current_user: CurrentUserDep,
+    connection_manager: ConnectionManagerDep
+):
+    """Log.TOOL_LOGテーブルからログインユーザーの過去半年の実行履歴を取得"""
+    # 過去半年の日付を計算
+    from datetime import datetime, timedelta
+    six_months_ago = datetime.now() - timedelta(days=180)
+    date_str = six_months_ago.strftime('%Y%m%d%H%M%S')
+    
+    sql = f"""
+        SELECT MK_DATE, OPTION_NO, SYSTEM_WORKNUMBER
+        FROM Log.TOOL_LOG
+        WHERE OPE_CODE = '{current_user["user_id"]}'
+        AND MK_DATE >= '{date_str}'
+        ORDER BY MK_DATE DESC
+    """
+    
+    try:
+        result = connection_manager.execute_query(sql)
+        return result
+    except Exception as e:
+        logger.error(f"SQL履歴取得エラー: {e}")
+        raise HTTPException(status_code=500, detail="履歴の取得に失敗しました")
+
+@router.get("/users/templates", response_model=List[TemplateResponse])
+async def get_user_templates(current_user: CurrentUserDep):
+    templates = load_templates(TEMPLATES_USER_FILE)
+    user_id = current_user["user_id"]
+    user_templates = [t for t in templates if t.get("user_id") == user_id]
+    return user_templates
+
+@router.post("/users/templates", response_model=TemplateResponse)
+async def create_user_template(request: TemplateRequest, current_user: CurrentUserDep):
+    import uuid
+    from datetime import datetime
+    templates = load_templates(TEMPLATES_USER_FILE)
+    new_template = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user["user_id"],
+        "name": request.name,
+        "sql": request.sql,
+        "created_at": datetime.now().isoformat()
+    }
+    templates.append(new_template)
+    save_templates(TEMPLATES_USER_FILE, templates)
+    return new_template
+
+@router.delete("/users/templates/{template_id}")
+async def delete_user_template(template_id: str, current_user: CurrentUserDep):
+    templates = load_templates(TEMPLATES_USER_FILE)
+    user_id = current_user["user_id"]
+    templates = [t for t in templates if not (t["id"] == template_id and t.get("user_id") == user_id)]
+    save_templates(TEMPLATES_USER_FILE, templates)
+    return {"message": "テンプレートを削除しました"}
+
+# 管理者認証API
+@router.post("/admin/login")
+async def admin_login(request: Request, admin_req: AdminLoginRequest):
+    """管理者認証（パスワード: mono0000）"""
+    if admin_req.password == "mono0000":
+        # 管理者フラグをセッションに保存
+        request.session["is_admin"] = True
+        return {"message": "管理者認証成功"}
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="管理者パスワードが無効です")
+
+@router.post("/admin/logout")
+async def admin_logout(request: Request):
+    """管理者ログアウト"""
+    request.session.pop("is_admin", None)
+    return {"message": "管理者ログアウトしました"}
+
+# SQL実行ログ関連API
+@router.get("/logs/sql", response_model=SQLExecutionLogResponse)
+async def get_sql_logs(
+    current_user: CurrentUserDep,
+    sql_log_service: SQLLogServiceDep,
+    limit: int = 50,
+    offset: int = 0
+):
+    """ユーザーのSQL実行ログを取得"""
+    result = sql_log_service.get_logs(
+        user_id=current_user["user_id"],
+        limit=limit,
+        offset=offset
+    )
+    
+    logs = [
+        SQLExecutionLog(
+            log_id=log["log_id"],
+            user_id=log["user_id"],
+            sql=log["sql"],
+            execution_time=log["execution_time"],
+            row_count=log["row_count"],
+            success=log["success"],
+            error_message=log.get("error_message"),
+            timestamp=datetime.fromisoformat(log["timestamp"])
+        )
+        for log in result["logs"]
+    ]
+    
+    return SQLExecutionLogResponse(
+        logs=logs,
+        total_count=result["total_count"]
+    )
+
+@router.get("/admin/logs/sql", response_model=SQLExecutionLogResponse)
+async def get_all_sql_logs(
+    current_admin: CurrentAdminDep,
+    sql_log_service: SQLLogServiceDep,
+    limit: int = 100,
+    offset: int = 0
+):
+    """全ユーザーのSQL実行ログを取得（管理者用）"""
+    result = sql_log_service.get_logs(
+        limit=limit,
+        offset=offset
+    )
+    
+    logs = [
+        SQLExecutionLog(
+            log_id=log["log_id"],
+            user_id=log["user_id"],
+            sql=log["sql"],
+            execution_time=log["execution_time"],
+            row_count=log["row_count"],
+            success=log["success"],
+            error_message=log.get("error_message"),
+            timestamp=datetime.fromisoformat(log["timestamp"])
+        )
+        for log in result["logs"]
+    ]
+    
+    return SQLExecutionLogResponse(
+        logs=logs,
+        total_count=result["total_count"]
+    )
+
+@router.delete("/logs/sql")
+async def clear_user_sql_logs(
+    current_user: CurrentUserDep,
+    sql_log_service: SQLLogServiceDep
+):
+    """ユーザーのSQL実行ログをクリア"""
+    sql_log_service.clear_logs(user_id=current_user["user_id"])
+    return {"message": "SQL実行ログをクリアしました"}
+
+@router.delete("/admin/logs/sql")
+async def clear_all_sql_logs(
+    current_admin: CurrentAdminDep,
+    sql_log_service: SQLLogServiceDep
+):
+    """全SQL実行ログをクリア（管理者用）"""
+    sql_log_service.clear_logs()
+    return {"message": "全SQL実行ログをクリアしました"} 

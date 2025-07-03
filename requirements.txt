@@ -16,4 +16,9 @@ pandas==2.1.4
 openpyxl==3.1.2
 xlsxwriter==3.1.9
 # ファイル操作用
-python-multipart==0.0.6 
+python-multipart==0.0.6
+itsdangerous
+python-jose
+# テスト用
+pytest
+pytest-cov 

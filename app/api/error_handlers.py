@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Union
+import logging
 
 from app.exceptions import BaseAppException
 from app.logger import get_logger
@@ -29,22 +30,33 @@ async def app_exception_handler(request: Request, exc: BaseAppException) -> JSON
     )
 
 
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
-    """HTTP例外ハンドラー"""
-    logger.error(f"HTTP例外: {exc.detail}", 
-                status_code=exc.status_code,
-                path=request.url.path,
-                method=request.method)
+def register_exception_handlers(app):
+    """例外ハンドラーを登録"""
+    # アプリケーション例外
+    app.add_exception_handler(BaseAppException, app_exception_handler)
     
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": True,
-            "message": exc.detail,
-            "status_code": exc.status_code,
-            "detail": {}
-        }
-    )
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException):
+        detail = exc.detail
+        if not isinstance(detail, str):
+            detail = str(detail) if detail else "エラーが発生しました"
+        logger.error(f"HTTP例外: {detail}", 
+                    status_code=exc.status_code,
+                    path=request.url.path,
+                    method=request.method)
+        
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": detail, "error": True, "message": detail, "status_code": exc.status_code}
+        )
+    
+    app.add_exception_handler(StarletteHTTPException, starlette_http_exception_handler)
+    
+    # バリデーション例外
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    
+    # 汎用例外（最後に登録）
+    app.add_exception_handler(Exception, general_exception_handler)
 
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -103,20 +115,4 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
             "status_code": 500,
             "detail": {}
         }
-    )
-
-
-def register_exception_handlers(app):
-    """例外ハンドラーを登録"""
-    # アプリケーション例外
-    app.add_exception_handler(BaseAppException, app_exception_handler)
-    
-    # HTTP例外
-    app.add_exception_handler(HTTPException, http_exception_handler)
-    app.add_exception_handler(StarletteHTTPException, starlette_http_exception_handler)
-    
-    # バリデーション例外
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    
-    # 汎用例外（最後に登録）
-    app.add_exception_handler(Exception, general_exception_handler) 
+    ) 

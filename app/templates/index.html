@@ -17,9 +17,6 @@
                         <button type="button" id="clearBtn" class="btn btn-light btn-sm" title="SQLをクリア (Ctrl+L)">
                             <i class="fas fa-eraser me-1"></i>SQLクリア
                         </button>
-                        <button type="button" id="clearResultsBtn" class="btn btn-light btn-sm" title="結果をクリア">
-                            <i class="fas fa-trash me-1"></i>結果クリア
-                        </button>
                     </div>
                     
                     <div class="sql-templates">
@@ -27,28 +24,12 @@
                             <i class="fas fa-file-code me-1"></i>テンプレート
                         </button>
                         <div class="template-dropdown" id="template-dropdown">
-                            <div class="template-item" onclick="loadTemplate('select', 'SELECT * FROM ;')">
-                                <div class="template-title">基本SELECT</div>
-                                <div class="template-description">テーブルからデータを取得</div>
-                            </div>
-                            <div class="template-item" onclick="loadTemplate('count', 'SELECT COUNT(*) as total_count FROM ;')">
-                                <div class="template-title">件数取得</div>
-                                <div class="template-description">レコード数をカウント</div>
-                            </div>
-                            <div class="template-item" onclick="loadTemplate('join', 'SELECT a.*, b.column_name FROM table1 a JOIN table2 b ON a.id = b.id;')">
-                                <div class="template-title">JOIN</div>
-                                <div class="template-description">テーブル結合</div>
-                            </div>
-                            <div class="template-item" onclick="loadTemplate('group', 'SELECT column_name, COUNT(*) as count FROM table_name GROUP BY column_name;')">
-                                <div class="template-title">GROUP BY</div>
-                                <div class="template-description">グループ化集計</div>
-                            </div>
-                            <div class="template-item" onclick="loadTemplate('window', 'SELECT *, ROW_NUMBER() OVER (PARTITION BY column_name ORDER BY created_at DESC) as rn FROM table_name;')">
-                                <div class="template-title">ウィンドウ関数</div>
-                                <div class="template-description">ランキング・順位付け</div>
-                            </div>
+                            <!-- ここはJSで動的に描画される -->
                         </div>
                     </div>
+                    <button type="button" id="save-template-btn" class="btn btn-light btn-sm" title="テンプレート保存">
+                        <i class="fas fa-eraser me-1"></i>テンプレート保存
+                    </button>
                 </div>
                 
                 <div class="d-flex gap-2 align-items-center">
@@ -172,4 +153,18 @@
     {% else %}
         <script src="{{ url_for('static', path='js/app.js') }}"></script>
     {% endif %}
+    <script>
+    document.getElementById('save-template-btn').addEventListener('click', function() {
+        const sql = window.getCurrentEditorSQL ? window.getCurrentEditorSQL() : '';
+        const name = prompt('テンプレート名を入力してください');
+        if (!name || !sql) return;
+        fetch('/api/v1/users/templates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, sql: sql })
+        }).then(res => res.json()).then(data => {
+            alert('テンプレートを保存しました');
+        }).catch(() => alert('テンプレート保存に失敗しました'));
+    });
+    </script>
 {% endblock %}

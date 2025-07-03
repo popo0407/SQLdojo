@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL道場webアプリ ログイン</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f5f7fa; }
+        .login-container { background: #fff; padding: 2.5rem 2rem; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); text-align: center; min-width: 320px; }
+        .logo { width: 64px; margin-bottom: 1rem; }
+        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: #333; }
+        input[type="text"] { width: 80%; padding: 0.7rem; margin-bottom: 1.2rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
+        button { width: 80%; padding: 0.7rem; background: #1976d2; color: #fff; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #1565c0; }
+        .error { color: #d32f2f; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="/static/img/hint.png" alt="Logo" class="logo">
+        <h1>SQL道場webアプリ</h1>
+        <form id="login-form">
+            <input type="text" id="user_id" name="user_id" placeholder="ユーザーID" required autofocus><br>
+            <button type="submit">ログイン</button>
+            <div class="error" id="error-msg" style="display:none;"></div>
+        </form>
+    </div>
+    <script>
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const userId = document.getElementById('user_id').value;
+        const res = await fetch('/api/v1/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId })
+        });
+        if (res.ok) {
+            window.location.href = '/';
+        } else {
+            const data = await res.json();
+            document.getElementById('error-msg').textContent = data.detail || 'ログインに失敗しました';
+            document.getElementById('error-msg').style.display = 'block';
+        }
+    });
+    </script>
+</body>
+</html> 

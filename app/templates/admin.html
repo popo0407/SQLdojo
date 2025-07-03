@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ページ - SQL道場webアプリ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .admin-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .admin-card h5 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+        }
+        .btn-admin {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-admin:hover {
+            background: #1565c0;
+        }
+        .status-message {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header d-flex align-items-center justify-content-between" style="background: var(--primary-color); border-bottom: 1px solid var(--border-color); height: 56px; padding: 0 1.5rem; min-height:56px; font-size:1.1rem;">
+        <div class="d-flex align-items-center gap-2">
+            <img src="/static/img/hint.png" alt="Hint" style="height:32px;width:64px;object-fit:contain;">
+            <span style="font-size:1.25rem;font-weight:600;color:var(--text-color);letter-spacing:0.02em;">SQL道場 Webアプリ 管理者ページ</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span id="current-user" style="color: var(--text-color);"></span>
+            <a href="/" class="btn btn-outline-light btn-sm">メインページ</a>
+            <button onclick="logout()" class="btn btn-outline-light btn-sm">ログアウト</button>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        
+        {% if not is_admin %}
+        <!-- 管理者認証フォームのみ表示 -->
+        <div class="admin-card" id="admin-auth-section">
+            <h5><i class="fas fa-shield-alt"></i> 管理者認証</h5>
+            <p>管理者機能を使用するには認証が必要です。</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="admin-password" class="form-label">管理者パスワード</label>
+                        <input type="password" class="form-control" id="admin-password" placeholder="パスワードを入力">
+                    </div>
+                    <button class="btn-admin" onclick="adminLogin()">
+                        <i class="fas fa-sign-in-alt"></i> 管理者認証
+                    </button>
+                </div>
+            </div>
+            <div id="admin-auth-status" class="status-message" style="display:none;"></div>
+        </div>
+        {% else %}
+        <!-- 管理者機能（認証後のみ表示） -->
+        <div id="admin-functions">
+            <!-- ユーザー情報更新 -->
+            <div class="admin-card">
+                <h5><i class="fas fa-users"></i> ユーザー情報更新</h5>
+                <p>HF3IGM01テーブルからユーザー情報を取得し、ローカルキャッシュを更新します。</p>
+                <button class="btn-admin" onclick="onRefreshUsers()">
+                    <i class="fas fa-sync-alt"></i> ユーザー情報更新
+                </button>
+                <div id="user-refresh-status" class="status-message" style="display:none;"></div>
+            </div>
+            <!-- 共通テンプレート管理（重複なし） -->
+            <div class="admin-card">
+                <h5><i class="fas fa-file-code"></i> 共通テンプレート管理</h5>
+                <p>全ユーザーが利用できるSQLテンプレートを管理します。</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="template-name" class="form-label">テンプレート名</label>
+                            <input type="text" class="form-control" id="template-name" placeholder="テンプレート名を入力">
+                        </div>
+                        <div class="mb-3">
+                            <label for="template-sql" class="form-label">SQL</label>
+                            <textarea class="form-control" id="template-sql" rows="5" placeholder="SQLを入力"></textarea>
+                        </div>
+                        <button class="btn-admin" onclick="onSaveTemplate()">
+                            <i class="fas fa-save"></i> テンプレート保存
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>保存済みテンプレート</h6>
+                        <div id="templates-list">
+                            <p class="text-muted">テンプレートがありません</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="template-status" class="status-message" style="display:none;"></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SQL全文表示用ツールチップ -->
+    <div id="sql-tooltip" class="sql-tooltip"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.is_admin = "{{ 'true' if is_admin else 'false' }}";
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCurrentUser();
+        checkAdminAuth();
+        if (window.is_admin === "true") {
+            loadTemplates();
+        }
+    });
+
+    // 現在のユーザー情報を取得
+    async function loadCurrentUser() {
+        try {
+            const response = await fetch('/api/v1/users/me');
+            if (response.ok) {
+                const user = await response.json();
+                document.getElementById('current-user').textContent = `${user.user_name} (${user.user_id})`;
+            }
+        } catch (error) {
+            console.error('ユーザー情報取得エラー:', error);
+        }
+    }
+
+    // ログアウト
+    async function logout() {
+        try {
+            await fetch('/api/v1/logout', { method: 'POST' });
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('ログアウトエラー:', error);
+        }
+    }
+
+    // 管理者認証チェック
+    async function checkAdminAuth() {
+        try {
+            const response = await fetch('/api/v1/admin/users/refresh', { method: 'POST' });
+            if (response.status === 403) {
+                // 管理者認証が必要
+                document.getElementById('admin-auth-section').style.display = 'block';
+                document.getElementById('admin-functions').style.display = 'none';
+            } else if (response.ok) {
+                // 管理者認証済み
+                document.getElementById('admin-auth-section').style.display = 'none';
+                document.getElementById('admin-functions').style.display = 'block';
+            }
+        } catch (error) {
+            console.error('管理者認証チェックエラー:', error);
+        }
+    }
+
+    // 管理者認証
+    async function adminLogin() {
+        const password = document.getElementById('admin-password').value;
+        
+        if (!password) {
+            alert('パスワードを入力してください');
+            return;
+        }
+
+        const statusDiv = document.getElementById('admin-auth-status');
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-message';
+        statusDiv.textContent = '認証中...';
+
+        try {
+            const response = await fetch('/api/v1/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            });
+            
+            if (response.ok) {
+                statusDiv.className = 'status-message status-success';
+                statusDiv.textContent = '管理者認証に成功しました';
+                document.getElementById('admin-password').value = '';
+                document.getElementById('admin-auth-section').style.display = 'none';
+                document.getElementById('admin-functions').style.display = 'block';
+            } else {
+                const error = await response.json();
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = `エラー: ${error.detail || '認証に失敗しました'}`;
+            }
+        } catch (error) {
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = 'エラー: 通信に失敗しました';
+        }
+    }
+
+    // 全SQL実行ログ読み込み
+    async function loadAllSQLLogs() {
+        const statusDiv = document.getElementById('admin-sql-logs-status');
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-message';
+        statusDiv.textContent = '読み込み中...';
+
+        try {
+            const response = await fetch('/api/v1/admin/logs/sql');
+            if (response.ok) {
+                const result = await response.json();
+                statusDiv.className = 'status-message status-success';
+                statusDiv.textContent = `ログを読み込みました。件数: ${result.total_count}`;
+                displayAllSQLLogs(result.logs);
+            } else {
+                const error = await response.json();
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = `エラー: ${error.detail || '読み込みに失敗しました'}`;
+            }
+        } catch (error) {
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = 'エラー: 通信に失敗しました';
+        }
+    }
+
+    // 全SQL実行ログ表示
+    function displayAllSQLLogs(logs) {
+        const tbody = document.getElementById('admin-sql-logs-table');
+        
+        if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">ログがありません</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = logs.map(log => `
+            <tr>
+                <td>${formatISODateTime(log.timestamp)}</td>
+                <td>${log.user_id}</td>
+                <td class="sql-cell" onmouseover="showSqlTooltip(event, '${escapeHtml(log.sql)}')" onmouseout="hideSqlTooltip()">
+                    ${escapeHtml(log.sql.substring(0, 50))}...
+                </td>
+                <td>${log.execution_time.toFixed(3)}</td>
+                <td>${log.row_count}</td>
+                <td>
+                    <span class="badge ${log.success ? 'bg-success' : 'bg-danger'}">
+                        ${log.success ? '成功' : '失敗'}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // 全SQL実行ログクリア
+    async function clearAllSQLLogs() {
+        if (!confirm('全SQL実行ログをクリアしますか？この操作は取り消せません。')) {
+            return;
+        }
+
+        const statusDiv = document.getElementById('admin-sql-logs-status');
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-message';
+        statusDiv.textContent = 'クリア中...';
+
+        try {
+            const response = await fetch('/api/v1/admin/logs/sql', { method: 'DELETE' });
+            if (response.ok) {
+                statusDiv.className = 'status-message status-success';
+                statusDiv.textContent = '全SQL実行ログをクリアしました';
+                document.getElementById('admin-sql-logs-table').innerHTML = 
+                    '<tr><td colspan="6" class="text-center text-muted">ログがありません</td></tr>';
+            } else {
+                const error = await response.json();
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = `エラー: ${error.detail || 'クリアに失敗しました'}`;
+            }
+        } catch (error) {
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = 'エラー: 通信に失敗しました';
+        }
+    }
+
+    // ISO日時フォーマット
+    function formatISODateTime(isoString) {
+        if (!isoString) return '-';
+        const date = new Date(isoString);
+        return date.toLocaleString('ja-JP');
+    }
+
+    // HTMLエスケープ
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // SQLツールチップ表示
+    function showSqlTooltip(event, sql) {
+        const tooltip = document.getElementById('sql-tooltip');
+        tooltip.textContent = sql;
+        tooltip.style.left = event.pageX + 10 + 'px';
+        tooltip.style.top = event.pageY + 10 + 'px';
+        tooltip.style.display = 'block';
+    }
+
+    // SQLツールチップ非表示
+    function hideSqlTooltip() {
+        document.getElementById('sql-tooltip').style.display = 'none';
+    }
+
+    // ユーザー情報更新
+    async function refreshUsers() {
+        const statusDiv = document.getElementById('user-refresh-status');
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-message';
+        statusDiv.textContent = '更新中...';
+
+        try {
+            const response = await fetch('/api/v1/admin/users/refresh', { method: 'POST' });
+            if (response.ok) {
+                const result = await response.json();
+                statusDiv.className = 'status-message status-success';
+                statusDiv.textContent = `ユーザー情報を更新しました。件数: ${result.user_count}`;
+            } else {
+                const error = await response.json();
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = `エラー: ${error.detail || '更新に失敗しました'}`;
+            }
+        } catch (error) {
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = 'エラー: 通信に失敗しました';
+        }
+    }
+
+    // テンプレート保存
+    function saveTemplate() {
+        const name = document.getElementById('template-name').value.trim();
+        const sql = document.getElementById('template-sql').value.trim();
+        const statusDiv = document.getElementById('template-status');
+        if (!name || !sql) {
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = 'テンプレート名とSQLを入力してください';
+            return;
+        }
+        fetch('/api/v1/admin/templates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name, sql: sql })
+        })
+        .then(res => res.json())
+        .then(data => {
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status-message status-success';
+            statusDiv.textContent = 'テンプレートを保存しました';
+            // 保存済みテンプレート一覧を更新
+            loadTemplates();
+        })
+        .catch(() => {
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = 'テンプレート保存に失敗しました';
+        });
+    }
+
+    // テンプレート一覧読み込み
+    function loadTemplates() {
+        fetch('/api/v1/admin/templates')
+            .then(res => res.json())
+            .then(data => {
+                const listDiv = document.getElementById('templates-list');
+                if (!data || data.length === 0) {
+                    listDiv.innerHTML = '<p class="text-muted">テンプレートがありません</p>';
+                    return;
+                }
+                listDiv.innerHTML = data.map(t => `<div><strong>${t.name}</strong><pre>${t.sql}</pre><button class='btn btn-sm btn-danger' onclick='deleteTemplate("${t.id}")'>削除</button></div>`).join('');
+            });
+    }
+
+    // テンプレート削除
+    async function deleteTemplate(id) {
+        if (!confirm('このテンプレートを削除しますか？')) return;
+
+        try {
+            const response = await fetch(`/api/v1/admin/templates/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                loadTemplates();
+            } else {
+                alert('削除に失敗しました');
+            }
+        } catch (error) {
+            console.error('テンプレート削除エラー:', error);
+            alert('削除に失敗しました');
+        }
+    }
+
+    // 管理者認証状態をJSで判定できるようにする
+    // const isAdmin = {{ 'true' if is_admin else 'false' }}; ←この行を削除
+
+    function requireAdminAuth(action) {
+        if (window.is_admin !== "true") {
+            document.getElementById('admin-auth-section').scrollIntoView({behavior: 'smooth'});
+            document.getElementById('admin-password').focus();
+            const statusDiv = document.getElementById('admin-auth-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = '管理者認証が必要です。パスワードを入力してください。';
+            return false;
+        }
+        return true;
+    }
+
+    // ボタンにrequireAdminAuthを適用
+    function onRefreshUsers() {
+        if (!requireAdminAuth()) return;
+        refreshUsers();
+    }
+    function onSaveTemplate() {
+        if (!requireAdminAuth()) return;
+        saveTemplate();
+    }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザーページ - SQL道場webアプリ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .user-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .user-card h5 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+        }
+        .btn-user {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-user:hover {
+            background: #1565c0;
+        }
+        .sql-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .sql-tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            max-width: 400px;
+            word-wrap: break-word;
+            z-index: 1000;
+            display: none;
+        }
+        .status-message {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header d-flex align-items-center justify-content-between" style="background: var(--primary-color); border-bottom: 1px solid var(--border-color); height: 56px; padding: 0 1.5rem; min-height:56px; font-size:1.1rem;">
+        <div class="d-flex align-items-center gap-2">
+            <img src="/static/img/hint.png" alt="Hint" style="height:32px;width:64px;object-fit:contain;">
+            <span style="font-size:1.25rem;font-weight:600;color:var(--text-color);letter-spacing:0.02em;">SQL道場 Webアプリ</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span id="current-user" style="color: var(--text-color);"></span>
+            <a href="/" class="btn btn-outline-light btn-sm">メインページ</a>
+            <button onclick="logout()" class="btn btn-outline-light btn-sm">ログアウト</button>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+
+        <!-- SQL履歴 -->
+        <div class="user-card">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <h5 class="mb-0"><i class="fas fa-history"></i> SQL実行履歴</h5>
+                <span class="text-muted">過去半年のSQL実行履歴を表示します。</span>
+                <button class="btn-user ms-auto" onclick="loadHistory()">
+                    <i class="fas fa-sync-alt"></i> SQL履歴読み込み
+                </button>
+            </div>
+            <div id="history-status" class="status-message" style="display:none;"></div>
+            <div class="table-responsive mt-3">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>発行日時</th>
+                            <th>SQL文</th>
+                            <th>処理時間(秒)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table">
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">履歴がありません</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 個人テンプレート管理 -->
+        <div class="user-card">
+            <h5><i class="fas fa-user-edit"></i> 個人テンプレート管理</h5>
+            <p>あなた専用のSQLテンプレートを管理します。</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="user-template-name" class="form-label">テンプレート名</label>
+                        <input type="text" class="form-control" id="user-template-name" placeholder="テンプレート名を入力">
+                    </div>
+                    <div class="mb-3">
+                        <label for="user-template-sql" class="form-label">SQL</label>
+                        <textarea class="form-control" id="user-template-sql" rows="5" placeholder="SQLを入力"></textarea>
+                    </div>
+                    <button class="btn-user" onclick="saveUserTemplate()">
+                        <i class="fas fa-save"></i> テンプレート保存
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <h6>保存済みテンプレート</h6>
+                    <div id="user-templates-list">
+                        <p class="text-muted">テンプレートがありません</p>
+                    </div>
+                </div>
+            </div>
+            <div id="user-template-status" class="status-message" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- SQL全文表示用ツールチップ -->
+    <div id="sql-tooltip" class="sql-tooltip"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ページ読み込み時の処理
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            loadUserTemplates();
+        });
+
+        // 現在のユーザー情報を取得
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('/api/v1/users/me');
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('current-user').textContent = `${user.user_name} (${user.user_id})`;
+                }
+            } catch (error) {
+                console.error('ユーザー情報取得エラー:', error);
+            }
+        }
+
+        // ログアウト
+        async function logout() {
+            try {
+                await fetch('/api/v1/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('ログアウトエラー:', error);
+            }
+        }
+
+        // SQL履歴読み込み
+        async function loadHistory() {
+            const statusDiv = document.getElementById('history-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status-message';
+            statusDiv.textContent = '読み込み中...';
+
+            try {
+                const response = await fetch('/api/v1/users/history');
+                if (response.ok) {
+                    const history = await response.json();
+                    statusDiv.className = 'status-message status-success';
+                    statusDiv.textContent = `履歴を読み込みました。件数: ${history.length}`;
+                    displayHistory(history);
+                } else {
+                    const error = await response.json();
+                    statusDiv.className = 'status-message status-error';
+                    statusDiv.textContent = `エラー: ${error.detail || '読み込みに失敗しました'}`;
+                }
+            } catch (error) {
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = 'エラー: 通信に失敗しました';
+            }
+        }
+
+        // 履歴表示
+        function displayHistory(history) {
+            const tbody = document.getElementById('history-table');
+            
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">履歴がありません</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = history.map(item => `
+                <tr>
+                    <td>${formatDateTime(item.MK_DATE)}</td>
+                    <td class="sql-cell" onmouseover="showSqlTooltip(event, '${escapeHtml(item.OPTION_NO)}')" onmouseout="hideSqlTooltip()">
+                        ${escapeHtml(item.OPTION_NO ? item.OPTION_NO.substring(0, 50) : '')}...
+                    </td>
+                    <td>${item.SYSTEM_WORKNUMBER || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // 日時フォーマット
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            // YYYYMMDDhhmmss形式を読みやすい形式に変換
+            const year = dateStr.substring(0, 4);
+            const month = dateStr.substring(4, 6);
+            const day = dateStr.substring(6, 8);
+            const hour = dateStr.substring(8, 10);
+            const minute = dateStr.substring(10, 12);
+            const second = dateStr.substring(12, 14);
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+
+        // HTMLエスケープ
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // SQLツールチップ表示
+        function showSqlTooltip(event, sql) {
+            const tooltip = document.getElementById('sql-tooltip');
+            tooltip.textContent = sql;
+            tooltip.style.left = event.pageX + 10 + 'px';
+            tooltip.style.top = event.pageY + 10 + 'px';
+            tooltip.style.display = 'block';
+        }
+
+        // SQLツールチップ非表示
+        function hideSqlTooltip() {
+            document.getElementById('sql-tooltip').style.display = 'none';
+        }
+
+        // 個人テンプレート保存
+        async function saveUserTemplate() {
+            const name = document.getElementById('user-template-name').value;
+            const sql = document.getElementById('user-template-sql').value;
+            
+            if (!name || !sql) {
+                alert('テンプレート名とSQLを入力してください');
+                return;
+            }
+
+            const statusDiv = document.getElementById('user-template-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status-message';
+            statusDiv.textContent = '保存中...';
+
+            try {
+                const response = await fetch('/api/v1/users/templates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, sql })
+                });
+                
+                if (response.ok) {
+                    statusDiv.className = 'status-message status-success';
+                    statusDiv.textContent = 'テンプレートを保存しました';
+                    document.getElementById('user-template-name').value = '';
+                    document.getElementById('user-template-sql').value = '';
+                    loadUserTemplates();
+                } else {
+                    const error = await response.json();
+                    statusDiv.className = 'status-message status-error';
+                    statusDiv.textContent = `エラー: ${error.detail || '保存に失敗しました'}`;
+                }
+            } catch (error) {
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = 'エラー: 通信に失敗しました';
+            }
+        }
+
+        // ユーザーテンプレート一覧取得
+        function loadUserTemplates() {
+            fetch('/api/v1/users/templates')
+                .then(res => res.json())
+                .then(data => {
+                    const listDiv = document.getElementById('user-templates-list');
+                    if (!data || data.length === 0) {
+                        listDiv.innerHTML = '<p class="text-muted">テンプレートがありません</p>';
+                        return;
+                    }
+                    listDiv.innerHTML = data.map(t => `<div><strong>${t.name}</strong><pre>${t.sql}</pre><button class='btn btn-sm btn-danger' onclick='deleteUserTemplate("${t.id}")'>削除</button></div>`).join('');
+                });
+        }
+
+        // テンプレート削除
+        function deleteUserTemplate(id) {
+            if (!confirm('このテンプレートを削除しますか？')) return;
+            fetch(`/api/v1/users/templates/${id}`, { method: 'DELETE' })
+                .then(res => {
+                    if (res.ok) loadUserTemplates();
+                    else alert('削除に失敗しました');
+                });
+        }
+    </script>
+</body>
+</html> 

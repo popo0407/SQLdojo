@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import threading
 import os
 import time
-from typing import Dict, Tuple, Any
+from typing import Dict, Tuple, Any, List
 
 import pyodbc
 
@@ -216,6 +216,35 @@ class ConnectionManagerODBC:
         except Exception as e:
             self.logger.error(f"ODBC接続テストエラー: {e}")
             return False
+    
+    def execute_query(self, sql: str, params: tuple = None) -> List[Dict[str, Any]]:
+        """SQLクエリを実行して結果を辞書のリストで返す"""
+        conn_id = None
+        try:
+            conn_id, connection = self.get_connection()
+            cursor = connection.cursor()
+            
+            if params:
+                cursor.execute(sql, params)
+            else:
+                cursor.execute(sql)
+            
+            # カラム名を取得
+            columns = [column[0] for column in cursor.description]
+            
+            # 結果を辞書のリストに変換
+            results = []
+            for row in cursor.fetchall():
+                results.append(dict(zip(columns, row)))
+            
+            cursor.close()
+            return results
+        except Exception as e:
+            self.logger.error(f"SQL実行エラー: {e}")
+            raise
+        finally:
+            if conn_id:
+                self.release_connection(conn_id)
     
     def get_pool_status(self) -> Dict[str, Any]:
         """接続プールの状態を取得"""
