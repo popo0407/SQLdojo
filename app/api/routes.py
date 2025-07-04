@@ -449,7 +449,8 @@ async def refresh_users_from_db(
     )
 
 @router.get("/admin/templates", response_model=List[TemplateResponse])
-async def get_templates(current_admin: CurrentAdminDep):
+async def get_templates():
+    """共通テンプレートを取得（管理者権限不要）"""
     return load_templates(TEMPLATES_ADMIN_FILE)
 
 @router.post("/admin/templates", response_model=TemplateResponse)

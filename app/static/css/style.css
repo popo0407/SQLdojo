@@ -975,10 +975,11 @@ body {
     border: 1px solid #dee2e6;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
+    z-index: 9999;
     max-height: 300px;
     overflow-y: auto;
     display: none;
+    margin-top: 5px;
 }
 
 .template-item {
@@ -994,6 +995,20 @@ body {
 
 .template-item:last-child {
     border-bottom: none;
+}
+
+.template-section {
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.template-item.disabled {
+    color: #6c757d;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
 }
 
 .template-title {

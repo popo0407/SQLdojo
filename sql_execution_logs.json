@@ -118,5 +118,85 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-04T21:05:36.891681"
+  },
+  {
+    "log_id": "102a9661-3ab8-42f0-aa28-eb1b98e7e90f",
+    "user_id": 1,
+    "sql": "SELECT id, name FROM test_table WHERE id = 1",
+    "execution_time": 0.1,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T23:58:53.710305"
+  },
+  {
+    "log_id": "f94e0535-25b4-4463-b10e-763f2343e626",
+    "user_id": 1,
+    "sql": "SELECT * FROM non_existent_table",
+    "execution_time": 0.1,
+    "row_count": 0,
+    "success": false,
+    "error_message": "Table not found",
+    "timestamp": "2025-07-04T23:59:04.031674"
+  },
+  {
+    "log_id": "bbe4beb3-27b3-4e33-b658-f85ff93bc1ac",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM TRA_3 WHERE 1=1;",
+    "execution_time": 2.8385889530181885,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T00:08:30.279310"
+  },
+  {
+    "log_id": "6ef9e321-7ad8-4c1e-ab68-405032951ebf",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM TRA_3 WHERE 1=1",
+    "execution_time": 1.0231645107269287,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T00:12:47.965127"
+  },
+  {
+    "log_id": "dd6fa822-2ea7-4fb5-b5fd-e164b9ad1c8c",
+    "user_id": 1,
+    "sql": "SELECT id, name FROM test_table WHERE id = 1",
+    "execution_time": 0.1,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T00:29:39.755450"
+  },
+  {
+    "log_id": "c30a4bb0-d378-4bdf-9bc8-257bbdb64e79",
+    "user_id": 1,
+    "sql": "SELECT * FROM non_existent_table",
+    "execution_time": 0.1,
+    "row_count": 0,
+    "success": false,
+    "error_message": "Table not found",
+    "timestamp": "2025-07-05T00:29:48.139956"
+  },
+  {
+    "log_id": "571f351e-42f9-4094-86a0-cc989c8efbf9",
+    "user_id": "hint0530",
+    "sql": "SELECT *\nFROM TRA_3\nWHERE 1 = 1",
+    "execution_time": 3.6469058990478516,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T00:32:39.496001"
+  },
+  {
+    "log_id": "1e9fd259-2a2a-496f-83bd-3f7d1d28a5b1",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1;",
+    "execution_time": 2.369462251663208,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T01:04:59.593772"
   }
 ]

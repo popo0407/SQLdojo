@@ -20,8 +20,12 @@ class TestAPIIntegration:
     
     @pytest.fixture
     def client(self):
-        """テストクライアント"""
-        return TestClient(app)
+        """テストクライアント（認証バイパス）"""
+        from app.dependencies import get_current_user
+        app.dependency_overrides[get_current_user] = lambda: {"user_id": 1, "username": "test_user", "role": "user"}
+        with TestClient(app) as c:
+            yield c
+        app.dependency_overrides = {}
     
     def test_health_check(self, client):
         """ヘルスチェックエンドポイントのテスト"""
@@ -54,7 +58,11 @@ class TestAPIIntegration:
     
     def test_sql_execution_success(self, client):
         """SQL実行成功のテスト"""
-        with patch('app.services.sql_service.SQLService.execute_sql') as mock_execute:
+        with patch('app.services.sql_service.SQLService.execute_sql') as mock_execute, \
+             patch('app.dependencies.get_current_user') as mock_user:
+            # 認証をバイパス
+            mock_user.return_value = {"username": "test_user", "role": "user"}
+            
             mock_result = MagicMock()
             mock_result.success = True
             mock_result.data = [{'id': 1, 'name': 'test'}]
@@ -83,7 +91,11 @@ class TestAPIIntegration:
     
     def test_sql_execution_error(self, client):
         """SQL実行エラーのテスト"""
-        with patch('app.services.sql_service.SQLService.execute_sql') as mock_execute:
+        with patch('app.services.sql_service.SQLService.execute_sql') as mock_execute, \
+             patch('app.dependencies.get_current_user') as mock_user:
+            # 認証をバイパス
+            mock_user.return_value = {"username": "test_user", "role": "user"}
+            
             mock_result = MagicMock()
             mock_result.success = False
             mock_result.data = None
