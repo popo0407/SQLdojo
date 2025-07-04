@@ -133,9 +133,11 @@ def get_current_admin(request: Request):
 
 
 # SQLLogServiceの依存性注入
-def get_sql_log_service_di() -> SQLLogService:
+def get_sql_log_service_di(
+    query_executor: Annotated[QueryExecutor, Depends(get_query_executor_di)]
+) -> SQLLogService:
     """SQLLogServiceのインスタンスを取得"""
-    return SQLLogService()
+    return SQLLogService(query_executor=query_executor)
 
 
 # 型エイリアス（使用例）

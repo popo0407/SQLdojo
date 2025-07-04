@@ -15,7 +15,10 @@
                             <i class="fas fa-magic me-1"></i>整形
                         </button>
                         <button type="button" id="clearBtn" class="btn btn-light btn-sm" title="SQLをクリア (Ctrl+L)">
-                            <i class="fas fa-eraser me-1"></i>SQLクリア
+                            <i class="fas fa-eraser me-1"></i>クリア
+                        </button>
+                        <button type="button" id="save-template-btn" class="btn btn-light btn-sm" title="現在のSQLを個人用テンプレートとして保存">
+                            <i class="fas fa-save me-1"></i>テンプレート保存
                         </button>
                     </div>
                     
@@ -27,9 +30,6 @@
                             <!-- ここはJSで動的に描画される -->
                         </div>
                     </div>
-                    <button type="button" id="save-template-btn" class="btn btn-light btn-sm" title="テンプレート保存">
-                        <i class="fas fa-eraser me-1"></i>テンプレート保存
-                    </button>
                 </div>
                 
                 <div class="d-flex gap-2 align-items-center">
@@ -120,7 +120,7 @@
                     <span><span class="key">Ctrl</span> + <span class="key">Shift</span> + <span class="key">F</span></span>
                 </div>
                 <div class="shortcut-item">
-                    <span>SQLクリア</span>
+                    <span>クリア</span>
                     <span><span class="key">Ctrl</span> + <span class="key">L</span></span>
                 </div>
                 <div class="shortcut-item">
@@ -153,18 +153,4 @@
     {% else %}
         <script src="{{ url_for('static', path='js/app.js') }}"></script>
     {% endif %}
-    <script>
-    document.getElementById('save-template-btn').addEventListener('click', function() {
-        const sql = window.getCurrentEditorSQL ? window.getCurrentEditorSQL() : '';
-        const name = prompt('テンプレート名を入力してください');
-        if (!name || !sql) return;
-        fetch('/api/v1/users/templates', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: name, sql: sql })
-        }).then(res => res.json()).then(data => {
-            alert('テンプレートを保存しました');
-        }).catch(() => alert('テンプレート保存に失敗しました'));
-    });
-    </script>
 {% endblock %}

@@ -2048,3 +2048,292 @@
 2025-07-04 00:05:40,390 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 487.9ms)
 2025-07-04 00:05:40,393 - main - INFO - POST /api/v1/sql/execute
 2025-07-04 00:06:49,958 - main - INFO - アプリケーション終了
+2025-07-04 08:39:44,493 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-04 08:39:44,496 - main - INFO - アプリケーション起動
+2025-07-04 08:39:44,502 - main - INFO - 設定情報
+2025-07-04 08:39:51,309 - main - INFO - GET /
+2025-07-04 08:39:51,810 - main - INFO - GET /static/css/style.css
+2025-07-04 08:39:51,818 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 08:39:51,828 - main - INFO - GET /static/img/hint.png
+2025-07-04 08:39:51,958 - main - INFO - GET /static/js/app.js
+2025-07-04 08:39:52,549 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:39:52,624 - app.api.routes - INFO - 接続状態確認要求
+2025-07-04 08:39:52,656 - main - INFO - GET /api/v1/connection/status
+2025-07-04 08:39:52,751 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 08:39:52,879 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-04 08:39:53,058 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:39:53,122 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:39:53,131 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 251.9ms)
+2025-07-04 08:39:53,135 - main - INFO - GET /api/v1/metadata/all
+2025-07-04 08:39:58,656 - main - INFO - GET /favicon.ico
+2025-07-04 08:42:13,435 - main - INFO - GET /user
+2025-07-04 08:42:13,638 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 08:42:13,941 - main - INFO - GET /api/v1/users/me
+2025-07-04 08:42:13,971 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:42:27,761 - main - INFO - GET /
+2025-07-04 08:42:27,977 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 08:42:28,010 - main - INFO - GET /static/js/app.js
+2025-07-04 08:42:28,254 - app.api.routes - INFO - 接続状態確認要求
+2025-07-04 08:42:28,256 - main - INFO - GET /api/v1/connection/status
+2025-07-04 08:42:28,324 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-04 08:42:28,327 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:42:28,343 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:42:28,351 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:42:28,353 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 29.7ms)
+2025-07-04 08:42:28,376 - main - INFO - GET /api/v1/metadata/all
+2025-07-04 08:42:28,409 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 08:42:39,670 - main - INFO - POST /api/v1/users/templates
+2025-07-04 08:42:39,791 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:42:39,851 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 08:42:43,828 - main - INFO - GET /user
+2025-07-04 08:42:43,976 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 08:42:44,172 - main - INFO - GET /api/v1/users/me
+2025-07-04 08:42:44,179 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:43:29,532 - main - INFO - GET /
+2025-07-04 08:43:29,769 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 08:43:29,776 - main - INFO - GET /static/js/app.js
+2025-07-04 08:43:30,243 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:43:30,247 - app.api.routes - INFO - 接続状態確認要求
+2025-07-04 08:43:30,252 - main - INFO - GET /api/v1/connection/status
+2025-07-04 08:43:30,259 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-04 08:43:30,261 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:43:30,277 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:43:30,308 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 48.6ms)
+2025-07-04 08:43:30,312 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 08:43:30,316 - main - INFO - GET /api/v1/metadata/all
+2025-07-04 08:43:48,516 - main - INFO - GET /user
+2025-07-04 08:43:48,725 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 08:43:48,897 - main - INFO - GET /api/v1/users/me
+2025-07-04 08:43:48,912 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:43:50,048 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-04 08:43:57,151 - main - INFO - GET /api/v1/users/history
+2025-07-04 08:44:00,287 - main - INFO - GET /
+2025-07-04 08:44:00,429 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 08:44:01,012 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:44:01,040 - app.api.routes - INFO - 接続状態確認要求
+2025-07-04 08:44:01,043 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-04 08:44:01,045 - main - INFO - GET /api/v1/connection/status
+2025-07-04 08:44:01,052 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:44:01,063 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:44:01,068 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 25.6ms)
+2025-07-04 08:44:01,072 - main - INFO - GET /api/v1/metadata/all
+2025-07-04 08:44:01,116 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 08:44:01,607 - app.api.routes - INFO - SQLフォーマット要求
+2025-07-04 08:44:01,649 - app.api.routes - INFO - SQLフォーマット成功
+2025-07-04 08:44:01,652 - main - INFO - POST /api/v1/sql/format
+2025-07-04 08:44:17,032 - app.api.routes - INFO - SQL実行要求
+2025-07-04 08:44:17,034 - snowsight_app - INFO - SQL実行開始
+2025-07-04 08:44:17,035 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-04 08:44:17,041 - snowsight_app - WARNING - SQLバリデーション失敗
+2025-07-04 08:44:17,050 - SQLLogService - INFO - SQL実行ログを追加: 1a241cf1-015a-4ab4-8c98-c4b3a1c46add
+2025-07-04 08:44:17,055 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 22.4ms)
+2025-07-04 08:44:17,056 - app.api.error_handlers - ERROR - アプリケーション例外: SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）
+2025-07-04 08:44:17,059 - main - INFO - POST /api/v1/sql/execute
+2025-07-04 08:44:26,468 - app.api.routes - INFO - SQL補完候補要求
+2025-07-04 08:44:26,472 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'T'
+2025-07-04 08:44:26,478 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:44:26,501 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:44:26,549 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-04 08:44:26,554 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 86.9ms)
+2025-07-04 08:44:26,560 - main - INFO - POST /api/v1/sql/suggest
+2025-07-04 08:44:28,484 - app.api.routes - INFO - SQL補完候補要求
+2025-07-04 08:44:28,490 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: ''
+2025-07-04 08:44:28,496 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:44:28,536 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:44:28,547 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-04 08:44:28,551 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 67.7ms)
+2025-07-04 08:44:28,560 - main - INFO - POST /api/v1/sql/suggest
+2025-07-04 08:44:40,791 - app.api.routes - INFO - SQL補完候補要求
+2025-07-04 08:44:40,794 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'MASTER_STA'
+2025-07-04 08:44:40,799 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:44:41,084 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:44:41,091 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-04 08:44:41,095 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 304.4ms)
+2025-07-04 08:44:41,103 - main - INFO - POST /api/v1/sql/suggest
+2025-07-04 08:44:42,510 - app.api.routes - INFO - SQL補完候補要求
+2025-07-04 08:44:42,514 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'W'
+2025-07-04 08:44:42,518 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:44:42,537 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:44:42,541 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-04 08:44:42,544 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 34.3ms)
+2025-07-04 08:44:42,551 - main - INFO - POST /api/v1/sql/suggest
+2025-07-04 08:44:44,565 - app.api.routes - INFO - SQL補完候補要求
+2025-07-04 08:44:44,568 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: ''
+2025-07-04 08:44:44,573 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:44:44,590 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:44:44,596 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-04 08:44:44,599 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 33.9ms)
+2025-07-04 08:44:44,609 - main - INFO - POST /api/v1/sql/suggest
+2025-07-04 08:44:54,189 - app.api.routes - INFO - SQL補完候補要求
+2025-07-04 08:44:54,192 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'I'
+2025-07-04 08:44:54,199 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:44:54,216 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:44:54,221 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-04 08:44:54,225 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 35.9ms)
+2025-07-04 08:44:54,231 - main - INFO - POST /api/v1/sql/suggest
+2025-07-04 08:44:57,003 - app.api.routes - INFO - SQL実行要求
+2025-07-04 08:44:57,004 - snowsight_app - INFO - SQL実行開始
+2025-07-04 08:44:57,006 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-04 08:44:57,021 - sql_validator - INFO - SQLバリデーション: SELECT *
+FROM MASTER_STA WHERE STA IS NOT NULL
+2025-07-04 08:44:57,023 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-04 08:44:59,801 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 08:44:59,801 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 08:44:59,811 - snowsight_app - INFO - SQL実行完了
+2025-07-04 08:44:59,825 - SQLLogService - INFO - SQL実行ログを追加: 3c393a71-c757-43d5-ad15-c0226f60949a
+2025-07-04 08:44:59,829 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 2.8s)
+2025-07-04 08:44:59,835 - main - INFO - POST /api/v1/sql/execute
+2025-07-04 08:45:00,843 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-04 08:45:00,843 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-04 08:45:00,849 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-04 08:45:05,576 - main - INFO - GET /user
+2025-07-04 08:45:05,735 - main - INFO - GET /api/v1/users/me
+2025-07-04 08:45:05,747 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:45:07,256 - main - INFO - GET /api/v1/users/history
+2025-07-04 08:45:13,544 - main - INFO - GET /
+2025-07-04 08:45:13,630 - main - INFO - GET /static/js/app.js
+2025-07-04 08:45:13,761 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:45:13,778 - app.api.routes - INFO - 接続状態確認要求
+2025-07-04 08:45:13,786 - main - INFO - GET /api/v1/connection/status
+2025-07-04 08:45:13,811 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-04 08:45:13,812 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:45:13,820 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:45:13,827 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 16.1ms)
+2025-07-04 08:45:13,830 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 08:45:13,833 - main - INFO - GET /api/v1/metadata/all
+2025-07-04 08:45:23,309 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 08:45:30,998 - app.api.routes - INFO - SQL補完候補要求
+2025-07-04 08:45:30,999 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: ''
+2025-07-04 08:45:31,000 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:45:31,006 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:45:31,008 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-04 08:45:31,010 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 11.6ms)
+2025-07-04 08:45:31,012 - main - INFO - POST /api/v1/sql/suggest
+2025-07-04 08:45:33,203 - app.api.routes - INFO - SQL補完候補要求
+2025-07-04 08:45:33,205 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'W'
+2025-07-04 08:45:33,207 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 08:45:33,216 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 08:45:33,219 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-04 08:45:33,221 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 18.0ms)
+2025-07-04 08:45:33,224 - main - INFO - POST /api/v1/sql/suggest
+2025-07-04 08:45:40,570 - app.api.routes - INFO - SQL実行要求
+2025-07-04 08:45:40,571 - snowsight_app - INFO - SQL実行開始
+2025-07-04 08:45:40,574 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-04 08:45:40,591 - sql_validator - INFO - SQLバリデーション: SELECT * FROM MASTER_STA WHERE 1=1;
+2025-07-04 08:45:40,599 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-04 08:45:44,161 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 08:45:44,161 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 08:45:44,166 - snowsight_app - INFO - SQL実行完了
+2025-07-04 08:45:44,177 - SQLLogService - INFO - SQL実行ログを追加: 3c355eb9-1553-4342-bc51-cca57c9de2d4
+2025-07-04 08:45:44,182 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.6s)
+2025-07-04 08:45:44,188 - main - INFO - POST /api/v1/sql/execute
+2025-07-04 08:45:44,628 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-04 08:45:44,628 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-04 08:45:44,631 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-04 08:45:58,662 - main - INFO - POST /api/v1/users/templates
+2025-07-04 08:45:58,879 - main - INFO - GET /api/v1/users/templates
+2025-07-04 08:45:58,929 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 08:52:20,708 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-04 08:52:20,714 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-04 08:52:20,717 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-04 08:52:24,736 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-04 08:52:24,746 - SQLLogService - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-04 08:53:43,884 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-04 08:53:43,899 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-04 08:53:43,903 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-04 08:53:48,648 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-04 08:53:48,650 - SQLLogService - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-04 08:53:48,667 - SQLLogService - INFO - SQL実行ログを追加: 05ec0978-f811-4bee-8abf-b7cc13f6f630
+2025-07-04 20:57:15,510 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-04 20:57:15,541 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-04 20:57:15,546 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-04 20:59:10,842 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-04 20:59:10,851 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-04 20:59:10,853 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-04 20:59:16,232 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 20:59:16,233 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-04 20:59:16,244 - SQLLogService - INFO - SQL実行ログを追加: 36b7e3fa-5e7b-402a-9072-1a87dc93e89f
+2025-07-04 21:01:10,115 - main - INFO - アプリケーション終了
+2025-07-04 21:01:31,479 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-04 21:01:31,484 - main - INFO - アプリケーション起動
+2025-07-04 21:01:31,488 - main - INFO - 設定情報
+2025-07-04 21:01:38,145 - main - INFO - GET /
+2025-07-04 21:01:39,273 - main - INFO - GET /static/img/hint.png
+2025-07-04 21:01:39,284 - main - INFO - GET /static/css/style.css
+2025-07-04 21:01:39,300 - main - INFO - GET /static/js/app.js
+2025-07-04 21:01:39,365 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 21:01:39,816 - app.api.routes - INFO - 接続状態確認要求
+2025-07-04 21:01:39,865 - main - INFO - GET /api/v1/connection/status
+2025-07-04 21:01:39,938 - main - INFO - GET /api/v1/users/templates
+2025-07-04 21:01:40,253 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 21:01:40,325 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-04 21:01:40,329 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 21:01:40,336 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 21:01:40,339 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 14.3ms)
+2025-07-04 21:01:40,350 - main - INFO - GET /api/v1/metadata/all
+2025-07-04 21:01:44,170 - main - INFO - GET /
+2025-07-04 21:01:44,276 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 21:01:44,285 - main - INFO - GET /static/css/style.css
+2025-07-04 21:01:44,300 - main - INFO - GET /static/img/hint.png
+2025-07-04 21:01:44,418 - main - INFO - GET /static/js/app.js
+2025-07-04 21:01:45,177 - app.api.routes - INFO - 接続状態確認要求
+2025-07-04 21:01:45,185 - main - INFO - GET /api/v1/connection/status
+2025-07-04 21:01:45,212 - main - INFO - GET /api/v1/users/templates
+2025-07-04 21:01:45,222 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-04 21:01:45,223 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 21:01:45,366 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 21:01:45,386 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 164.4ms)
+2025-07-04 21:01:45,390 - main - INFO - GET /api/v1/metadata/all
+2025-07-04 21:01:45,455 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 21:01:49,985 - main - INFO - GET /favicon.ico
+2025-07-04 21:02:19,376 - app.api.routes - INFO - SQL実行要求
+2025-07-04 21:02:19,379 - snowsight_app - INFO - SQL実行開始
+2025-07-04 21:02:19,405 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-04 21:02:19,488 - sql_validator - INFO - SQLバリデーション: SELECT * FROM MASTER_STA WHERE 1=1;
+2025-07-04 21:02:19,490 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-04 21:02:19,494 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-04 21:02:25,192 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-04 21:02:33,128 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 21:02:33,165 - snowsight_app - INFO - SQL実行完了
+2025-07-04 21:02:33,218 - SQLLogService - INFO - SQL実行ログを追加: 2af28c91-5fa1-4c14-9312-d9000e601429
+2025-07-04 21:02:33,254 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 13.9s)
+2025-07-04 21:02:33,330 - main - INFO - POST /api/v1/sql/execute
+2025-07-04 21:02:33,567 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-04 21:02:34,481 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 21:02:34,493 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-04 21:05:36,025 - app.api.routes - INFO - SQL実行要求
+2025-07-04 21:05:36,026 - snowsight_app - INFO - SQL実行開始
+2025-07-04 21:05:36,027 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-04 21:05:36,040 - sql_validator - INFO - SQLバリデーション: SELECT * FROM MASTER_STA WHERE 1=1;
+2025-07-04 21:05:36,041 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-04 21:05:36,880 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 21:05:36,884 - snowsight_app - INFO - SQL実行完了
+2025-07-04 21:05:36,898 - SQLLogService - INFO - SQL実行ログを追加: feff10a0-c497-4b69-8eef-5da082df42ec
+2025-07-04 21:05:36,902 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 877.3ms)
+2025-07-04 21:05:36,908 - main - INFO - POST /api/v1/sql/execute
+2025-07-04 21:05:36,935 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-04 21:05:38,488 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-04 21:05:38,491 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-04 21:06:04,334 - main - INFO - アプリケーション終了
+2025-07-04 21:06:26,487 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-04 21:06:26,490 - main - INFO - アプリケーション起動
+2025-07-04 21:06:26,491 - main - INFO - 設定情報
+2025-07-04 21:10:01,263 - main - INFO - アプリケーション終了
+2025-07-04 21:10:08,294 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-04 21:10:08,298 - main - INFO - アプリケーション起動
+2025-07-04 21:10:08,300 - main - INFO - 設定情報
+2025-07-04 21:10:15,288 - main - INFO - GET /
+2025-07-04 21:10:15,580 - main - INFO - GET /static/css/style.css
+2025-07-04 21:10:15,583 - main - INFO - GET /static/img/hint.png
+2025-07-04 21:10:15,599 - main - INFO - GET /static/js/app.js
+2025-07-04 21:10:16,292 - main - INFO - GET /api/v1/users/templates
+2025-07-04 21:10:16,320 - app.api.routes - INFO - 接続状態確認要求
+2025-07-04 21:10:16,326 - main - INFO - GET /api/v1/connection/status
+2025-07-04 21:10:16,335 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-04 21:10:16,365 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-04 21:10:16,403 - main - INFO - GET /api/v1/admin/templates
+2025-07-04 21:10:16,411 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-04 21:10:16,414 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 79.3ms)
+2025-07-04 21:10:16,418 - main - INFO - GET /api/v1/metadata/all
+2025-07-04 21:10:36,257 - main - INFO - GET /favicon.ico
+2025-07-04 21:16:58,378 - main - INFO - アプリケーション終了

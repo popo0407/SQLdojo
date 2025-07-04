@@ -22,6 +22,7 @@ class SQLWebApp {
         this.loadMetadataTree(); // 初回ロード (キャッシュ利用)
         this.initializeLayout(); // 初期レイアウト設定
         this.loadAllTemplates();
+        this.checkAndApplyCopiedSQL();
     }
 
     // 初期レイアウト設定
@@ -270,6 +271,12 @@ class SQLWebApp {
                 e.preventDefault();
                 this.showAdminLoginModal();
             });
+        }
+
+        // ★追加: save-template-btnのイベントリスナーを追加
+        const saveTemplateBtn = document.getElementById('save-template-btn');
+        if (saveTemplateBtn) {
+            saveTemplateBtn.addEventListener('click', () => this.saveUserTemplate());
         }
 
         // メタデータ更新ボタン
@@ -1136,13 +1143,13 @@ class SQLWebApp {
         if (userTemplates.length > 0) {
             html += '<div class="template-section-label">自分のテンプレート</div>';
             userTemplates.forEach(t => {
-                html += `<div class="template-item" onclick="loadTemplate('user', \`${this.escapeHtml(t.sql)}\`)"><div class="template-title">${this.escapeHtml(t.name)}</div></div>`;
+                html += `<div class="template-item" title="${this.escapeHtml(t.sql)}" onclick="loadTemplate('user', \`${this.escapeHtml(t.sql)}\`)"><div class="template-title">${this.escapeHtml(t.name)}</div></div>`;
             });
         }
         if (adminTemplates.length > 0) {
             html += '<div class="template-section-label">共通テンプレート</div>';
             adminTemplates.forEach(t => {
-                html += `<div class="template-item" onclick="loadTemplate('admin', \`${this.escapeHtml(t.sql)}\`)"><div class="template-title">${this.escapeHtml(t.name)}</div></div>`;
+                html += `<div class="template-item" title="${this.escapeHtml(t.sql)}" onclick="loadTemplate('admin', \`${this.escapeHtml(t.sql)}\`)"><div class="template-title">${this.escapeHtml(t.name)}</div></div>`;
             });
         }
         if (!html) {
@@ -1171,6 +1178,54 @@ class SQLWebApp {
             }
         } catch (error) {
             alert('認証処理中にエラーが発生しました');
+        }
+    }
+
+    // ★追加: 履歴からのSQLコピーを処理する関数
+    checkAndApplyCopiedSQL() {
+        const sqlToCopy = localStorage.getItem('sqlToCopy');
+        if (sqlToCopy && this.sqlEditor) {
+            this.sqlEditor.setValue(sqlToCopy);
+            localStorage.removeItem('sqlToCopy');
+            this.formatSQL(); // SQLを整形
+            this.showSuccess('SQLをクリップボードから貼り付けました。');
+        } else if (sqlToCopy) {
+            // エディタがまだ初期化されていない場合は、少し待ってから再試行
+            setTimeout(() => this.checkAndApplyCopiedSQL(), 100);
+        }
+    }
+
+    // ★追加: 個人用テンプレートを保存する関数
+    async saveUserTemplate() {
+        if (!this.sqlEditor) {
+            this.showError('エディタが初期化されていません。');
+            return;
+        }
+        const sql = this.sqlEditor.getValue();
+        if (!sql.trim()) {
+            this.showError('保存するSQLがありません。');
+            return;
+        }
+        const name = prompt('このSQLのテンプレート名を入力してください:', '');
+        if (!name) {
+            return; // キャンセルされた場合
+        }
+
+        try {
+            const response = await fetch(`${this.apiBase}/users/templates`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, sql: sql })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'テンプレートの保存に失敗しました。');
+            }
+            this.showSuccess('個人用テンプレートとして保存しました。');
+            this.loadAllTemplates(); // テンプレートリストを更新
+        } catch (error) {
+            this.showError(error.message);
         }
     }
 }

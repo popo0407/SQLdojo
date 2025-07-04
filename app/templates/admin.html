@@ -394,7 +394,15 @@
                     listDiv.innerHTML = '<p class="text-muted">テンプレートがありません</p>';
                     return;
                 }
-                listDiv.innerHTML = data.map(t => `<div><strong>${t.name}</strong><pre>${t.sql}</pre><button class='btn btn-sm btn-danger' onclick='deleteTemplate("${t.id}")'>削除</button></div>`).join('');
+                listDiv.innerHTML = data.map(t => `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>${escapeHtml(t.name)}</strong>
+                            <pre class="mb-0" style="font-size: 0.8em; white-space: pre-wrap;">${escapeHtml(t.sql)}</pre>
+                        </div>
+                        <button class='btn btn-sm btn-outline-danger' onclick='deleteTemplate("${t.id}")'>削除</button>
+                    </div>
+                `).join('');
             });
     }
 

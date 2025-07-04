@@ -48,5 +48,75 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-04T00:05:40.388509"
+  },
+  {
+    "log_id": "1a241cf1-015a-4ab4-8c98-c4b3a1c46add",
+    "user_id": "hint0530",
+    "sql": "SELECT *\nFROM TEST1",
+    "execution_time": 0.01287531852722168,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）",
+    "timestamp": "2025-07-04T08:44:17.047729"
+  },
+  {
+    "log_id": "3c393a71-c757-43d5-ad15-c0226f60949a",
+    "user_id": "hint0530",
+    "sql": "SELECT *\nFROM MASTER_STA WHERE STA IS NOT NULL",
+    "execution_time": 2.7767012119293213,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T08:44:59.816691"
+  },
+  {
+    "log_id": "3c355eb9-1553-4342-bc51-cca57c9de2d4",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1;",
+    "execution_time": 3.5601930618286133,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T08:45:44.170249"
+  },
+  {
+    "log_id": "05ec0978-f811-4bee-8abf-b7cc13f6f630",
+    "user_id": "test_user",
+    "sql": "SELECT 1 as test_column",
+    "execution_time": 0.5,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T08:53:48.654628"
+  },
+  {
+    "log_id": "36b7e3fa-5e7b-402a-9072-1a87dc93e89f",
+    "user_id": "test_user",
+    "sql": "SELECT 1 as test_column",
+    "execution_time": 0.5,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T20:59:16.236524"
+  },
+  {
+    "log_id": "2af28c91-5fa1-4c14-9312-d9000e601429",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1;",
+    "execution_time": 13.635363101959229,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T21:02:33.174362"
+  },
+  {
+    "log_id": "feff10a0-c497-4b69-8eef-5da082df42ec",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1;",
+    "execution_time": 0.8385076522827148,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-04T21:05:36.891681"
   }
 ]

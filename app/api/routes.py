@@ -4,7 +4,7 @@ APIルート定義
 FastAPIのエンドポイント定義
 """
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request, status
-from fastapi.responses import JSONResponse, FileResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import JSONResponse, FileResponse, HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.concurrency import run_in_threadpool
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -127,13 +127,16 @@ async def execute_sql_endpoint(
     request: SQLRequest,
     sql_service: SQLServiceDep,
     current_user: CurrentUserDep,
-    sql_log_service: SQLLogServiceDep
+    sql_log_service: SQLLogServiceDep,
+    background_tasks: BackgroundTasks
 ):
     """SQL実行エンドポイント"""
     logger.info("SQL実行要求", sql=request.sql, limit=request.limit)
     
     if not request.sql:
         raise SQLExecutionError("SQLクエリが必要です。")
+
+    start_time = datetime.now()
 
     result = await run_in_threadpool(
         sql_service.execute_sql,
@@ -151,7 +154,15 @@ async def execute_sql_endpoint(
         sql=result.sql
     )
     
-    # SQL実行ログを記録
+    if result.success:
+        background_tasks.add_task(
+            sql_log_service.add_log_to_db,
+            user_id=current_user["user_id"],
+            sql=request.sql,
+            execution_time=result.execution_time,
+            start_time=start_time
+        )
+    
     sql_log_service.add_log(
         user_id=current_user["user_id"],
         sql=request.sql,
