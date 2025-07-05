@@ -4564,3 +4564,229 @@ WHERE 1 = 1
 2025-07-06 06:42:05,529 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 1.5s)
 2025-07-06 06:42:05,531 - main - INFO - POST /api/v1/export
 2025-07-06 06:43:07,001 - main - INFO - アプリケーション終了
+2025-07-06 07:00:15,994 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 07:00:15,996 - main - INFO - アプリケーション起動
+2025-07-06 07:00:15,997 - main - INFO - 設定情報
+2025-07-06 07:00:21,067 - main - INFO - GET /
+2025-07-06 07:00:21,455 - main - INFO - GET /static/img/hint.png
+2025-07-06 07:00:21,459 - main - INFO - GET /static/css/style.css
+2025-07-06 07:00:21,479 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 07:00:21,487 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 07:00:21,490 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 07:00:21,518 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 07:00:21,541 - main - INFO - GET /static/js/app_new.js
+2025-07-06 07:00:23,336 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 07:00:23,353 - main - INFO - GET /api/v1/connection/status
+2025-07-06 07:00:23,490 - main - INFO - GET /favicon.ico
+2025-07-06 07:00:23,639 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 07:00:23,663 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 07:00:23,715 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 07:00:23,749 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 111.7ms)
+2025-07-06 07:00:23,754 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 07:00:23,823 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 07:00:23,824 - main - INFO - GET /api/v1/users/templates
+2025-07-06 07:01:08,094 - app.api.routes - INFO - SQL実行要求
+2025-07-06 07:01:08,095 - snowsight_app - INFO - SQL実行開始
+2025-07-06 07:01:08,097 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-06 07:01:08,139 - sql_validator - INFO - SQLバリデーション: SELECT * FROM TRA_3 WHERE 1=1
+2025-07-06 07:01:08,141 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-06 07:01:08,144 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 07:01:13,618 - snowsight_app - INFO - SQL実行完了
+2025-07-06 07:01:13,710 - SQLLogService - INFO - SQL実行ログを追加: e05c9963-f345-4eb7-a6e5-a17a9d1db703
+2025-07-06 07:01:13,712 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 5.6s)
+2025-07-06 07:01:13,734 - main - INFO - POST /api/v1/sql/execute
+2025-07-06 07:01:13,738 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-06 07:01:14,482 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-06 07:02:04,933 - main - INFO - GET /ai/generate
+2025-07-06 07:02:42,956 - main - INFO - アプリケーション終了
+2025-07-06 07:02:47,920 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 07:02:47,922 - main - INFO - アプリケーション起動
+2025-07-06 07:02:47,923 - main - INFO - 設定情報
+2025-07-06 07:02:51,777 - main - INFO - GET /
+2025-07-06 07:02:51,946 - main - INFO - GET /static/css/style.css
+2025-07-06 07:02:51,954 - main - INFO - GET /static/img/hint.png
+2025-07-06 07:02:51,979 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 07:02:51,987 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 07:02:51,990 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 07:02:52,046 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 07:02:52,059 - main - INFO - GET /static/js/app_new.js
+2025-07-06 07:02:53,299 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 07:02:53,314 - main - INFO - GET /api/v1/connection/status
+2025-07-06 07:02:53,353 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 07:02:53,366 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 07:02:53,424 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 07:02:53,448 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 94.7ms)
+2025-07-06 07:02:53,457 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 07:02:53,465 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 07:02:53,487 - main - INFO - GET /favicon.ico
+2025-07-06 07:02:53,541 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 07:02:53,542 - main - INFO - GET /api/v1/users/templates
+2025-07-06 07:11:45,479 - main - INFO - アプリケーション終了
+2025-07-06 07:11:55,868 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 07:11:55,870 - main - INFO - アプリケーション起動
+2025-07-06 07:11:55,871 - main - INFO - 設定情報
+2025-07-06 07:18:47,982 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 07:18:47,984 - main - INFO - アプリケーション起動
+2025-07-06 07:18:47,985 - main - INFO - 設定情報
+2025-07-06 07:18:52,999 - main - INFO - アプリケーション終了
+2025-07-06 07:19:07,093 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:19:07,095 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:19:21,084 - main - INFO - GET /
+2025-07-06 07:19:21,189 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:19:21,193 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:19:21,662 - main - INFO - GET /static/css/style.css
+2025-07-06 07:19:21,668 - main - INFO - GET /static/img/hint.png
+2025-07-06 07:19:21,695 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 07:19:21,702 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 07:19:21,724 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 07:19:21,734 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 07:19:21,769 - main - INFO - GET /static/js/app_new.js
+2025-07-06 07:19:24,071 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 07:19:24,121 - main - INFO - GET /api/v1/connection/status
+2025-07-06 07:19:24,203 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 07:19:24,215 - main - INFO - GET /favicon.ico
+2025-07-06 07:19:24,307 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 07:19:24,312 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 07:19:24,326 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 07:19:24,328 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 20.9ms)
+2025-07-06 07:19:24,332 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 07:19:24,367 - main - INFO - GET /api/v1/users/templates
+2025-07-06 07:19:24,369 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 07:20:37,634 - main - INFO - アプリケーション終了
+2025-07-06 07:25:00,729 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 07:25:00,735 - main - INFO - アプリケーション起動
+2025-07-06 07:25:00,736 - main - INFO - 設定情報
+2025-07-06 07:25:25,942 - main - INFO - GET /
+2025-07-06 07:25:26,167 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:25:26,179 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:25:26,816 - main - INFO - GET /static/css/style.css
+2025-07-06 07:25:26,818 - main - INFO - GET /static/img/hint.png
+2025-07-06 07:25:26,849 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 07:25:26,865 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 07:25:27,001 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 07:25:27,169 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 07:25:27,388 - main - INFO - GET /static/js/app_new.js
+2025-07-06 07:25:30,410 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 07:25:30,479 - main - INFO - GET /api/v1/connection/status
+2025-07-06 07:25:30,567 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 07:25:30,729 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 07:25:30,728 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 07:25:30,788 - main - INFO - GET /favicon.ico
+2025-07-06 07:25:30,800 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 07:25:30,899 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 332.1ms)
+2025-07-06 07:25:30,979 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 07:25:31,292 - main - INFO - GET /api/v1/users/templates
+2025-07-06 07:25:31,304 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 07:25:45,888 - app.api.routes - INFO - SQL実行要求
+2025-07-06 07:25:45,889 - snowsight_app - INFO - SQL実行開始
+2025-07-06 07:25:45,890 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-06 07:25:45,952 - sql_validator - INFO - SQLバリデーション: SELECT * FROM TRA_3 WHERE 1=1
+2025-07-06 07:25:45,953 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-06 07:25:45,954 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 07:25:56,113 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 07:25:56,114 - snowsight_app - INFO - SQL実行完了
+2025-07-06 07:25:56,271 - SQLLogService - INFO - SQL実行ログを追加: fd5aaff1-b4b2-4a1e-a3b9-6aad908fb80c
+2025-07-06 07:25:56,280 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 10.4s)
+2025-07-06 07:25:56,379 - main - INFO - POST /api/v1/sql/execute
+2025-07-06 07:25:56,383 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-06 07:25:57,386 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 07:25:57,388 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-06 07:27:00,756 - main - INFO - アプリケーション終了
+2025-07-06 07:48:57,798 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 07:48:57,801 - main - INFO - アプリケーション起動
+2025-07-06 07:48:57,803 - main - INFO - 設定情報
+2025-07-06 07:49:02,585 - main - INFO - GET /
+2025-07-06 07:49:02,991 - main - INFO - GET /static/css/style.css
+2025-07-06 07:49:02,998 - main - INFO - GET /static/img/hint.png
+2025-07-06 07:49:03,036 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 07:49:03,093 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 07:49:03,100 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 07:49:03,145 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 07:49:03,291 - main - INFO - GET /static/js/app_new.js
+2025-07-06 07:49:03,594 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 07:49:03,595 - main - INFO - GET /favicon.ico
+2025-07-06 07:49:36,910 - main - INFO - GET /static/css/style.css
+2025-07-06 07:49:36,938 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:49:36,944 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:49:39,316 - main - INFO - GET /
+2025-07-06 07:49:39,944 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:49:39,955 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:49:40,072 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 07:49:40,099 - main - INFO - GET /static/js/app_new.js
+2025-07-06 07:50:40,135 - main - INFO - アプリケーション終了
+2025-07-06 07:50:55,941 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 07:50:55,944 - main - INFO - アプリケーション起動
+2025-07-06 07:50:55,945 - main - INFO - 設定情報
+2025-07-06 07:51:02,231 - main - INFO - GET /
+2025-07-06 07:51:02,333 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:51:02,348 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 07:51:02,699 - main - INFO - GET /static/css/style.css
+2025-07-06 07:51:02,704 - main - INFO - GET /static/img/hint.png
+2025-07-06 07:51:02,711 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 07:51:02,715 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 07:51:02,716 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 07:51:02,850 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 07:51:02,976 - main - INFO - GET /static/js/app_new.js
+2025-07-06 07:51:04,576 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 07:51:04,579 - main - INFO - GET /api/v1/connection/status
+2025-07-06 07:51:04,762 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 07:51:04,765 - main - INFO - GET /favicon.ico
+2025-07-06 07:51:04,872 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 07:51:04,873 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 07:51:04,886 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 07:51:04,888 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 15.0ms)
+2025-07-06 07:51:04,890 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 07:51:04,922 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 07:51:04,956 - main - INFO - GET /api/v1/users/templates
+2025-07-06 07:51:11,423 - app.api.routes - INFO - SQL実行要求
+2025-07-06 07:51:11,430 - snowsight_app - INFO - SQL実行開始
+2025-07-06 07:51:11,433 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-06 07:51:11,551 - sql_validator - INFO - SQLバリデーション: SELECT * FROM TRA_3 WHERE 1=1
+2025-07-06 07:51:11,552 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-06 07:51:11,553 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 07:51:17,825 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 07:51:17,826 - snowsight_app - INFO - SQL実行完了
+2025-07-06 07:51:17,935 - SQLLogService - INFO - SQL実行ログを追加: 122d054c-c203-4dd3-bdfb-b5ca995bea6e
+2025-07-06 07:51:17,936 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 6.5s)
+2025-07-06 07:51:18,000 - main - INFO - POST /api/v1/sql/execute
+2025-07-06 07:51:18,004 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-06 07:51:18,719 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 07:51:18,720 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-06 08:02:36,470 - main - INFO - アプリケーション終了
+2025-07-06 08:06:38,501 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 08:06:38,502 - main - INFO - アプリケーション起動
+2025-07-06 08:06:38,504 - main - INFO - 設定情報
+2025-07-06 08:06:49,015 - main - INFO - GET /
+2025-07-06 08:06:49,267 - main - INFO - GET /static/css/style.css
+2025-07-06 08:06:49,279 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:06:49,298 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 08:06:49,322 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 08:06:49,343 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 08:06:49,361 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 08:06:49,407 - main - INFO - GET /static/js/app_new.js
+2025-07-06 08:06:50,536 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:06:50,557 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:06:50,650 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:06:50,658 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:06:50,672 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:06:50,687 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 36.9ms)
+2025-07-06 08:06:50,700 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:06:50,702 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:06:50,711 - main - INFO - GET /favicon.ico
+2025-07-06 08:06:50,749 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:06:50,762 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:06:55,933 - app.api.routes - INFO - SQL実行要求
+2025-07-06 08:06:55,935 - snowsight_app - INFO - SQL実行開始
+2025-07-06 08:06:55,937 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-06 08:06:55,962 - sql_validator - INFO - SQLバリデーション: SELECT * FROM TRA_3 WHERE 1=1
+2025-07-06 08:06:55,964 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-06 08:06:55,968 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 08:06:59,771 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 08:06:59,772 - snowsight_app - INFO - SQL実行完了
+2025-07-06 08:06:59,847 - SQLLogService - INFO - SQL実行ログを追加: a86aca4a-5755-459e-8cf4-dcd86017b1ff
+2025-07-06 08:06:59,849 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.9s)
+2025-07-06 08:06:59,881 - main - INFO - POST /api/v1/sql/execute
+2025-07-06 08:06:59,887 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-06 08:07:00,701 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 08:07:00,703 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-06 08:07:54,913 - main - INFO - アプリケーション終了

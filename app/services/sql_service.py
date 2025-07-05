@@ -157,7 +157,7 @@ class SQLService:
             return self.query_executor.get_connection_status()
         except Exception as e:
             self.logger.error("接続状態取得エラー", exception=e)
-            return {"error": str(e)}
+            return {"error": str(e)} 
 
     def get_pool_status(self) -> Dict[str, Any]:
         """接続プールの状態を取得（DatabaseServiceから移行）"""

@@ -67,7 +67,7 @@ class MetadataCache:
                     PRIMARY KEY (schema_name, table_name, name)
                 )
                 """)
-
+                
                 # ユーザー情報を保存するテーブル
                 cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (

@@ -38,5 +38,45 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-06T06:41:41.529673"
+  },
+  {
+    "log_id": "e05c9963-f345-4eb7-a6e5-a17a9d1db703",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3 WHERE 1=1",
+    "execution_time": 5.474258184432983,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T07:01:13.687125"
+  },
+  {
+    "log_id": "fd5aaff1-b4b2-4a1e-a3b9-6aad908fb80c",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3 WHERE 1=1",
+    "execution_time": 10.159342288970947,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T07:25:56.184453"
+  },
+  {
+    "log_id": "122d054c-c203-4dd3-bdfb-b5ca995bea6e",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3 WHERE 1=1",
+    "execution_time": 6.271765470504761,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T07:51:17.902024"
+  },
+  {
+    "log_id": "a86aca4a-5755-459e-8cf4-dcd86017b1ff",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3 WHERE 1=1",
+    "execution_time": 3.803090810775757,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T08:06:59.829908"
   }
 ]

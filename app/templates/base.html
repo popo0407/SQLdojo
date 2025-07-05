@@ -27,8 +27,8 @@
             {% if request.url.path == '/' %}
             <a href="#" id="admin-page-btn" class="btn btn-outline-light btn-sm">管理者ページ</a>
             {% endif %}
-            <a href="/ai/generate" class="btn btn-outline-light btn-sm">生成AI</a>
-            <a href="/ai/analyze" class="btn btn-outline-light btn-sm">解析AI</a>
+            <a href="/ai/generate" class="btn btn-outline-light btn-sm" target="_blank" rel="noopener noreferrer">生成AI</a>
+            <a href="/ai/analyze" class="btn btn-outline-light btn-sm" target="_blank" rel="noopener noreferrer">解析AI</a>
             <button onclick="logout()" class="btn btn-outline-light btn-sm">ログアウト</button>
         </div>
     </header>

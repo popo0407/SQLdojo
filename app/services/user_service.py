@@ -59,7 +59,7 @@ class UserService:
                 return dict(user) if user else None
         except Exception as e:
             logger.error(f"ユーザー認証エラー: {e}")
-            return None
+        return None
 
     def get_all_users(self) -> List[Dict[str, Any]]:
         """

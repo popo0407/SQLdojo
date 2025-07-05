@@ -152,6 +152,35 @@ class AppController {
             });
         }
 
+        // ▼▼▼ 以下を追加 ▼▼▼
+        // 結果テーブルのヘッダーに対するクリックイベント（イベント委任）
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            resultsContainer.addEventListener('click', (e) => {
+                const sortHeader = e.target.closest('th.sortable');
+                const filterIcon = e.target.closest('.filter-icon');
+                
+                if (filterIcon) {
+                    // フィルターアイコンをクリックした場合
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.showFilterPopup(filterIcon.dataset.column, filterIcon);
+                } else if (sortHeader && !e.target.closest('.filter-icon')) {
+                    // ソートヘッダーをクリックした場合（フィルターアイコン以外）
+                    this.handleSort(sortHeader.dataset.column);
+                }
+            });
+        }
+        
+        // ポップアップの外側クリックで閉じる
+        document.body.addEventListener('click', (e) => {
+            const popup = document.getElementById('filter-popup-active');
+            if (popup && !popup.contains(e.target) && !e.target.classList.contains('filter-icon')) {
+                const column = popup.querySelector('.form-check-input').dataset.column;
+                this.applyAndCloseFilterPopup(column);
+            }
+        });
+
         // キーボードショートカット
         document.addEventListener('keydown', (e) => {
             // Ctrl+Enter: SQL実行
@@ -603,6 +632,134 @@ class AppController {
     getStateService() { return this.stateService; }
     getUiService() { return this.uiService; }
     getEditorService() { return this.editorService; }
+
+    // AppController クラス内に新しいメソッドとして追加
+    handleSort(column) {
+        if (!this.stateService.getCurrentResults()) return;
+
+        const sortState = this.stateService.getSortState();
+        let direction = 'asc';
+
+        if (sortState.column === column) {
+            // 同じカラムをクリックしたら昇順・降順を切り替え
+            direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+        }
+        
+        this.stateService.setSortState(column, direction);
+        
+        // ソートとフィルターを適用
+        this.applyFiltersAndSort();
+        this.uiService.updateSortInfo(column, direction);
+    }
+
+    // AppController クラス内に新しいメソッドとして追加
+    showFilterPopup(column, targetIcon) {
+        // 他のフィルターで絞り込み済みのデータを元に候補を作成する
+        const currentlyVisibleData = this._getFilteredData(column);
+
+        if (!currentlyVisibleData) return;
+
+        // 絞り込み後のデータからユニークな値を取得し、数値も考慮してソート
+        const uniqueValues = [...new Set(currentlyVisibleData.map(row => row[column]))].sort((a, b) => {
+            const numA = parseFloat(a);
+            const numB = parseFloat(b);
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return numA - numB;
+            }
+            return String(a).localeCompare(String(b));
+        });
+        
+        const selectedValues = this.stateService.getFilters()[column] || [];
+        this.uiService.showFilterPopup(column, targetIcon, uniqueValues, selectedValues);
+        document.getElementById('apply-filter-btn').onclick = () => this.applyAndCloseFilterPopup(column);
+        document.getElementById('clear-filter-btn').onclick = () => this.clearAndCloseFilterPopup(column);
+        document.getElementById('close-filter-btn').onclick = () => this.uiService.clearFilterPopup();
+    }
+
+    // AppController クラス内に新しいメソッドとして追加
+    applyAndCloseFilterPopup(column) {
+        const popup = document.getElementById('filter-popup-active');
+        if (!popup) return;
+        const selectedValues = Array.from(popup.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        this.stateService.setFilter(column, selectedValues);
+        this.applyFiltersAndSort();
+        this.uiService.clearFilterPopup();
+        this.uiService.updateFilterIcons();
+    }
+
+    // AppController クラス内に新しいメソッドとして追加
+    clearAndCloseFilterPopup(column) {
+        this.stateService.setFilter(column, []);
+        this.applyFiltersAndSort();
+        this.uiService.clearFilterPopup();
+        this.uiService.updateFilterIcons();
+    }
+
+    // AppController クラス内に新しいメソッドとして追加
+    /**
+     * 現在アクティブなフィルターを適用した後のデータセットを取得する。
+     * @param {string|null} excludeColumn - 候補リスト生成時に無視するカラムフィルター
+     * @returns {Array} フィルタリングされたデータ
+     */
+    _getFilteredData(excludeColumn = null) {
+        const results = this.stateService.getCurrentResults();
+        if (!results || !results.data) return [];
+
+        const filters = this.stateService.getFilters();
+        const filterKeys = Object.keys(filters).filter(key => key !== excludeColumn);
+
+        if (filterKeys.length === 0) {
+            return results.data.slice();
+        }
+
+        return results.data.filter(row => {
+            return filterKeys.every(key => {
+                const selectedValues = filters[key];
+                if (!selectedValues || selectedValues.length === 0) {
+                    return true;
+                }
+                return selectedValues.includes(String(row[key]));
+            });
+        });
+    }
+
+    // AppController クラス内に新しいメソッドとして追加
+    applyFiltersAndSort() {
+        const results = this.stateService.getCurrentResults();
+        if (!results || !results.data) return;
+    
+        // ヘルパーメソッドを使ってフィルター後のデータを取得
+        let processedData = this._getFilteredData();
+        
+        // ソート処理
+        const sortState = this.stateService.getSortState();
+        if (sortState.column) {
+            processedData.sort((a, b) => {
+                const aVal = a[sortState.column];
+                const bVal = b[sortState.column];
+                
+                if (aVal === null || aVal === undefined) return 1;
+                if (bVal === null || bVal === undefined) return -1;
+                
+                // 数値と文字列を区別してソート
+                const numA = parseFloat(aVal);
+                const numB = parseFloat(bVal);
+                let comparison;
+    
+                if (String(aVal).match(/^\d+(\.\d+)?$/) && String(bVal).match(/^\d+(\.\d+)?$/) && !isNaN(numA) && !isNaN(numB)) {
+                    comparison = numA - numB;
+                } else {
+                    comparison = String(aVal).localeCompare(String(bVal));
+                }
+                
+                return sortState.direction === 'asc' ? comparison : -comparison;
+            });
+        }
+        
+        this.uiService.displayResults(processedData, results.columns);
+        this.uiService.updateFilterIcons();
+        this.uiService.updateSortIcons(sortState.column, sortState.direction); // ソートアイコンも更新
+    }
 }
 
 // グローバルスコープに公開（後方互換性のため）

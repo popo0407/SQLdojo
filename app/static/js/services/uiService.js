@@ -159,22 +159,25 @@ class UiService {
     buildDataTable(data, columns) {
         if (!this.dataTableContainer) return;
         
-        if (data.length === 0) {
-            this.dataTableContainer.innerHTML = '<div class="text-center text-muted p-4">データがありません</div>';
-            return;
-        }
-
+        // テーブルの基本構造を常に描画
         let tableHTML = '<table class="table table-striped table-hover">';
         
         // ヘッダー行
         tableHTML += '<thead><tr>';
         columns.forEach(column => {
-            tableHTML += `<th class="sortable" data-column="${column}">${this.escapeHtml(column)}</th>`;
+            // ソートアイコンの隣にフィルターアイコンを追加
+            tableHTML += `
+                <th class="sortable" data-column="${column}" style="cursor: pointer;">
+                    ${this.escapeHtml(column)}
+                    <i class="fas fa-sort sort-icon"></i>
+                    <i class="fas fa-filter filter-icon" data-column="${column}" style="cursor: pointer; margin-left: 8px; color: #6c757d;"></i>
+                </th>`;
         });
         tableHTML += '</tr></thead>';
         
         // データ行
         tableHTML += '<tbody>';
+        if (data.length > 0) {
         data.forEach(row => {
             tableHTML += '<tr>';
             columns.forEach(column => {
@@ -183,10 +186,21 @@ class UiService {
             });
             tableHTML += '</tr>';
         });
-        tableHTML += '</tbody>';
-        
-        tableHTML += '</table>';
+        } else {
+            // データがない場合でもテーブル構造は残し、メッセージ行を追加
+            tableHTML += `
+                <tr>
+                    <td colspan="${columns.length}" class="text-center text-muted p-4">
+                        一致するデータが見つかりません。フィルター条件を見直してください。
+                    </td>
+                </tr>`;
+        }
+        tableHTML += '</tbody></table>';
+
         this.dataTableContainer.innerHTML = tableHTML;
+        
+        // フィルターアイコンの状態を更新
+        this.updateFilterIcons();
     }
 
     /**
@@ -213,86 +227,64 @@ class UiService {
      */
     buildMetadataTree(allMetadata) {
         if (!this.metadataTree) return;
-
         this.metadataTree.innerHTML = '';
-
         if (!allMetadata || !Array.isArray(allMetadata) || allMetadata.length === 0) {
             this.metadataTree.innerHTML = '<p class="text-muted p-2">メタデータが見つかりません。<br>右上の更新ボタンを押してください。</p>';
             return;
         }
-
-        // allMetadata を直接ループする
         allMetadata.forEach(schema => {
             const schemaItem = document.createElement('div');
             schemaItem.className = 'schema-item mb-1';
-            
             const schemaHeader = document.createElement('div');
             schemaHeader.className = 'schema-header d-flex align-items-center p-2 rounded-1';
             schemaHeader.style.cursor = 'pointer';
-            
-            // スキーマのコメント情報を取得
             const schemaComment = schema.comment || '';
-            const schemaTitle = schemaComment ? `${schema.name} - ${schemaComment}` : schema.name;
-            
             schemaHeader.innerHTML = `
-                <i class="fas fa-chevron-down fa-fw me-2 toggle-icon"></i>
+                <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
                 <i class="fas fa-database fa-fw me-1 text-secondary"></i>
                 <span class="fw-bold" title="${schemaComment}">${schema.name}</span>
                 ${schemaComment ? `<small class="text-muted ms-2">${schemaComment}</small>` : ''}
             `;
-            
+            schemaHeader.classList.add('collapsed');
             const schemaContent = document.createElement('div');
-            schemaContent.className = 'schema-content';
-            
+            schemaContent.className = 'schema-content collapsed';
             const tableList = document.createElement('ul');
             tableList.className = 'list-unstyled ps-3';
-            
             if (schema.tables && Array.isArray(schema.tables)) {
                 schema.tables.forEach(table => {
                     const tableItem = document.createElement('li');
-                    
                     const tableHeader = document.createElement('div');
                     tableHeader.className = 'table-link d-flex align-items-center p-1 rounded-1';
                     tableHeader.style.cursor = 'pointer';
-                    
-                    // テーブルのコメント情報を取得
                     const tableComment = table.comment || '';
-                    const tableTitle = tableComment ? `${table.name} - ${tableComment}` : table.name;
-                    
                     tableHeader.innerHTML = `
-                        <i class="fas fa-chevron-down fa-fw me-2 toggle-icon"></i>
+                        <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
                         <i class="fas ${table.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} fa-fw me-1 text-secondary"></i>
                         <span title="${tableComment}">${table.name}</span>
                         ${tableComment ? `<small class="text-muted ms-2">${tableComment}</small>` : ''}
                     `;
-
+                    tableHeader.classList.add('collapsed');
                     const columnList = document.createElement('ul');
-                    columnList.className = 'column-list list-unstyled ps-4 mt-1';
-
+                    columnList.className = 'column-list list-unstyled ps-4 mt-1 collapsed';
                     if (table.columns && Array.isArray(table.columns)) {
                         table.columns.forEach(column => {
                             const columnItem = document.createElement('li');
                             columnItem.className = 'column-item d-flex justify-content-between align-items-center p-1';
-                            
-                            // カラムのコメント情報を取得
                             const columnComment = column.comment || '';
-                            const columnTitle = columnComment ? `${column.name} - ${columnComment}` : column.name;
-                            
-                            columnItem.innerHTML = `
+                            const leftGroup = `
+                                <div>
                                 <span class="column-name text-body-secondary" title="${columnComment}">${column.name}</span>
-                                <div class="d-flex align-items-center">
-                                    <span class="column-type text-muted small me-2">${column.data_type}</span>
-                                    ${columnComment ? `<small class="text-muted">${columnComment}</small>` : ''}
+                                    ${columnComment ? `<small class="text-muted ms-2">${columnComment}</small>` : ''}
                                 </div>
                             `;
+                            const rightGroup = `<span class="column-type text-muted small">${column.data_type}</span>`;
+                            columnItem.innerHTML = leftGroup + rightGroup;
                             columnList.appendChild(columnItem);
                         });
                     }
-
                     tableHeader.addEventListener('click', (e) => {
                         e.stopPropagation();
                         const isCollapsed = tableHeader.classList.contains('collapsed');
-                        
                         if (isCollapsed) {
                             tableHeader.classList.remove('collapsed');
                             columnList.classList.remove('collapsed');
@@ -307,22 +299,17 @@ class UiService {
                             icon.classList.add('fa-chevron-right');
                         }
                     });
-
                     tableItem.appendChild(tableHeader);
                     tableItem.appendChild(columnList);
                     tableList.appendChild(tableItem);
                 });
             }
-            
             schemaContent.appendChild(tableList);
             schemaItem.appendChild(schemaHeader);
             schemaItem.appendChild(schemaContent);
             this.metadataTree.appendChild(schemaItem);
-            
-            // スキーマの展開・折りたたみ
             schemaHeader.addEventListener('click', () => {
                 const isCollapsed = schemaHeader.classList.contains('collapsed');
-                
                 if (isCollapsed) {
                     schemaHeader.classList.remove('collapsed');
                     schemaContent.classList.remove('collapsed');
@@ -401,11 +388,10 @@ class UiService {
      * @param {string} currentDirection - 現在のソート方向
      */
     updateSortIcons(currentColumn, currentDirection) {
-        const headers = document.querySelectorAll('.sortable');
+        const headers = document.querySelectorAll('#dataTable th.sortable');
         headers.forEach(header => {
             const column = header.dataset.column;
             const icon = header.querySelector('.sort-icon');
-            
             if (icon) {
                 if (column === currentColumn) {
                     icon.className = `sort-icon fas fa-sort-${currentDirection === 'asc' ? 'up' : 'down'}`;
@@ -473,5 +459,75 @@ class UiService {
 
     showInfo(message) {
         this.showPopupNotification(message, 'info');
+    }
+
+    /**
+     * フィルター用のポップアップを動的に生成して表示する
+     * @param {string} column - 対象のカラム名
+     * @param {HTMLElement} targetIcon - クリックされたアイコン要素
+     * @param {Array<string>} uniqueValues - 表示するユニークな値のリスト
+     * @param {Array<string>} selectedValues - 現在選択されている値のリスト
+     */
+    showFilterPopup(column, targetIcon, uniqueValues, selectedValues) {
+        this.clearFilterPopup();
+        const popup = document.createElement('div');
+        popup.className = 'filter-popup';
+        popup.id = 'filter-popup-active';
+        let optionsHTML = uniqueValues.map(value => `
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="${this.escapeHtml(value)}" id="filter-${column}-${value}" 
+                       data-column="${column}" ${selectedValues.includes(String(value)) ? 'checked' : ''}>
+                <label class="form-check-label" for="filter-${column}-${value}">
+                    ${this.escapeHtml(value)}
+                </label>
+            </div>
+        `).join('');
+        popup.innerHTML = `
+            <div class="filter-popup-header">
+                <strong>${column}</strong> でフィルター
+            </div>
+            <div class="filter-popup-content">
+                ${optionsHTML}
+            </div>
+            <div class="filter-popup-footer">
+                <button class="btn btn-primary btn-sm" id="apply-filter-btn">適用</button>
+                <button class="btn btn-warning btn-sm" id="clear-filter-btn">クリア</button>
+                <button class="btn btn-secondary btn-sm" id="close-filter-btn">閉じる</button>
+            </div>
+        `;
+        document.body.appendChild(popup);
+        // アイコンの隣にポップアップを配置
+        const rect = targetIcon.getBoundingClientRect();
+        popup.style.left = `${rect.left}px`;
+        popup.style.top = `${rect.bottom + window.scrollY}px`;
+    }
+
+    /**
+     * 表示されているフィルターポップアップを削除する
+     */
+    clearFilterPopup() {
+        const existingPopup = document.getElementById('filter-popup-active');
+        if (existingPopup) {
+            existingPopup.remove();
+        }
+    }
+
+    /**
+     * フィルターアイコンの状態を更新する
+     */
+    updateFilterIcons() {
+        const filterIcons = document.querySelectorAll('.filter-icon');
+        filterIcons.forEach(icon => {
+            const column = icon.dataset.column;
+            // グローバルなstateServiceにアクセス
+            if (window.appController && window.appController.getStateService()) {
+                const filters = window.appController.getStateService().getFilters();
+                if (filters[column] && filters[column].length > 0) {
+                    icon.classList.add('active');
+                } else {
+                    icon.classList.remove('active');
+                }
+            }
+        });
     }
 } 

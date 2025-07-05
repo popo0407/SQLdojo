@@ -18,6 +18,7 @@ class StateService {
         
         // フィルター値
         this.filterValue = '';
+        this.filters = {}; // ▼ フィルターの状態を保持するオブジェクトを追加
         
         // エディタの最大化状態
         this.isEditorMaximized = false;
@@ -64,6 +65,18 @@ class StateService {
     
     getFilterValue() { 
         return this.filterValue; 
+    }
+
+    // ▼ フィルター用のゲッター/セッターを追加
+    setFilter(column, values) {
+        if (values && values.length > 0) {
+            this.filters[column] = values;
+        } else {
+            delete this.filters[column];
+        }
+    }
+    getFilters() {
+        return this.filters;
     }
 
     // エディタ状態の管理

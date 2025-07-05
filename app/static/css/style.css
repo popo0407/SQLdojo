@@ -1361,3 +1361,44 @@ body {
     background-color: var(--accent-color);
     color: white;
 }
+
+/* フィルターアイコンのホバー効果 */
+.filter-icon:hover {
+    color: var(--accent-color) !important;
+}
+
+.filter-icon.active {
+    color: var(--accent-color) !important;
+    background-color: rgba(0, 102, 204, 0.1);
+    border-radius: 3px;
+    padding: 2px;
+}
+/* フィルターポップアップ */
+.filter-popup {
+    position: absolute;
+    z-index: 1050;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    min-width: 250px;
+    font-size: 0.875rem;
+}
+.filter-popup-header {
+    padding: 0.75rem 1rem;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #ddd;
+    border-radius: 6px 6px 0 0;
+}
+.filter-popup-content {
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.filter-popup-footer {
+    padding: 0.75rem 1rem;
+    text-align: right;
+    border-top: 1px solid #ddd;
+    background-color: #f7f7f7;
+    border-radius: 0 0 6px 6px;
+}

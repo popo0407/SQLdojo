@@ -812,7 +812,7 @@ class MetadataService:
                     }
                 ]
             }
-        ]
+        ] 
 
     def get_schema_info_from_db(self) -> QueryResult:
         """スキーマ情報をDBから直接取得（DatabaseServiceから移行）"""
