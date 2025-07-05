@@ -804,4 +804,22 @@ class MetadataService:
                     }
                 ]
             }
-        ] 
+        ]
+
+    def get_schema_info_from_db(self) -> QueryResult:
+        """スキーマ情報をDBから直接取得（DatabaseServiceから移行）"""
+        sql = "SHOW SCHEMAS"
+        self.logger.info("スキーマ情報取得", query=sql)
+        return self.query_executor.execute_metadata_query(sql)
+
+    def get_table_info_from_db(self, schema: str) -> QueryResult:
+        """テーブル情報をDBから直接取得（DatabaseServiceから移行）"""
+        sql = f"SHOW TABLES IN SCHEMA {schema}"
+        self.logger.info("テーブル情報取得", query=sql, schema=schema)
+        return self.query_executor.execute_metadata_query(sql)
+
+    def get_column_info_from_db(self, schema: str, table: str) -> QueryResult:
+        """カラム情報をDBから直接取得（DatabaseServiceから移行）"""
+        sql = f"DESCRIBE TABLE {schema}.{table}"
+        self.logger.info("カラム情報取得", query=sql, schema=schema, table=table)
+        return self.query_executor.execute_metadata_query(sql) 

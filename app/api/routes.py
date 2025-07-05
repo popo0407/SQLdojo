@@ -40,7 +40,6 @@ from app.dependencies import (
     SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep, CurrentUserDep, CurrentAdminDep, SQLLogServiceDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
-from app.services.database_service import DatabaseService
 from app.services.metadata_service import MetadataService
 from app.services.export_service import ExportService
 from app.services.performance_service import PerformanceService

@@ -198,5 +198,55 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-05T01:04:59.593772"
+  },
+  {
+    "log_id": "869d0d4b-40b5-4441-aece-63b92340a347",
+    "user_id": 1,
+    "sql": "SELECT id, name FROM test_table WHERE id = 1",
+    "execution_time": 0.1,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T11:22:43.864773"
+  },
+  {
+    "log_id": "d5f99bee-cd8c-4834-b56a-49042d1bd401",
+    "user_id": 1,
+    "sql": "SELECT * FROM non_existent_table",
+    "execution_time": 0.1,
+    "row_count": 0,
+    "success": false,
+    "error_message": "Table not found",
+    "timestamp": "2025-07-05T11:22:48.999769"
+  },
+  {
+    "log_id": "3b9ab70e-625e-4c8a-bb1a-4d035de7eb8c",
+    "user_id": "test_user",
+    "sql": "SELECT 1 as test_column",
+    "execution_time": 0.5,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T11:24:05.359964"
+  },
+  {
+    "log_id": "032c5da4-a756-4691-b904-e5c69b11a87c",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1;",
+    "execution_time": 0.1252586841583252,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T11:53:33.781643"
+  },
+  {
+    "log_id": "1be4ee74-4328-4a7c-9864-cedf887de32d",
+    "user_id": "hint0530",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1;",
+    "execution_time": 0.10245752334594727,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-05T11:53:50.726668"
   }
 ]

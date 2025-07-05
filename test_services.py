@@ -10,7 +10,6 @@ from app.services.metadata_service import MetadataService
 from app.services.export_service import ExportService
 from app.services.query_executor import QueryExecutor, QueryResult
 from app.services.sql_service import SQLService
-from app.services.database_service import DatabaseService
 from app.services.performance_service import PerformanceService
 from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.metadata_cache import MetadataCache
@@ -371,77 +370,6 @@ class TestSQLService:
             
             assert result.success is False
             assert 'Table not found' in result.error_message
-
-
-class TestDatabaseService:
-    """データベースサービスのテスト"""
-    
-    @pytest.fixture
-    def mock_connection_manager(self):
-        return MagicMock(spec=ConnectionManagerODBC)
-    
-    @pytest.fixture
-    def mock_query_executor(self):
-        return MagicMock(spec=QueryExecutor)
-    
-    @pytest.fixture
-    def database_service(self, mock_connection_manager, mock_query_executor):
-        return DatabaseService(mock_connection_manager, mock_query_executor)
-    
-    def test_database_service_initialization(self, database_service, mock_connection_manager, mock_query_executor):
-        """データベースサービスの初期化テスト"""
-        assert database_service.connection_manager == mock_connection_manager
-        assert database_service.query_executor == mock_query_executor
-        assert database_service.logger is not None
-    
-    def test_test_connection_success(self, database_service, mock_query_executor):
-        """接続テスト成功のテスト"""
-        mock_query_executor.test_connection.return_value = True
-        
-        result = database_service.test_connection()
-        
-        assert result is True
-        mock_query_executor.test_connection.assert_called_once()
-    
-    def test_test_connection_failure(self, database_service, mock_query_executor):
-        """接続テスト失敗のテスト"""
-        mock_query_executor.test_connection.return_value = False
-        
-        result = database_service.test_connection()
-        
-        assert result is False
-        mock_query_executor.test_connection.assert_called_once()
-    
-    def test_get_connection_status(self, database_service, mock_query_executor):
-        """接続状態取得のテスト"""
-        mock_query_executor.test_connection.return_value = True
-        mock_query_executor.get_connection_status.return_value = {
-            'active_connections': 3,
-            'total_connections': 5,
-            'max_connections': 10
-        }
-        
-        result = database_service.get_connection_status()
-        
-        assert result['connected'] is True
-        assert result['active_connections'] == 3
-        assert result['total_connections'] == 5
-        assert result['max_connections'] == 10
-        assert 'pool_status' in result
-    
-    def test_get_pool_status(self, database_service, mock_query_executor):
-        """接続プール状態取得のテスト"""
-        mock_status = {
-            'total_connections': 5,
-            'active_connections': 3,
-            'max_connections': 10
-        }
-        mock_query_executor.get_connection_status.return_value = mock_status
-        
-        result = database_service.get_pool_status()
-        
-        assert result == mock_status
-        mock_query_executor.get_connection_status.assert_called_once()
 
 
 class TestPerformanceService:

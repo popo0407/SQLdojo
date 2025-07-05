@@ -13,7 +13,6 @@ from app.sql_validator import SQLValidator, get_validator
 from app.metadata_cache import MetadataCache
 from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.services.query_executor import QueryExecutor
-from app.services.database_service import DatabaseService
 from app.services.sql_service import SQLService
 from app.services.metadata_service import MetadataService
 from app.services.performance_service import PerformanceService
@@ -65,13 +64,13 @@ def get_query_executor_di(
     return QueryExecutor(connection_manager)
 
 
-# データベースサービスの依存性注入
-def get_database_service_di(
-    connection_manager: Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)],
-    query_executor: Annotated[QueryExecutor, Depends(get_query_executor_di)]
-) -> DatabaseService:
-    """データベースサービスを取得"""
-    return DatabaseService(connection_manager, query_executor)
+# データベースサービスの依存性注入（削除）
+# def get_database_service_di(
+#     connection_manager: Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)],
+#     query_executor: Annotated[QueryExecutor, Depends(get_query_executor_di)]
+# ) -> DatabaseService:
+#     """データベースサービスを取得"""
+#     return DatabaseService(connection_manager, query_executor)
 
 
 # SQLサービスの依存性注入
@@ -143,7 +142,7 @@ def get_sql_log_service_di(
 # 型エイリアス（使用例）
 ConnectionManagerDep = Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)]
 QueryExecutorDep = Annotated[QueryExecutor, Depends(get_query_executor_di)]
-DatabaseServiceDep = Annotated[DatabaseService, Depends(get_database_service_di)]
+# DatabaseServiceDep = Annotated[DatabaseService, Depends(get_database_service_di)]  # 削除
 SQLServiceDep = Annotated[SQLService, Depends(get_sql_service_di)]
 MetadataServiceDep = Annotated[MetadataService, Depends(get_metadata_service_di)]
 PerformanceServiceDep = Annotated[PerformanceService, Depends(get_performance_service_di)]
