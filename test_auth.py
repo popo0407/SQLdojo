@@ -224,7 +224,7 @@ class TestAdminAuth:
 
     def test_admin_function_without_auth(self):
         # 管理者認証なしで管理者機能にアクセス
-        response = self.client.post("/api/v1/admin/users/refresh")
+        response = self.client.post("/api/v1/admin/system/refresh")
         assert response.status_code == 403
         data = response.json()
         assert "管理者権限が必要です" in data.get("detail", "")
@@ -243,7 +243,7 @@ class TestAdminAuth:
         assert admin_login.status_code == 200
         
         # 管理者機能にアクセス
-        response = self.client.post("/api/v1/admin/users/refresh")
+        response = self.client.post("/api/v1/admin/system/refresh")
         assert response.status_code == 200
 
 if __name__ == "__main__":

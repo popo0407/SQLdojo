@@ -28,5 +28,15 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-05T15:47:48.615165"
+  },
+  {
+    "log_id": "913530be-625d-4904-9492-713aacd1af1b",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3 WHERE 1=1",
+    "execution_time": 3.3944761753082275,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T06:41:41.529673"
   }
 ]

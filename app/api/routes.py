@@ -36,7 +36,7 @@ from app import __version__
 from app.dependencies import (
     SQLServiceDep, MetadataServiceDep, PerformanceServiceDep, ExportServiceDep,
     SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep, CurrentUserDep, CurrentAdminDep, SQLLogServiceDep,
-    UserServiceDep, TemplateServiceDep
+    UserServiceDep, TemplateServiceDep, AdminServiceDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
 from app.services.metadata_service import MetadataService
@@ -417,18 +417,28 @@ async def get_current_user(request: Request):
     return user
 
 # 管理者API
-@router.post("/admin/users/refresh", response_model=UserRefreshResponse)
-async def refresh_users_from_db(
+@router.post("/admin/system/refresh", response_model=UserRefreshResponse) # エンドポイント名を変更
+async def refresh_system_data( # 関数名を変更
     current_admin: CurrentAdminDep,
-    user_service: UserServiceDep,  # user_serviceを使う
+    admin_service: AdminServiceDep, # AdminService をDI
     connection_manager: ConnectionManagerDep
 ):
-    """HF3IGM01からユーザー情報を取得し、SQLiteに保存"""
-    users = await run_in_threadpool(user_service.refresh_users_from_db, connection_manager)
-    return UserRefreshResponse(
-        message="ユーザー情報を更新しました",
-        user_count=len(users)
-    )
+    """管理者用: ユーザー情報とDBメタデータのキャッシュを全て更新"""
+    logger.info("管理者によるシステムキャッシュ更新要求")
+    
+    try:
+        result = await run_in_threadpool(
+            admin_service.refresh_all_system_data,
+            connection_manager
+        )
+        # レスポンスモデルを流用するが、メッセージは動的に設定
+        return UserRefreshResponse(
+            message=result["message"],
+            user_count=result["user_count"]
+        )
+    except Exception as e:
+        logger.error(f"システムキャッシュ更新エラー: {e}")
+        raise HTTPException(status_code=500, detail=f"システムキャッシュの更新に失敗しました: {str(e)}")
 
 @router.get("/admin/templates", response_model=List[TemplateResponse])
 async def get_admin_templates(template_service: TemplateServiceDep):

@@ -115,19 +115,27 @@ class MetadataService:
             }
         ]
 
-    def refresh_full_metadata_cache(self) -> None:
-        """バックグラウンドで全メタデータを取得してキャッシュを更新するメソッド"""
-        self.logger.info("メタデータキャッシュの強制更新を開始")
+    def refresh_full_metadata_cache(self) -> int:
+        """バックグラウンドで全メタデータを取得してキャッシュを更新するメソッド
+        戻り値: 更新されたスキーマ数
+        """
+        # ▼ INFOをDEBUGに変更
+        self.logger.debug("メタデータキャッシュの強制更新を開始")
         try:
             # 直接Snowflakeから全メタデータを取得（キャッシュは使用しない）
             all_metadata = self._fetch_all_from_snowflake_direct()
             if all_metadata:
                 self.cache.save_all_metadata_normalized(all_metadata)
-                self.logger.info("メタデータキャッシュの更新が完了", count=len(all_metadata))
+                schema_count = len(all_metadata)
+                # ▼ INFOをDEBUGに変更し、スキーマ数を戻り値として返す
+                self.logger.debug(f"メタデータキャッシュの更新が完了。スキーマ数: {schema_count}")
+                return schema_count
             else:
                 self.logger.warning("メタデータ取得に失敗しました")
+                return 0
         except Exception as e:
             self.logger.error("メタデータキャッシュの更新に失敗", error=str(e))
+            raise
 
     def get_schemas(self) -> List[Dict[str, Any]]:
         """スキーマ一覧を取得（キャッシュ優先）"""

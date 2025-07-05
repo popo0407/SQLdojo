@@ -50,7 +50,7 @@ class QueryExecutor:
             result.execution_time = time.time() - start_time
             
             # Snowflakeへのアクセスログを表示
-            self.logger.info(f"Snowflakeクエリ実行完了", 
+            self.logger.debug(f"Snowflakeクエリ実行完了", 
                            query_id=result.query_id,
                            row_count=result.row_count,
                            execution_time=f"{result.execution_time:.3f}s")

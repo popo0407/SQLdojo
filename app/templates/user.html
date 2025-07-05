@@ -92,8 +92,8 @@
             <div class="d-flex align-items-center gap-3 mb-2">
                 <h5 class="mb-0"><i class="fas fa-history"></i> SQL実行履歴</h5>
                 <span class="text-muted">過去半年のSQL実行履歴を表示します。</span>
-                <button class="btn-user ms-auto" onclick="loadHistory()">
-                    <i class="fas fa-sync-alt"></i> SQL履歴読み込み
+                <button class="btn-user ms-auto" onclick="fetchAndCacheHistory()">
+                    <i class="fas fa-sync-alt"></i> SQL履歴更新
                 </button>
             </div>
             <div id="history-status" class="status-message" style="display:none;"></div>
@@ -154,6 +154,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadCurrentUser();
             loadUserTemplates();
+            displayHistoryFromCache();
         });
 
         // 現在のユーザー情報を取得
@@ -179,19 +180,38 @@
             }
         }
 
-        // SQL履歴読み込み
-        async function loadHistory() {
+        // キャッシュから履歴を表示する関数
+        function displayHistoryFromCache() {
+            const cachedHistory = sessionStorage.getItem('sqlHistoryCache');
+            if (cachedHistory) {
+                console.log("キャッシュからSQL履歴を表示します。");
+                const history = JSON.parse(cachedHistory);
+                displayHistory(history);
+                // キャッシュがあることをユーザーに通知
+                const statusDiv = document.getElementById('history-status');
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'status-message status-success';
+                statusDiv.textContent = `キャッシュされた履歴を表示中（${history.length}件）。最新の情報を取得するには更新ボタンを押してください。`;
+            }
+        }
+
+        // 既存のloadHistory()をfetchAndCacheHistory()にリネーム＆機能変更
+        async function fetchAndCacheHistory() {
             const statusDiv = document.getElementById('history-status');
             statusDiv.style.display = 'block';
             statusDiv.className = 'status-message';
-            statusDiv.textContent = '読み込み中...';
+            statusDiv.textContent = 'Snowflakeから最新の履歴を読み込み中...';
 
             try {
                 const response = await fetch('/api/v1/users/history');
                 if (response.ok) {
                     const history = await response.json();
+                    
+                    // 変更: 取得したデータをsessionStorageに保存
+                    sessionStorage.setItem('sqlHistoryCache', JSON.stringify(history));
+
                     statusDiv.className = 'status-message status-success';
-                    statusDiv.textContent = `履歴を読み込みました。件数: ${history.length}`;
+                    statusDiv.textContent = `最新の履歴を読み込みました。件数: ${history.length}`;
                     displayHistory(history);
                 } else {
                     const error = await response.json();
@@ -204,7 +224,7 @@
             }
         }
 
-        // 履歴表示
+        // 履歴表示関数 (変更なし、確認のため記載)
         function displayHistory(history) {
             const tbody = document.getElementById('history-table');
             

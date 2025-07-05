@@ -157,7 +157,7 @@ class MetadataCache:
                             )
                             cursor.execute(column_sql, column_params)
                 conn.commit()
-                self.logger.info("メタデータキャッシュを更新しました")
+                self.logger.debug("メタデータキャッシュを更新しました")
         except Exception as e:
             self.logger.error("メタデータキャッシュの保存に失敗", error=str(e))
             # 例外を再発生させる

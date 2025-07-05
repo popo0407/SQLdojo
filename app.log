@@ -4264,3 +4264,303 @@ WHERE 1 = 1
 2025-07-05 18:06:58,045 - main - INFO - GET /api/v1/admin/templates
 2025-07-05 18:06:58,051 - main - INFO - GET /api/v1/users/templates
 2025-07-06 05:59:51,915 - main - INFO - アプリケーション終了
+2025-07-06 06:14:36,175 - main - INFO - POST /api/v1/login
+2025-07-06 06:14:36,410 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-06 06:14:36,411 - main - INFO - POST /api/v1/login
+2025-07-06 06:14:36,719 - main - INFO - POST /api/v1/logout
+2025-07-06 06:14:37,032 - main - INFO - POST /api/v1/login
+2025-07-06 06:14:37,061 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:14:37,347 - app.api.error_handlers - ERROR - HTTP例外: 未ログインです
+2025-07-06 06:14:37,349 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:14:37,681 - main - INFO - GET /login
+2025-07-06 06:14:38,111 - main - INFO - GET /
+2025-07-06 06:14:38,364 - main - INFO - POST /api/v1/login
+2025-07-06 06:14:38,425 - main - INFO - GET /
+2025-07-06 06:14:38,666 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:14:38,942 - app.api.error_handlers - ERROR - HTTP例外: 管理者パスワードが無効です
+2025-07-06 06:14:38,943 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:14:39,195 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:14:39,211 - main - INFO - POST /api/v1/admin/logout
+2025-07-06 06:14:39,467 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 06:14:40,561 - main - INFO - POST /api/v1/login
+2025-07-06 06:14:40,570 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:14:40,583 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 06:16:06,139 - main - INFO - POST /api/v1/login
+2025-07-06 06:16:06,500 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-06 06:16:06,501 - main - INFO - POST /api/v1/login
+2025-07-06 06:16:06,786 - main - INFO - POST /api/v1/logout
+2025-07-06 06:16:07,067 - main - INFO - POST /api/v1/login
+2025-07-06 06:16:07,075 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:16:07,334 - app.api.error_handlers - ERROR - HTTP例外: 未ログインです
+2025-07-06 06:16:07,335 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:16:07,670 - main - INFO - GET /login
+2025-07-06 06:16:07,986 - main - INFO - GET /
+2025-07-06 06:16:08,251 - main - INFO - POST /api/v1/login
+2025-07-06 06:16:08,289 - main - INFO - GET /
+2025-07-06 06:16:08,570 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:16:08,864 - app.api.error_handlers - ERROR - HTTP例外: 管理者パスワードが無効です
+2025-07-06 06:16:08,867 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:16:09,155 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:16:09,169 - main - INFO - POST /api/v1/admin/logout
+2025-07-06 06:16:09,471 - app.api.error_handlers - ERROR - HTTP例外: 管理者権限が必要です
+2025-07-06 06:16:09,473 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 06:16:11,138 - main - INFO - POST /api/v1/login
+2025-07-06 06:16:11,207 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:16:11,255 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 06:16:11,304 - app.api.routes - INFO - 管理者によるシステムキャッシュ更新要求
+2025-07-06 06:16:11,307 - app.services.admin_service - INFO - システム全体のキャッシュ更新処理を開始します。
+2025-07-06 06:16:11,319 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 06:16:15,309 - UserService - INFO - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-06 06:16:15,310 - app.services.admin_service - INFO - ユーザー情報の更新が完了しました。件数: 11
+2025-07-06 06:16:15,322 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-06 06:16:15,322 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-06 06:16:16,238 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-06 06:16:17,187 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-06 06:16:18,580 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-06 06:16:18,583 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-06 06:16:18,620 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-07-06 06:16:18,621 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-06 06:16:18,622 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:16:18,633 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:16:18,636 - app.services.admin_service - INFO - DBメタデータの更新が完了しました。スキーマ数: 2
+2025-07-06 06:16:18,637 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 06:17:21,131 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 06:17:21,134 - main - INFO - アプリケーション起動
+2025-07-06 06:17:21,135 - main - INFO - 設定情報
+2025-07-06 06:17:32,354 - main - INFO - GET /
+2025-07-06 06:17:32,559 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 06:17:32,563 - main - INFO - GET /static/img/hint.png
+2025-07-06 06:17:32,564 - main - INFO - GET /static/css/style.css
+2025-07-06 06:17:32,584 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 06:17:32,603 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 06:17:32,617 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 06:17:32,637 - main - INFO - GET /static/js/app_new.js
+2025-07-06 06:17:33,242 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:17:33,245 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:17:33,340 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:17:33,352 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:17:33,420 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:17:33,473 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 132.6ms)
+2025-07-06 06:17:33,477 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:17:33,527 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:17:33,544 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:18:07,107 - main - INFO - GET /user
+2025-07-06 06:18:07,220 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:18:07,232 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:18:08,618 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 06:18:11,293 - main - INFO - GET /api/v1/users/history
+2025-07-06 06:18:13,334 - main - INFO - GET /
+2025-07-06 06:18:14,468 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:18:14,471 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:18:14,507 - main - INFO - GET /user
+2025-07-06 06:18:14,529 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:18:14,538 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:18:14,557 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:18:14,559 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 29.9ms)
+2025-07-06 06:18:14,561 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:18:14,597 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:18:14,638 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:18:17,641 - main - INFO - GET /user
+2025-07-06 06:18:17,707 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:18:17,725 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:18:24,909 - main - INFO - GET /
+2025-07-06 06:18:25,273 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:18:25,275 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:18:25,307 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:18:25,308 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:18:25,325 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:18:25,330 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 22.9ms)
+2025-07-06 06:18:25,332 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:18:25,424 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:18:25,444 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:18:25,468 - app.api.routes - INFO - SQLフォーマット要求
+2025-07-06 06:18:25,484 - app.api.routes - INFO - SQLフォーマット成功
+2025-07-06 06:18:25,485 - main - INFO - POST /api/v1/sql/format
+2025-07-06 06:18:28,629 - main - INFO - GET /user
+2025-07-06 06:18:28,730 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:18:28,756 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:18:32,814 - main - INFO - GET /
+2025-07-06 06:18:33,192 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:18:33,194 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:18:33,235 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:18:33,236 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:18:33,258 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:18:33,265 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 29.9ms)
+2025-07-06 06:18:33,267 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:18:33,302 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:18:33,319 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:18:38,082 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:18:38,148 - main - INFO - GET /admin
+2025-07-06 06:18:38,275 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:18:38,289 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 06:18:38,305 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:18:44,128 - app.api.routes - INFO - 管理者によるシステムキャッシュ更新要求
+2025-07-06 06:18:44,129 - app.services.admin_service - INFO - システム全体のキャッシュ更新処理を開始します。
+2025-07-06 06:18:44,340 - UserService - INFO - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-06 06:18:44,344 - app.services.admin_service - INFO - ユーザー情報の更新が完了しました。件数: 11
+2025-07-06 06:18:44,347 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-06 06:18:44,350 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-06 06:18:44,856 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-06 06:18:45,554 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-06 06:18:46,562 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-06 06:18:46,563 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-06 06:18:46,614 - app.metadata_cache - INFO - メタデータキャッシュを更新しました
+2025-07-06 06:18:46,617 - app.services.metadata_service - INFO - メタデータキャッシュの更新が完了
+2025-07-06 06:18:46,619 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:18:46,633 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:18:46,658 - app.services.admin_service - INFO - DBメタデータの更新が完了しました。スキーマ数: 2
+2025-07-06 06:18:46,660 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 06:19:34,701 - main - INFO - GET /
+2025-07-06 06:19:35,191 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:19:35,200 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:19:35,257 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:19:35,260 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:19:35,281 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:19:35,283 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 25.9ms)
+2025-07-06 06:19:35,291 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:19:35,331 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:19:35,407 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:19:58,272 - main - INFO - GET /
+2025-07-06 06:19:58,398 - main - INFO - GET /static/css/style.css
+2025-07-06 06:19:58,416 - main - INFO - GET /static/img/hint.png
+2025-07-06 06:19:58,418 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 06:19:58,420 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 06:19:58,422 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 06:19:58,442 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 06:19:58,493 - main - INFO - GET /static/js/app_new.js
+2025-07-06 06:19:59,523 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:19:59,555 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:19:59,701 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:19:59,720 - main - INFO - GET /favicon.ico
+2025-07-06 06:19:59,716 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:19:59,759 - app.metadata_cache - ERROR - スキーマ一覧の取得に失敗
+2025-07-06 06:19:59,760 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-06 06:19:59,761 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 59.8ms)
+2025-07-06 06:19:59,774 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:19:59,810 - app.services.template_service - ERROR - ユーザーテンプレート取得エラー
+2025-07-06 06:19:59,810 - app.services.template_service - ERROR - ユーザーテンプレート取得エラー
+2025-07-06 06:19:59,821 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:19:59,819 - app.services.template_service - ERROR - 管理者テンプレート取得エラー
+2025-07-06 06:19:59,819 - app.services.template_service - ERROR - 管理者テンプレート取得エラー
+2025-07-06 06:19:59,843 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:20:05,596 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:20:05,726 - main - INFO - GET /admin
+2025-07-06 06:20:05,860 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:20:05,889 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 06:20:05,928 - app.services.template_service - ERROR - 管理者テンプレート取得エラー
+2025-07-06 06:20:05,928 - app.services.template_service - ERROR - 管理者テンプレート取得エラー
+2025-07-06 06:20:05,939 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:20:27,489 - app.api.routes - INFO - 管理者によるシステムキャッシュ更新要求
+2025-07-06 06:20:27,490 - app.services.admin_service - INFO - システム全体のキャッシュ更新処理を開始します。
+2025-07-06 06:20:27,667 - UserService - ERROR - ユーザー情報のDB取得・保存に失敗: no such table: users
+2025-07-06 06:20:27,670 - app.services.admin_service - ERROR - ユーザー情報の更新中にエラーが発生しました: no such table: users
+2025-07-06 06:20:27,674 - app.api.routes - ERROR - システムキャッシュ更新エラー: no such table: users
+2025-07-06 06:20:27,677 - app.api.error_handlers - ERROR - HTTP例外: システムキャッシュの更新に失敗しました: no such table: users
+2025-07-06 06:20:27,683 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 06:20:40,171 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 06:28:42,019 - main - INFO - アプリケーション終了
+2025-07-06 06:38:30,478 - main - INFO - POST /api/v1/login
+2025-07-06 06:38:30,677 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-06 06:38:30,678 - main - INFO - POST /api/v1/login
+2025-07-06 06:38:30,875 - main - INFO - POST /api/v1/logout
+2025-07-06 06:38:31,091 - main - INFO - POST /api/v1/login
+2025-07-06 06:38:31,107 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:38:31,357 - app.api.error_handlers - ERROR - HTTP例外: 未ログインです
+2025-07-06 06:38:31,359 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:38:31,626 - main - INFO - GET /login
+2025-07-06 06:38:32,057 - main - INFO - GET /
+2025-07-06 06:38:32,361 - main - INFO - POST /api/v1/login
+2025-07-06 06:38:32,428 - main - INFO - GET /
+2025-07-06 06:38:32,678 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:38:32,940 - app.api.error_handlers - ERROR - HTTP例外: 管理者パスワードが無効です
+2025-07-06 06:38:32,942 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:38:33,182 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:38:33,196 - main - INFO - POST /api/v1/admin/logout
+2025-07-06 06:38:33,412 - app.api.error_handlers - ERROR - HTTP例外: 管理者権限が必要です
+2025-07-06 06:38:33,413 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 06:38:33,607 - main - INFO - POST /api/v1/login
+2025-07-06 06:38:33,614 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:38:33,643 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 06:38:33,647 - app.api.routes - INFO - 管理者によるシステムキャッシュ更新要求
+2025-07-06 06:38:33,648 - app.services.admin_service - INFO - システム全体のキャッシュ更新処理を開始します。
+2025-07-06 06:38:33,648 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 06:38:36,775 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-06 06:38:39,476 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-06 06:38:39,507 - app.services.admin_service - INFO - システムキャッシュの更新が完了しました。(更新件数: ユーザー=11件, DBスキーマ=2件)
+2025-07-06 06:38:39,512 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 06:39:44,815 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 06:39:44,818 - main - INFO - アプリケーション起動
+2025-07-06 06:39:44,819 - main - INFO - 設定情報
+2025-07-06 06:39:49,698 - main - INFO - GET /admin
+2025-07-06 06:39:49,871 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 06:39:50,141 - main - INFO - GET /static/css/style.css
+2025-07-06 06:39:50,191 - main - INFO - GET /static/img/hint.png
+2025-07-06 06:39:50,411 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 06:39:50,603 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:39:50,866 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:39:50,966 - main - INFO - GET /favicon.ico
+2025-07-06 06:39:57,916 - app.api.routes - INFO - 管理者によるシステムキャッシュ更新要求
+2025-07-06 06:39:57,917 - app.services.admin_service - INFO - システム全体のキャッシュ更新処理を開始します。
+2025-07-06 06:39:57,918 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 06:40:00,030 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-06 06:40:02,635 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-06 06:40:02,670 - app.services.admin_service - INFO - システムキャッシュの更新が完了しました。(更新件数: ユーザー=11件, DBスキーマ=2件)
+2025-07-06 06:40:02,671 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 06:40:12,042 - main - INFO - GET /
+2025-07-06 06:40:12,175 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 06:40:14,119 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:40:14,390 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:40:14,460 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:40:14,462 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:40:14,482 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:40:14,486 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 25.9ms)
+2025-07-06 06:40:14,488 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:40:14,574 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:40:14,584 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:40:42,245 - main - INFO - GET /user
+2025-07-06 06:40:42,372 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:40:42,381 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:40:48,366 - main - INFO - GET /
+2025-07-06 06:40:48,854 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:40:48,856 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:40:48,949 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:40:48,954 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:40:48,964 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:40:48,970 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 20.9ms)
+2025-07-06 06:40:48,972 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:40:49,017 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:40:49,019 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:40:54,349 - main - INFO - POST /api/v1/admin/login
+2025-07-06 06:40:54,413 - main - INFO - GET /admin
+2025-07-06 06:40:54,535 - main - INFO - GET /api/v1/users/me
+2025-07-06 06:40:54,565 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 06:40:54,593 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:41:23,588 - app.services.template_service - INFO - 管理者テンプレートを作成しました
+2025-07-06 06:41:23,590 - main - INFO - POST /api/v1/admin/templates
+2025-07-06 06:41:23,619 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:41:33,488 - main - INFO - GET /
+2025-07-06 06:41:33,882 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 06:41:33,895 - main - INFO - GET /api/v1/connection/status
+2025-07-06 06:41:34,004 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 06:41:34,026 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 06:41:34,041 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 06:41:34,058 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 53.9ms)
+2025-07-06 06:41:34,063 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 06:41:34,124 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 06:41:34,130 - main - INFO - GET /api/v1/users/templates
+2025-07-06 06:41:38,053 - app.api.routes - INFO - SQL実行要求
+2025-07-06 06:41:38,055 - snowsight_app - INFO - SQL実行開始
+2025-07-06 06:41:38,056 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-06 06:41:38,075 - sql_validator - INFO - SQLバリデーション: SELECT * FROM TRA_3 WHERE 1=1
+2025-07-06 06:41:38,076 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-06 06:41:41,471 - snowsight_app - INFO - SQL実行完了
+2025-07-06 06:41:41,544 - SQLLogService - INFO - SQL実行ログを追加: 913530be-625d-4904-9492-713aacd1af1b
+2025-07-06 06:41:41,545 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.5s)
+2025-07-06 06:41:41,578 - main - INFO - POST /api/v1/sql/execute
+2025-07-06 06:41:41,581 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-06 06:41:42,264 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-06 06:42:04,069 - app.api.routes - INFO - データエクスポート要求
+2025-07-06 06:42:04,070 - snowsight_app - INFO - CSVエクスポート開始
+2025-07-06 06:42:05,529 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 1.5s)
+2025-07-06 06:42:05,531 - main - INFO - POST /api/v1/export
+2025-07-06 06:43:07,001 - main - INFO - アプリケーション終了

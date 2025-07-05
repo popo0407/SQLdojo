@@ -19,9 +19,10 @@ class UserService:
         """MetadataCacheのDB接続を再利用"""
         return sqlite3.connect(self.cache.db_path)
 
-    def refresh_users_from_db(self, connection_manager: Optional[ConnectionManagerODBC] = None):
+    def refresh_users_from_db(self, connection_manager: Optional[ConnectionManagerODBC] = None) -> int:
         """
         HF3IGM01テーブルからユーザー情報を取得し、SQLiteに保存
+        戻り値: 更新されたユーザー数
         """
         if connection_manager is None:
             connection_manager = ConnectionManagerODBC()
@@ -38,8 +39,9 @@ class UserService:
                                    [(user["user_id"], user["user_name"]) for user in users])
                 conn.commit()
                 
-            logger.info(f"ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: {len(users)}")
-            return users
+            # ▼ INFOをDEBUGに変更し、件数を戻り値として返す
+            logger.debug(f"ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: {len(users)}")
+            return len(users)
         except Exception as e:
             logger.error(f"ユーザー情報のDB取得・保存に失敗: {e}")
             raise
