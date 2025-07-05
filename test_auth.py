@@ -2,42 +2,53 @@ import pytest
 import json
 import os
 import tempfile
+import sqlite3
+from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from app.main import app
 from app.services.user_service import UserService
+from app.metadata_cache import MetadataCache
 
 class TestUserService:
     def setup_method(self):
+        # テスト用のSQLiteデータベースを作成
         self.temp_dir = tempfile.mkdtemp()
-        self.user_data_file = os.path.join(self.temp_dir, "user_data.json")
-        self.test_users = {
-            "test_user1": {"user_id": "test_user1", "user_name": "テストユーザー1"},
-            "test_user2": {"user_id": "test_user2", "user_name": "テストユーザー2"}
-        }
-        with open(self.user_data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.test_users, f, ensure_ascii=False, indent=2)
-        os.environ["USER_DATA_FILE"] = self.user_data_file
+        self.db_path = os.path.join(self.temp_dir, "test_metadata_cache.db")
+        
+        # テスト用のMetadataCacheを作成
+        self.metadata_cache = MetadataCache(self.db_path)
+        
+        # テストユーザーデータをSQLiteに挿入
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users")  # 既存データをクリア
+            cursor.executemany(
+                "INSERT INTO users (user_id, user_name) VALUES (?, ?)",
+                [
+                    ("test_user1", "テストユーザー1"),
+                    ("test_user2", "テストユーザー2")
+                ]
+            )
+            conn.commit()
 
     def teardown_method(self):
         import shutil
         shutil.rmtree(self.temp_dir)
-        if "USER_DATA_FILE" in os.environ:
-            del os.environ["USER_DATA_FILE"]
 
     def test_authenticate_user_success(self):
-        user_service = UserService()
+        user_service = UserService(self.metadata_cache)
         result = user_service.authenticate_user("test_user1")
         assert result is not None
         assert result["user_id"] == "test_user1"
         assert result["user_name"] == "テストユーザー1"
 
     def test_authenticate_user_failure(self):
-        user_service = UserService()
+        user_service = UserService(self.metadata_cache)
         result = user_service.authenticate_user("nonexistent_user")
         assert result is None
 
     def test_get_all_users(self):
-        user_service = UserService()
+        user_service = UserService(self.metadata_cache)
         users = user_service.get_all_users()
         assert len(users) == 2
         user_ids = [user["user_id"] for user in users]
@@ -46,23 +57,34 @@ class TestUserService:
 
 class TestAuthAPI:
     def setup_method(self):
+        # テスト用のSQLiteデータベースを作成
         self.temp_dir = tempfile.mkdtemp()
-        self.user_data_file = os.path.join(self.temp_dir, "user_data.json")
-        self.test_users = {
-            "test_user1": {"user_id": "test_user1", "user_name": "テストユーザー1"}
-        }
-        with open(self.user_data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.test_users, f, ensure_ascii=False, indent=2)
-        os.environ["USER_DATA_FILE"] = self.user_data_file
+        self.db_path = os.path.join(self.temp_dir, "test_metadata_cache.db")
+        
+        # テスト用のMetadataCacheを作成
+        self.metadata_cache = MetadataCache(self.db_path)
+        
+        # テストユーザーデータをSQLiteに挿入
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users")  # 既存データをクリア
+            cursor.execute(
+                "INSERT INTO users (user_id, user_name) VALUES (?, ?)",
+                ("test_user1", "テストユーザー1")
+            )
+            conn.commit()
+        
         self.client = TestClient(app)
 
     def teardown_method(self):
         import shutil
         shutil.rmtree(self.temp_dir)
-        if "USER_DATA_FILE" in os.environ:
-            del os.environ["USER_DATA_FILE"]
 
-    def test_login_success(self):
+    @patch('app.services.user_service.UserService.authenticate_user')
+    def test_login_success(self, mock_authenticate):
+        # モックの設定
+        mock_authenticate.return_value = {"user_id": "test_user1", "user_name": "テストユーザー1"}
+        
         response = self.client.post("/api/v1/login", json={"user_id": "test_user1"})
         assert response.status_code == 200
         data = response.json()
@@ -70,7 +92,11 @@ class TestAuthAPI:
         assert data["user"]["user_id"] == "test_user1"
         assert data["user"]["user_name"] == "テストユーザー1"
 
-    def test_login_failure(self):
+    @patch('app.services.user_service.UserService.authenticate_user')
+    def test_login_failure(self, mock_authenticate):
+        # モックの設定
+        mock_authenticate.return_value = None
+        
         response = self.client.post("/api/v1/login", json={"user_id": "nonexistent_user"})
         assert response.status_code == 401
         data = response.json()
@@ -82,7 +108,11 @@ class TestAuthAPI:
         data = response.json()
         assert data["message"] == "ログアウトしました"
 
-    def test_get_current_user_success(self):
+    @patch('app.services.user_service.UserService.authenticate_user')
+    def test_get_current_user_success(self, mock_authenticate):
+        # モックの設定
+        mock_authenticate.return_value = {"user_id": "test_user1", "user_name": "テストユーザー1"}
+        
         login_response = self.client.post("/api/v1/login", json={"user_id": "test_user1"})
         assert login_response.status_code == 200
         response = self.client.get("/api/v1/users/me")
@@ -99,21 +129,28 @@ class TestAuthAPI:
 
 class TestAuthPages:
     def setup_method(self):
+        # テスト用のSQLiteデータベースを作成
         self.temp_dir = tempfile.mkdtemp()
-        self.user_data_file = os.path.join(self.temp_dir, "user_data.json")
-        self.test_users = {
-            "test_user1": {"user_id": "test_user1", "user_name": "テストユーザー1"}
-        }
-        with open(self.user_data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.test_users, f, ensure_ascii=False, indent=2)
-        os.environ["USER_DATA_FILE"] = self.user_data_file
+        self.db_path = os.path.join(self.temp_dir, "test_metadata_cache.db")
+        
+        # テスト用のMetadataCacheを作成
+        self.metadata_cache = MetadataCache(self.db_path)
+        
+        # テストユーザーデータをSQLiteに挿入
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users")  # 既存データをクリア
+            cursor.execute(
+                "INSERT INTO users (user_id, user_name) VALUES (?, ?)",
+                ("test_user1", "テストユーザー1")
+            )
+            conn.commit()
+        
         self.client = TestClient(app)
 
     def teardown_method(self):
         import shutil
         shutil.rmtree(self.temp_dir)
-        if "USER_DATA_FILE" in os.environ:
-            del os.environ["USER_DATA_FILE"]
 
     def test_login_page(self):
         response = self.client.get("/login")
@@ -126,7 +163,11 @@ class TestAuthPages:
         assert response.status_code == 307 or response.status_code == 302
         assert response.headers["location"] == "/login"
 
-    def test_root_with_session(self):
+    @patch('app.services.user_service.UserService.authenticate_user')
+    def test_root_with_session(self, mock_authenticate):
+        # モックの設定
+        mock_authenticate.return_value = {"user_id": "test_user1", "user_name": "テストユーザー1"}
+        
         response = self.client.post("/api/v1/login", json={"user_id": "test_user1"})
         assert response.status_code == 200
         response = self.client.get("/")
@@ -135,21 +176,28 @@ class TestAuthPages:
 
 class TestAdminAuth:
     def setup_method(self):
+        # テスト用のSQLiteデータベースを作成
         self.temp_dir = tempfile.mkdtemp()
-        self.user_data_file = os.path.join(self.temp_dir, "user_data.json")
-        self.test_users = {
-            "hint0530": {"user_id": "hint0530", "user_name": "ヒントユーザー"}
-        }
-        with open(self.user_data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.test_users, f, ensure_ascii=False, indent=2)
-        os.environ["USER_DATA_FILE"] = self.user_data_file
+        self.db_path = os.path.join(self.temp_dir, "test_metadata_cache.db")
+        
+        # テスト用のMetadataCacheを作成
+        self.metadata_cache = MetadataCache(self.db_path)
+        
+        # テストユーザーデータをSQLiteに挿入
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users")  # 既存データをクリア
+            cursor.execute(
+                "INSERT INTO users (user_id, user_name) VALUES (?, ?)",
+                ("hint0530", "ヒントユーザー")
+            )
+            conn.commit()
+        
         self.client = TestClient(app)
 
     def teardown_method(self):
         import shutil
         shutil.rmtree(self.temp_dir)
-        if "USER_DATA_FILE" in os.environ:
-            del os.environ["USER_DATA_FILE"]
 
     def test_admin_login_success(self):
         response = self.client.post("/api/v1/admin/login", json={"password": "mono0000"})
@@ -181,7 +229,11 @@ class TestAdminAuth:
         data = response.json()
         assert "管理者権限が必要です" in data.get("detail", "")
 
-    def test_admin_function_with_auth(self):
+    @patch('app.services.user_service.UserService.authenticate_user')
+    def test_admin_function_with_auth(self, mock_authenticate):
+        # モックの設定
+        mock_authenticate.return_value = {"user_id": "hint0530", "user_name": "ヒントユーザー"}
+        
         # まずユーザーログイン
         user_login = self.client.post("/api/v1/login", json={"user_id": "hint0530"})
         assert user_login.status_code == 200

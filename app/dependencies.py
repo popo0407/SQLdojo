@@ -13,12 +13,14 @@ from app.sql_validator import SQLValidator, get_validator
 from app.metadata_cache import MetadataCache
 from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.services.query_executor import QueryExecutor
+# from app.services.database_service import DatabaseService  # 削除
 from app.services.sql_service import SQLService
 from app.services.metadata_service import MetadataService
 from app.services.performance_service import PerformanceService
 from app.services.export_service import ExportService
 from app.services.completion_service import CompletionService
 from app.services.user_service import UserService
+from app.services.template_service import TemplateService
 from app.services.sql_log_service import SQLLogService
 
 
@@ -112,6 +114,22 @@ def get_completion_service_di(
     return CompletionService(metadata_service)
 
 
+# ユーザーサービスの依存性注入
+def get_user_service_di(
+    metadata_cache: Annotated[MetadataCache, Depends(get_metadata_cache_di)]
+) -> UserService:
+    """ユーザーサービスを取得"""
+    return UserService(metadata_cache)
+
+
+# テンプレートサービスの依存性注入
+def get_template_service_di(
+    metadata_cache: Annotated[MetadataCache, Depends(get_metadata_cache_di)]
+) -> TemplateService:
+    """テンプレートサービスを取得"""
+    return TemplateService(metadata_cache)
+
+
 # 認証チェックの依存性注入
 def get_current_user(request: Request):
     """現在のユーザーを取得（認証チェック付き）"""
@@ -148,6 +166,8 @@ MetadataServiceDep = Annotated[MetadataService, Depends(get_metadata_service_di)
 PerformanceServiceDep = Annotated[PerformanceService, Depends(get_performance_service_di)]
 ExportServiceDep = Annotated[ExportService, Depends(get_export_service_di)]
 CompletionServiceDep = Annotated[CompletionService, Depends(get_completion_service_di)]
+UserServiceDep = Annotated[UserService, Depends(get_user_service_di)]
+TemplateServiceDep = Annotated[TemplateService, Depends(get_template_service_di)]
 SQLValidatorDep = Annotated[SQLValidator, Depends(get_sql_validator_di)]
 MetadataCacheDep = Annotated[MetadataCache, Depends(get_metadata_cache_di)]
 CurrentUserDep = Annotated[dict, Depends(get_current_user)]

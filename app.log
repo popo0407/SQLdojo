@@ -3887,3 +3887,380 @@ WHERE 1 = 1
 2025-07-05 11:55:42,573 - main - INFO - GET /api/v1/users/templates
 2025-07-05 11:55:43,677 - main - INFO - GET /api/v1/users/history
 2025-07-05 12:00:01,101 - main - INFO - アプリケーション終了
+2025-07-05 15:04:11,192 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:04:11,195 - main - INFO - アプリケーション起動
+2025-07-05 15:04:11,197 - main - INFO - 設定情報
+2025-07-05 15:04:15,349 - main - INFO - GET /user
+2025-07-05 15:04:15,645 - main - INFO - GET /static/css/style.css
+2025-07-05 15:04:15,650 - main - INFO - GET /static/img/hint.png
+2025-07-05 15:04:15,730 - main - INFO - GET /api/v1/users/me
+2025-07-05 15:04:15,753 - main - INFO - GET /api/v1/users/templates
+2025-07-05 15:04:16,247 - main - INFO - GET /favicon.ico
+2025-07-05 15:04:17,994 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-05 15:04:22,703 - main - INFO - GET /api/v1/users/history
+2025-07-05 15:04:56,498 - main - INFO - GET /api/v1/users/history
+2025-07-05 15:24:51,325 - main - INFO - アプリケーション終了
+2025-07-05 15:46:19,472 - app.services.metadata_service - INFO - スキーマ一覧取得開始
+2025-07-05 15:46:19,474 - app.services.metadata_service - INFO - キャッシュからスキーマ一覧取得完了
+2025-07-05 15:46:19,481 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-05 15:46:19,482 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-05 15:46:19,494 - app.services.metadata_service - INFO - テーブル詳細情報取得開始
+2025-07-05 15:46:19,494 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-05 15:46:19,495 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-05 15:46:19,496 - app.services.metadata_service - INFO - カラム一覧取得開始
+2025-07-05 15:46:19,497 - app.services.metadata_service - INFO - キャッシュからカラム一覧取得完了
+2025-07-05 15:46:19,497 - app.services.metadata_service - INFO - テーブル詳細情報取得完了
+2025-07-05 15:46:19,509 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得開始
+2025-07-05 15:46:19,510 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得完了
+2025-07-05 15:46:19,523 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得開始
+2025-07-05 15:46:19,524 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得完了
+2025-07-05 15:46:19,546 - snowsight_app - INFO - CSVエクスポート開始
+2025-07-05 15:46:19,559 - snowsight_app - INFO - データをCSV形式に変換開始
+2025-07-05 15:46:19,561 - snowsight_app - INFO - CSV形式への変換完了
+2025-07-05 15:46:19,582 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-05 15:46:19,593 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-05 15:46:19,610 - app.services.query_executor - INFO - Snowflakeクエリ実行完了
+2025-07-05 15:46:19,635 - snowsight_app - INFO - SQL実行開始
+2025-07-05 15:46:19,637 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-05 15:46:19,640 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-05 15:46:19,642 - snowsight_app - INFO - SQL実行完了
+2025-07-05 15:46:19,709 - snowsight_app - INFO - SQL実行開始
+2025-07-05 15:46:19,710 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-05 15:46:19,712 - snowsight_app - WARNING - SQLバリデーション失敗
+2025-07-05 15:46:21,571 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:46:21,573 - main - INFO - POST /api/v1/login
+2025-07-05 15:46:21,607 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:46:21,608 - main - INFO - POST /api/v1/login
+2025-07-05 15:46:21,623 - main - INFO - POST /api/v1/logout
+2025-07-05 15:46:21,646 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:46:21,647 - main - INFO - POST /api/v1/login
+2025-07-05 15:46:21,677 - app.api.error_handlers - ERROR - HTTP例外: 未ログインです
+2025-07-05 15:46:21,679 - main - INFO - GET /api/v1/users/me
+2025-07-05 15:46:21,706 - main - INFO - GET /login
+2025-07-05 15:46:21,725 - main - INFO - GET /
+2025-07-05 15:46:21,748 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:46:21,749 - main - INFO - POST /api/v1/login
+2025-07-05 15:46:21,783 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:46:21,808 - app.api.error_handlers - ERROR - HTTP例外: 管理者パスワードが無効です
+2025-07-05 15:46:21,809 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:46:21,835 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:46:21,846 - main - INFO - POST /api/v1/admin/logout
+2025-07-05 15:46:21,867 - app.api.error_handlers - ERROR - HTTP例外: 管理者権限が必要です
+2025-07-05 15:46:21,868 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 15:46:21,898 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:46:21,906 - main - INFO - POST /api/v1/login
+2025-07-05 15:46:22,282 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:46:22,283 - main - INFO - アプリケーション起動
+2025-07-05 15:46:22,285 - main - INFO - 設定情報
+2025-07-05 15:46:22,296 - app.api.routes - INFO - ヘルスチェック要求
+2025-07-05 15:46:22,322 - main - INFO - GET /api/v1/health
+2025-07-05 15:46:27,345 - main - INFO - アプリケーション終了
+2025-07-05 15:46:27,363 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:46:27,364 - main - INFO - アプリケーション起動
+2025-07-05 15:46:27,365 - main - INFO - 設定情報
+2025-07-05 15:46:27,379 - app.api.routes - INFO - SQL実行要求
+2025-07-05 15:46:27,381 - SQLLogService - INFO - SQL実行ログを追加: d4c6d348-bd1b-4bb0-85f0-dd607ef01294
+2025-07-05 15:46:27,382 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.0ms)
+2025-07-05 15:46:27,430 - main - INFO - POST /api/v1/sql/execute
+2025-07-05 15:46:27,432 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-05 15:46:27,433 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: 秘密鍵ファイルが見つかりません: \path\to\key.p8
+2025-07-05 15:46:27,435 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-05 15:46:27,443 - SQLLogService - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-05 15:46:32,469 - main - INFO - アプリケーション終了
+2025-07-05 15:46:32,488 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:46:32,494 - main - INFO - アプリケーション起動
+2025-07-05 15:46:32,495 - main - INFO - 設定情報
+2025-07-05 15:46:32,512 - app.api.routes - INFO - SQL実行要求
+2025-07-05 15:46:32,531 - SQLLogService - INFO - SQL実行ログを追加: f46b3f2f-4a08-436c-a13c-aee623ae8ee7
+2025-07-05 15:46:32,531 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 18.9ms)
+2025-07-05 15:46:32,532 - app.api.error_handlers - ERROR - アプリケーション例外: Table not found
+2025-07-05 15:46:32,534 - main - INFO - POST /api/v1/sql/execute
+2025-07-05 15:46:37,546 - main - INFO - アプリケーション終了
+2025-07-05 15:46:37,565 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:46:37,568 - main - INFO - アプリケーション起動
+2025-07-05 15:46:37,568 - main - INFO - 設定情報
+2025-07-05 15:46:37,581 - app.api.routes - INFO - SQL検証要求
+2025-07-05 15:46:37,630 - sql_validator - INFO - SQLバリデーション: SELECT id, name FROM test_table WHERE id = 1
+2025-07-05 15:46:37,632 - app.api.routes - INFO - SQL検証成功
+2025-07-05 15:46:37,633 - main - INFO - POST /api/v1/sql/validate
+2025-07-05 15:46:42,660 - main - INFO - アプリケーション終了
+2025-07-05 15:46:42,681 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:46:42,685 - main - INFO - アプリケーション起動
+2025-07-05 15:46:42,686 - main - INFO - 設定情報
+2025-07-05 15:46:42,700 - app.api.routes - INFO - SQL検証要求
+2025-07-05 15:46:42,704 - app.api.routes - WARNING - SQL検証失敗
+2025-07-05 15:46:42,705 - main - INFO - POST /api/v1/sql/validate
+2025-07-05 15:46:47,720 - main - INFO - アプリケーション終了
+2025-07-05 15:46:47,742 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:46:47,744 - main - INFO - アプリケーション起動
+2025-07-05 15:46:47,745 - main - INFO - 設定情報
+2025-07-05 15:46:47,755 - app.api.routes - INFO - SQLフォーマット要求
+2025-07-05 15:46:47,758 - app.api.routes - INFO - SQLフォーマット成功
+2025-07-05 15:46:47,759 - main - INFO - POST /api/v1/sql/format
+2025-07-05 15:46:52,766 - main - INFO - アプリケーション終了
+2025-07-05 15:46:52,805 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:46:52,807 - main - INFO - アプリケーション起動
+2025-07-05 15:46:52,807 - main - INFO - 設定情報
+2025-07-05 15:46:52,821 - app.services.metadata_service - INFO - スキーマ一覧取得開始
+2025-07-05 15:46:52,826 - app.services.metadata_service - INFO - キャッシュからスキーマ一覧取得完了
+2025-07-05 15:46:52,827 - main - INFO - GET /api/v1/metadata/schemas
+2025-07-05 15:46:57,838 - main - INFO - アプリケーション終了
+2025-07-05 15:46:57,858 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:46:57,860 - main - INFO - アプリケーション起動
+2025-07-05 15:46:57,861 - main - INFO - 設定情報
+2025-07-05 15:46:57,873 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-05 15:46:57,878 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-05 15:46:57,880 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables
+2025-07-05 15:47:02,897 - main - INFO - アプリケーション終了
+2025-07-05 15:47:02,924 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:02,930 - main - INFO - アプリケーション起動
+2025-07-05 15:47:02,930 - main - INFO - 設定情報
+2025-07-05 15:47:02,945 - app.services.metadata_service - INFO - カラム一覧取得開始
+2025-07-05 15:47:02,951 - app.services.metadata_service - WARNING - キャッシュが無効なため、モックデータを返します
+2025-07-05 15:47:02,957 - main - INFO - GET /api/v1/metadata/schemas/PUBLIC/tables/TEST_TABLE/columns
+2025-07-05 15:47:07,977 - main - INFO - アプリケーション終了
+2025-07-05 15:47:08,009 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:08,011 - main - INFO - アプリケーション起動
+2025-07-05 15:47:08,012 - main - INFO - 設定情報
+2025-07-05 15:47:08,018 - app.api.routes - INFO - データエクスポート要求
+2025-07-05 15:47:08,019 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 1.0ms)
+2025-07-05 15:47:08,021 - main - INFO - POST /api/v1/export
+2025-07-05 15:47:13,039 - main - INFO - アプリケーション終了
+2025-07-05 15:47:13,071 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:13,076 - main - INFO - アプリケーション起動
+2025-07-05 15:47:13,077 - main - INFO - 設定情報
+2025-07-05 15:47:13,087 - app.api.routes - INFO - データエクスポート要求
+2025-07-05 15:47:13,088 - app.api.routes - ERROR - エクスポートエラー
+2025-07-05 15:47:13,089 - snowsight_app - INFO - パフォーマンス記録: export (実行時間: 2.0ms)
+2025-07-05 15:47:13,090 - app.api.error_handlers - ERROR - アプリケーション例外: エクスポートに失敗しました: Export failed
+2025-07-05 15:47:13,092 - main - INFO - POST /api/v1/export
+2025-07-05 15:47:18,105 - main - INFO - アプリケーション終了
+2025-07-05 15:47:18,148 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:18,189 - main - INFO - アプリケーション起動
+2025-07-05 15:47:18,190 - main - INFO - 設定情報
+2025-07-05 15:47:18,215 - app.api.routes - INFO - 接続状態確認要求
+2025-07-05 15:47:18,217 - main - INFO - GET /api/v1/connection/status
+2025-07-05 15:47:23,228 - main - INFO - アプリケーション終了
+2025-07-05 15:47:23,253 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:23,254 - main - INFO - アプリケーション起動
+2025-07-05 15:47:23,255 - main - INFO - 設定情報
+2025-07-05 15:47:23,261 - app.api.routes - INFO - パフォーマンスメトリクス取得要求
+2025-07-05 15:47:23,263 - main - INFO - GET /api/v1/performance/metrics
+2025-07-05 15:47:28,278 - main - INFO - アプリケーション終了
+2025-07-05 15:47:28,294 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:28,296 - main - INFO - アプリケーション起動
+2025-07-05 15:47:28,296 - main - INFO - 設定情報
+2025-07-05 15:47:28,308 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-05 15:47:28,309 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-05 15:47:28,317 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-05 15:47:28,320 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 12.0ms)
+2025-07-05 15:47:28,321 - main - INFO - GET /api/v1/metadata/all
+2025-07-05 15:47:33,331 - main - INFO - アプリケーション終了
+2025-07-05 15:47:33,359 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:33,360 - main - INFO - アプリケーション起動
+2025-07-05 15:47:33,361 - main - INFO - 設定情報
+2025-07-05 15:47:33,373 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-05 15:47:33,374 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-05 15:47:33,379 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-05 15:47:33,380 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 7.0ms)
+2025-07-05 15:47:33,382 - main - INFO - GET /api/v1/metadata/all
+2025-07-05 15:47:38,391 - main - INFO - アプリケーション終了
+2025-07-05 15:47:38,432 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:38,434 - main - INFO - アプリケーション起動
+2025-07-05 15:47:38,435 - main - INFO - 設定情報
+2025-07-05 15:47:38,444 - main - INFO - GET /api/v1/invalid
+2025-07-05 15:47:43,458 - main - INFO - アプリケーション終了
+2025-07-05 15:47:43,500 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:43,502 - main - INFO - アプリケーション起動
+2025-07-05 15:47:43,503 - main - INFO - 設定情報
+2025-07-05 15:47:43,514 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'json_invalid', 'loc': ('body', 0), 'msg': 'JSON decode error', 'input': {}, 'ctx': {'error': 'Expecting value'}}]
+2025-07-05 15:47:43,515 - main - INFO - POST /api/v1/sql/execute
+2025-07-05 15:47:48,527 - main - INFO - アプリケーション終了
+2025-07-05 15:47:48,610 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:48,613 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-05 15:47:48,613 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: 秘密鍵ファイルが見つかりません: \path\to\key.p8
+2025-07-05 15:47:48,614 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-05 15:47:48,615 - SQLLogService - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-05 15:47:48,617 - SQLLogService - INFO - SQL実行ログを追加: 0f0417b4-bf14-4875-ad60-f8be66671970
+2025-07-05 15:47:48,622 - test_metadata_update - INFO - メタデータ更新直接テスト開始
+2025-07-05 15:47:48,630 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:47:48,632 - test_metadata_update - INFO - メタデータキャッシュの強制更新を実行
+2025-07-05 15:47:48,633 - app.services.metadata_service - INFO - メタデータキャッシュの強制更新を開始
+2025-07-05 15:47:48,634 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-05 15:47:48,634 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: 秘密鍵ファイルが見つかりません: \path\to\key.p8
+2025-07-05 15:47:48,635 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-05 15:47:48,636 - app.services.metadata_service - ERROR - スキーマ情報の取得に失敗
+2025-07-05 15:47:48,636 - app.services.metadata_service - WARNING - メタデータ取得に失敗しました
+2025-07-05 15:47:48,638 - test_metadata_update - INFO - メタデータ更新完了（実行時間: 0.005秒）
+2025-07-05 15:47:48,639 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-05 15:47:48,648 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-05 15:47:48,649 - test_metadata_update - INFO - ✅ メタデータ更新成功！
+2025-07-05 15:47:48,649 - test_metadata_update - INFO -   スキーマ数: 1
+2025-07-05 15:47:48,650 - test_metadata_update - INFO -   テーブル数: 2
+2025-07-05 15:47:48,650 - test_metadata_update - INFO -   カラム数: 6
+2025-07-05 15:47:48,651 - test_metadata_update - INFO -   最初のスキーマ: PUBLIC (テーブル数: 2)
+2025-07-05 15:47:48,686 - test_metadata_update - INFO - メタデータ更新APIテスト開始
+2025-07-05 15:47:48,687 - test_metadata_update - INFO - APIエンドポイント: http://localhost:8000/api/v1/metadata/refresh
+2025-07-05 15:47:52,775 - test_metadata_update - ERROR - ❌ アプリケーションに接続できません。アプリケーションが起動しているか確認してください。
+2025-07-05 15:47:52,786 - test_metadata_update - INFO - メタデータ初期取得APIテスト開始
+2025-07-05 15:47:52,787 - test_metadata_update - INFO - APIエンドポイント: http://localhost:8000/api/v1/metadata/initial
+2025-07-05 15:47:56,899 - test_metadata_update - ERROR - ❌ アプリケーションに接続できません。アプリケーションが起動しているか確認してください。
+2025-07-05 15:52:27,343 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:52:27,344 - main - INFO - POST /api/v1/login
+2025-07-05 15:52:27,976 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:52:27,977 - main - INFO - POST /api/v1/login
+2025-07-05 15:52:28,144 - main - INFO - POST /api/v1/logout
+2025-07-05 15:52:28,313 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:52:28,314 - main - INFO - POST /api/v1/login
+2025-07-05 15:52:28,504 - app.api.error_handlers - ERROR - HTTP例外: 未ログインです
+2025-07-05 15:52:28,505 - main - INFO - GET /api/v1/users/me
+2025-07-05 15:52:28,675 - main - INFO - GET /login
+2025-07-05 15:52:28,844 - main - INFO - GET /
+2025-07-05 15:52:29,014 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:52:29,015 - main - INFO - POST /api/v1/login
+2025-07-05 15:52:29,198 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:52:29,364 - app.api.error_handlers - ERROR - HTTP例外: 管理者パスワードが無効です
+2025-07-05 15:52:29,365 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:52:29,539 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:52:29,545 - main - INFO - POST /api/v1/admin/logout
+2025-07-05 15:52:29,719 - app.api.error_handlers - ERROR - HTTP例外: 管理者権限が必要です
+2025-07-05 15:52:29,720 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 15:52:29,892 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:52:29,893 - main - INFO - POST /api/v1/login
+2025-07-05 15:53:53,600 - main - INFO - POST /api/v1/login
+2025-07-05 15:53:53,804 - app.api.error_handlers - ERROR - HTTP例外: ユーザーIDが無効です
+2025-07-05 15:53:53,808 - main - INFO - POST /api/v1/login
+2025-07-05 15:53:54,004 - main - INFO - POST /api/v1/logout
+2025-07-05 15:53:54,220 - main - INFO - POST /api/v1/login
+2025-07-05 15:53:54,240 - main - INFO - GET /api/v1/users/me
+2025-07-05 15:53:54,446 - app.api.error_handlers - ERROR - HTTP例外: 未ログインです
+2025-07-05 15:53:54,449 - main - INFO - GET /api/v1/users/me
+2025-07-05 15:53:54,637 - main - INFO - GET /login
+2025-07-05 15:53:54,833 - main - INFO - GET /
+2025-07-05 15:53:55,038 - main - INFO - POST /api/v1/login
+2025-07-05 15:53:55,069 - main - INFO - GET /
+2025-07-05 15:53:55,270 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:53:55,494 - app.api.error_handlers - ERROR - HTTP例外: 管理者パスワードが無効です
+2025-07-05 15:53:55,497 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:53:55,719 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:53:55,731 - main - INFO - POST /api/v1/admin/logout
+2025-07-05 15:53:55,955 - app.api.error_handlers - ERROR - HTTP例外: 管理者権限が必要です
+2025-07-05 15:53:55,956 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 15:53:56,170 - main - INFO - POST /api/v1/login
+2025-07-05 15:53:56,184 - main - INFO - POST /api/v1/admin/login
+2025-07-05 15:53:56,199 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 15:53:56,200 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-05 15:53:59,419 - UserService - INFO - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-05 15:53:59,421 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 16:02:59,475 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-05 16:02:59,477 - main - INFO - アプリケーション起動
+2025-07-05 16:02:59,479 - main - INFO - 設定情報
+2025-07-05 16:03:02,670 - main - INFO - GET /user
+2025-07-05 16:03:02,903 - main - INFO - GET /static/css/style.css
+2025-07-05 16:03:02,906 - main - INFO - GET /static/img/hint.png
+2025-07-05 16:03:03,045 - main - INFO - GET /api/v1/users/me
+2025-07-05 16:03:03,075 - main - INFO - GET /api/v1/users/templates
+2025-07-05 16:03:03,510 - main - INFO - GET /favicon.ico
+2025-07-05 16:03:07,482 - main - INFO - GET /
+2025-07-05 16:03:07,569 - main - INFO - GET /static/js/services/apiService.js
+2025-07-05 16:03:07,590 - main - INFO - GET /static/js/services/uiService.js
+2025-07-05 16:03:07,599 - main - INFO - GET /static/js/services/stateService.js
+2025-07-05 16:03:07,687 - main - INFO - GET /static/js/services/editorService.js
+2025-07-05 16:03:07,696 - main - INFO - GET /static/js/app_new.js
+2025-07-05 16:03:08,152 - app.api.routes - INFO - 接続状態確認要求
+2025-07-05 16:03:08,855 - main - INFO - GET /api/v1/connection/status
+2025-07-05 16:03:08,920 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-05 16:03:08,922 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-05 16:03:08,938 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-05 16:03:08,948 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 27.9ms)
+2025-07-05 16:03:08,953 - main - INFO - GET /api/v1/metadata/all
+2025-07-05 16:03:08,985 - main - INFO - GET /api/v1/users/templates
+2025-07-05 16:03:09,038 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 16:03:14,980 - app.services.template_service - INFO - ユーザーテンプレートを作成しました
+2025-07-05 16:03:14,985 - main - INFO - POST /api/v1/users/templates
+2025-07-05 16:03:15,021 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 16:03:15,024 - main - INFO - GET /api/v1/users/templates
+2025-07-05 16:03:26,688 - main - INFO - POST /api/v1/admin/login
+2025-07-05 16:03:26,761 - main - INFO - GET /admin
+2025-07-05 16:03:26,858 - main - INFO - GET /api/v1/users/me
+2025-07-05 16:03:26,880 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-05 16:03:26,912 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 16:03:29,510 - UserService - INFO - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-05 16:03:29,513 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 16:03:32,145 - app.services.template_service - INFO - 管理者テンプレートを作成しました
+2025-07-05 16:03:32,152 - main - INFO - POST /api/v1/admin/templates
+2025-07-05 16:03:32,309 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 16:03:35,111 - main - INFO - GET /
+2025-07-05 16:03:35,515 - app.api.routes - INFO - 接続状態確認要求
+2025-07-05 16:03:35,520 - main - INFO - GET /api/v1/connection/status
+2025-07-05 16:03:35,561 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-05 16:03:35,564 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-05 16:03:35,576 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-05 16:03:35,616 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 54.9ms)
+2025-07-05 16:03:35,618 - main - INFO - GET /api/v1/metadata/all
+2025-07-05 16:03:35,666 - main - INFO - GET /api/v1/users/templates
+2025-07-05 16:03:35,681 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 16:03:40,396 - main - INFO - GET /user
+2025-07-05 16:03:40,496 - main - INFO - GET /api/v1/users/me
+2025-07-05 16:03:40,520 - main - INFO - GET /api/v1/users/templates
+2025-07-05 16:03:44,004 - main - INFO - GET /
+2025-07-05 16:03:44,417 - app.api.routes - INFO - 接続状態確認要求
+2025-07-05 16:03:44,420 - main - INFO - GET /api/v1/connection/status
+2025-07-05 16:03:44,527 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-05 16:03:44,538 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-05 16:03:44,563 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-05 16:03:44,568 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 40.9ms)
+2025-07-05 16:03:44,570 - main - INFO - GET /api/v1/metadata/all
+2025-07-05 16:03:44,597 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 16:03:44,609 - main - INFO - GET /api/v1/users/templates
+2025-07-05 16:03:49,832 - main - INFO - POST /api/v1/admin/login
+2025-07-05 16:03:49,875 - main - INFO - GET /admin
+2025-07-05 16:03:49,982 - main - INFO - GET /api/v1/users/me
+2025-07-05 16:03:50,027 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 16:03:50,145 - UserService - INFO - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-05 16:03:50,148 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 16:03:51,757 - UserService - INFO - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-05 16:03:51,760 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 18:03:26,384 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-05 18:03:29,502 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-07-05 18:03:29,504 - app.services.connection_manager_odbc - ERROR - SQL実行エラー: Snowflake(ODBC)接続の作成に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-07-05 18:03:29,508 - UserService - ERROR - ユーザー情報のDB取得・保存に失敗: Snowflake(ODBC)接続の作成に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-07-05 18:03:29,512 - app.api.error_handlers - ERROR - アプリケーション例外: Snowflake(ODBC)接続の作成に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-07-05 18:03:29,516 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 18:04:21,262 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-05 18:04:24,531 - app.services.connection_manager_odbc - ERROR - Snowflake(ODBC)への接続に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-07-05 18:04:24,533 - app.services.connection_manager_odbc - ERROR - SQL実行エラー: Snowflake(ODBC)接続の作成に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-07-05 18:04:24,535 - UserService - ERROR - ユーザー情報のDB取得・保存に失敗: Snowflake(ODBC)接続の作成に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-07-05 18:04:24,536 - app.api.error_handlers - ERROR - アプリケーション例外: Snowflake(ODBC)接続の作成に失敗しました: ('HY000', "[HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4) (SQLDriverConnect); [HY000] [Snowflake][Snowflake] (4) \n      REST request for URL *** failed: CURLerror (curl_easy_perform() failed) - code=6 msg='Could not resolve hostname' Verify that the hostnames and portnumbers in SYSTEM$ALLOWLIST are added to your firewall's allowed list. To further troubleshoot reference the following article : https://docs.snowflake.com/en/user-guide/client-connectivity-troubleshooting/error-messages#odbc-errors.\n     (4)")
+2025-07-05 18:04:24,538 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 18:05:18,082 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-05 18:05:20,295 - UserService - INFO - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-05 18:05:20,298 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-05 18:05:33,116 - main - INFO - GET /
+2025-07-05 18:05:33,236 - main - INFO - GET /static/css/style.css
+2025-07-05 18:05:33,269 - main - INFO - GET /static/js/services/apiService.js
+2025-07-05 18:05:33,377 - main - INFO - GET /static/js/services/stateService.js
+2025-07-05 18:05:33,379 - main - INFO - GET /static/js/services/uiService.js
+2025-07-05 18:05:33,385 - main - INFO - GET /static/js/services/editorService.js
+2025-07-05 18:05:33,389 - main - INFO - GET /static/js/app_new.js
+2025-07-05 18:05:34,175 - app.api.routes - INFO - 接続状態確認要求
+2025-07-05 18:05:34,182 - main - INFO - GET /api/v1/connection/status
+2025-07-05 18:05:34,226 - main - INFO - GET /user
+2025-07-05 18:05:34,357 - main - INFO - GET /api/v1/users/me
+2025-07-05 18:05:34,448 - main - INFO - GET /api/v1/users/templates
+2025-07-05 18:05:36,210 - main - INFO - GET /api/v1/users/history
+2025-07-05 18:06:49,485 - main - INFO - GET /
+2025-07-05 18:06:49,942 - app.api.routes - INFO - 接続状態確認要求
+2025-07-05 18:06:49,948 - main - INFO - GET /api/v1/connection/status
+2025-07-05 18:06:50,053 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-05 18:06:50,060 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-05 18:06:50,071 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-05 18:06:50,078 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 23.9ms)
+2025-07-05 18:06:50,083 - main - INFO - GET /api/v1/metadata/all
+2025-07-05 18:06:50,132 - main - INFO - GET /api/v1/users/templates
+2025-07-05 18:06:50,137 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 18:06:58,024 - app.services.template_service - INFO - ユーザーテンプレートを作成しました
+2025-07-05 18:06:58,026 - main - INFO - POST /api/v1/users/templates
+2025-07-05 18:06:58,045 - main - INFO - GET /api/v1/admin/templates
+2025-07-05 18:06:58,051 - main - INFO - GET /api/v1/users/templates
+2025-07-06 05:59:51,915 - main - INFO - アプリケーション終了

@@ -67,6 +67,36 @@ class MetadataCache:
                     PRIMARY KEY (schema_name, table_name, name)
                 )
                 """)
+
+                # ユーザー情報を保存するテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id TEXT PRIMARY KEY,
+                    user_name TEXT NOT NULL
+                )
+                """)
+
+                # ユーザテンプレートを保存するテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS user_templates (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    sql TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users (user_id)
+                )
+                """)
+
+                # 管理者（共通）テンプレートを保存するテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS admin_templates (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    sql TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                )
+                """)
                 
                 conn.commit()
         except Exception as e:

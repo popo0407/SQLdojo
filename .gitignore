@@ -1,1 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pytest
+.pytest_cache/
+
+# IDE/Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
 .env
+*.env
+
+# Application Generated Files
+*.log
+*.db
+*.db-journal
+sql_execution_logs.json

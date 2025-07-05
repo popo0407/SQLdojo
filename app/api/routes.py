@@ -17,8 +17,6 @@ import httpx
 import csv
 import io
 import os
-import json
-
 
 from app.api.models import (
     SQLRequest, SQLResponse, SQLValidationRequest, SQLValidationResponse,
@@ -37,7 +35,8 @@ from app.config_simplified import get_settings
 from app import __version__
 from app.dependencies import (
     SQLServiceDep, MetadataServiceDep, PerformanceServiceDep, ExportServiceDep,
-    SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep, CurrentUserDep, CurrentAdminDep, SQLLogServiceDep
+    SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep, CurrentUserDep, CurrentAdminDep, SQLLogServiceDep,
+    UserServiceDep, TemplateServiceDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
 from app.services.metadata_service import MetadataService
@@ -59,21 +58,6 @@ def run_in_threadpool(func, *args, **kwargs):
 # ルーター作成
 router = APIRouter(tags=["API"])
 logger = Logger(__name__)
-
-TEMPLATES_USER_FILE = os.path.join(os.path.dirname(__file__), '../../templates_user.json')
-TEMPLATES_ADMIN_FILE = os.path.join(os.path.dirname(__file__), '../../templates_admin.json')
-
-def load_templates(file_path):
-    if os.path.exists(file_path):
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
-            if content:
-                return json.loads(content)
-    return []
-
-def save_templates(file_path, templates):
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(templates, f, ensure_ascii=False, indent=2)
 
 @router.get("/", response_model=Dict[str, str])
 async def root():
@@ -411,9 +395,9 @@ async def suggest_sql_endpoint(
 
 # 認証API
 @router.post("/login")
-async def login(request: Request, login_req: UserLoginRequest):
-    user_service = UserService()
-    user = user_service.authenticate_user(login_req.user_id)
+async def login(request: Request, login_req: UserLoginRequest, user_service: UserServiceDep):
+    """ユーザー認証"""
+    user = await run_in_threadpool(user_service.authenticate_user, login_req.user_id)
     if user:
         request.session["user"] = user
         return {"message": "ログイン成功", "user": user}
@@ -435,43 +419,31 @@ async def get_current_user(request: Request):
 # 管理者API
 @router.post("/admin/users/refresh", response_model=UserRefreshResponse)
 async def refresh_users_from_db(
-    request: Request,
     current_admin: CurrentAdminDep,
+    user_service: UserServiceDep,  # user_serviceを使う
     connection_manager: ConnectionManagerDep
 ):
-    """HF3IGM01からユーザー情報を取得し、user_data.jsonを更新"""
-    user_service = UserService()
-    users = user_service.refresh_users_from_db(connection_manager)
+    """HF3IGM01からユーザー情報を取得し、SQLiteに保存"""
+    users = await run_in_threadpool(user_service.refresh_users_from_db, connection_manager)
     return UserRefreshResponse(
         message="ユーザー情報を更新しました",
         user_count=len(users)
     )
 
 @router.get("/admin/templates", response_model=List[TemplateResponse])
-async def get_templates():
-    """共通テンプレートを取得（管理者権限不要）"""
-    return load_templates(TEMPLATES_ADMIN_FILE)
+async def get_admin_templates(template_service: TemplateServiceDep):
+    """管理者テンプレート一覧を取得"""
+    return await run_in_threadpool(template_service.get_admin_templates)
 
 @router.post("/admin/templates", response_model=TemplateResponse)
-async def create_template(request: TemplateRequest, current_admin: CurrentAdminDep):
-    import uuid
-    from datetime import datetime
-    templates = load_templates(TEMPLATES_ADMIN_FILE)
-    new_template = {
-        "id": str(uuid.uuid4()),
-        "name": request.name,
-        "sql": request.sql,
-        "created_at": datetime.now().isoformat()
-    }
-    templates.append(new_template)
-    save_templates(TEMPLATES_ADMIN_FILE, templates)
-    return new_template
+async def create_admin_template(request: TemplateRequest, current_admin: CurrentAdminDep, template_service: TemplateServiceDep):
+    """管理者テンプレートを作成"""
+    return await run_in_threadpool(template_service.create_admin_template, request.name, request.sql)
 
 @router.delete("/admin/templates/{template_id}")
-async def delete_template(template_id: str, current_admin: CurrentAdminDep):
-    templates = load_templates(TEMPLATES_ADMIN_FILE)
-    templates = [t for t in templates if t["id"] != template_id]
-    save_templates(TEMPLATES_ADMIN_FILE, templates)
+async def delete_admin_template(template_id: str, current_admin: CurrentAdminDep, template_service: TemplateServiceDep):
+    """管理者テンプレートを削除"""
+    await run_in_threadpool(template_service.delete_admin_template, template_id)
     return {"message": "テンプレートを削除しました"}
 
 # ユーザーAPI
@@ -502,34 +474,19 @@ async def get_user_history(
         raise HTTPException(status_code=500, detail="履歴の取得に失敗しました")
 
 @router.get("/users/templates", response_model=List[TemplateResponse])
-async def get_user_templates(current_user: CurrentUserDep):
-    templates = load_templates(TEMPLATES_USER_FILE)
-    user_id = current_user["user_id"]
-    user_templates = [t for t in templates if t.get("user_id") == user_id]
-    return user_templates
+async def get_user_templates(current_user: CurrentUserDep, template_service: TemplateServiceDep):
+    """ユーザーテンプレート一覧を取得"""
+    return await run_in_threadpool(template_service.get_user_templates, current_user["user_id"])
 
 @router.post("/users/templates", response_model=TemplateResponse)
-async def create_user_template(request: TemplateRequest, current_user: CurrentUserDep):
-    import uuid
-    from datetime import datetime
-    templates = load_templates(TEMPLATES_USER_FILE)
-    new_template = {
-        "id": str(uuid.uuid4()),
-        "user_id": current_user["user_id"],
-        "name": request.name,
-        "sql": request.sql,
-        "created_at": datetime.now().isoformat()
-    }
-    templates.append(new_template)
-    save_templates(TEMPLATES_USER_FILE, templates)
-    return new_template
+async def create_user_template(request: TemplateRequest, current_user: CurrentUserDep, template_service: TemplateServiceDep):
+    """ユーザーテンプレートを作成"""
+    return await run_in_threadpool(template_service.create_user_template, current_user["user_id"], request.name, request.sql)
 
 @router.delete("/users/templates/{template_id}")
-async def delete_user_template(template_id: str, current_user: CurrentUserDep):
-    templates = load_templates(TEMPLATES_USER_FILE)
-    user_id = current_user["user_id"]
-    templates = [t for t in templates if not (t["id"] == template_id and t.get("user_id") == user_id)]
-    save_templates(TEMPLATES_USER_FILE, templates)
+async def delete_user_template(template_id: str, current_user: CurrentUserDep, template_service: TemplateServiceDep):
+    """ユーザーテンプレートを削除"""
+    await run_in_threadpool(template_service.delete_user_template, template_id, current_user["user_id"])
     return {"message": "テンプレートを削除しました"}
 
 # 管理者認証API

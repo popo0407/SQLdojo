@@ -1,76 +1,74 @@
-import json
-import os
+# -*- coding: utf-8 -*-
+"""
+ユーザーサービス
+ユーザー情報の管理を行う
+"""
+import sqlite3
 from typing import Optional, Dict, Any, List
 from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.logger import get_logger
+from app.metadata_cache import MetadataCache
 
-USER_DATA_FILE = os.path.join(os.path.dirname(__file__), '../../user_data.json')
 logger = get_logger("UserService")
 
 class UserService:
-    def __init__(self, user_data_file: str = None):
-        # 環境変数があれば優先
-        env_file = os.environ.get("USER_DATA_FILE")
-        if user_data_file is not None:
-            self.user_data_file = user_data_file
-        elif env_file:
-            self.user_data_file = env_file
-        else:
-            self.user_data_file = USER_DATA_FILE
-        self._load_users()
+    def __init__(self, metadata_cache: MetadataCache):
+        self.cache = metadata_cache
 
-    def _load_users(self):
-        if os.path.exists(self.user_data_file):
-            try:
-                with open(self.user_data_file, 'r', encoding='utf-8') as f:
-                    content = f.read().strip()
-                    if content:
-                        self.users = json.loads(content)
-                    else:
-                        self.users = {}
-            except Exception:
-                self.users = {}
-        else:
-            self.users = {}
-
-    def _save_users(self):
-        with open(self.user_data_file, 'w', encoding='utf-8') as f:
-            json.dump(self.users, f, ensure_ascii=False, indent=2)
+    def _get_conn(self):
+        """MetadataCacheのDB接続を再利用"""
+        return sqlite3.connect(self.cache.db_path)
 
     def refresh_users_from_db(self, connection_manager: Optional[ConnectionManagerODBC] = None):
         """
-        HF3IGM01テーブルからユーザー情報を取得し、user_data.jsonを更新
+        HF3IGM01テーブルからユーザー情報を取得し、SQLiteに保存
         """
         if connection_manager is None:
             connection_manager = ConnectionManagerODBC()
-        sql = """
-            SELECT USER_ID, USER_NAME FROM HF3IGM01
-        """
+        sql = "SELECT USER_ID, USER_NAME FROM HF3IGM01"
         try:
             result = connection_manager.execute_query(sql)
-            users = {}
-            for row in result:
-                user_id = row["USER_ID"]
-                user_name = row["USER_NAME"]
-                users[user_id] = {"user_id": user_id, "user_name": user_name}
-            self.users = users
-            self._save_users()
-            logger.info(f"ユーザー情報をDBから更新しました。件数: {len(users)}")
+            users = [{"user_id": row["USER_ID"], "user_name": row["USER_NAME"]} for row in result]
+            
+            # DBに保存
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM users")  # 一旦全削除
+                cursor.executemany("INSERT INTO users (user_id, user_name) VALUES (?, ?)",
+                                   [(user["user_id"], user["user_name"]) for user in users])
+                conn.commit()
+                
+            logger.info(f"ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: {len(users)}")
             return users
         except Exception as e:
-            logger.error(f"ユーザー情報のDB取得に失敗: {e}")
+            logger.error(f"ユーザー情報のDB取得・保存に失敗: {e}")
             raise
 
     def authenticate_user(self, user_id: str) -> Optional[Dict[str, Any]]:
         """
-        user_idがuser_data.jsonに存在すれば認証OK
+        SQLiteからユーザー情報を取得して認証
         """
-        self._load_users()
-        user = self.users.get(user_id)
-        if user:
-            return user
-        return None
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+                user = cursor.fetchone()
+                return dict(user) if user else None
+        except Exception as e:
+            logger.error(f"ユーザー認証エラー: {e}")
+            return None
 
     def get_all_users(self) -> List[Dict[str, Any]]:
-        self._load_users()
-        return list(self.users.values()) 
+        """
+        SQLiteから全ユーザー情報を取得
+        """
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM users ORDER BY user_id")
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error(f"全ユーザー取得エラー: {e}")
+            return [] 
