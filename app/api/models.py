@@ -262,4 +262,14 @@ class SQLExecutionLog(BaseModel):
 class SQLExecutionLogResponse(BaseModel):
     """SQL実行ログレスポンス"""
     logs: List[SQLExecutionLog] = Field(..., description="ログ一覧")
-    total_count: int = Field(..., description="総件数") 
+    total_count: int = Field(..., description="総件数")
+
+
+class VisibilitySetting(BaseModel):
+    object_name: str = Field(..., description="オブジェクト名（スキーマ名またはテーブル名）")
+    role_name: str = Field(..., description="ロール名")
+    is_visible: bool = Field(..., description="表示フラグ")
+
+
+class SaveVisibilitySettingsRequest(BaseModel):
+    settings: List[VisibilitySetting] = Field(..., description="表示設定リスト") 

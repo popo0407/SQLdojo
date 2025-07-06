@@ -26,17 +26,20 @@ class UserService:
         """
         if connection_manager is None:
             connection_manager = ConnectionManagerODBC()
-        sql = "SELECT USER_ID, USER_NAME FROM HF3IGM01"
+        # ▼ ROLE_ID をSELECTに追加
+        sql = "SELECT USER_ID, USER_NAME, ROLE_ID FROM HF3IGM01"
         try:
             result = connection_manager.execute_query(sql)
-            users = [{"user_id": row["USER_ID"], "user_name": row["USER_NAME"]} for row in result]
+            # ▼ role を追加
+            users = [{"user_id": row["USER_ID"], "user_name": row["USER_NAME"], "role": row["ROLE_ID"]} for row in result]
             
             # DBに保存
             with self._get_conn() as conn:
                 cursor = conn.cursor()
                 cursor.execute("DELETE FROM users")  # 一旦全削除
-                cursor.executemany("INSERT INTO users (user_id, user_name) VALUES (?, ?)",
-                                   [(user["user_id"], user["user_name"]) for user in users])
+                # ▼ role をINSERTに追加
+                cursor.executemany("INSERT INTO users (user_id, user_name, role) VALUES (?, ?, ?)",
+                                   [(user["user_id"], user["user_name"], user["role"]) for user in users])
                 conn.commit()
                 
             # ▼ INFOをDEBUGに変更し、件数を戻り値として返す

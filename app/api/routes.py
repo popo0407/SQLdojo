@@ -27,7 +27,7 @@ from app.api.models import (
     PerformanceMetricsResponse, ExportRequest, ExportResponse, ExportHistoryResponse,
     WarehouseInfo, DatabaseInfo, ConnectionStatusResponse, UserLoginRequest, UserInfo,
     TemplateRequest, TemplateResponse, UserRefreshResponse, AdminLoginRequest,
-    SQLExecutionLog, SQLExecutionLogResponse
+    SQLExecutionLog, SQLExecutionLogResponse, SaveVisibilitySettingsRequest
 )
 from app.sql_validator import validate_sql, format_sql
 from app.logger import get_logger, log_execution_time, get_performance_metrics
@@ -36,7 +36,7 @@ from app import __version__
 from app.dependencies import (
     SQLServiceDep, MetadataServiceDep, PerformanceServiceDep, ExportServiceDep,
     SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep, CurrentUserDep, CurrentAdminDep, SQLLogServiceDep,
-    UserServiceDep, TemplateServiceDep, AdminServiceDep
+    UserServiceDep, TemplateServiceDep, AdminServiceDep, VisibilityControlServiceDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
 from app.services.metadata_service import MetadataService
@@ -228,11 +228,23 @@ async def format_sql_endpoint(
 
 @router.get("/metadata/all", response_model=List[Dict[str, Any]])
 @log_execution_time("get_all_metadata")
-async def get_all_metadata_endpoint(metadata_service: MetadataServiceDep):
-    """全てのメタデータを取得（キャッシュ利用）"""
+async def get_all_metadata_endpoint(
+    metadata_service: MetadataServiceDep,
+    visibility_service: VisibilityControlServiceDep, # DIを追加
+    current_user: CurrentUserDep # DIを追加
+):
+    """全てのメタデータを取得（キャッシュ・表示制限利用）"""
     logger.info("全メタデータ取得要求（キャッシュ利用）")
     all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
-    return all_metadata
+    
+    # ▼ ロールに基づいてフィルタリングする処理を追加
+    user_role = current_user.get('role', 'DEFAULT')
+    filtered_metadata = await run_in_threadpool(
+        visibility_service.filter_metadata,
+        all_metadata,
+        user_role
+    )
+    return filtered_metadata
 
 
 @router.get("/metadata/initial", response_model=List[Dict[str, Any]])
@@ -598,4 +610,37 @@ async def clear_all_sql_logs(
 ):
     """全SQL実行ログをクリア（管理者用）"""
     sql_log_service.clear_logs()
-    return {"message": "全SQL実行ログをクリアしました"} 
+    return {"message": "全SQL実行ログをクリアしました"}
+
+
+# ▼▼▼ ファイルの末尾に管理者用のAPIを3つ追加 ▼▼▼
+@router.get("/admin/metadata/all-raw", response_model=List[Dict[str, Any]])
+async def get_all_metadata_raw_admin_endpoint(
+    current_admin: CurrentAdminDep,
+    metadata_service: MetadataServiceDep
+):
+    """全てのメタデータをフィルタリングせずに取得（管理者用）"""
+    logger.info("管理者による生メタデータ取得要求")
+    all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
+    return all_metadata
+
+
+@router.get("/admin/visibility-settings")
+async def get_visibility_settings(
+    current_admin: CurrentAdminDep,
+    visibility_service: VisibilityControlServiceDep,
+):
+    """全ての表示設定を取得します。"""
+    settings = await run_in_threadpool(visibility_service.get_all_settings)
+    return settings
+
+
+@router.post("/admin/visibility-settings")
+async def save_visibility_settings(
+    request: SaveVisibilitySettingsRequest,
+    current_admin: CurrentAdminDep,
+    visibility_service: VisibilityControlServiceDep,
+):
+    """表示設定を保存します。"""
+    await run_in_threadpool(visibility_service.save_settings, request.settings)
+    return {"message": "表示設定を保存しました。"} 

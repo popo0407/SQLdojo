@@ -23,6 +23,7 @@ from app.services.user_service import UserService
 from app.services.template_service import TemplateService
 from app.services.sql_log_service import SQLLogService
 from app.services.admin_service import AdminService
+from app.services.visibility_control_service import VisibilityControlService
 
 
 # 設定の依存性注入
@@ -137,6 +138,8 @@ def get_current_user(request: Request):
     user = request.session.get("user")
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="未ログインです")
+    if 'role' not in user:
+        user['role'] = 'DEFAULT' # 古いセッションの場合のフォールバック
     return user
 
 
@@ -166,6 +169,14 @@ def get_admin_service_di(
     return AdminService(user_service, metadata_service)
 
 
+# VisibilityControlServiceの依存性注入を追加
+def get_visibility_control_service_di(
+    metadata_cache: Annotated[MetadataCache, Depends(get_metadata_cache_di)]
+) -> VisibilityControlService:
+    """VisibilityControlServiceのインスタンスを取得"""
+    return VisibilityControlService(metadata_cache)
+
+
 # 型エイリアス（使用例）
 ConnectionManagerDep = Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)]
 QueryExecutorDep = Annotated[QueryExecutor, Depends(get_query_executor_di)]
@@ -182,4 +193,5 @@ MetadataCacheDep = Annotated[MetadataCache, Depends(get_metadata_cache_di)]
 CurrentUserDep = Annotated[dict, Depends(get_current_user)]
 CurrentAdminDep = Annotated[bool, Depends(get_current_admin)]
 SQLLogServiceDep = Annotated[SQLLogService, Depends(get_sql_log_service_di)] 
-AdminServiceDep = Annotated[AdminService, Depends(get_admin_service_di)] 
+AdminServiceDep = Annotated[AdminService, Depends(get_admin_service_di)]
+VisibilityControlServiceDep = Annotated[VisibilityControlService, Depends(get_visibility_control_service_di)] 

@@ -809,6 +809,11 @@ function loadTemplate(type, sql) {
         appController.getEditorService().setValue(sql);
         appController.getUiService().showInfo(`${type === 'user' ? '個人用' : '共通'}テンプレートを読み込みました`);
     }
+    // テンプレート候補ウィンドウを閉じる
+    const dropdown = document.getElementById('template-dropdown');
+    if (dropdown) {
+        dropdown.style.display = 'none';
+    }
 }
 
 function showKeyboardShortcuts() {

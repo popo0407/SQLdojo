@@ -4790,3 +4790,381 @@ WHERE 1 = 1
 2025-07-06 08:07:00,701 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
 2025-07-06 08:07:00,703 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
 2025-07-06 08:07:54,913 - main - INFO - アプリケーション終了
+2025-07-06 08:26:01,365 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 08:26:01,367 - main - INFO - アプリケーション起動
+2025-07-06 08:26:01,369 - main - INFO - 設定情報
+2025-07-06 08:26:06,282 - main - INFO - GET /
+2025-07-06 08:26:06,610 - main - INFO - GET /static/css/style.css
+2025-07-06 08:26:06,631 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:26:06,647 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 08:26:06,650 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 08:26:06,663 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 08:26:06,664 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 08:26:06,770 - main - INFO - GET /static/js/app_new.js
+2025-07-06 08:26:07,848 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:26:07,863 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:26:07,971 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:26:07,989 - main - INFO - GET /favicon.ico
+2025-07-06 08:26:08,021 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:26:08,027 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:26:08,050 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:26:08,058 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 36.9ms)
+2025-07-06 08:26:08,061 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:26:08,116 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:26:08,124 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:26:15,833 - main - INFO - POST /api/v1/admin/login
+2025-07-06 08:26:15,963 - main - INFO - GET /admin
+2025-07-06 08:26:16,061 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:26:16,065 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:26:16,082 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:26:16,095 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:27:34,381 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:27:34,383 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:32:01,424 - main - INFO - アプリケーション終了
+2025-07-06 08:32:08,678 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 08:32:08,680 - main - INFO - アプリケーション起動
+2025-07-06 08:32:08,682 - main - INFO - 設定情報
+2025-07-06 08:32:17,983 - main - INFO - GET /admin
+2025-07-06 08:32:18,105 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:32:18,143 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:32:18,360 - main - INFO - GET /static/css/style.css
+2025-07-06 08:32:18,363 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:32:18,508 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:32:18,540 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:32:18,645 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:32:18,727 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:32:19,028 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:32:19,029 - main - INFO - GET /favicon.ico
+2025-07-06 08:33:02,296 - main - INFO - GET /
+2025-07-06 08:33:02,719 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:33:02,722 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:33:02,735 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 08:33:02,838 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 08:33:03,249 - main - INFO - GET /static/js/app_new.js
+2025-07-06 08:33:05,200 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:33:05,203 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:33:05,487 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:33:05,492 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:33:05,516 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:33:05,538 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 51.9ms)
+2025-07-06 08:33:05,559 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:33:05,684 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:33:05,688 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:33:13,687 - main - INFO - GET /
+2025-07-06 08:33:14,119 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:33:14,150 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:33:14,194 - main - INFO - GET /static/css/style.css
+2025-07-06 08:33:14,201 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:33:14,206 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 08:33:14,218 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 08:33:14,225 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 08:33:14,227 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 08:33:14,292 - main - INFO - GET /static/js/app_new.js
+2025-07-06 08:33:16,968 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:33:16,996 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:33:17,034 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:33:17,042 - main - INFO - GET /favicon.ico
+2025-07-06 08:33:17,143 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:33:17,144 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:33:17,171 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:33:17,175 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 31.9ms)
+2025-07-06 08:33:17,177 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:33:17,203 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:33:17,225 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:34:21,270 - main - INFO - GET /
+2025-07-06 08:34:21,550 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:34:21,588 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:34:21,739 - main - INFO - GET /static/css/style.css
+2025-07-06 08:34:21,770 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:34:21,859 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 08:34:21,913 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 08:34:21,916 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 08:34:21,931 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 08:34:22,019 - main - INFO - GET /static/js/app_new.js
+2025-07-06 08:34:23,641 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:34:23,645 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:34:23,893 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:34:23,896 - main - INFO - GET /favicon.ico
+2025-07-06 08:34:23,931 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:34:23,938 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:34:23,990 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:34:24,021 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 89.8ms)
+2025-07-06 08:34:24,040 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:34:24,108 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:34:24,133 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:43:34,428 - main - INFO - アプリケーション終了
+2025-07-06 08:43:43,101 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 08:43:43,104 - main - INFO - アプリケーション起動
+2025-07-06 08:43:43,105 - main - INFO - 設定情報
+2025-07-06 08:44:26,640 - main - INFO - GET /
+2025-07-06 08:44:26,767 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:44:26,870 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:44:27,419 - main - INFO - GET /static/css/style.css
+2025-07-06 08:44:27,420 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:44:27,421 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 08:44:27,423 - main - INFO - GET /static/js/services/apiService.js
+2025-07-06 08:44:27,430 - main - INFO - GET /static/js/services/editorService.js
+2025-07-06 08:44:27,443 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 08:44:27,544 - main - INFO - GET /static/js/app_new.js
+2025-07-06 08:44:29,414 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:44:29,429 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:44:29,497 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:44:29,624 - main - INFO - GET /favicon.ico
+2025-07-06 08:44:29,678 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:44:29,733 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:44:29,778 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:44:29,791 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 113.7ms)
+2025-07-06 08:44:29,809 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:44:29,913 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:44:29,917 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:46:55,583 - main - INFO - POST /api/v1/admin/login
+2025-07-06 08:46:55,976 - main - INFO - GET /admin
+2025-07-06 08:46:56,142 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:46:56,159 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-06 08:46:56,315 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:46:56,445 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:46:56,595 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:46:56,644 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 08:46:56,670 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:46:56,671 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:46:56,711 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 08:46:56,733 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:46:56,766 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 08:47:27,730 - app.services.visibility_control_service - ERROR - 表示設定の保存エラー
+2025-07-06 08:47:27,732 - app.api.error_handlers - ERROR - 予期しない例外: 'VisibilitySetting' object is not subscriptable
+2025-07-06 08:49:43,192 - main - INFO - アプリケーション終了
+2025-07-06 08:49:50,411 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 08:49:50,413 - main - INFO - アプリケーション起動
+2025-07-06 08:49:50,415 - main - INFO - 設定情報
+2025-07-06 08:49:55,545 - main - INFO - GET /admin
+2025-07-06 08:49:55,807 - main - INFO - GET /static/css/style.css
+2025-07-06 08:49:55,810 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:49:55,864 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:49:55,946 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:49:55,965 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:49:55,986 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 08:49:55,995 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:49:55,994 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:49:56,010 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 08:49:56,046 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:49:56,049 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 08:49:56,253 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:49:56,254 - main - INFO - GET /favicon.ico
+2025-07-06 08:50:09,931 - app.services.visibility_control_service - ERROR - 表示設定の保存エラー
+2025-07-06 08:50:09,932 - app.api.error_handlers - ERROR - 予期しない例外: NOT NULL constraint failed: visibility_settings.object_type
+2025-07-06 08:51:00,068 - main - INFO - アプリケーション終了
+2025-07-06 08:51:19,057 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 08:51:19,060 - main - INFO - アプリケーション起動
+2025-07-06 08:51:19,061 - main - INFO - 設定情報
+2025-07-06 08:51:21,816 - main - INFO - GET /admin
+2025-07-06 08:51:22,062 - main - INFO - GET /static/css/style.css
+2025-07-06 08:51:22,067 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:51:22,238 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:51:22,257 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:51:22,288 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:51:22,351 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 08:51:22,372 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 08:51:22,370 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:51:22,383 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:51:22,450 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:51:22,466 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 08:51:22,578 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:51:22,584 - main - INFO - GET /favicon.ico
+2025-07-06 08:51:32,044 - app.services.visibility_control_service - INFO - 表示設定を 12 件保存しました。
+2025-07-06 08:51:32,046 - main - INFO - POST /api/v1/admin/visibility-settings
+2025-07-06 08:51:36,649 - main - INFO - GET /
+2025-07-06 08:51:36,743 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 08:51:36,821 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 08:51:36,909 - main - INFO - GET /static/js/app_new.js
+2025-07-06 08:51:37,685 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:51:37,719 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:51:37,886 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:51:37,887 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:51:37,901 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:51:37,904 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 18.0ms)
+2025-07-06 08:51:37,906 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:51:37,938 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:51:37,956 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:51:41,575 - main - INFO - POST /api/v1/logout
+2025-07-06 08:51:41,902 - main - INFO - GET /login
+2025-07-06 08:51:46,677 - main - INFO - POST /api/v1/login
+2025-07-06 08:51:46,711 - main - INFO - GET /
+2025-07-06 08:51:47,217 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:51:47,223 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:51:47,393 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:51:47,418 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:51:47,434 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:51:47,441 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 47.9ms)
+2025-07-06 08:51:47,504 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:51:47,539 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:51:47,542 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:51:57,899 - main - INFO - POST /api/v1/admin/login
+2025-07-06 08:51:58,047 - main - INFO - GET /admin
+2025-07-06 08:51:58,150 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:51:58,159 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:51:58,171 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:51:58,250 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 08:51:58,252 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:51:58,251 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:51:58,266 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 08:51:58,286 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:51:58,288 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 08:52:12,433 - app.api.routes - INFO - 管理者によるシステムキャッシュ更新要求
+2025-07-06 08:52:12,434 - app.services.admin_service - INFO - システム全体のキャッシュ更新処理を開始します。
+2025-07-06 08:52:12,437 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 08:52:15,969 - UserService - ERROR - ユーザー情報のDB取得・保存に失敗: table users has no column named role
+2025-07-06 08:52:15,971 - app.services.admin_service - ERROR - ユーザー情報の更新中にエラーが発生しました: table users has no column named role
+2025-07-06 08:52:15,972 - app.api.routes - ERROR - システムキャッシュ更新エラー: table users has no column named role
+2025-07-06 08:52:15,973 - app.api.error_handlers - ERROR - HTTP例外: システムキャッシュの更新に失敗しました: table users has no column named role
+2025-07-06 08:52:15,975 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 08:53:19,136 - main - INFO - アプリケーション終了
+2025-07-06 08:53:40,809 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 08:53:40,811 - main - INFO - アプリケーション起動
+2025-07-06 08:53:40,812 - main - INFO - 設定情報
+2025-07-06 08:53:46,422 - main - INFO - GET /admin
+2025-07-06 08:53:46,614 - main - INFO - GET /static/css/style.css
+2025-07-06 08:53:46,622 - main - INFO - GET /static/img/hint.png
+2025-07-06 08:53:47,016 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:53:47,035 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:53:47,056 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:53:47,219 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 08:53:47,222 - main - INFO - GET /favicon.ico
+2025-07-06 08:53:47,413 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 08:53:47,417 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:53:47,437 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 08:53:47,429 - app.services.metadata_service - WARNING - キャッシュにデータがないため、モックデータを返します
+2025-07-06 08:53:47,457 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 08:53:47,486 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:53:49,093 - app.api.routes - INFO - 管理者によるシステムキャッシュ更新要求
+2025-07-06 08:53:49,097 - app.services.admin_service - INFO - システム全体のキャッシュ更新処理を開始します。
+2025-07-06 08:53:49,099 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;
+2025-07-06 08:53:54,456 - UserService - DEBUG - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-06 08:53:54,460 - app.services.metadata_service - DEBUG - メタデータキャッシュの強制更新を開始
+2025-07-06 08:53:54,461 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-06 08:53:55,122 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 08:53:55,822 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 08:53:56,687 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 08:53:56,688 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-06 08:53:56,726 - app.metadata_cache - DEBUG - メタデータキャッシュを更新しました
+2025-07-06 08:53:56,735 - app.services.metadata_service - DEBUG - メタデータキャッシュの更新が完了。スキーマ数: 2
+2025-07-06 08:53:56,739 - app.services.admin_service - INFO - システムキャッシュの更新が完了しました。(更新件数: ユーザー=11件, DBスキーマ=2件)
+2025-07-06 08:53:56,755 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 08:54:04,402 - main - INFO - GET /admin
+2025-07-06 08:54:04,500 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:54:04,589 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:54:04,609 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:54:04,647 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 08:54:04,653 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:54:04,653 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:54:04,663 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 08:54:04,680 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:54:04,686 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 08:54:14,442 - app.services.visibility_control_service - INFO - 表示設定を 12 件保存しました。
+2025-07-06 08:54:14,445 - main - INFO - POST /api/v1/admin/visibility-settings
+2025-07-06 08:54:17,323 - main - INFO - GET /
+2025-07-06 08:54:17,414 - main - INFO - GET /static/js/app_new.js
+2025-07-06 08:54:17,893 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 08:54:17,896 - main - INFO - GET /api/v1/connection/status
+2025-07-06 08:54:17,993 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 08:54:18,026 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:54:18,159 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:54:18,164 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 170.5ms)
+2025-07-06 08:54:18,165 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 08:54:18,206 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:54:18,212 - main - INFO - GET /api/v1/users/templates
+2025-07-06 08:54:25,961 - main - INFO - POST /api/v1/admin/login
+2025-07-06 08:54:26,035 - main - INFO - GET /admin
+2025-07-06 08:54:26,151 - main - INFO - GET /api/v1/users/me
+2025-07-06 08:54:26,201 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 08:54:26,216 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 08:54:26,263 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 08:54:26,266 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 08:54:26,269 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 08:54:26,277 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 08:54:26,297 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 08:54:26,302 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 08:54:29,382 - app.services.visibility_control_service - INFO - 表示設定を 12 件保存しました。
+2025-07-06 08:54:29,384 - main - INFO - POST /api/v1/admin/visibility-settings
+2025-07-06 08:54:32,215 - app.api.routes - INFO - 管理者によるシステムキャッシュ更新要求
+2025-07-06 08:54:32,217 - app.services.admin_service - INFO - システム全体のキャッシュ更新処理を開始します。
+2025-07-06 08:54:32,350 - UserService - DEBUG - ユーザー情報をDBから更新し、キャッシュDBに保存しました。件数: 11
+2025-07-06 08:54:32,352 - app.services.metadata_service - DEBUG - メタデータキャッシュの強制更新を開始
+2025-07-06 08:54:32,352 - app.services.metadata_service - INFO - Snowflakeからメタデータを直接取得開始
+2025-07-06 08:54:32,906 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 08:54:33,769 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 08:54:34,685 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-06 08:54:34,686 - app.services.metadata_service - INFO - Snowflakeからメタデータ取得完了
+2025-07-06 08:54:34,796 - app.metadata_cache - DEBUG - メタデータキャッシュを更新しました
+2025-07-06 08:54:34,797 - app.services.metadata_service - DEBUG - メタデータキャッシュの更新が完了。スキーマ数: 2
+2025-07-06 08:54:34,798 - app.services.admin_service - INFO - システムキャッシュの更新が完了しました。(更新件数: ユーザー=11件, DBスキーマ=2件)
+2025-07-06 08:54:34,801 - main - INFO - POST /api/v1/admin/system/refresh
+2025-07-06 08:55:07,970 - main - INFO - アプリケーション終了
+2025-07-06 09:03:12,394 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-06 09:03:12,418 - main - INFO - アプリケーション起動
+2025-07-06 09:03:12,419 - main - INFO - 設定情報
+2025-07-06 09:03:34,671 - main - INFO - GET /admin
+2025-07-06 09:03:34,966 - main - INFO - GET /static/css/style.css
+2025-07-06 09:03:34,985 - main - INFO - GET /static/img/hint.png
+2025-07-06 09:03:35,098 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 09:03:35,100 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 09:03:35,156 - main - INFO - GET /api/v1/users/me
+2025-07-06 09:03:35,287 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 09:03:35,296 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 09:03:35,301 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 09:03:35,303 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 09:03:35,328 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 09:03:35,351 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 09:03:35,413 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-06 09:03:35,415 - main - INFO - GET /favicon.ico
+2025-07-06 09:03:39,268 - main - INFO - GET /
+2025-07-06 09:03:39,367 - main - INFO - GET /static/js/services/uiService.js
+2025-07-06 09:03:39,379 - main - INFO - GET /static/js/app_new.js
+2025-07-06 09:03:39,395 - main - INFO - GET /static/js/services/stateService.js
+2025-07-06 09:03:39,918 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 09:03:39,920 - main - INFO - GET /api/v1/connection/status
+2025-07-06 09:03:40,017 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 09:03:40,034 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 09:03:40,046 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 09:03:40,049 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 31.9ms)
+2025-07-06 09:03:40,051 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 09:03:40,154 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 09:03:40,177 - main - INFO - GET /api/v1/users/templates
+2025-07-06 09:03:58,446 - main - INFO - POST /api/v1/admin/login
+2025-07-06 09:03:58,509 - main - INFO - GET /admin
+2025-07-06 09:03:58,629 - app.api.error_handlers - DEBUG - 404 Not Found: /api/v1/admin/users/refresh
+2025-07-06 09:03:58,677 - main - INFO - POST /api/v1/admin/users/refresh
+2025-07-06 09:03:58,692 - main - INFO - GET /api/v1/users/me
+2025-07-06 09:03:58,718 - app.api.routes - INFO - 管理者による生メタデータ取得要求
+2025-07-06 09:03:58,723 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 09:03:58,729 - main - INFO - GET /api/v1/admin/visibility-settings
+2025-07-06 09:03:58,725 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 09:03:58,756 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 09:03:58,764 - main - INFO - GET /api/v1/admin/metadata/all-raw
+2025-07-06 09:06:38,097 - main - INFO - POST /api/v1/logout
+2025-07-06 09:06:38,194 - main - INFO - GET /login
+2025-07-06 09:06:44,694 - main - INFO - POST /api/v1/login
+2025-07-06 09:06:44,731 - main - INFO - GET /
+2025-07-06 09:06:45,020 - main - INFO - GET /static/js/app_new.js
+2025-07-06 09:06:45,451 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 09:06:45,453 - main - INFO - GET /api/v1/connection/status
+2025-07-06 09:06:45,595 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 09:06:45,618 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 09:06:45,632 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 09:06:45,636 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 40.9ms)
+2025-07-06 09:06:45,638 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 09:06:45,700 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 09:06:45,704 - main - INFO - GET /api/v1/users/templates
+2025-07-06 09:06:48,951 - main - INFO - POST /api/v1/logout
+2025-07-06 09:06:48,984 - main - INFO - GET /login
+2025-07-06 09:06:54,257 - main - INFO - POST /api/v1/login
+2025-07-06 09:06:54,356 - main - INFO - GET /
+2025-07-06 09:06:54,793 - app.api.routes - INFO - 接続状態確認要求
+2025-07-06 09:06:54,797 - main - INFO - GET /api/v1/connection/status
+2025-07-06 09:06:54,847 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-06 09:06:54,850 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-06 09:06:54,870 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-06 09:06:54,913 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 65.8ms)
+2025-07-06 09:06:54,926 - main - INFO - GET /api/v1/metadata/all
+2025-07-06 09:06:55,036 - main - INFO - GET /api/v1/users/templates
+2025-07-06 09:06:55,042 - main - INFO - GET /api/v1/admin/templates
+2025-07-06 09:07:28,084 - main - INFO - アプリケーション終了

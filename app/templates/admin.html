@@ -121,6 +121,29 @@
                 </div>
                 <div id="template-status" class="status-message" style="display:none;"></div>
             </div>
+
+            <!-- メタデータ表示制御 -->
+            <div class="admin-card">
+                <h5><i class="fas fa-eye-slash"></i> メタデータ表示制御</h5>
+                <p>ロールごとに表示するスキーマ・テーブルを制限します。「DEFAULT」列は、どのロールにも個別設定がない場合の共通設定です。</p>
+                <div class="d-flex justify-content-between mb-3">
+                    <div>
+                        <button class="btn-admin" id="add-role-btn"><i class="fas fa-plus"></i> ロール列を追加</button>
+                    </div>
+                    <div>
+                        <button class="btn-admin btn-success" id="save-visibility-btn"><i class="fas fa-save"></i> 設定を保存</button>
+                    </div>
+                </div>
+                <div id="visibility-status" class="status-message" style="display:none;"></div>
+                <div class="table-responsive" style="max-height: 600px;">
+                    <table class="table table-bordered table-hover" id="visibility-table">
+                        <thead class="table-light" style="position: sticky; top: 0;">
+                            </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>
@@ -138,6 +161,7 @@
         checkAdminAuth();
         if (window.is_admin === "true") {
             loadTemplates();
+            loadVisibilitySettings();
         }
     });
 
@@ -453,6 +477,139 @@
         if (!requireAdminAuth()) return;
         saveTemplate();
     }
+
+    async function loadVisibilitySettings() {
+        const statusDiv = document.getElementById('visibility-status');
+        statusDiv.textContent = '設定情報を読み込み中...';
+        statusDiv.className = 'status-message';
+        statusDiv.style.display = 'block';
+
+        try {
+            const [metaRes, settingsRes] = await Promise.all([
+                fetch('/api/v1/admin/metadata/all-raw'),
+                fetch('/api/v1/admin/visibility-settings')
+            ]);
+
+            if (!metaRes.ok || !settingsRes.ok) throw new Error('データ読み込みに失敗');
+            
+            const allMetadata = await metaRes.json();
+            const visibilitySettings = await settingsRes.json();
+
+            buildVisibilityTable(allMetadata, visibilitySettings);
+            statusDiv.style.display = 'none';
+
+        } catch (error) {
+            statusDiv.textContent = `エラー: ${error.message}`;
+            statusDiv.className = 'status-message status-error';
+        }
+    }
+
+    function buildVisibilityTable(allMetadata, settings) {
+        const table = document.getElementById('visibility-table');
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+
+        const roles = new Set(['DEFAULT']);
+        Object.values(settings).forEach(obj => Object.keys(obj).forEach(role => roles.add(role)));
+        const sortedRoles = Array.from(roles).sort((a, b) => a === 'DEFAULT' ? -1 : b === 'DEFAULT' ? 1 : a.localeCompare(b));
+
+        // Header
+        let headerHtml = '<tr><th style="min-width: 300px;">オブジェクト</th>';
+        sortedRoles.forEach(role => {
+            headerHtml += `<th class="text-center">${escapeHtml(role)}</th>`;
+        });
+        headerHtml += '</tr>';
+        thead.innerHTML = headerHtml;
+
+        // Body
+        allMetadata.forEach(schema => {
+            const schemaName = schema.name;
+            let schemaRowHtml = `<tr><td><strong><i class="fas fa-database"></i> ${escapeHtml(schemaName)}</strong></td>`;
+            sortedRoles.forEach(role => {
+                const isVisible = settings[schemaName]?.[role] ?? true;
+                schemaRowHtml += `<td class="text-center"><input type="checkbox" class="form-check-input" data-object-name="${escapeHtml(schemaName)}" data-role-name="${escapeHtml(role)}" ${isVisible ? 'checked' : ''}></td>`;
+            });
+            schemaRowHtml += '</tr>';
+            tbody.innerHTML += schemaRowHtml;
+
+            (schema.tables || []).forEach(tableData => {
+                const tableName = tableData.name;
+                const tableComment = tableData.comment || ''; // ★テーブルコメントを取得
+                const fullTableName = `${schemaName}.${tableName}`;
+                // ▼ テーブル名とコメントを表示
+                let tableRowHtml = `<tr><td class="ps-4" title="${escapeHtml(tableComment)}"><i class="fas fa-table"></i> ${escapeHtml(tableName)}`;
+                if (tableComment) {
+                    tableRowHtml += ` <small class="text-muted">(${escapeHtml(tableComment)})</small>`;
+                }
+                tableRowHtml += `</td>`;
+                sortedRoles.forEach(role => {
+                    const isVisible = settings[fullTableName]?.[role] ?? true;
+                    tableRowHtml += `<td class="text-center"><input type="checkbox" class="form-check-input" data-object-name="${fullTableName}" data-role-name="${escapeHtml(role)}" ${isVisible ? 'checked' : ''}></td>`;
+                });
+                tableRowHtml += '</tr>';
+                tbody.innerHTML += tableRowHtml;
+            });
+        });
+        
+        // Event Listeners
+        document.getElementById('add-role-btn').onclick = () => {
+            const newRole = prompt('追加するロール名を入力してください:');
+            if (newRole && !roles.has(newRole)) {
+                // テーブルを再構築はせず、動的に列を追加する
+                const newHeader = document.createElement('th');
+                newHeader.className = 'text-center';
+                newHeader.textContent = escapeHtml(newRole);
+                thead.querySelector('tr').appendChild(newHeader);
+
+                tbody.querySelectorAll('tr').forEach(tr => {
+                    const objNameInput = tr.querySelector('input');
+                    if(objNameInput) {
+                        const objName = objNameInput.dataset.objectName;
+                        const newCell = document.createElement('td');
+                        newCell.className = 'text-center';
+                        newCell.innerHTML = `<input type="checkbox" class="form-check-input" data-object-name="${escapeHtml(objName)}" data-role-name="${escapeHtml(newRole)}" checked>`;
+                        tr.appendChild(newCell);
+                    }
+                });
+            }
+        };
+
+        document.getElementById('save-visibility-btn').onclick = saveVisibilitySettings;
+    }
+
+    async function saveVisibilitySettings() {
+        const statusDiv = document.getElementById('visibility-status');
+        const checkboxes = document.querySelectorAll('#visibility-table tbody input[type="checkbox"]');
+        const settingsToSave = Array.from(checkboxes).map(cb => ({
+            object_name: cb.dataset.objectName,
+            role_name: cb.dataset.roleName,
+            is_visible: cb.checked
+        }));
+
+        statusDiv.textContent = '設定を保存中...';
+        statusDiv.className = 'status-message';
+        statusDiv.style.display = 'block';
+
+        try {
+            const response = await fetch('/api/v1/admin/visibility-settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: settingsToSave })
+            });
+
+            if (!response.ok) throw new Error('保存に失敗しました');
+
+            statusDiv.textContent = '設定を保存しました。';
+            statusDiv.className = 'status-message status-success';
+
+        } catch (error) {
+            statusDiv.textContent = `エラー: ${error.message}`;
+            statusDiv.className = 'status-message status-error';
+        }
+    }
+
     </script>
 </body>
 </html> 

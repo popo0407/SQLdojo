@@ -68,11 +68,12 @@ class MetadataCache:
                 )
                 """)
                 
-                # ユーザー情報を保存するテーブル
+                # ユーザー情報を保存するテーブル (roleカラムを追加)
                 cursor.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     user_id TEXT PRIMARY KEY,
-                    user_name TEXT NOT NULL
+                    user_name TEXT NOT NULL,
+                    role TEXT
                 )
                 """)
 
@@ -95,6 +96,19 @@ class MetadataCache:
                     name TEXT NOT NULL,
                     sql TEXT NOT NULL,
                     created_at TEXT NOT NULL
+                )
+                """)
+                
+                # ▼▼▼ 以下を末尾に追加 ▼▼▼
+                # 表示制御設定を保存するテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS visibility_settings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    object_type TEXT NOT NULL,
+                    object_name TEXT NOT NULL,
+                    role_name TEXT NOT NULL,
+                    is_visible INTEGER NOT NULL,
+                    UNIQUE(object_name, role_name)
                 )
                 """)
                 
