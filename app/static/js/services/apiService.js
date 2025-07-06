@@ -17,7 +17,8 @@ class ApiService {
         const response = await fetch(`${this.baseUrl}${endpoint}`, options);
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            const errorMessage = errorData.detail || `API Error: ${response.statusText}`;
+            // エラーメッセージの優先順位: message > detail > statusText
+            const errorMessage = errorData.message || errorData.detail || `API Error: ${response.statusText}`;
             throw new Error(errorMessage);
         }
         // CSVエクスポートのようなケースではblobを返す

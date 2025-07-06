@@ -82,9 +82,21 @@ class SQLService:
             # SQLバリデーション
             validation_result = self.validate_sql(sql)
             if not validation_result.is_valid:
+                # エラーメッセージを具体化
+                error_messages = []
+                for error in validation_result.errors:
+                    if "FROM句が必要です" in error:
+                        error_messages.append("FROM句が必要です。対象テーブルを指定してください。例: SELECT * FROM table_name")
+                    elif "WHERE句が必要です" in error:
+                        error_messages.append("WHERE句が必要です。大量データの取得を防ぐため、条件を指定してください。例: WHERE column_name = 'value'")
+                    elif "SELECT句が必要です" in error:
+                        error_messages.append("SELECT句が必要です。取得するカラムを指定してください。例: SELECT column1, column2")
+                    else:
+                        error_messages.append(error)
+                
                 return SQLExecutionResult(
                     success=False,
-                    error_message=f"SQLバリデーションエラー: {'; '.join(validation_result.errors)}",
+                    error_message="; ".join(error_messages),
                     sql=sql,
                     execution_time=time.time() - start_time
                 )

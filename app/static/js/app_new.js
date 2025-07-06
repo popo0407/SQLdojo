@@ -436,13 +436,15 @@ class AppController {
                 // SQL実行成功時にエディタを最小化
                 this.minimizeEditor();
                 
-                this.uiService.showSuccess('SQLを実行しました');
+                // 成功メッセージは表示しない（ユーザーが見た目で実行成功がわかるため）
             } else {
                 throw new Error(result.error_message || 'SQLの実行に失敗しました');
             }
         } catch (error) {
             console.error('SQL実行エラー:', error);
-            this.uiService.showError(`SQL実行エラー: ${error.message}`);
+            // エラーメッセージから「SQL実行エラー:」プレフィックスを除去
+            const errorMessage = error.message.replace(/^SQL実行エラー:\s*/, '');
+            this.uiService.showError(errorMessage);
         } finally {
             this.uiService.showLoading(false);
         }
@@ -459,10 +461,12 @@ class AppController {
 
         try {
             await this.editorService.format();
-            this.uiService.showSuccess('SQLを整形しました');
+            // 成功メッセージは表示しない（ユーザーが見た目で整形成功がわかるため）
         } catch (error) {
             console.error('SQL整形エラー:', error);
-            this.uiService.showError(`SQL整形エラー: ${error.message}`);
+            // エラーメッセージから「SQL整形エラー:」プレフィックスを除去
+            const errorMessage = error.message.replace(/^SQL整形エラー:\s*/, '');
+            this.uiService.showError(errorMessage);
         }
     }
 
@@ -472,7 +476,7 @@ class AppController {
     clearSQL() {
         if (this.editorService.isReady()) {
             this.editorService.clear();
-            this.uiService.showInfo('SQLをクリアしました');
+            // 成功メッセージは表示しない（ユーザーが見た目でクリア成功がわかるため）
         }
     }
 
@@ -494,7 +498,9 @@ class AppController {
             this.uiService.showSuccess(`${format.toUpperCase()}ファイルをダウンロードしました`);
         } catch (error) {
             console.error('エクスポートエラー:', error);
-            this.uiService.showError(`エクスポートエラー: ${error.message}`);
+            // エラーメッセージから「エクスポートエラー:」プレフィックスを除去
+            const errorMessage = error.message.replace(/^エクスポートエラー:\s*/, '');
+            this.uiService.showError(errorMessage);
         } finally {
             this.uiService.showLoading(false);
         }
@@ -582,10 +588,12 @@ class AppController {
         try {
             await this.apiService.saveUserTemplate(name, sql);
             await this.loadAllTemplates(); // テンプレート一覧を再読み込み
-            this.uiService.showSuccess('テンプレートを保存しました');
+            // 成功メッセージは表示しない（ユーザーが見た目で保存成功がわかるため）
         } catch (error) {
             console.error('テンプレート保存エラー:', error);
-            this.uiService.showError(`テンプレート保存エラー: ${error.message}`);
+            // エラーメッセージから「テンプレート保存エラー:」プレフィックスを除去
+            const errorMessage = error.message.replace(/^テンプレート保存エラー:\s*/, '');
+            this.uiService.showError(errorMessage);
         }
     }
 

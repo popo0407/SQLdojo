@@ -59,44 +59,105 @@ class UiService {
     }
 
     /**
-     * ポップアップ通知を表示
+     * ポップアップ通知を表示 - 改善版
      * @param {string} message - 表示するメッセージ
      * @param {string} type - 通知タイプ（info, success, warning, error）
      * @param {number} duration - 表示時間（ミリ秒）
      */
-    showPopupNotification(message, type = 'info', duration = 3000) {
+    showPopupNotification(message, type = 'info', duration = 4000) {
         // 既存の通知を削除
         this.clearNotificationOverlay();
         
-        // 新しい通知オーバーレイを作成
-        this.notificationOverlay = document.createElement('div');
-        this.notificationOverlay.className = 'notification-overlay';
-        this.notificationOverlay.innerHTML = `
-            <div class="notification-popup notification-${type}">
-                <div class="notification-content">
-                    <i class="fas fa-${this.getNotificationIcon(type)} me-2"></i>
-                    <span>${this.escapeHtml(message)}</span>
+        // メッセージがオブジェクトの場合は文字列に変換
+        let displayMessage = message;
+        if (typeof message === 'object' && message !== null) {
+            if (message.message) {
+                displayMessage = message.message;
+            } else if (message.detail) {
+                displayMessage = message.detail;
+            } else {
+                displayMessage = JSON.stringify(message);
+            }
+        } else if (typeof message !== 'string') {
+            displayMessage = String(message);
+        }
+        
+        // 通知タイプに応じたタイトルとアイコンを設定
+        const notificationConfig = this.getNotificationConfig(type);
+        
+        // 新しい通知を作成
+        const notification = document.createElement('div');
+        notification.className = `popup-notification popup-${type}`;
+        notification.innerHTML = `
+            <div class="notification-header">
+                <div class="notification-icon">
+                    <i class="fas fa-${notificationConfig.icon}"></i>
                 </div>
-                <button type="button" class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                <div class="notification-text">
+                    <div class="notification-title">${notificationConfig.title}</div>
+                    <div class="notification-message">${this.escapeHtml(displayMessage)}</div>
+                </div>
+                <button type="button" class="notification-close" onclick="this.parentElement.remove()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         `;
         
-        document.body.appendChild(this.notificationOverlay);
+        document.body.appendChild(notification);
         
-        // 自動で削除
+        // 即座に消去するためのイベントリスナーを追加
+        const closeButton = notification.querySelector('.notification-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                notification.remove();
+            });
+        }
+
+        // フェードアウトアニメーション
         setTimeout(() => {
-            this.clearNotificationOverlay();
+            notification.classList.add('fade-out');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 200);
         }, duration);
     }
 
     /**
-     * エラーオーバーレイを表示
+     * 通知タイプに応じた設定を取得
+     * @param {string} type - 通知タイプ
+     * @returns {Object} 通知設定
+     */
+    getNotificationConfig(type) {
+        const configs = {
+            success: {
+                title: '成功',
+                icon: 'check-circle'
+            },
+            error: {
+                title: 'エラー',
+                icon: 'exclamation-triangle'
+            },
+            warning: {
+                title: '警告',
+                icon: 'exclamation-circle'
+            },
+            info: {
+                title: '情報',
+                icon: 'info-circle'
+            }
+        };
+        
+        return configs[type] || configs.info;
+    }
+
+    /**
+     * エラーオーバーレイを表示 - 改善版
      * @param {string} message - エラーメッセージ
      * @param {number} duration - 表示時間（ミリ秒）
      */
-    showErrorOverlay(message, duration = 5000) {
+    showErrorOverlay(message, duration = 6000) {
         this.clearErrorOverlay();
         
         this.errorOverlay = document.createElement('div');
@@ -104,15 +165,15 @@ class UiService {
         this.errorOverlay.innerHTML = `
             <div class="error-popup">
                 <div class="error-header">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span>エラー</span>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>エラーが発生しました</span>
                 </div>
                 <div class="error-content">
                     ${this.escapeHtml(message)}
                 </div>
                 <div class="error-footer">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.parentElement.parentElement.remove()">
-                        閉じる
+                    <button type="button" class="btn btn-danger" onclick="this.parentElement.parentElement.parentElement.remove()">
+                        <i class="fas fa-times me-2"></i>閉じる
                     </button>
                 </div>
             </div>
@@ -120,6 +181,7 @@ class UiService {
         
         document.body.appendChild(this.errorOverlay);
         
+        // 自動で閉じる
         setTimeout(() => {
             this.clearErrorOverlay();
         }, duration);
@@ -1019,7 +1081,7 @@ class UiService {
 
         if (insertText) {
             editorService.insertText(insertText);
-            this.showSuccess('エディタに反映しました');
+            // 成功メッセージは表示しない（ユーザーが見た目で反映成功がわかるため）
         }
     }
 

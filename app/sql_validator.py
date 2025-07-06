@@ -151,14 +151,14 @@ class SQLValidator:
     def _check_basic_syntax(self, sql: str, errors: List[str]) -> bool:
         """基本的な構文チェック"""
         if not sql or not sql.strip():
-            errors.append("SQLが空です")
+            errors.append("SQLを入力してください")
             return False
         
         # SQLParseで構文解析
         try:
             parsed = sqlparse.parse(sql)
             if not parsed:
-                errors.append("SQLの構文解析に失敗しました")
+                errors.append("SQLの構文に問題があります。正しいSQLを入力してください")
                 return False
         except Exception as e:
             errors.append(f"SQLの構文解析エラー: {str(e)}")
@@ -172,7 +172,7 @@ class SQLValidator:
             parsed = sqlparse.parse(sql)
             for statement in parsed:
                 if statement.get_type() != 'SELECT':
-                    errors.append("SELECT文のみ許可されています")
+                    errors.append("SELECT文のみ実行可能です。INSERT、UPDATE、DELETE文は許可されていません")
                     return False
             return True
         except Exception as e:
@@ -186,7 +186,7 @@ class SQLValidator:
             for keyword in self.forbidden_keywords:
                 pattern = r'\b' + re.escape(keyword) + r'\b'
                 if re.search(pattern, sql, re.IGNORECASE):
-                    errors.append(f"禁止されたキーワード '{keyword}' が使用されています")
+                    errors.append(f"'{keyword}' は使用できません。データの変更は許可されていません")
                     return False
             return True
         except Exception as e:
@@ -199,7 +199,7 @@ class SQLValidator:
             sql_upper = sql.upper()
             for pattern in self.dangerous_patterns:
                 if pattern in sql_upper:
-                    errors.append(f"危険なパターン '{pattern}' が検出されました")
+                    errors.append(f"セキュリティ上の理由で '{pattern}' は使用できません")
                     return False
             return True
         except Exception as e:
@@ -216,7 +216,7 @@ class SQLValidator:
                 # システムテーブルやビューの場合は例外
                 system_tables = ['INFORMATION_SCHEMA', 'SNOWFLAKE_SAMPLE_DATA', 'SYS']
                 if not any(table in sql_upper for table in system_tables):
-                    errors.append("WHERE句が必須です（システムテーブルを除く）")
+                    errors.append("WHERE句が必要です。大量データの取得を防ぐため、条件を指定してください。例: WHERE column_name = 'value'")
                     return False
             return True
         except Exception as e:
@@ -251,11 +251,11 @@ class SQLValidator:
                     has_from = True
             
             if not has_select:
-                errors.append("SELECT文が見つかりません")
+                errors.append("SELECT文が必要です。例: SELECT column_name FROM table_name")
                 return False
             
             if not has_from:
-                errors.append("FROM句が見つかりません")
+                errors.append("FROM句が必要です。例: SELECT column_name FROM table_name")
                 return False
             
             return True

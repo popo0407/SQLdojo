@@ -168,5 +168,135 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-06T23:27:09.369953"
+  },
+  {
+    "log_id": "e5201a07-0d37-43c8-b4fb-318c1ca64a2d",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM HF3IGM01",
+    "execution_time": 0.027950525283813477,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）",
+    "timestamp": "2025-07-06T23:39:17.464028"
+  },
+  {
+    "log_id": "67e24f92-5603-4df4-866b-7d672cd9ac58",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM HF3IGM01",
+    "execution_time": 0.009971380233764648,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）",
+    "timestamp": "2025-07-06T23:39:26.414470"
+  },
+  {
+    "log_id": "528896ee-9cf1-4505-9f45-547f35e96ed1",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM HF3IGM01",
+    "execution_time": 0.04587841033935547,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）",
+    "timestamp": "2025-07-06T23:45:05.673110"
+  },
+  {
+    "log_id": "ceebe0c6-f58e-49fb-9ba8-7b96383c3eee",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM HF3IGM01",
+    "execution_time": 0.07280516624450684,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: ",
+    "timestamp": "2025-07-06T23:52:45.433398"
+  },
+  {
+    "log_id": "d14a676c-14ef-4d9f-a584-fea4be233655",
+    "user_id": "hint0531",
+    "sql": "SELECT * ",
+    "execution_time": 0.04487967491149902,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: ",
+    "timestamp": "2025-07-06T23:54:07.269755"
+  },
+  {
+    "log_id": "96fa9115-3b83-4ff7-a25f-dc92d734afc0",
+    "user_id": "hint0531",
+    "sql": "SELECT * ",
+    "execution_time": 0.09973359107971191,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: ",
+    "timestamp": "2025-07-06T23:54:25.861531"
+  },
+  {
+    "log_id": "790053ef-b633-47da-9ab7-cf6df7bc89f6",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM HF3IGM01",
+    "execution_time": 0.06084036827087402,
+    "row_count": 0,
+    "success": false,
+    "error_message": "",
+    "timestamp": "2025-07-07T00:00:35.929232"
+  },
+  {
+    "log_id": "5133cc14-a538-4bf1-bd52-43bb340c949f",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM  WHERE 1=1",
+    "execution_time": 0.015957117080688477,
+    "row_count": 0,
+    "success": false,
+    "error_message": "",
+    "timestamp": "2025-07-07T00:00:54.051214"
+  },
+  {
+    "log_id": "95e6dbe7-6846-46bd-b2d7-7d2a5bc1486e",
+    "user_id": "hint0531",
+    "sql": "SELECT *  WHERE 1=1",
+    "execution_time": 0.013963460922241211,
+    "row_count": 0,
+    "success": false,
+    "error_message": "",
+    "timestamp": "2025-07-07T00:00:59.949177"
+  },
+  {
+    "log_id": "92ed1df4-9bcc-4e9b-b1d8-fd01e4f0b250",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM HF3IGM01",
+    "execution_time": 0.05984067916870117,
+    "row_count": 0,
+    "success": false,
+    "error_message": "WHERE句が必要です。大量データの取得を防ぐため、条件を指定してください。例: WHERE column_name = 'value'",
+    "timestamp": "2025-07-07T00:06:39.997945"
+  },
+  {
+    "log_id": "a4007800-4323-4d7d-b760-3dc5d26ff365",
+    "user_id": "hint0531",
+    "sql": "SELECT * ",
+    "execution_time": 0.0049855709075927734,
+    "row_count": 0,
+    "success": false,
+    "error_message": "WHERE句が必要です。大量データの取得を防ぐため、条件を指定してください。例: WHERE column_name = 'value'",
+    "timestamp": "2025-07-07T00:06:46.929411"
+  },
+  {
+    "log_id": "93cddb7b-e6fe-48c5-9e94-67e3994a8bf5",
+    "user_id": "hint0531",
+    "sql": "SELECT * WHERE 1=1",
+    "execution_time": 0.06781959533691406,
+    "row_count": 0,
+    "success": false,
+    "error_message": "FROM句が必要です。大量データの取得を防ぐため、対象テーブルを指定してください。例: SELECT * FROM table_name",
+    "timestamp": "2025-07-07T00:06:53.894446"
+  },
+  {
+    "log_id": "27b7b68a-5f38-44f6-9e28-b4b36020a1ed",
+    "user_id": "hint0531",
+    "sql": "FROM HF3IGM01 WHERE 1=1",
+    "execution_time": 0.01595449447631836,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SELECT文のみ実行可能です。INSERT、UPDATE、DELETE文は許可されていません",
+    "timestamp": "2025-07-07T00:08:07.567841"
   }
 ]
