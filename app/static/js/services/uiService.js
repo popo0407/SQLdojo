@@ -378,22 +378,23 @@ class UiService {
                     columnItem.className = 'column-item d-flex justify-content-between align-items-center p-1';
                     columnItem.style.listStyle = 'none';
                     const columnComment = column.comment || '';
-                    const leftGroup = `
-                        <div>
+                    const columnContent = `
                         <span class="column-name-clickable text-body-secondary" title="${columnComment}" data-column="${column.name}" data-table="${table.name}" data-schema="${table.schema_name}">${column.name}</span>
-                            ${columnComment ? `<small class="text-muted ms-2">${columnComment}</small>` : ''}
-                        </div>
+                        ${columnComment ? `<small class="text-muted ms-2">${columnComment}</small>` : ''}
+                        <span class="column-type text-muted small ms-auto me-2">${column.data_type}</span>
+                        <input type="checkbox" class="column-checkbox" data-column="${column.name}" data-table="${table.name}" data-schema="${table.schema_name}">
                     `;
-                    const rightGroup = `
-                        <span class="column-type text-muted small">${column.data_type}</span>
-                        <input type="checkbox" class="column-checkbox ms-2" data-column="${column.name}" data-table="${table.name}" data-schema="${table.schema_name}">
-                    `;
-                    columnItem.innerHTML = leftGroup + rightGroup;
+                    columnItem.innerHTML = columnContent;
                     columnList.appendChild(columnItem);
                 });
             }
 
             tableHeader.addEventListener('click', (e) => {
+                // チェックボックスがクリックされた場合はテーブル開閉処理をスキップ
+                if (e.target.classList.contains('table-checkbox')) {
+                    return;
+                }
+                
                 e.stopPropagation();
                 const isCollapsed = tableHeader.classList.contains('collapsed');
                 if (isCollapsed) {
@@ -479,14 +480,20 @@ class UiService {
                                 </div>
                             `;
                             const rightGroup = `
+                                <input type="checkbox" class="column-checkbox me-2" data-column="${column.name}" data-table="${table.name}" data-schema="${schema.name}">
                                 <span class="column-type text-muted small">${column.data_type}</span>
-                                <input type="checkbox" class="column-checkbox ms-2" data-column="${column.name}" data-table="${table.name}" data-schema="${schema.name}">
                             `;
-                            columnItem.innerHTML = leftGroup + rightGroup;
+                            const columnContent = leftGroup + rightGroup;
+                            columnItem.innerHTML = columnContent;
                             columnList.appendChild(columnItem);
                         });
                     }
                     tableHeader.addEventListener('click', (e) => {
+                        // チェックボックスがクリックされた場合はテーブル開閉処理をスキップ
+                        if (e.target.classList.contains('table-checkbox')) {
+                            return;
+                        }
+                        
                         e.stopPropagation();
                         const isCollapsed = tableHeader.classList.contains('collapsed');
                         if (isCollapsed) {
@@ -680,10 +687,12 @@ class UiService {
             if (e.target.classList.contains('table-checkbox')) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 this.handleTableCheckboxChange(e.target);
             } else if (e.target.classList.contains('column-checkbox')) {
                 e.preventDefault();
                 e.stopPropagation();
+                e.stopImmediatePropagation();
                 this.handleColumnCheckboxChange(e.target);
             }
         });
@@ -739,8 +748,12 @@ class UiService {
             setTimeout(() => {
                 checkbox.checked = true;
             }, 0);
+            
+            // テーブルを必ず展開する
+            this.expandTable(tableName, schemaName);
         } else {
             this.selectedTable = null;
+            // チェックを外してもテーブルは閉じない（開閉状態は維持）
         }
 
         this.updateApplyButtonVisibility();
@@ -828,6 +841,39 @@ class UiService {
             }
         });
         keysToRemove.forEach(key => this.selectedColumns.delete(key));
+    }
+
+    /**
+     * テーブルを展開する
+     * @param {string} tableName - テーブル名
+     * @param {string} schemaName - スキーマ名
+     */
+    expandTable(tableName, schemaName) {
+        // テーブルヘッダーを探す
+        const tableHeaders = document.querySelectorAll('.table-link');
+        tableHeaders.forEach(header => {
+            const headerTable = header.querySelector('[data-table]');
+            const headerSchema = header.querySelector('[data-schema]');
+            
+            if (headerTable && headerSchema && 
+                headerTable.dataset.table === tableName && 
+                headerSchema.dataset.schema === schemaName) {
+                
+                // テーブルが閉じている場合は展開する
+                if (header.classList.contains('collapsed')) {
+                    const columnList = header.nextElementSibling;
+                    if (columnList && columnList.classList.contains('column-list')) {
+                        header.classList.remove('collapsed');
+                        columnList.classList.remove('collapsed');
+                        const icon = header.querySelector('.toggle-icon');
+                        if (icon) {
+                            icon.classList.remove('fa-chevron-right');
+                            icon.classList.add('fa-chevron-down');
+                        }
+                    }
+                }
+            }
+        });
     }
 
     /**
