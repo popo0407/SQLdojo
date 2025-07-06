@@ -1402,3 +1402,64 @@ body {
     background-color: #f7f7f7;
     border-radius: 0 0 6px 6px;
 }
+
+/* メタデータ選択機能のスタイル */
+.table-name-clickable,
+.column-name-clickable {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.table-name-clickable:hover,
+.column-name-clickable:hover {
+    color: var(--accent-color) !important;
+    text-decoration: underline;
+}
+
+.table-checkbox,
+.column-checkbox {
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.table-checkbox:checked,
+.column-checkbox:checked {
+    accent-color: var(--accent-color);
+}
+
+/* エディタに反映ボタンのスタイル */
+#apply-to-editor-btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#apply-to-editor-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* テーブルヘッダーのレイアウト調整 */
+.table-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.table-link .ms-auto {
+    margin-left: auto;
+}
+
+/* カラムアイテムのレイアウト調整 */
+.column-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.column-item .column-type {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

@@ -14,10 +14,15 @@ class UiService {
         this.editorContainer = null;
         this.toggleEditorBtn = null;
         this.sortInfo = null;
+        this.applyToEditorBtn = null;
         
         // 通知用のオーバーレイ要素
         this.notificationOverlay = null;
         this.errorOverlay = null;
+        
+        // メタデータ選択状態の管理
+        this.selectedTable = null;
+        this.selectedColumns = new Set();
     }
 
     /**
@@ -33,6 +38,7 @@ class UiService {
         this.editorContainer = document.getElementById('sql-editor-container');
         this.toggleEditorBtn = document.getElementById('toggleEditorBtn');
         this.sortInfo = document.getElementById('sortInfo');
+        this.applyToEditorBtn = document.getElementById('apply-to-editor-btn');
     }
 
     /**
@@ -351,12 +357,15 @@ class UiService {
             tableHeader.className = 'table-link d-flex align-items-center p-1 rounded-1';
             tableHeader.style.cursor = 'pointer';
             const tableComment = table.comment || '';
-            // テーブル名のみ表示
+            // テーブル名のみ表示（クリック可能、チェックボックス付き）
             tableHeader.innerHTML = `
                 <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
                 <i class="fas ${table.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} fa-fw me-1 text-secondary"></i>
-                <span title="${tableComment}">${table.name}</span>
+                <span class="table-name-clickable" title="${tableComment}" data-table="${table.name}" data-schema="${table.schema_name}">${table.name}</span>
                 ${tableComment ? `<small class="text-muted ms-2">${tableComment}</small>` : ''}
+                <div class="ms-auto">
+                    <input type="checkbox" class="table-checkbox" data-table="${table.name}" data-schema="${table.schema_name}">
+                </div>
             `;
             tableHeader.classList.add('collapsed');
 
@@ -371,11 +380,14 @@ class UiService {
                     const columnComment = column.comment || '';
                     const leftGroup = `
                         <div>
-                        <span class="column-name text-body-secondary" title="${columnComment}">${column.name}</span>
+                        <span class="column-name-clickable text-body-secondary" title="${columnComment}" data-column="${column.name}" data-table="${table.name}" data-schema="${table.schema_name}">${column.name}</span>
                             ${columnComment ? `<small class="text-muted ms-2">${columnComment}</small>` : ''}
                         </div>
                     `;
-                    const rightGroup = `<span class="column-type text-muted small">${column.data_type}</span>`;
+                    const rightGroup = `
+                        <span class="column-type text-muted small">${column.data_type}</span>
+                        <input type="checkbox" class="column-checkbox ms-2" data-column="${column.name}" data-table="${table.name}" data-schema="${table.schema_name}">
+                    `;
                     columnItem.innerHTML = leftGroup + rightGroup;
                     columnList.appendChild(columnItem);
                 });
@@ -406,6 +418,11 @@ class UiService {
         // サイドバーに追加
         this.metadataTree.innerHTML = '';
         this.metadataTree.appendChild(tableList);
+        
+        // イベントハンドラーを設定（少し遅延させて確実に設定）
+        setTimeout(() => {
+            this.setupMetadataEventHandlers();
+        }, 100);
     }
 
     /**
@@ -441,8 +458,11 @@ class UiService {
                     tableHeader.innerHTML = `
                         <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
                         <i class="fas ${table.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} fa-fw me-1 text-secondary"></i>
-                        <span title="${tableComment}">${table.name}</span>
+                        <span class="table-name-clickable" title="${tableComment}" data-table="${table.name}" data-schema="${schema.name}">${table.name}</span>
                         ${tableComment ? `<small class="text-muted ms-2">${tableComment}</small>` : ''}
+                        <div class="ms-auto">
+                            <input type="checkbox" class="table-checkbox" data-table="${table.name}" data-schema="${schema.name}">
+                        </div>
                     `;
                     tableHeader.classList.add('collapsed');
                     const columnList = document.createElement('ul');
@@ -454,11 +474,14 @@ class UiService {
                             const columnComment = column.comment || '';
                             const leftGroup = `
                                 <div>
-                                <span class="column-name text-body-secondary" title="${columnComment}">${column.name}</span>
+                                <span class="column-name-clickable text-body-secondary" title="${columnComment}" data-column="${column.name}" data-table="${table.name}" data-schema="${schema.name}">${column.name}</span>
                                     ${columnComment ? `<small class="text-muted ms-2">${columnComment}</small>` : ''}
                                 </div>
                             `;
-                            const rightGroup = `<span class="column-type text-muted small">${column.data_type}</span>`;
+                            const rightGroup = `
+                                <span class="column-type text-muted small">${column.data_type}</span>
+                                <input type="checkbox" class="column-checkbox ms-2" data-column="${column.name}" data-table="${table.name}" data-schema="${schema.name}">
+                            `;
                             columnItem.innerHTML = leftGroup + rightGroup;
                             columnList.appendChild(columnItem);
                         });
@@ -506,6 +529,11 @@ class UiService {
                 }
             });
         });
+        
+        // イベントハンドラーを設定（少し遅延させて確実に設定）
+        setTimeout(() => {
+            this.setupMetadataEventHandlers();
+        }, 100);
     }
 
     /**
@@ -623,6 +651,239 @@ class UiService {
             'error': 'times-circle'
         };
         return icons[type] || 'info-circle';
+    }
+
+    /**
+     * メタデータツリーのイベントハンドラーを設定
+     */
+    setupMetadataEventHandlers() {
+        if (!this.metadataTree) return;
+
+        // テーブル名クリックイベント
+        this.metadataTree.addEventListener('click', (e) => {
+            const tableNameClickable = e.target.closest('.table-name-clickable');
+            const columnNameClickable = e.target.closest('.column-name-clickable');
+
+            if (tableNameClickable) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleTableNameClick(tableNameClickable);
+            } else if (columnNameClickable) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleColumnNameClick(columnNameClickable);
+            }
+        });
+
+        // チェックボックスのイベント（changeイベントを使用）
+        this.metadataTree.addEventListener('change', (e) => {
+            if (e.target.classList.contains('table-checkbox')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleTableCheckboxChange(e.target);
+            } else if (e.target.classList.contains('column-checkbox')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleColumnCheckboxChange(e.target);
+            }
+        });
+
+        // エディタに反映ボタンのイベント
+        if (this.applyToEditorBtn) {
+            this.applyToEditorBtn.addEventListener('click', () => {
+                this.applySelectionToEditor();
+            });
+        }
+    }
+
+    /**
+     * テーブル名クリック時の処理
+     * @param {Element} element - クリックされた要素
+     */
+    handleTableNameClick(element) {
+        const tableName = element.dataset.table;
+        
+        // エディタにテーブル名を挿入（スキーマ情報は除外）
+        if (window.appController && window.appController.getEditorService()) {
+            window.appController.getEditorService().insertText(tableName);
+        }
+    }
+
+    /**
+     * カラム名クリック時の処理
+     * @param {Element} element - クリックされた要素
+     */
+    handleColumnNameClick(element) {
+        const columnName = element.dataset.column;
+        
+        // エディタにカラム名を挿入
+        if (window.appController && window.appController.getEditorService()) {
+            window.appController.getEditorService().insertText(columnName);
+        }
+    }
+
+    /**
+     * テーブルチェックボックス変更時の処理
+     * @param {Element} checkbox - チェックボックス要素
+     */
+    handleTableCheckboxChange(checkbox) {
+        const tableName = checkbox.dataset.table;
+        const schemaName = checkbox.dataset.schema;
+        const isChecked = checkbox.checked;
+
+        if (isChecked) {
+            // 他のすべてのチェックを外す
+            this.clearAllSelections();
+            this.selectedTable = { name: tableName, schema: schemaName };
+            // チェックボックスを再度チェック（clearAllSelectionsで外れるため）
+            setTimeout(() => {
+                checkbox.checked = true;
+            }, 0);
+        } else {
+            this.selectedTable = null;
+        }
+
+        this.updateApplyButtonVisibility();
+    }
+
+    /**
+     * カラムチェックボックス変更時の処理
+     * @param {Element} checkbox - チェックボックス要素
+     */
+    handleColumnCheckboxChange(checkbox) {
+        const columnName = checkbox.dataset.column;
+        const tableName = checkbox.dataset.table;
+        const schemaName = checkbox.dataset.schema;
+        const isChecked = checkbox.checked;
+
+        if (isChecked) {
+            // 同じテーブル以外のチェックを外す
+            this.clearOtherTableSelections(tableName, schemaName);
+            const columnKey = `${schemaName}.${tableName}.${columnName}`;
+            this.selectedColumns.add(columnKey);
+            // チェックボックスを再度チェック（clearOtherTableSelectionsで外れる可能性があるため）
+            setTimeout(() => {
+                checkbox.checked = true;
+            }, 0);
+        } else {
+            const columnKey = `${schemaName}.${tableName}.${columnName}`;
+            this.selectedColumns.delete(columnKey);
+        }
+
+        this.updateApplyButtonVisibility();
+    }
+
+    /**
+     * すべての選択をクリア
+     */
+    clearAllSelections() {
+        // すべてのチェックボックスを外す
+        const allCheckboxes = document.querySelectorAll('.table-checkbox, .column-checkbox');
+        allCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        // 選択状態をクリア
+        this.selectedTable = null;
+        this.selectedColumns.clear();
+    }
+
+    /**
+     * 指定されたテーブル以外の選択をクリア
+     * @param {string} tableName - 保持するテーブル名
+     * @param {string} schemaName - 保持するスキーマ名
+     */
+    clearOtherTableSelections(tableName, schemaName) {
+        // 他のテーブルのチェックボックスを外す
+        const otherTableCheckboxes = document.querySelectorAll('.table-checkbox');
+        otherTableCheckboxes.forEach(checkbox => {
+            const checkboxTable = checkbox.dataset.table;
+            const checkboxSchema = checkbox.dataset.schema;
+            if (checkboxTable !== tableName || checkboxSchema !== schemaName) {
+                checkbox.checked = false;
+            }
+        });
+
+        // 他のテーブルのカラムチェックボックスを外す
+        const otherColumnCheckboxes = document.querySelectorAll('.column-checkbox');
+        otherColumnCheckboxes.forEach(checkbox => {
+            const checkboxTable = checkbox.dataset.table;
+            const checkboxSchema = checkbox.dataset.schema;
+            if (checkboxTable !== tableName || checkboxSchema !== schemaName) {
+                checkbox.checked = false;
+            }
+        });
+
+        // 選択状態をクリア（指定されたテーブル以外）
+        if (this.selectedTable && (this.selectedTable.name !== tableName || this.selectedTable.schema !== schemaName)) {
+            this.selectedTable = null;
+        }
+
+        // 他のテーブルのカラム選択をクリア
+        const keysToRemove = [];
+        this.selectedColumns.forEach(columnKey => {
+            const [schema, table, column] = columnKey.split('.');
+            if (table !== tableName || schema !== schemaName) {
+                keysToRemove.push(columnKey);
+            }
+        });
+        keysToRemove.forEach(key => this.selectedColumns.delete(key));
+    }
+
+    /**
+     * エディタに反映ボタンの表示/非表示を更新
+     */
+    updateApplyButtonVisibility() {
+        if (!this.applyToEditorBtn) return;
+
+        const hasSelection = this.selectedTable || this.selectedColumns.size > 0;
+        this.applyToEditorBtn.style.display = hasSelection ? 'inline-block' : 'none';
+    }
+
+    /**
+     * 選択された内容をエディタに反映
+     */
+    applySelectionToEditor() {
+        if (!window.appController || !window.appController.getEditorService()) {
+            console.error('エディタサービスが見つかりません');
+            return;
+        }
+
+        const editorService = window.appController.getEditorService();
+        let insertText = '';
+
+        if (this.selectedTable) {
+            // テーブルが選択されている場合（スキーマ情報は除外）
+            const tableName = this.selectedTable.name;
+
+            if (this.selectedColumns.size > 0) {
+                // カラムも選択されている場合
+                const columnNames = Array.from(this.selectedColumns)
+                    .filter(columnKey => {
+                        const [schema, table, column] = columnKey.split('.');
+                        return table === this.selectedTable.name && schema === this.selectedTable.schema;
+                    })
+                    .map(columnKey => columnKey.split('.')[2]);
+                
+                if (columnNames.length > 0) {
+                    insertText = `SELECT ${columnNames.join(', ')} FROM ${tableName}`;
+                } else {
+                    insertText = `SELECT * FROM ${tableName}`;
+                }
+            } else {
+                // テーブルのみ選択されている場合
+                insertText = `SELECT * FROM ${tableName}`;
+            }
+        } else if (this.selectedColumns.size > 0) {
+            // カラムのみ選択されている場合
+            const columnNames = Array.from(this.selectedColumns).map(columnKey => columnKey.split('.')[2]);
+            insertText = columnNames.join(', ');
+        }
+
+        if (insertText) {
+            editorService.insertText(insertText);
+            this.showSuccess('エディタに反映しました');
+        }
     }
 
     // 便利メソッド

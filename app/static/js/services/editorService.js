@@ -20,7 +20,7 @@ class EditorService {
             require(['vs/editor/editor.main'], () => {
                 this._defineCustomTheme();
                 this.sqlEditor = monaco.editor.create(document.getElementById(this.containerId), {
-                    value: 'SELECT * FROM ;',
+                    value: '',
                     language: 'sql',
                     theme: 'customTheme',
                     fontSize: 14,

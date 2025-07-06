@@ -78,5 +78,35 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-06T08:06:59.829908"
+  },
+  {
+    "log_id": "37c439be-1f27-45ce-8e5f-ac669a0b629b",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3",
+    "execution_time": 0.00797414779663086,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）",
+    "timestamp": "2025-07-06T22:14:27.723860"
+  },
+  {
+    "log_id": "d19d8592-21a9-4e00-a62c-3c80f17ca243",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3;",
+    "execution_time": 0.009338855743408203,
+    "row_count": 0,
+    "success": false,
+    "error_message": "SQLバリデーションエラー: WHERE句が必須です（システムテーブルを除く）",
+    "timestamp": "2025-07-06T22:14:46.754570"
+  },
+  {
+    "log_id": "3a589b1f-b866-4cb3-aeac-4c76805e657c",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3 where 1=1;",
+    "execution_time": 9.06625485420227,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T22:15:08.614205"
   }
 ]
