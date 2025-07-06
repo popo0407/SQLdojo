@@ -261,6 +261,20 @@ async def get_initial_metadata_endpoint(metadata_service: MetadataServiceDep):
     
     return all_metadata
 
+@router.get("/metadata/raw", response_model=List[Dict[str, Any]])
+@log_execution_time("get_raw_metadata")
+async def get_raw_metadata_endpoint(metadata_service: MetadataServiceDep):
+    """
+    フィルタリング前の生メタデータを取得する。
+    フロントエンド側でフィルタリングを行うために使用。
+    """
+    logger.info("生メタデータ取得要求（フィルタリングなし）")
+    
+    # キャッシュからスキーマ、テーブル、カラムの情報を取得（フィルタリングなし）
+    all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
+    
+    return all_metadata
+
 
 @router.post("/metadata/refresh", response_model=List[Dict[str, Any]])
 @log_execution_time("refresh_all_metadata")
@@ -422,11 +436,9 @@ async def logout(request: Request):
     return {"message": "ログアウトしました"}
 
 @router.get("/users/me", response_model=UserInfo)
-async def get_current_user(request: Request):
-    user = request.session.get("user")
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="未ログインです")
-    return user
+async def get_current_user_info(current_user: CurrentUserDep):
+    """認証済みユーザーの情報を取得します"""
+    return current_user
 
 # 管理者API
 @router.post("/admin/system/refresh", response_model=UserRefreshResponse) # エンドポイント名を変更
@@ -631,6 +643,15 @@ async def get_visibility_settings(
     visibility_service: VisibilityControlServiceDep,
 ):
     """全ての表示設定を取得します。"""
+    settings = await run_in_threadpool(visibility_service.get_all_settings)
+    return settings
+
+@router.get("/visibility-settings")
+async def get_visibility_settings_for_user(
+    current_user: CurrentUserDep,
+    visibility_service: VisibilityControlServiceDep,
+):
+    """ユーザーのロールに基づいた表示設定を取得します。"""
     settings = await run_in_threadpool(visibility_service.get_all_settings)
     return settings
 

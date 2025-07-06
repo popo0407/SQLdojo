@@ -45,6 +45,14 @@ class ApiService {
     }
 
     /**
+     * 生メタデータを取得（フィルタリングなし）
+     * @returns {Promise<Array>} 生メタデータ配列
+     */
+    getRawMetadata() {
+        return this._fetch('/metadata/raw');
+    }
+
+    /**
      * メタデータを強制更新
      * @returns {Promise<Array>} 更新されたメタデータ配列
      */

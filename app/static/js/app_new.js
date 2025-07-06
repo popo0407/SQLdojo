@@ -344,7 +344,7 @@ class AppController {
         try {
             const metadata = await this.apiService.getInitialMetadata();
             this.stateService.setAllMetadata(metadata);
-            this.uiService.buildMetadataTree(metadata);
+            await this.uiService.buildMetadataTree(metadata);
         } catch (error) {
             console.error('メタデータ読み込みエラー:', error);
             this.uiService.showError('メタデータの読み込みに失敗しました');
@@ -359,7 +359,7 @@ class AppController {
             this.uiService.showLoading(true);
             const metadata = await this.apiService.refreshMetadata();
             this.stateService.setAllMetadata(metadata);
-            this.uiService.buildMetadataTree(metadata);
+            await this.uiService.buildMetadataTree(metadata);
             this.uiService.showSuccess('メタデータを更新しました');
         } catch (error) {
             console.error('メタデータ更新エラー:', error);

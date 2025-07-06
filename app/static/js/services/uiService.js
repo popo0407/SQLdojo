@@ -225,13 +225,194 @@ class UiService {
      * メタデータツリーを構築
      * @param {Array} allMetadata - 全メタデータ
      */
-    buildMetadataTree(allMetadata) {
+    async buildMetadataTree(allMetadata) {
         if (!this.metadataTree) return;
         this.metadataTree.innerHTML = '';
+        
+        // メタデータが空の場合はエラーメッセージを表示
         if (!allMetadata || !Array.isArray(allMetadata) || allMetadata.length === 0) {
             this.metadataTree.innerHTML = '<p class="text-muted p-2">メタデータが見つかりません。<br>右上の更新ボタンを押してください。</p>';
             return;
         }
+
+        try {
+            // ユーザー情報と表示設定を取得
+            const userInfo = await this.getUserInfo();
+            const visibilitySettings = await this.getVisibilitySettings();
+            
+            // スキーマレベルを隠すべきかどうかを判定
+            const shouldHideSchemaLevel = this.shouldHideSchemaLevel(userInfo.role, visibilitySettings);
+            
+            if (shouldHideSchemaLevel) {
+                // スキーマレベルを隠した表示
+                await this.buildMetadataTreeWithoutSchema(allMetadata);
+            } else {
+                // 通常の3階層表示
+                this.buildMetadataTreeWithSchema(allMetadata);
+            }
+        } catch (error) {
+            console.error('メタデータツリー構築エラー:', error);
+            // エラーが発生した場合は通常の表示にフォールバック
+            this.buildMetadataTreeWithSchema(allMetadata);
+        }
+    }
+
+    /**
+     * ユーザー情報を取得
+     * @returns {Promise<Object>} ユーザー情報
+     */
+    async getUserInfo() {
+        try {
+            const response = await fetch('/api/v1/users/me');
+            if (response.ok) {
+                const user = await response.json();
+                return { role: user.role || 'DEFAULT' };
+            }
+        } catch (error) {
+            console.error('ユーザー情報取得エラー:', error);
+        }
+        return { role: 'DEFAULT' };
+    }
+
+    /**
+     * 表示設定を取得
+     * @returns {Promise<Object>} 表示設定
+     */
+    async getVisibilitySettings() {
+        try {
+            const response = await fetch('/api/v1/visibility-settings');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('表示設定取得エラー:', error);
+        }
+        return {};
+    }
+
+    /**
+     * スキーマレベルを隠すべきかどうかを判定
+     * @param {string} userRole - ユーザーのロール
+     * @param {Object} settings - 表示設定
+     * @returns {boolean} スキーマレベルを隠すべきかどうか
+     */
+    shouldHideSchemaLevel(userRole, settings) {
+        // スキーマレベルの設定をチェック
+        for (const [objectName, roleSettings] of Object.entries(settings)) {
+            // スキーマ名のみのオブジェクト（テーブル名が含まれていない）をチェック
+            if (!objectName.includes('.')) {
+                const roleSetting = roleSettings[userRole] ?? roleSettings['DEFAULT'] ?? true;
+                if (!roleSetting) {
+                    return true; // スキーマが非表示の場合はスキーマレベルを隠す
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * スキーマレベルを隠したメタデータツリーを構築
+     * @param {Array} allMetadata - 全メタデータ
+     */
+    buildMetadataTreeWithoutSchema(allMetadata) {
+        // 全テーブルを一つのリストにまとめる
+        const allTables = [];
+        allMetadata.forEach(schema => {
+            if (schema.tables && Array.isArray(schema.tables)) {
+                schema.tables.forEach(table => {
+                    // スキーマ情報をテーブルに追加
+                    const tableWithSchema = {
+                        ...table,
+                        schema_name: schema.name,
+                        schema_comment: schema.comment
+                    };
+                    allTables.push(tableWithSchema);
+                });
+            }
+        });
+
+        // フィルタリングは一切行わず、全て表示
+        if (allTables.length === 0) {
+            this.metadataTree.innerHTML = '<p class="text-muted p-2">表示可能なテーブルが見つかりません。<br>管理者に表示設定を確認してください。</p>';
+            return;
+        }
+
+        // テーブルリストのulを作成し、list-styleをnoneに
+        const tableList = document.createElement('ul');
+        tableList.className = 'table-list';
+        tableList.style.listStyle = 'none';
+        tableList.style.margin = '0';
+        tableList.style.padding = '0';
+
+        allTables.forEach(table => {
+            const tableItem = document.createElement('li');
+            tableItem.style.listStyle = 'none';
+            const tableHeader = document.createElement('div');
+            tableHeader.className = 'table-link d-flex align-items-center p-1 rounded-1';
+            tableHeader.style.cursor = 'pointer';
+            const tableComment = table.comment || '';
+            // テーブル名のみ表示
+            tableHeader.innerHTML = `
+                <i class="fas fa-chevron-right fa-fw me-2 toggle-icon"></i>
+                <i class="fas ${table.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} fa-fw me-1 text-secondary"></i>
+                <span title="${tableComment}">${table.name}</span>
+                ${tableComment ? `<small class="text-muted ms-2">${tableComment}</small>` : ''}
+            `;
+            tableHeader.classList.add('collapsed');
+
+            const columnList = document.createElement('ul');
+            columnList.className = 'column-list list-unstyled ps-4 mt-1 collapsed';
+            columnList.style.listStyle = 'none';
+            if (table.columns && Array.isArray(table.columns)) {
+                table.columns.forEach(column => {
+                    const columnItem = document.createElement('li');
+                    columnItem.className = 'column-item d-flex justify-content-between align-items-center p-1';
+                    columnItem.style.listStyle = 'none';
+                    const columnComment = column.comment || '';
+                    const leftGroup = `
+                        <div>
+                        <span class="column-name text-body-secondary" title="${columnComment}">${column.name}</span>
+                            ${columnComment ? `<small class="text-muted ms-2">${columnComment}</small>` : ''}
+                        </div>
+                    `;
+                    const rightGroup = `<span class="column-type text-muted small">${column.data_type}</span>`;
+                    columnItem.innerHTML = leftGroup + rightGroup;
+                    columnList.appendChild(columnItem);
+                });
+            }
+
+            tableHeader.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isCollapsed = tableHeader.classList.contains('collapsed');
+                if (isCollapsed) {
+                    tableHeader.classList.remove('collapsed');
+                    columnList.classList.remove('collapsed');
+                    const icon = tableHeader.querySelector('.toggle-icon');
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-down');
+                } else {
+                    tableHeader.classList.add('collapsed');
+                    columnList.classList.add('collapsed');
+                    const icon = tableHeader.querySelector('.toggle-icon');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-right');
+                }
+            });
+
+            tableItem.appendChild(tableHeader);
+            tableItem.appendChild(columnList);
+            tableList.appendChild(tableItem);
+        });
+        // サイドバーに追加
+        this.metadataTree.innerHTML = '';
+        this.metadataTree.appendChild(tableList);
+    }
+
+    /**
+     * 通常の3階層メタデータツリーを構築
+     * @param {Array} allMetadata - 全メタデータ
+     */
+    buildMetadataTreeWithSchema(allMetadata) {
         allMetadata.forEach(schema => {
             const schemaItem = document.createElement('div');
             schemaItem.className = 'schema-item mb-1';
