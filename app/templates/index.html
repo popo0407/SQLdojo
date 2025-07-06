@@ -153,12 +153,14 @@
         <script src="{{ public_server_url }}/static/js/services/stateService.js"></script>
         <script src="{{ public_server_url }}/static/js/services/uiService.js"></script>
         <script src="{{ public_server_url }}/static/js/services/editorService.js"></script>
+        <script src="{{ public_server_url }}/static/js/services/tutorialService.js"></script>
         <script src="{{ public_server_url }}/static/js/app_new.js"></script>
     {% else %}
         <script src="{{ url_for('static', path='js/services/apiService.js') }}"></script>
         <script src="{{ url_for('static', path='js/services/stateService.js') }}"></script>
         <script src="{{ url_for('static', path='js/services/uiService.js') }}"></script>
         <script src="{{ url_for('static', path='js/services/editorService.js') }}"></script>
+        <script src="{{ url_for('static', path='js/services/tutorialService.js') }}"></script>
         <script src="{{ url_for('static', path='js/app_new.js') }}"></script>
     {% endif %}
     

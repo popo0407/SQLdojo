@@ -23,6 +23,9 @@
         </div>
         <div class="d-flex align-items-center gap-3">
             <span id="current-user" style="color: var(--text-color);"></span>
+            <button type="button" class="btn btn-outline-light btn-sm" onclick="tutorialService.start('main')" title="アプリの使い方を説明">
+                <i class="fas fa-question-circle me-1"></i>アプリ説明
+            </button>
             <a href="/user" class="btn btn-outline-light btn-sm">ユーザーページ</a>
             {% if request.url.path == '/' %}
             <a href="#" id="admin-page-btn" class="btn btn-outline-light btn-sm">管理者ページ</a>
@@ -67,6 +70,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Monaco Editor -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <!-- Tutorial Service -->
+    <script src="{{ url_for('static', path='js/services/tutorialService.js') }}"></script>
     
     <!-- Service Classes - index.htmlで読み込むため削除 -->
     
