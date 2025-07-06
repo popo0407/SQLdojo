@@ -48,6 +48,9 @@ class AppController {
             // コピーされたSQLの確認
             this.checkAndApplyCopiedSQL();
             
+            // エディタの内容監視を設定
+            this.setupEditorContentMonitoring();
+            
             this.isInitialized = true;
             console.log('アプリケーション初期化完了');
             
@@ -104,6 +107,29 @@ class AppController {
         } else {
             this.maximizeEditor();
         }
+    }
+
+    /**
+     * エディタの内容変更を監視し、プレースホルダーを検出
+     */
+    setupEditorContentMonitoring() {
+        if (this.editorService.isReady()) {
+            // Monaco Editorの内容変更イベントを監視
+            this.editorService.sqlEditor.onDidChangeModelContent(() => {
+                this.checkForPlaceholders();
+            });
+        }
+    }
+
+    /**
+     * プレースホルダーの検出と入力欄の更新
+     */
+    checkForPlaceholders() {
+        const sql = this.editorService.getValue();
+        const placeholders = this.editorService.parsePlaceholders(sql);
+        
+        // UiServiceにプレースホルダー情報を渡して入力欄を更新
+        this.uiService.updatePlaceholderInputs(placeholders);
     }
 
     /**
@@ -378,10 +404,16 @@ class AppController {
             return;
         }
 
-        const sql = this.editorService.getValue();
+        let sql = this.editorService.getValue();
         if (!sql.trim()) {
             this.uiService.showError('SQLを入力してください');
             return;
+        }
+
+        // プレースホルダーを置換
+        const placeholderValues = this.uiService.getPlaceholderValues();
+        if (Object.keys(placeholderValues).length > 0) {
+            sql = this.editorService.replacePlaceholders(sql, placeholderValues);
         }
 
         this.uiService.showLoading(true);

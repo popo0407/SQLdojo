@@ -108,5 +108,65 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-06T22:15:08.614205"
+  },
+  {
+    "log_id": "3f9735f1-997d-4731-a9d6-a84213d97661",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1",
+    "execution_time": 3.2492270469665527,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T23:25:26.826371"
+  },
+  {
+    "log_id": "a73c4da8-d0c4-4345-bbf0-99fff72abed4",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM MASTER_STA WHERE STA = 'Station One'",
+    "execution_time": 0.21439504623413086,
+    "row_count": 0,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T23:25:42.321854"
+  },
+  {
+    "log_id": "062a32e7-109a-4a9e-9381-25008899a911",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM MASTER_STA WHERE STA = 'Station One'",
+    "execution_time": 0.15447545051574707,
+    "row_count": 0,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T23:25:58.995777"
+  },
+  {
+    "log_id": "b865f052-9232-43ad-8f6a-ef5de8d95bb4",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1",
+    "execution_time": 0.10213708877563477,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T23:26:28.335285"
+  },
+  {
+    "log_id": "36d6b013-973d-49c0-bab6-eede218dc267",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM MASTER_STA WHERE 1=1",
+    "execution_time": 0.14069676399230957,
+    "row_count": 5,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T23:26:55.149142"
+  },
+  {
+    "log_id": "c1d90958-ad28-4266-adc1-9cfe0157ac2c",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM MASTER_STA WHERE STA = 'A001'",
+    "execution_time": 0.12090277671813965,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-06T23:27:09.369953"
   }
 ]

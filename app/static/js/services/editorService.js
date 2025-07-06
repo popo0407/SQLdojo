@@ -297,4 +297,91 @@ class EditorService {
             this.sqlEditor.updateOptions(options);
         }
     }
+
+    /**
+     * SQLからプレースホルダーを解析
+     * @param {string} sql - 解析対象のSQL
+     * @returns {Array} プレースホルダー情報の配列
+     */
+    parsePlaceholders(sql) {
+        const placeholderRegex = /\{([^}]+)\}/g;
+        const placeholders = [];
+        let match;
+
+        while ((match = placeholderRegex.exec(sql)) !== null) {
+            const fullMatch = match[0]; // {テーブル名.カラム名:表示名}
+            const content = match[1]; // テーブル名.カラム名:表示名
+            
+            // 内容を解析
+            const parts = content.split(':');
+            if (parts.length === 2) {
+                const columnInfo = parts[0].trim(); // テーブル名.カラム名
+                const displayName = parts[1].trim(); // 表示名
+                
+                const columnParts = columnInfo.split('.');
+                if (columnParts.length === 2) {
+                    placeholders.push({
+                        fullMatch: fullMatch,
+                        tableName: columnParts[0].trim(),
+                        columnName: columnParts[1].trim(),
+                        displayName: displayName,
+                        startIndex: match.index,
+                        endIndex: match.index + fullMatch.length
+                    });
+                }
+            }
+        }
+
+        console.log('プレースホルダー解析結果:', placeholders);
+        return placeholders;
+    }
+
+    /**
+     * プレースホルダーを実際の値に置換
+     * @param {string} sql - 元のSQL
+     * @param {Object} placeholderValues - プレースホルダーと値のマッピング
+     * @returns {string} 置換後のSQL
+     */
+    replacePlaceholders(sql, placeholderValues) {
+        let result = sql;
+        
+        // プレースホルダーを解析
+        const placeholders = this.parsePlaceholders(sql);
+        
+        // 後ろから置換（インデックスがずれるのを防ぐ）
+        for (let i = placeholders.length - 1; i >= 0; i--) {
+            const placeholder = placeholders[i];
+            const key = `${placeholder.tableName}.${placeholder.columnName}`;
+            const value = placeholderValues[key];
+            
+            if (value !== undefined) {
+                // データ型に応じてクォートを追加
+                const replacementValue = this.formatValueForSQL(value);
+                result = result.substring(0, placeholder.startIndex) + 
+                        replacementValue + 
+                        result.substring(placeholder.endIndex);
+            }
+        }
+        
+        return result;
+    }
+
+    /**
+     * 値をSQL用にフォーマット
+     * @param {string} value - 元の値
+     * @returns {string} SQL用にフォーマットされた値
+     */
+    formatValueForSQL(value) {
+        if (value === null || value === undefined || value === '') {
+            return 'NULL';
+        }
+        
+        // 数値かどうかを判定
+        if (!isNaN(value) && value !== '') {
+            return String(value);
+        }
+        
+        // 文字列の場合はシングルクォートで囲む
+        return `'${String(value).replace(/'/g, "''")}'`;
+    }
 } 

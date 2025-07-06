@@ -20,9 +20,13 @@ class UiService {
         this.notificationOverlay = null;
         this.errorOverlay = null;
         
-        // メタデータ選択状態の管理
-        this.selectedTable = null;
-        this.selectedColumns = new Set();
+            // メタデータ選択状態の管理
+    this.selectedTable = null;
+    this.selectedColumns = new Set();
+    
+    // プレースホルダー入力欄の管理
+    this.placeholderContainer = null;
+    this.placeholderInputs = new Map();
     }
 
     /**
@@ -39,6 +43,9 @@ class UiService {
         this.toggleEditorBtn = document.getElementById('toggleEditorBtn');
         this.sortInfo = document.getElementById('sortInfo');
         this.applyToEditorBtn = document.getElementById('apply-to-editor-btn');
+        
+        // プレースホルダー入力欄のコンテナを初期化
+        this.placeholderContainer = document.getElementById('placeholder-inputs');
     }
 
     /**
@@ -136,6 +143,90 @@ class UiService {
             this.notificationOverlay.parentNode.removeChild(this.notificationOverlay);
             this.notificationOverlay = null;
         }
+    }
+
+    /**
+     * プレースホルダー入力欄を更新
+     * @param {Array} placeholders - プレースホルダー情報の配列
+     */
+    updatePlaceholderInputs(placeholders) {
+        if (!this.placeholderContainer) return;
+        
+        console.log('プレースホルダー入力欄更新:', placeholders);
+        
+        // 既存の入力欄をクリア
+        this.placeholderContainer.innerHTML = '';
+        this.placeholderInputs.clear();
+        
+        if (placeholders.length === 0) {
+            this.placeholderContainer.style.display = 'none';
+            return;
+        }
+        
+        // プレースホルダー入力欄を表示
+        this.placeholderContainer.style.display = 'block';
+        
+        // ヘッダーを追加
+        const header = document.createElement('div');
+        header.className = 'placeholder-header';
+        header.innerHTML = '<h6 class="mb-2"><i class="fas fa-edit me-2"></i>パラメータ入力</h6>';
+        this.placeholderContainer.appendChild(header);
+        
+        // 各プレースホルダーに対応する入力欄を作成
+        placeholders.forEach((placeholder, index) => {
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'placeholder-input-group mb-2';
+            
+            const label = document.createElement('label');
+            label.className = 'form-label small mb-1';
+            label.textContent = placeholder.displayName;
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control form-control-sm';
+            input.placeholder = `${placeholder.tableName}.${placeholder.columnName}`;
+            input.dataset.tableName = placeholder.tableName;
+            input.dataset.columnName = placeholder.columnName;
+            input.dataset.displayName = placeholder.displayName;
+            
+            // 入力値の変更を監視
+            input.addEventListener('input', (e) => {
+                const key = `${placeholder.tableName}.${placeholder.columnName}`;
+                this.placeholderInputs.set(key, e.target.value);
+                console.log('プレースホルダー値更新:', key, e.target.value);
+            });
+            
+            inputGroup.appendChild(label);
+            inputGroup.appendChild(input);
+            this.placeholderContainer.appendChild(inputGroup);
+            
+            // 入力欄をマップに保存
+            const key = `${placeholder.tableName}.${placeholder.columnName}`;
+            this.placeholderInputs.set(key, '');
+        });
+    }
+
+    /**
+     * プレースホルダー入力値を取得
+     * @returns {Object} プレースホルダーと値のマッピング
+     */
+    getPlaceholderValues() {
+        const values = {};
+        this.placeholderInputs.forEach((value, key) => {
+            values[key] = value;
+        });
+        return values;
+    }
+
+    /**
+     * プレースホルダー入力欄をクリア
+     */
+    clearPlaceholderInputs() {
+        if (this.placeholderContainer) {
+            this.placeholderContainer.innerHTML = '';
+            this.placeholderContainer.style.display = 'none';
+        }
+        this.placeholderInputs.clear();
     }
 
     /**
