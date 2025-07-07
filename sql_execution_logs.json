@@ -318,5 +318,25 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-07T22:07:02.032706"
+  },
+  {
+    "log_id": "62ddc576-12fa-49a5-9d3f-faba95d2fb8e",
+    "user_id": "hint0531",
+    "sql": "\r\nSELECT * FROM HF3IGM01 WHERE 1=1",
+    "execution_time": 3.144392490386963,
+    "row_count": 11,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-07T22:20:50.038322"
+  },
+  {
+    "log_id": "81f7a11c-b835-439f-abde-347469f71538",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM HF3IGM01 WHERE 1=1",
+    "execution_time": 0.08667469024658203,
+    "row_count": 11,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-07T22:21:21.336814"
   }
 ]

@@ -113,7 +113,12 @@ class EditorService {
                     'editor.foreground': rootStyles.getPropertyValue('--text-color').trim(),
                     'editorCursor.foreground': rootStyles.getPropertyValue('--accent-color').trim(),
                     'editorLineNumber.foreground': rootStyles.getPropertyValue('--text-muted').trim(),
-                    'editor.selectionBackground': rootStyles.getPropertyValue('--secondary-color').trim(),
+                    'editor.selectionBackground': '#E3F2FD',
+                    'editor.selectionHighlightBackground': '#E3F2FD',
+                    'editor.inactiveSelectionBackground': '#E3F2FD',
+                    'editor.findMatchBackground': '#2196F3',
+                    'editor.findMatchHighlightBackground': '#2196F3',
+                    'editor.findRangeHighlightBackground': '#E3F2FD',
                     'editorWidget.background': rootStyles.getPropertyValue('--sidebar-background').trim(),
                     'editorWidget.border': rootStyles.getPropertyValue('--border-color').trim(),
                 }
@@ -376,6 +381,29 @@ class EditorService {
     }
 
     /**
+     * 選択範囲のSQLを取得し、パラメータを考慮して置換
+     * @param {Object} placeholderValues - プレースホルダーと値のマッピング
+     * @returns {string} 置換後のSQL
+     */
+    getSelectedSQLWithParameters(placeholderValues) {
+        if (!this.sqlEditor) return '';
+        
+        const selection = this.sqlEditor.getSelection();
+        if (!selection || selection.isEmpty()) {
+            // 選択範囲がない場合は全SQLを返す
+            const fullSQL = this.sqlEditor.getValue();
+            return this.replacePlaceholders(fullSQL, placeholderValues);
+        }
+        
+        // 選択範囲のSQLを取得
+        const selectedSQL = this.sqlEditor.getModel().getValueInRange(selection);
+        console.log('選択範囲のSQL:', selectedSQL);
+        
+        // 選択範囲内のパラメータのみを処理
+        return this.replacePlaceholders(selectedSQL, placeholderValues);
+    }
+
+    /**
      * 値をSQL用にフォーマット（そのまま代入）
      * @param {string} value - 元の値
      * @returns {string} SQL用にフォーマットされた値
@@ -387,5 +415,35 @@ class EditorService {
         
         // 値をそのまま代入（シングルクォートも含めてそのまま）
         return String(value);
+    }
+
+    /**
+     * 選択範囲のSQLを取得
+     * @returns {string} 選択範囲のSQL（選択がない場合は全SQL）
+     */
+    getSelectedSQL() {
+        if (!this.sqlEditor) return '';
+        
+        const selection = this.sqlEditor.getSelection();
+        if (!selection || selection.isEmpty()) {
+            // 選択範囲がない場合は全SQLを返す
+            return this.sqlEditor.getValue();
+        }
+        
+        // 選択範囲のSQLを取得
+        const selectedSQL = this.sqlEditor.getModel().getValueInRange(selection);
+        console.log('選択範囲のSQL:', selectedSQL);
+        return selectedSQL;
+    }
+
+    /**
+     * 選択範囲があるかどうかを確認
+     * @returns {boolean} 選択範囲の有無
+     */
+    hasSelection() {
+        if (!this.sqlEditor) return false;
+        
+        const selection = this.sqlEditor.getSelection();
+        return selection && !selection.isEmpty();
     }
 } 

@@ -2759,3 +2759,113 @@
 2025-07-07 22:07:12,436 - app.api.routes - INFO - SQLフォーマット成功
 2025-07-07 22:07:12,436 - main - INFO - POST /api/v1/sql/format
 2025-07-07 22:08:22,103 - main - INFO - アプリケーション終了
+2025-07-07 22:19:03,178 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-07 22:19:03,180 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-07 22:19:31,493 - main - INFO - GET /
+2025-07-07 22:19:31,658 - main - INFO - GET /static/css/style.css
+2025-07-07 22:19:31,661 - main - INFO - GET /static/img/hint.png
+2025-07-07 22:19:31,672 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-07 22:19:31,826 - main - INFO - GET /static/js/services/apiService.js
+2025-07-07 22:19:31,830 - main - INFO - GET /static/js/services/stateService.js
+2025-07-07 22:19:31,871 - main - INFO - GET /static/js/app_new.js
+2025-07-07 22:19:31,874 - main - INFO - GET /static/js/services/uiService.js
+2025-07-07 22:19:31,876 - main - INFO - GET /static/js/services/editorService.js
+2025-07-07 22:19:33,060 - app.api.routes - INFO - 接続状態確認要求
+2025-07-07 22:19:33,068 - main - INFO - GET /api/v1/connection/status
+2025-07-07 22:19:33,134 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-07 22:19:33,142 - main - INFO - GET /favicon.ico
+2025-07-07 22:19:33,182 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-07 22:19:33,194 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 22:19:33,213 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 22:19:33,219 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-07 22:19:33,220 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-07 22:19:33,227 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-07 22:19:33,236 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-07 22:19:33,239 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 22:19:33,239 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-07 22:19:33,251 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 22:19:33,258 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 22:19:33,262 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 22:19:33,266 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 22:19:33,336 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 22:19:33,336 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 22:19:33,336 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-07 22:19:33,336 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 153.6ms)
+2025-07-07 22:19:33,352 - main - INFO - GET /api/v1/metadata/all
+2025-07-07 22:19:33,373 - main - INFO - GET /api/v1/users/me
+2025-07-07 22:19:33,394 - main - INFO - GET /api/v1/visibility-settings
+2025-07-07 22:19:33,423 - main - INFO - GET /api/v1/users/templates
+2025-07-07 22:19:33,437 - main - INFO - GET /api/v1/admin/templates
+2025-07-07 22:19:41,525 - app.api.routes - INFO - SQLフォーマット要求
+2025-07-07 22:19:41,546 - app.api.routes - INFO - SQLフォーマット成功
+2025-07-07 22:19:41,547 - main - INFO - POST /api/v1/sql/format
+2025-07-07 22:20:41,429 - app.api.routes - INFO - SQL補完候補要求
+2025-07-07 22:20:41,429 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'W'
+2025-07-07 22:20:41,429 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 22:20:41,448 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 22:20:41,451 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-07 22:20:41,452 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 23.1ms)
+2025-07-07 22:20:41,454 - main - INFO - POST /api/v1/sql/suggest
+2025-07-07 22:20:46,853 - app.api.routes - INFO - SQL実行要求
+2025-07-07 22:20:46,853 - snowsight_app - INFO - SQL実行開始
+2025-07-07 22:20:46,853 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-07 22:20:46,875 - sql_validator - INFO - SQLバリデーション: 
+SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-07 22:20:46,877 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-07 22:20:46,879 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-07 22:20:50,022 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-07 22:20:50,022 - snowsight_app - INFO - SQL実行完了
+2025-07-07 22:20:50,063 - SQLLogService - INFO - SQL実行ログを追加: 62ddc576-12fa-49a5-9d3f-faba95d2fb8e
+2025-07-07 22:20:50,066 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.2s)
+2025-07-07 22:20:50,070 - main - INFO - POST /api/v1/sql/execute
+2025-07-07 22:20:50,072 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-07 22:20:50,744 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-07 22:20:50,747 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
+2025-07-07 22:20:57,421 - app.api.routes - INFO - SQL補完候補要求
+2025-07-07 22:20:57,421 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'T'
+2025-07-07 22:20:57,421 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 22:20:57,441 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 22:20:57,443 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-07 22:20:57,444 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 23.6ms)
+2025-07-07 22:20:57,446 - main - INFO - POST /api/v1/sql/suggest
+2025-07-07 22:20:57,586 - app.api.routes - INFO - SQL補完候補要求
+2025-07-07 22:20:57,587 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'TE'
+2025-07-07 22:20:57,588 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 22:20:57,598 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 22:20:57,599 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-07 22:20:57,601 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 14.0ms)
+2025-07-07 22:20:57,602 - main - INFO - POST /api/v1/sql/suggest
+2025-07-07 22:20:57,652 - app.api.routes - INFO - SQL補完候補要求
+2025-07-07 22:20:57,653 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'TES'
+2025-07-07 22:20:57,654 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 22:20:57,664 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 22:20:57,665 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-07 22:20:57,666 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 14.0ms)
+2025-07-07 22:20:57,667 - main - INFO - POST /api/v1/sql/suggest
+2025-07-07 22:20:57,854 - app.api.routes - INFO - SQL補完候補要求
+2025-07-07 22:20:57,856 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'TESU'
+2025-07-07 22:20:57,859 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 22:20:57,877 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 22:20:57,879 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-07 22:20:57,880 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 26.6ms)
+2025-07-07 22:20:57,883 - main - INFO - POST /api/v1/sql/suggest
+2025-07-07 22:21:15,725 - app.api.routes - INFO - SQL補完候補要求
+2025-07-07 22:21:15,726 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'A'
+2025-07-07 22:21:15,728 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 22:21:15,737 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 22:21:15,738 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-07 22:21:15,740 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 15.0ms)
+2025-07-07 22:21:15,742 - main - INFO - POST /api/v1/sql/suggest
+2025-07-07 22:21:21,236 - app.api.routes - INFO - SQL実行要求
+2025-07-07 22:21:21,236 - snowsight_app - INFO - SQL実行開始
+2025-07-07 22:21:21,236 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-07 22:21:21,236 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-07 22:21:21,236 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-07 22:21:21,336 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-07 22:21:21,336 - snowsight_app - INFO - SQL実行完了
+2025-07-07 22:21:21,369 - SQLLogService - INFO - SQL実行ログを追加: 81f7a11c-b835-439f-abde-347469f71538
+2025-07-07 22:21:21,371 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 134.3ms)
+2025-07-07 22:21:21,373 - main - INFO - POST /api/v1/sql/execute
+2025-07-07 22:21:21,376 - SQLLogService - INFO - Snowflakeへのログ記録を開始
+2025-07-07 22:21:21,687 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-07 22:21:21,687 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました

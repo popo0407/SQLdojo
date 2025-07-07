@@ -404,16 +404,18 @@ class AppController {
             return;
         }
 
-        let sql = this.editorService.getValue();
+        // 選択範囲がある場合は通知
+        if (this.editorService.hasSelection()) {
+            console.log('選択範囲のSQLを実行します');
+        }
+
+        // プレースホルダーを置換（選択範囲内のパラメータのみ処理）
+        const placeholderValues = this.uiService.getPlaceholderValues();
+        let sql = this.editorService.getSelectedSQLWithParameters(placeholderValues);
+        
         if (!sql.trim()) {
             this.uiService.showError('SQLを入力してください');
             return;
-        }
-
-        // プレースホルダーを置換
-        const placeholderValues = this.uiService.getPlaceholderValues();
-        if (Object.keys(placeholderValues).length > 0) {
-            sql = this.editorService.replacePlaceholders(sql, placeholderValues);
         }
 
         this.uiService.showLoading(true);
