@@ -45,6 +45,9 @@ class AppController {
             // テンプレートの読み込み
             await this.loadAllTemplates();
             
+            // パーツの読み込み
+            await this.loadAllParts();
+            
             // コピーされたSQLの確認
             this.checkAndApplyCopiedSQL();
             
@@ -168,6 +171,9 @@ class AppController {
 
         // テンプレート保存ボタン
         replaceBtn('save-template-btn', () => this.saveUserTemplate());
+        
+        // パーツ保存ボタン
+        replaceBtn('save-part-btn', () => this.saveUserPart());
 
         // 管理者ページボタン
         const adminPageBtn = document.getElementById('admin-page-btn');
@@ -533,6 +539,29 @@ class AppController {
     }
 
     /**
+     * 全パーツの読み込み
+     */
+    async loadAllParts() {
+        try {
+            // ユーザーパーツと共通パーツを並行して読み込み
+            const [userParts, commonParts] = await Promise.all([
+                this.apiService.getAllParts(),
+                this.apiService.getCommonParts()
+            ]);
+            
+            this.stateService.setUserParts(userParts);
+            this.stateService.setAdminParts(commonParts);
+            
+            this.updatePartDropdown();
+        } catch (error) {
+            console.error('パーツ読み込みエラー:', error);
+            // エラーが発生しても空の配列で初期化
+            this.stateService.setUserParts([]);
+            this.stateService.setAdminParts([]);
+        }
+    }
+
+    /**
      * テンプレートドロップダウンの更新
      */
     updateTemplateDropdown() {
@@ -575,6 +604,48 @@ class AppController {
     }
 
     /**
+     * パーツドロップダウンの更新
+     */
+    updatePartDropdown() {
+        const dropdown = document.getElementById('part-dropdown');
+        if (!dropdown) return;
+
+        let html = '';
+        
+        // ユーザーパーツ
+        const userParts = this.stateService.getUserParts();
+        if (userParts && userParts.length > 0) {
+            html += '<div class="part-section"><strong>自分のパーツ</strong></div>';
+            userParts.forEach(part => {
+                html += `
+                    <div class="part-item" onclick="loadPart('user', '${part.sql.replace(/'/g, "\\'")}')" title="${part.sql}">
+                        <i class="fas fa-user me-2"></i>${part.name}
+                    </div>
+                `;
+            });
+        }
+        
+        // 共通パーツ
+        const commonParts = this.stateService.getAdminParts();
+        if (commonParts && commonParts.length > 0) {
+            html += '<div class="part-section"><strong>共通パーツ</strong></div>';
+            commonParts.forEach(part => {
+                html += `
+                    <div class="part-item" onclick="loadPart('admin', '${part.sql.replace(/'/g, "\\'")}')" title="${part.sql}">
+                        <i class="fas fa-shield-alt me-2"></i>${part.name}
+                    </div>
+                `;
+            });
+        }
+        
+        if (html === '') {
+            html = '<div class="part-item disabled">パーツがありません<br><small>「パーツ保存」ボタンで新しいパーツを作成できます</small></div>';
+        }
+        
+        dropdown.innerHTML = html;
+    }
+
+    /**
      * ユーザーテンプレートの保存
      */
     async saveUserTemplate() {
@@ -595,6 +666,31 @@ class AppController {
             console.error('テンプレート保存エラー:', error);
             // エラーメッセージから「テンプレート保存エラー:」プレフィックスを除去
             const errorMessage = error.message.replace(/^テンプレート保存エラー:\s*/, '');
+            this.uiService.showError(errorMessage);
+        }
+    }
+
+    /**
+     * ユーザーパーツの保存
+     */
+    async saveUserPart() {
+        const sql = this.editorService.getValue();
+        if (!sql.trim()) {
+            this.uiService.showError('保存するSQLを入力してください');
+            return;
+        }
+
+        const name = prompt('パーツ名を入力してください:');
+        if (!name) return;
+
+        try {
+            await this.apiService.saveUserPart(name, sql);
+            await this.loadAllParts(); // パーツ一覧を再読み込み
+            // 成功メッセージは表示しない（ユーザーが見た目で保存成功がわかるため）
+        } catch (error) {
+            console.error('パーツ保存エラー:', error);
+            // エラーメッセージから「パーツ保存エラー:」プレフィックスを除去
+            const errorMessage = error.message.replace(/^パーツ保存エラー:\s*/, '');
             this.uiService.showError(errorMessage);
         }
     }
@@ -836,6 +932,23 @@ function toggleTemplates() {
     }
 }
 
+function toggleParts() {
+    const dropdown = document.getElementById('part-dropdown');
+    if (dropdown) {
+        const isVisible = dropdown.style.display === 'block';
+        dropdown.style.display = isVisible ? 'none' : 'block';
+        
+        // ドロップダウンが表示された場合、クリック外での非表示を設定
+        if (!isVisible) {
+            setTimeout(() => {
+                document.addEventListener('click', hidePartsOnClickOutside);
+            }, 0);
+        } else {
+            document.removeEventListener('click', hidePartsOnClickOutside);
+        }
+    }
+}
+
 function hideTemplatesOnClickOutside(event) {
     const dropdown = document.getElementById('template-dropdown');
     const templateButton = event.target.closest('.sql-templates');
@@ -846,14 +959,37 @@ function hideTemplatesOnClickOutside(event) {
     }
 }
 
+function hidePartsOnClickOutside(event) {
+    const dropdown = document.getElementById('part-dropdown');
+    const partButton = event.target.closest('.sql-parts');
+    
+    if (dropdown && !partButton) {
+        dropdown.style.display = 'none';
+        document.removeEventListener('click', hidePartsOnClickOutside);
+    }
+}
+
 function loadTemplate(type, sql) {
     if (appController && appController.getEditorService()) {
-        appController.getEditorService().setValue(sql);
+        appController.getEditorService().replaceContent(sql);
         // 完了報告（成功メッセージ等）は表示しない
         // appController.getUiService().showInfo(`${type === 'user' ? '個人用' : '共通'}テンプレートを読み込みました`);
     }
     // テンプレート候補ウィンドウを閉じる
     const dropdown = document.getElementById('template-dropdown');
+    if (dropdown) {
+        dropdown.style.display = 'none';
+    }
+}
+
+function loadPart(type, sql) {
+    if (appController && appController.getEditorService()) {
+        appController.getEditorService().insertText(sql);
+        // 完了報告（成功メッセージ等）は表示しない
+        // appController.getUiService().showInfo(`${type === 'user' ? '個人用' : '共通'}パーツを挿入しました`);
+    }
+    // パーツ候補ウィンドウを閉じる
+    const dropdown = document.getElementById('part-dropdown');
     if (dropdown) {
         dropdown.style.display = 'none';
     }

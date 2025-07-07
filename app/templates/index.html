@@ -20,6 +20,9 @@
                         <button type="button" id="save-template-btn" class="btn btn-light btn-sm" title="現在のSQLを個人用テンプレートとして保存">
                             <i class="fas fa-save me-1"></i>テンプレート保存
                         </button>
+                        <button type="button" id="save-part-btn" class="btn btn-light btn-sm" title="現在のSQLを個人用パーツとして保存">
+                            <i class="fas fa-puzzle-piece me-1"></i>パーツ保存
+                        </button>
                     </div>
                     
                     <div class="sql-templates">
@@ -27,6 +30,15 @@
                             <i class="fas fa-file-code me-1"></i>テンプレート
                         </button>
                         <div class="template-dropdown" id="template-dropdown">
+                            <!-- ここはJSで動的に描画される -->
+                        </div>
+                    </div>
+                    
+                    <div class="sql-parts">
+                        <button type="button" class="btn btn-light btn-sm dropdown-toggle" onclick="toggleParts()">
+                            <i class="fas fa-puzzle-piece me-1"></i>パーツ
+                        </button>
+                        <div class="part-dropdown" id="part-dropdown">
                             <!-- ここはJSで動的に描画される -->
                         </div>
                     </div>

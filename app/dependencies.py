@@ -21,6 +21,7 @@ from app.services.export_service import ExportService
 from app.services.completion_service import CompletionService
 from app.services.user_service import UserService
 from app.services.template_service import TemplateService
+from app.services.part_service import PartService
 from app.services.sql_log_service import SQLLogService
 from app.services.admin_service import AdminService
 from app.services.visibility_control_service import VisibilityControlService
@@ -131,6 +132,13 @@ def get_template_service_di(
     """テンプレートサービスを取得"""
     return TemplateService(metadata_cache)
 
+# パーツサービスの依存性注入
+def get_part_service_di(
+    metadata_cache: Annotated[MetadataCache, Depends(get_metadata_cache_di)]
+) -> PartService:
+    """パーツサービスを取得"""
+    return PartService(metadata_cache)
+
 
 # 認証チェックの依存性注入
 def get_current_user(request: Request):
@@ -188,6 +196,7 @@ ExportServiceDep = Annotated[ExportService, Depends(get_export_service_di)]
 CompletionServiceDep = Annotated[CompletionService, Depends(get_completion_service_di)]
 UserServiceDep = Annotated[UserService, Depends(get_user_service_di)]
 TemplateServiceDep = Annotated[TemplateService, Depends(get_template_service_di)]
+PartServiceDep = Annotated[PartService, Depends(get_part_service_di)]
 SQLValidatorDep = Annotated[SQLValidator, Depends(get_sql_validator_di)]
 MetadataCacheDep = Annotated[MetadataCache, Depends(get_metadata_cache_di)]
 CurrentUserDep = Annotated[dict, Depends(get_current_user)]

@@ -1115,6 +1115,55 @@ body {
     background-color: #f8f9fa;
 }
 
+.sql-parts {
+    position: relative;
+}
+
+.part-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 400px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 9999;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+    margin-top: 5px;
+}
+
+.part-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+.part-item:hover {
+    background-color: #f8f9fa;
+}
+
+.part-item:last-child {
+    border-bottom: none;
+}
+
+.part-section {
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.part-item.disabled {
+    color: #6c757d;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
+}
+
 .template-title {
     font-weight: 600;
     color: #495057;

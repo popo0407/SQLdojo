@@ -268,6 +268,17 @@ class EditorService {
     }
 
     /**
+     * エディタの内容を置換
+     * @param {string} text - 置換するテキスト
+     */
+    replaceContent(text) {
+        if (!this.sqlEditor) return;
+        
+        this.sqlEditor.setValue(text);
+        this.sqlEditor.focus();
+    }
+
+    /**
      * エディタの選択範囲を取得
      * @returns {Object|null} 選択範囲
      */

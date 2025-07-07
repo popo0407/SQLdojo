@@ -98,6 +98,28 @@ class MetadataCache:
                     created_at TEXT NOT NULL
                 )
                 """)
+
+                # ユーザーパーツを保存するテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS user_parts (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    sql TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users (user_id)
+                )
+                """)
+
+                # 管理者（共通）パーツを保存するテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS admin_parts (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    sql TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                )
+                """)
                 
                 # ▼▼▼ 以下を末尾に追加 ▼▼▼
                 # 表示制御設定を保存するテーブル

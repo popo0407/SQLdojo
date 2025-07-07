@@ -122,6 +122,34 @@
                 <div id="template-status" class="status-message" style="display:none;"></div>
             </div>
 
+            <!-- 共通パーツ管理 -->
+            <div class="admin-card">
+                <h5><i class="fas fa-puzzle-piece"></i> 共通パーツ管理</h5>
+                <p>全ユーザーが利用できるSQLパーツを管理します。パーツは既存のコードを消さずにカーソル位置に挿入されます。</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="part-name" class="form-label">パーツ名</label>
+                            <input type="text" class="form-control" id="part-name" placeholder="パーツ名を入力">
+                        </div>
+                        <div class="mb-3">
+                            <label for="part-sql" class="form-label">SQL</label>
+                            <textarea class="form-control" id="part-sql" rows="5" placeholder="SQLを入力"></textarea>
+                        </div>
+                        <button class="btn-admin" onclick="onSavePart()">
+                            <i class="fas fa-save"></i> パーツ保存
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>保存済みパーツ</h6>
+                        <div id="parts-list">
+                            <p class="text-muted">パーツがありません</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="part-status" class="status-message" style="display:none;"></div>
+            </div>
+
             <!-- メタデータ表示制御 -->
             <div class="admin-card">
                 <h5><i class="fas fa-eye-slash"></i> メタデータ表示制御</h5>
@@ -161,6 +189,7 @@
         checkAdminAuth();
         if (window.is_admin === "true") {
             loadTemplates();
+            loadParts();
             loadVisibilitySettings();
         }
     });
@@ -452,6 +481,127 @@
         }
     }
 
+    // 共通テンプレート保存
+    async function saveTemplate() {
+        if (!requireAdminAuth()) return;
+        
+        const name = document.getElementById('template-name').value;
+        const sql = document.getElementById('template-sql').value;
+        
+        if (!name || !sql) {
+            alert('テンプレート名とSQLを入力してください');
+            return;
+        }
+
+        const statusDiv = document.getElementById('template-status');
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-message';
+        statusDiv.textContent = '保存中...';
+
+        try {
+            const response = await fetch('/api/v1/admin/templates', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, sql })
+            });
+            
+            if (response.ok) {
+                statusDiv.className = 'status-message status-success';
+                statusDiv.textContent = 'テンプレートを保存しました';
+                document.getElementById('template-name').value = '';
+                document.getElementById('template-sql').value = '';
+                loadTemplates();
+            } else {
+                const error = await response.json();
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = `エラー: ${error.detail || '保存に失敗しました'}`;
+            }
+        } catch (error) {
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = 'エラー: 通信に失敗しました';
+        }
+    }
+
+    // 共通パーツ保存
+    async function savePart() {
+        if (!requireAdminAuth()) return;
+        
+        const name = document.getElementById('part-name').value;
+        const sql = document.getElementById('part-sql').value;
+        
+        if (!name || !sql) {
+            alert('パーツ名とSQLを入力してください');
+            return;
+        }
+
+        const statusDiv = document.getElementById('part-status');
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'status-message';
+        statusDiv.textContent = '保存中...';
+
+        try {
+            const response = await fetch('/api/v1/admin/parts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, sql })
+            });
+            
+            if (response.ok) {
+                statusDiv.className = 'status-message status-success';
+                statusDiv.textContent = 'パーツを保存しました';
+                document.getElementById('part-name').value = '';
+                document.getElementById('part-sql').value = '';
+                loadParts();
+            } else {
+                const error = await response.json();
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = `エラー: ${error.detail || '保存に失敗しました'}`;
+            }
+        } catch (error) {
+            statusDiv.className = 'status-message status-error';
+            statusDiv.textContent = 'エラー: 通信に失敗しました';
+        }
+    }
+
+    // パーツ一覧読み込み
+    function loadParts() {
+        fetch('/api/v1/admin/parts')
+            .then(res => res.json())
+            .then(data => {
+                const listDiv = document.getElementById('parts-list');
+                if (!data || data.length === 0) {
+                    listDiv.innerHTML = '<p class="text-muted">パーツがありません</p>';
+                    return;
+                }
+                listDiv.innerHTML = data.map(p => `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <strong>${escapeHtml(p.name)}</strong>
+                            <pre class="mb-0" style="font-size: 0.8em; white-space: pre-wrap;">${escapeHtml(p.sql)}</pre>
+                        </div>
+                        <button class='btn btn-sm btn-outline-danger' onclick='deletePart("${p.id}")'>削除</button>
+                    </div>
+                `).join('');
+            });
+    }
+
+    // パーツ削除
+    async function deletePart(id) {
+        if (!confirm('このパーツを削除しますか？')) return;
+
+        try {
+            const response = await fetch(`/api/v1/admin/parts/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                loadParts();
+            } else {
+                alert('削除に失敗しました');
+            }
+        } catch (error) {
+            console.error('パーツ削除エラー:', error);
+            alert('削除に失敗しました');
+        }
+    }
+
     // 管理者認証状態をJSで判定できるようにする
     // const isAdmin = {{ 'true' if is_admin else 'false' }}; ←この行を削除
 
@@ -476,6 +626,10 @@
     function onSaveTemplate() {
         if (!requireAdminAuth()) return;
         saveTemplate();
+    }
+    function onSavePart() {
+        if (!requireAdminAuth()) return;
+        savePart();
     }
 
     async function loadVisibilitySettings() {

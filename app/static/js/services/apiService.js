@@ -147,6 +147,36 @@ class ApiService {
     }
 
     /**
+     * 全パーツを取得
+     * @returns {Promise<Array>} パーツ配列
+     */
+    getAllParts() {
+        return this._fetch('/users/parts');
+    }
+
+    /**
+     * 共通パーツを取得
+     * @returns {Promise<Array>} 共通パーツ配列
+     */
+    getCommonParts() {
+        return this._fetch('/admin/parts');
+    }
+
+    /**
+     * ユーザーパーツを保存
+     * @param {string} name - パーツ名
+     * @param {string} sql - SQL内容
+     * @returns {Promise<Object>} 保存結果
+     */
+    saveUserPart(name, sql) {
+        return this._fetch('/users/parts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, sql })
+        });
+    }
+
+    /**
      * 管理者ログイン
      * @param {string} password - 管理者パスワード
      * @returns {Promise<Object>} ログイン結果

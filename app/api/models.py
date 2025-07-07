@@ -238,6 +238,18 @@ class TemplateResponse(BaseModel):
     created_at: str = Field(..., description="作成日時")
 
 
+class PartRequest(BaseModel):
+    name: str = Field(..., description="パーツ名")
+    sql: str = Field(..., description="SQL文")
+
+
+class PartResponse(BaseModel):
+    id: str = Field(..., description="パーツID")
+    name: str = Field(..., description="パーツ名")
+    sql: str = Field(..., description="SQL文")
+    created_at: str = Field(..., description="作成日時")
+
+
 class UserRefreshResponse(BaseModel):
     message: str = Field(..., description="更新メッセージ")
     user_count: int = Field(..., description="更新されたユーザー数")

@@ -26,6 +26,8 @@ class StateService {
         // テンプレートデータ
         this.userTemplates = [];
         this.adminTemplates = [];
+        this.userParts = [];
+        this.adminParts = [];
         
         // 接続状態
         this.connectionStatus = null;
@@ -105,6 +107,23 @@ class StateService {
         return this.adminTemplates; 
     }
 
+    // パーツの管理
+    setUserParts(parts) { 
+        this.userParts = parts; 
+    }
+    
+    getUserParts() { 
+        return this.userParts; 
+    }
+    
+    setAdminParts(parts) { 
+        this.adminParts = parts; 
+    }
+    
+    getAdminParts() { 
+        return this.adminParts; 
+    }
+
     // 接続状態の管理
     setConnectionStatus(status) { 
         this.connectionStatus = status; 
@@ -153,5 +172,15 @@ class StateService {
         const userTemplates = this.userTemplates.map(t => ({ ...t, type: 'user' }));
         const adminTemplates = this.adminTemplates.map(t => ({ ...t, type: 'admin' }));
         return [...userTemplates, ...adminTemplates];
+    }
+
+    /**
+     * 全パーツを取得（ユーザー + 管理者）
+     * @returns {Array} 全パーツの配列
+     */
+    getAllParts() {
+        const userParts = this.userParts.map(p => ({ ...p, type: 'user' }));
+        const adminParts = this.adminParts.map(p => ({ ...p, type: 'admin' }));
+        return [...userParts, ...adminParts];
     }
 } 

@@ -146,6 +146,34 @@
             </div>
             <div id="user-template-status" class="status-message" style="display:none;"></div>
         </div>
+
+        <!-- 個人パーツ管理 -->
+        <div class="user-card">
+            <h5><i class="fas fa-puzzle-piece"></i> 個人パーツ管理</h5>
+            <p>あなた専用のSQLパーツを管理します。パーツは既存のコードを消さずにカーソル位置に挿入されます。</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="user-part-name" class="form-label">パーツ名</label>
+                        <input type="text" class="form-control" id="user-part-name" placeholder="パーツ名を入力">
+                    </div>
+                    <div class="mb-3">
+                        <label for="user-part-sql" class="form-label">SQL</label>
+                        <textarea class="form-control" id="user-part-sql" rows="5" placeholder="SQLを入力"></textarea>
+                    </div>
+                    <button class="btn-user" onclick="saveUserPart()">
+                        <i class="fas fa-save"></i> パーツ保存
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <h6>保存済みパーツ</h6>
+                    <div id="user-parts-list">
+                        <p class="text-muted">パーツがありません</p>
+                    </div>
+                </div>
+            </div>
+            <div id="user-part-status" class="status-message" style="display:none;"></div>
+        </div>
     </div>
 
     <!-- SQL全文表示用ツールチップ -->
@@ -156,8 +184,9 @@
     <script>
         // ページ読み込み時の処理
         document.addEventListener('DOMContentLoaded', function() {
-            loadCurrentUser();
-            loadUserTemplates();
+                    loadCurrentUser();
+        loadUserTemplates();
+        loadUserParts();
             displayHistoryFromCache();
         });
 
@@ -350,6 +379,77 @@
             fetch(`/api/v1/users/templates/${id}`, { method: 'DELETE' })
                 .then(res => {
                     if (res.ok) loadUserTemplates();
+                    else alert('削除に失敗しました');
+                });
+        }
+
+        // 個人パーツ保存
+        async function saveUserPart() {
+            const name = document.getElementById('user-part-name').value;
+            const sql = document.getElementById('user-part-sql').value;
+            
+            if (!name || !sql) {
+                alert('パーツ名とSQLを入力してください');
+                return;
+            }
+
+            const statusDiv = document.getElementById('user-part-status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'status-message';
+            statusDiv.textContent = '保存中...';
+
+            try {
+                const response = await fetch('/api/v1/users/parts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, sql })
+                });
+                
+                if (response.ok) {
+                    statusDiv.className = 'status-message status-success';
+                    statusDiv.textContent = 'パーツを保存しました';
+                    document.getElementById('user-part-name').value = '';
+                    document.getElementById('user-part-sql').value = '';
+                    loadUserParts();
+                } else {
+                    const error = await response.json();
+                    statusDiv.className = 'status-message status-error';
+                    statusDiv.textContent = `エラー: ${error.detail || '保存に失敗しました'}`;
+                }
+            } catch (error) {
+                statusDiv.className = 'status-message status-error';
+                statusDiv.textContent = 'エラー: 通信に失敗しました';
+            }
+        }
+
+        // ユーザーパーツ一覧取得
+        function loadUserParts() {
+            fetch('/api/v1/users/parts')
+                .then(res => res.json())
+                .then(data => {
+                    const listDiv = document.getElementById('user-parts-list');
+                    if (!data || data.length === 0) {
+                        listDiv.innerHTML = '<p class="text-muted">パーツがありません</p>';
+                        return;
+                    }
+                    listDiv.innerHTML = data.map(p => `
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <strong>${escapeHtml(p.name)}</strong>
+                                <pre class="mb-0" style="font-size: 0.8em; white-space: pre-wrap;">${escapeHtml(p.sql)}</pre>
+                            </div>
+                            <button class='btn btn-sm btn-outline-danger' onclick='deleteUserPart("${p.id}")'>削除</button>
+                        </div>
+                    `).join('');
+                });
+        }
+
+        // パーツ削除
+        function deleteUserPart(id) {
+            if (!confirm('このパーツを削除しますか？')) return;
+            fetch(`/api/v1/users/parts/${id}`, { method: 'DELETE' })
+                .then(res => {
+                    if (res.ok) loadUserParts();
                     else alert('削除に失敗しました');
                 });
         }

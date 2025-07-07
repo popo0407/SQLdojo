@@ -26,7 +26,7 @@ from app.api.models import (
     DownloadResponse, DownloadStatusResponse, HealthCheckResponse,
     PerformanceMetricsResponse, ExportRequest, ExportResponse, ExportHistoryResponse,
     WarehouseInfo, DatabaseInfo, ConnectionStatusResponse, UserLoginRequest, UserInfo,
-    TemplateRequest, TemplateResponse, UserRefreshResponse, AdminLoginRequest,
+    TemplateRequest, TemplateResponse, PartRequest, PartResponse, UserRefreshResponse, AdminLoginRequest,
     SQLExecutionLog, SQLExecutionLogResponse, SaveVisibilitySettingsRequest
 )
 from app.sql_validator import validate_sql, format_sql
@@ -36,7 +36,7 @@ from app import __version__
 from app.dependencies import (
     SQLServiceDep, MetadataServiceDep, PerformanceServiceDep, ExportServiceDep,
     SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep, CurrentUserDep, CurrentAdminDep, SQLLogServiceDep,
-    UserServiceDep, TemplateServiceDep, AdminServiceDep, VisibilityControlServiceDep
+    UserServiceDep, TemplateServiceDep, PartServiceDep, AdminServiceDep, VisibilityControlServiceDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
 from app.services.metadata_service import MetadataService
@@ -480,6 +480,23 @@ async def delete_admin_template(template_id: str, current_admin: CurrentAdminDep
     await run_in_threadpool(template_service.delete_admin_template, template_id)
     return {"message": "テンプレートを削除しました"}
 
+# パーツAPI
+@router.get("/admin/parts", response_model=List[PartResponse])
+async def get_admin_parts(part_service: PartServiceDep):
+    """管理者パーツ一覧を取得"""
+    return await run_in_threadpool(part_service.get_admin_parts)
+
+@router.post("/admin/parts", response_model=PartResponse)
+async def create_admin_part(request: PartRequest, current_admin: CurrentAdminDep, part_service: PartServiceDep):
+    """管理者パーツを作成"""
+    return await run_in_threadpool(part_service.create_admin_part, request.name, request.sql)
+
+@router.delete("/admin/parts/{part_id}")
+async def delete_admin_part(part_id: str, current_admin: CurrentAdminDep, part_service: PartServiceDep):
+    """管理者パーツを削除"""
+    await run_in_threadpool(part_service.delete_admin_part, part_id)
+    return {"message": "パーツを削除しました"}
+
 # ユーザーAPI
 @router.get("/users/history")
 async def get_user_history(
@@ -522,6 +539,23 @@ async def delete_user_template(template_id: str, current_user: CurrentUserDep, t
     """ユーザーテンプレートを削除"""
     await run_in_threadpool(template_service.delete_user_template, template_id, current_user["user_id"])
     return {"message": "テンプレートを削除しました"}
+
+# ユーザーパーツAPI
+@router.get("/users/parts", response_model=List[PartResponse])
+async def get_user_parts(current_user: CurrentUserDep, part_service: PartServiceDep):
+    """ユーザーパーツ一覧を取得"""
+    return await run_in_threadpool(part_service.get_user_parts, current_user["user_id"])
+
+@router.post("/users/parts", response_model=PartResponse)
+async def create_user_part(request: PartRequest, current_user: CurrentUserDep, part_service: PartServiceDep):
+    """ユーザーパーツを作成"""
+    return await run_in_threadpool(part_service.create_user_part, current_user["user_id"], request.name, request.sql)
+
+@router.delete("/users/parts/{part_id}")
+async def delete_user_part(part_id: str, current_user: CurrentUserDep, part_service: PartServiceDep):
+    """ユーザーパーツを削除"""
+    await run_in_threadpool(part_service.delete_user_part, current_user["user_id"], part_id)
+    return {"message": "パーツを削除しました"}
 
 # 管理者認証API
 @router.post("/admin/login")
