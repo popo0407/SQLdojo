@@ -3403,3 +3403,4 @@ SELECT * FROM HF3IGM01 WHERE 1=1
 2025-07-07 23:17:02,804 - main - INFO - GET /api/v1/users/templates
 2025-07-07 23:17:02,827 - main - INFO - GET /api/v1/users/parts
 2025-07-07 23:17:02,831 - main - INFO - GET /api/v1/admin/parts
+2025-07-07 23:18:42,126 - main - INFO - アプリケーション終了
