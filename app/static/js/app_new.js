@@ -146,34 +146,35 @@ class AppController {
      * イベントのバインド
      */
     bindEvents() {
-        // ボタンイベント
         const replaceBtn = (id, newAction) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('click', newAction);
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.onclick = newAction;
             }
         };
 
-        // SQL実行ボタン
+        // ボタンイベントの設定
         replaceBtn('executeBtn', () => this.executeSQL());
-        
-        // SQL整形ボタン
         replaceBtn('formatBtn', () => this.formatSQL());
-        
-        // SQLクリアボタン
         replaceBtn('clearBtn', () => this.clearSQL());
-        
+        replaceBtn('save-template-btn', () => this.saveUserTemplate());
+        replaceBtn('save-part-btn', () => this.saveUserPart());
+
+        // エディタの選択変更イベント
+        if (this.editorService.sqlEditor) {
+            this.editorService.sqlEditor.onDidChangeCursorSelection(() => {
+                this.updatePartSaveButton();
+            });
+        }
+
+        // 初期状態でパーツ保存ボタンを更新
+        this.updatePartSaveButton();
+
         // エディタトグルボタン
         replaceBtn('toggleEditorBtn', () => this.toggleEditorSize());
         
         // CSVエクスポートボタン
         replaceBtn('exportCsvBtn', () => this.exportData('csv'));
-
-        // テンプレート保存ボタン
-        replaceBtn('save-template-btn', () => this.saveUserTemplate());
-        
-        // パーツ保存ボタン
-        replaceBtn('save-part-btn', () => this.saveUserPart());
 
         // 管理者ページボタン
         const adminPageBtn = document.getElementById('admin-page-btn');
@@ -674,24 +675,50 @@ class AppController {
      * ユーザーパーツの保存
      */
     async saveUserPart() {
-        const sql = this.editorService.getValue();
-        if (!sql.trim()) {
-            this.uiService.showError('保存するSQLを入力してください');
+        if (!this.editorService.canSaveAsPart()) {
+            this.uiService.showNotification('SQLエディタでテキストを選択してください', 'warning');
             return;
         }
 
-        const name = prompt('パーツ名を入力してください:');
-        if (!name) return;
+        const selectedText = this.editorService.getSelectedText().trim();
+        if (selectedText.length === 0) {
+            this.uiService.showNotification('選択されたテキストがありません', 'warning');
+            return;
+        }
+
+        if (selectedText.length > 1000) {
+            this.uiService.showNotification('パーツは1000文字以内で保存してください', 'warning');
+            return;
+        }
 
         try {
-            await this.apiService.saveUserPart(name, sql);
-            await this.loadAllParts(); // パーツ一覧を再読み込み
-            // 成功メッセージは表示しない（ユーザーが見た目で保存成功がわかるため）
+            const response = await this.apiService.savePart(selectedText);
+            if (response.success) {
+                this.uiService.showNotification('パーツを保存しました', 'success');
+                // パーツ一覧を更新
+                this.loadAllParts();
+            } else {
+                this.uiService.showNotification(response.message || 'パーツの保存に失敗しました', 'error');
+            }
         } catch (error) {
             console.error('パーツ保存エラー:', error);
-            // エラーメッセージから「パーツ保存エラー:」プレフィックスを除去
-            const errorMessage = error.message.replace(/^パーツ保存エラー:\s*/, '');
-            this.uiService.showError(errorMessage);
+            this.uiService.showNotification('パーツの保存に失敗しました', 'error');
+        }
+    }
+
+    /**
+     * パーツ保存ボタンの状態を更新
+     */
+    updatePartSaveButton() {
+        const savePartBtn = document.getElementById('save-part-btn');
+        if (savePartBtn) {
+            if (this.editorService.canSaveAsPart()) {
+                savePartBtn.disabled = false;
+                savePartBtn.title = '選択されたSQLをパーツとして保存';
+            } else {
+                savePartBtn.disabled = true;
+                savePartBtn.title = 'SQLエディタでテキストを選択してください';
+            }
         }
     }
 

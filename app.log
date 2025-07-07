@@ -3404,3 +3404,467 @@ SELECT * FROM HF3IGM01 WHERE 1=1
 2025-07-07 23:17:02,827 - main - INFO - GET /api/v1/users/parts
 2025-07-07 23:17:02,831 - main - INFO - GET /api/v1/admin/parts
 2025-07-07 23:18:42,126 - main - INFO - アプリケーション終了
+2025-07-07 23:29:55,632 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-07 23:29:55,632 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-07 23:30:07,003 - main - INFO - GET /
+2025-07-07 23:30:07,177 - main - INFO - GET /static/css/style.css
+2025-07-07 23:30:07,184 - main - INFO - GET /static/img/hint.png
+2025-07-07 23:30:07,196 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-07 23:30:07,206 - main - INFO - GET /static/js/services/apiService.js
+2025-07-07 23:30:07,209 - main - INFO - GET /static/js/services/uiService.js
+2025-07-07 23:30:07,210 - main - INFO - GET /static/js/services/stateService.js
+2025-07-07 23:30:07,237 - main - INFO - GET /static/js/services/editorService.js
+2025-07-07 23:30:07,238 - main - INFO - GET /static/js/app_new.js
+2025-07-07 23:30:08,791 - app.api.routes - INFO - 接続状態確認要求
+2025-07-07 23:30:08,827 - main - INFO - GET /api/v1/connection/status
+2025-07-07 23:30:08,924 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-07 23:30:08,934 - main - INFO - GET /favicon.ico
+2025-07-07 23:30:08,950 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-07 23:30:08,952 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 23:30:08,965 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 23:30:08,968 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-07 23:30:08,971 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-07 23:30:08,974 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-07 23:30:08,976 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-07 23:30:08,977 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:30:08,978 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-07 23:30:08,981 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:30:08,982 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:30:08,984 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:30:08,985 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:30:08,987 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:30:08,987 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:30:08,989 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-07 23:30:09,011 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 60.5ms)
+2025-07-07 23:30:09,039 - main - INFO - GET /api/v1/metadata/all
+2025-07-07 23:30:09,056 - main - INFO - GET /api/v1/users/me
+2025-07-07 23:30:09,068 - main - INFO - GET /api/v1/visibility-settings
+2025-07-07 23:30:09,087 - main - INFO - GET /api/v1/admin/templates
+2025-07-07 23:30:09,094 - main - INFO - GET /api/v1/users/templates
+2025-07-07 23:30:09,111 - main - INFO - GET /api/v1/admin/parts
+2025-07-07 23:30:09,113 - main - INFO - GET /api/v1/users/parts
+2025-07-07 23:36:04,101 - app.api.routes - INFO - SQL補完候補要求
+2025-07-07 23:36:04,102 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'FD'
+2025-07-07 23:36:04,103 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 23:36:04,110 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 23:36:04,117 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-07 23:36:04,118 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 16.8ms)
+2025-07-07 23:36:04,120 - main - INFO - POST /api/v1/sql/suggest
+2025-07-07 23:43:21,490 - main - INFO - GET /
+2025-07-07 23:43:21,569 - main - INFO - GET /static/css/style.css
+2025-07-07 23:43:21,590 - main - INFO - GET /static/img/hint.png
+2025-07-07 23:43:21,642 - main - INFO - GET /static/js/services/apiService.js
+2025-07-07 23:43:21,644 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-07 23:43:21,652 - main - INFO - GET /static/js/services/stateService.js
+2025-07-07 23:43:21,663 - main - INFO - GET /static/js/services/uiService.js
+2025-07-07 23:43:21,671 - main - INFO - GET /static/js/services/editorService.js
+2025-07-07 23:43:21,674 - main - INFO - GET /static/js/app_new.js
+2025-07-07 23:43:22,743 - app.api.routes - INFO - 接続状態確認要求
+2025-07-07 23:43:22,744 - main - INFO - GET /api/v1/connection/status
+2025-07-07 23:43:22,805 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-07 23:43:22,805 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 23:43:22,894 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 23:43:22,904 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-07 23:43:22,913 - main - INFO - GET /favicon.ico
+2025-07-07 23:43:22,916 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-07 23:43:22,925 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-07 23:43:22,932 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-07 23:43:22,934 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-07 23:43:22,937 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:43:22,942 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-07 23:43:22,944 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:43:22,945 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:43:22,947 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:43:22,950 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:43:22,951 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:43:22,952 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:43:22,953 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-07 23:43:22,960 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 154.9ms)
+2025-07-07 23:43:22,962 - main - INFO - GET /api/v1/metadata/all
+2025-07-07 23:43:22,970 - main - INFO - GET /api/v1/users/me
+2025-07-07 23:43:22,987 - main - INFO - GET /api/v1/visibility-settings
+2025-07-07 23:43:23,013 - main - INFO - GET /api/v1/admin/templates
+2025-07-07 23:43:23,018 - main - INFO - GET /api/v1/users/templates
+2025-07-07 23:43:23,054 - main - INFO - GET /api/v1/admin/parts
+2025-07-07 23:43:23,060 - main - INFO - GET /api/v1/users/parts
+2025-07-07 23:47:30,160 - main - INFO - GET /user
+2025-07-07 23:47:30,308 - main - INFO - GET /static/css/style.css
+2025-07-07 23:47:30,356 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-07 23:47:30,552 - main - INFO - GET /api/v1/users/me
+2025-07-07 23:47:30,579 - main - INFO - GET /api/v1/users/templates
+2025-07-07 23:47:30,586 - main - INFO - GET /api/v1/users/parts
+2025-07-07 23:48:06,391 - main - INFO - GET /
+2025-07-07 23:48:06,478 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-07 23:48:06,527 - main - INFO - GET /static/js/services/apiService.js
+2025-07-07 23:48:06,674 - main - INFO - GET /static/js/services/stateService.js
+2025-07-07 23:48:06,682 - main - INFO - GET /static/js/services/editorService.js
+2025-07-07 23:48:06,690 - main - INFO - GET /static/js/app_new.js
+2025-07-07 23:48:08,533 - app.api.routes - INFO - 接続状態確認要求
+2025-07-07 23:48:08,554 - main - INFO - GET /api/v1/connection/status
+2025-07-07 23:48:08,629 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-07 23:48:08,643 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 23:48:08,659 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 23:48:08,665 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-07 23:48:08,670 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-07 23:48:08,676 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-07 23:48:08,677 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-07 23:48:08,682 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:48:08,686 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-07 23:48:08,695 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:48:08,697 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:48:08,706 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:48:08,709 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:48:08,710 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:48:08,711 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:48:08,714 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-07 23:48:08,715 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 85.9ms)
+2025-07-07 23:48:08,720 - main - INFO - GET /api/v1/metadata/all
+2025-07-07 23:48:08,762 - main - INFO - GET /api/v1/users/me
+2025-07-07 23:48:08,798 - main - INFO - GET /api/v1/visibility-settings
+2025-07-07 23:48:08,844 - main - INFO - GET /api/v1/admin/templates
+2025-07-07 23:48:08,848 - main - INFO - GET /api/v1/users/templates
+2025-07-07 23:48:08,878 - main - INFO - GET /api/v1/admin/parts
+2025-07-07 23:48:08,883 - main - INFO - GET /api/v1/users/parts
+2025-07-07 23:53:53,521 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-07 23:53:53,524 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-07 23:53:58,540 - main - INFO - アプリケーション終了
+2025-07-07 23:54:01,542 - main - INFO - アプリケーション終了
+2025-07-07 23:54:08,776 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-07 23:54:08,778 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-07 23:54:12,575 - main - INFO - GET /
+2025-07-07 23:54:12,852 - main - INFO - GET /static/css/style.css
+2025-07-07 23:54:12,861 - main - INFO - GET /static/js/services/apiService.js
+2025-07-07 23:54:12,862 - main - INFO - GET /static/img/hint.png
+2025-07-07 23:54:12,871 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-07 23:54:12,873 - main - INFO - GET /static/js/services/stateService.js
+2025-07-07 23:54:12,874 - main - INFO - GET /static/js/services/uiService.js
+2025-07-07 23:54:12,936 - main - INFO - GET /static/js/app_new.js
+2025-07-07 23:54:13,037 - main - INFO - GET /static/js/services/editorService.js
+2025-07-07 23:54:13,817 - app.api.routes - INFO - 接続状態確認要求
+2025-07-07 23:54:13,817 - main - INFO - GET /api/v1/connection/status
+2025-07-07 23:54:13,937 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-07 23:54:13,971 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-07 23:54:14,012 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-07 23:54:14,023 - main - INFO - GET /favicon.ico
+2025-07-07 23:54:14,023 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-07 23:54:14,044 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-07 23:54:14,048 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-07 23:54:14,050 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-07 23:54:14,050 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-07 23:54:14,050 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:54:14,068 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-07 23:54:14,072 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:54:14,074 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:54:14,075 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:54:14,086 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:54:14,086 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-07 23:54:14,100 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-07 23:54:14,100 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-07 23:54:14,100 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 163.4ms)
+2025-07-07 23:54:14,116 - main - INFO - GET /api/v1/metadata/all
+2025-07-07 23:54:14,140 - main - INFO - GET /api/v1/users/me
+2025-07-07 23:54:14,169 - main - INFO - GET /api/v1/visibility-settings
+2025-07-07 23:54:14,200 - main - INFO - GET /api/v1/users/templates
+2025-07-07 23:54:14,212 - main - INFO - GET /api/v1/admin/templates
+2025-07-07 23:54:14,234 - main - INFO - GET /api/v1/admin/parts
+2025-07-07 23:54:14,234 - main - INFO - GET /api/v1/users/parts
+2025-07-07 23:56:06,235 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': ':sta_kana'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-07 23:56:06,235 - main - INFO - POST /api/v1/users/parts
+2025-07-07 23:56:07,249 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': ':sta_kana'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-07 23:56:07,251 - main - INFO - POST /api/v1/users/parts
+2025-07-07 23:56:07,801 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': ':sta_kana'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-07 23:56:07,801 - main - INFO - POST /api/v1/users/parts
+2025-07-07 23:56:08,035 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': ':sta_kana'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-07 23:56:08,035 - main - INFO - POST /api/v1/users/parts
+2025-07-07 23:56:13,792 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': 'ASTER_STA'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-07 23:56:13,795 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:00:59,789 - main - INFO - GET /
+2025-07-08 00:00:59,867 - main - INFO - GET /static/css/style.css
+2025-07-08 00:00:59,999 - main - INFO - GET /static/img/hint.png
+2025-07-08 00:01:00,012 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-08 00:01:00,055 - main - INFO - GET /static/js/services/apiService.js
+2025-07-08 00:01:00,064 - main - INFO - GET /static/js/services/stateService.js
+2025-07-08 00:01:00,073 - main - INFO - GET /static/js/services/uiService.js
+2025-07-08 00:01:00,089 - main - INFO - GET /static/js/services/editorService.js
+2025-07-08 00:01:00,151 - main - INFO - GET /static/js/app_new.js
+2025-07-08 00:01:01,312 - app.api.routes - INFO - 接続状態確認要求
+2025-07-08 00:01:01,313 - main - INFO - GET /api/v1/connection/status
+2025-07-08 00:01:01,425 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-08 00:01:01,436 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-08 00:01:01,449 - main - INFO - GET /favicon.ico
+2025-07-08 00:01:01,436 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-08 00:01:01,473 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-08 00:01:01,477 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-08 00:01:01,479 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-08 00:01:01,489 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-08 00:01:01,492 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-08 00:01:01,495 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:01:01,497 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-08 00:01:01,503 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:01:01,508 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:01:01,510 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:01:01,519 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:01:01,521 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:01:01,523 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:01:01,526 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-08 00:01:01,528 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 102.7ms)
+2025-07-08 00:01:01,531 - main - INFO - GET /api/v1/metadata/all
+2025-07-08 00:01:01,552 - main - INFO - GET /api/v1/users/me
+2025-07-08 00:01:01,577 - main - INFO - GET /api/v1/visibility-settings
+2025-07-08 00:01:01,617 - main - INFO - GET /api/v1/admin/templates
+2025-07-08 00:01:01,702 - main - INFO - GET /api/v1/users/templates
+2025-07-08 00:01:01,722 - main - INFO - GET /api/v1/admin/parts
+2025-07-08 00:01:01,723 - main - INFO - GET /api/v1/users/parts
+2025-07-08 00:01:15,755 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:15,757 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:16,665 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:16,667 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:16,859 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:16,860 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:17,033 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:17,034 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:17,201 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:17,203 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:17,353 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:17,354 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:17,530 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:17,532 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:17,689 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:17,691 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:17,857 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:17,859 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:18,017 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:18,018 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:18,163 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:18,164 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:01:18,320 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': '_KANA,\n    STA_LAT,\n    STA_LON'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:01:18,322 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:05:49,376 - main - INFO - GET /
+2025-07-08 00:05:49,522 - main - INFO - GET /static/css/style.css
+2025-07-08 00:05:49,533 - main - INFO - GET /static/img/hint.png
+2025-07-08 00:05:49,679 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-08 00:05:49,679 - main - INFO - GET /static/js/services/apiService.js
+2025-07-08 00:05:49,705 - main - INFO - GET /static/js/services/stateService.js
+2025-07-08 00:05:49,719 - main - INFO - GET /static/js/services/uiService.js
+2025-07-08 00:05:49,731 - main - INFO - GET /static/js/services/editorService.js
+2025-07-08 00:05:49,788 - main - INFO - GET /static/js/app_new.js
+2025-07-08 00:05:51,029 - app.api.routes - INFO - 接続状態確認要求
+2025-07-08 00:05:51,031 - main - INFO - GET /api/v1/connection/status
+2025-07-08 00:05:51,102 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-08 00:05:51,103 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-08 00:05:51,128 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-08 00:05:51,151 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-08 00:05:51,154 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-08 00:05:51,215 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-08 00:05:51,170 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-08 00:05:51,253 - main - INFO - GET /favicon.ico
+2025-07-08 00:05:51,253 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-08 00:05:51,278 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:05:51,301 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-08 00:05:51,334 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:05:51,344 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:05:51,346 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:05:51,356 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:05:51,365 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:05:51,377 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:05:51,386 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-08 00:05:51,397 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 294.4ms)
+2025-07-08 00:05:51,403 - main - INFO - GET /api/v1/metadata/all
+2025-07-08 00:05:51,420 - main - INFO - GET /api/v1/users/me
+2025-07-08 00:05:51,458 - main - INFO - GET /api/v1/visibility-settings
+2025-07-08 00:05:51,483 - main - INFO - GET /api/v1/users/templates
+2025-07-08 00:05:51,490 - main - INFO - GET /api/v1/admin/templates
+2025-07-08 00:05:51,533 - main - INFO - GET /api/v1/admin/parts
+2025-07-08 00:05:51,534 - main - INFO - GET /api/v1/users/parts
+2025-07-08 00:06:47,157 - app.api.error_handlers - ERROR - バリデーション例外: [{'type': 'missing', 'loc': ('body', 'name'), 'msg': 'Field required', 'input': {'sql': 'TA'}, 'url': 'https://errors.pydantic.dev/2.5/v/missing'}]
+2025-07-08 00:06:47,157 - main - INFO - POST /api/v1/users/parts
+2025-07-08 00:07:49,202 - main - INFO - GET /
+2025-07-08 00:07:49,291 - main - INFO - GET /static/css/style.css
+2025-07-08 00:07:49,389 - main - INFO - GET /static/img/hint.png
+2025-07-08 00:07:49,413 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-08 00:07:49,421 - main - INFO - GET /static/js/services/apiService.js
+2025-07-08 00:07:49,424 - main - INFO - GET /static/js/services/stateService.js
+2025-07-08 00:07:49,434 - main - INFO - GET /static/js/services/uiService.js
+2025-07-08 00:07:49,450 - main - INFO - GET /static/js/services/editorService.js
+2025-07-08 00:07:49,513 - main - INFO - GET /static/js/app_new.js
+2025-07-08 00:07:50,793 - app.api.routes - INFO - 接続状態確認要求
+2025-07-08 00:07:50,796 - main - INFO - GET /api/v1/connection/status
+2025-07-08 00:07:50,939 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-08 00:07:50,954 - main - INFO - GET /favicon.ico
+2025-07-08 00:07:50,993 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-08 00:07:50,994 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-08 00:07:51,007 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-08 00:07:51,019 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-08 00:07:51,026 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-08 00:07:51,028 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-08 00:07:51,029 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-08 00:07:51,030 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:07:51,031 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-08 00:07:51,031 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:07:51,031 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:07:51,036 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:07:51,037 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:07:51,038 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:07:51,038 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:07:51,038 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-08 00:07:51,047 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 53.7ms)
+2025-07-08 00:07:51,049 - main - INFO - GET /api/v1/metadata/all
+2025-07-08 00:07:51,062 - main - INFO - GET /api/v1/users/me
+2025-07-08 00:07:51,088 - main - INFO - GET /api/v1/visibility-settings
+2025-07-08 00:07:51,131 - main - INFO - GET /api/v1/admin/templates
+2025-07-08 00:07:51,141 - main - INFO - GET /api/v1/users/templates
+2025-07-08 00:07:51,176 - main - INFO - GET /api/v1/admin/parts
+2025-07-08 00:07:51,195 - main - INFO - GET /api/v1/users/parts
+2025-07-08 00:10:03,516 - main - INFO - GET /
+2025-07-08 00:10:03,614 - main - INFO - GET /static/css/style.css
+2025-07-08 00:10:03,623 - main - INFO - GET /static/img/hint.png
+2025-07-08 00:10:03,684 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-08 00:10:03,685 - main - INFO - GET /static/js/services/apiService.js
+2025-07-08 00:10:03,709 - main - INFO - GET /static/js/services/stateService.js
+2025-07-08 00:10:03,730 - main - INFO - GET /static/js/services/editorService.js
+2025-07-08 00:10:03,735 - main - INFO - GET /static/js/services/uiService.js
+2025-07-08 00:10:03,746 - main - INFO - GET /static/js/app_new.js
+2025-07-08 00:10:04,985 - app.api.routes - INFO - 接続状態確認要求
+2025-07-08 00:10:04,987 - main - INFO - GET /api/v1/connection/status
+2025-07-08 00:10:05,048 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-08 00:10:05,062 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-08 00:10:05,091 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-08 00:10:05,098 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-08 00:10:05,142 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-08 00:10:05,098 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-08 00:10:05,146 - main - INFO - GET /favicon.ico
+2025-07-08 00:10:05,149 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-08 00:10:05,158 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-08 00:10:05,193 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:10:05,209 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-08 00:10:05,218 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:10:05,218 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:10:05,240 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:10:05,243 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:10:05,264 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:10:05,266 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:10:05,266 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-08 00:10:05,266 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 217.7ms)
+2025-07-08 00:10:05,282 - main - INFO - GET /api/v1/metadata/all
+2025-07-08 00:10:05,317 - main - INFO - GET /api/v1/users/me
+2025-07-08 00:10:05,357 - main - INFO - GET /api/v1/visibility-settings
+2025-07-08 00:10:05,393 - main - INFO - GET /api/v1/admin/templates
+2025-07-08 00:10:05,410 - main - INFO - GET /api/v1/users/templates
+2025-07-08 00:10:05,437 - main - INFO - GET /api/v1/admin/parts
+2025-07-08 00:10:05,441 - main - INFO - GET /api/v1/users/parts
+2025-07-08 00:12:43,691 - main - INFO - GET /
+2025-07-08 00:12:43,747 - main - INFO - GET /static/css/style.css
+2025-07-08 00:12:43,763 - main - INFO - GET /static/img/hint.png
+2025-07-08 00:12:43,816 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-08 00:12:43,832 - main - INFO - GET /static/js/services/apiService.js
+2025-07-08 00:12:43,848 - main - INFO - GET /static/js/services/editorService.js
+2025-07-08 00:12:43,854 - main - INFO - GET /static/js/services/stateService.js
+2025-07-08 00:12:43,859 - main - INFO - GET /static/js/services/uiService.js
+2025-07-08 00:12:43,870 - main - INFO - GET /static/js/app_new.js
+2025-07-08 00:12:45,172 - app.api.routes - INFO - 接続状態確認要求
+2025-07-08 00:12:45,173 - main - INFO - GET /api/v1/connection/status
+2025-07-08 00:12:45,270 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-08 00:12:45,303 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-08 00:12:45,303 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-08 00:12:45,314 - main - INFO - GET /favicon.ico
+2025-07-08 00:12:45,323 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-08 00:12:45,370 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-08 00:12:45,389 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-08 00:12:45,403 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-08 00:12:45,406 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-08 00:12:45,411 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:12:45,415 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-08 00:12:45,419 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:12:45,426 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:12:45,427 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:12:45,436 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:12:45,441 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:12:45,444 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:12:45,446 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-08 00:12:45,448 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 177.8ms)
+2025-07-08 00:12:45,452 - main - INFO - GET /api/v1/metadata/all
+2025-07-08 00:12:45,487 - main - INFO - GET /api/v1/users/me
+2025-07-08 00:12:45,517 - main - INFO - GET /api/v1/visibility-settings
+2025-07-08 00:12:45,564 - main - INFO - GET /api/v1/admin/templates
+2025-07-08 00:12:45,575 - main - INFO - GET /api/v1/users/templates
+2025-07-08 00:12:45,612 - main - INFO - GET /api/v1/admin/parts
+2025-07-08 00:12:45,615 - main - INFO - GET /api/v1/users/parts
+2025-07-08 00:13:57,811 - main - INFO - GET /
+2025-07-08 00:13:57,942 - main - INFO - GET /static/css/style.css
+2025-07-08 00:13:57,953 - main - INFO - GET /static/img/hint.png
+2025-07-08 00:13:57,965 - main - INFO - GET /static/js/services/apiService.js
+2025-07-08 00:13:57,971 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-08 00:13:57,988 - main - INFO - GET /static/js/services/stateService.js
+2025-07-08 00:13:57,991 - main - INFO - GET /static/js/services/uiService.js
+2025-07-08 00:13:58,047 - main - INFO - GET /static/js/services/editorService.js
+2025-07-08 00:13:58,093 - main - INFO - GET /static/js/app_new.js
+2025-07-08 00:13:58,981 - app.api.routes - INFO - 接続状態確認要求
+2025-07-08 00:13:58,988 - main - INFO - GET /api/v1/connection/status
+2025-07-08 00:13:59,038 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-08 00:13:59,074 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-08 00:13:59,086 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-08 00:13:59,090 - main - INFO - GET /favicon.ico
+2025-07-08 00:13:59,106 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-08 00:13:59,136 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-08 00:13:59,142 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-08 00:13:59,146 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-08 00:13:59,154 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-08 00:13:59,157 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:13:59,168 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-08 00:13:59,173 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:13:59,178 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:13:59,186 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:13:59,190 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:13:59,193 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:13:59,195 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:13:59,198 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-08 00:13:59,199 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 160.6ms)
+2025-07-08 00:13:59,207 - main - INFO - GET /api/v1/metadata/all
+2025-07-08 00:13:59,302 - main - INFO - GET /api/v1/users/me
+2025-07-08 00:13:59,323 - main - INFO - GET /api/v1/visibility-settings
+2025-07-08 00:13:59,350 - main - INFO - GET /api/v1/admin/templates
+2025-07-08 00:13:59,355 - main - INFO - GET /api/v1/users/templates
+2025-07-08 00:13:59,402 - main - INFO - GET /api/v1/admin/parts
+2025-07-08 00:13:59,404 - main - INFO - GET /api/v1/users/parts
+2025-07-08 00:18:49,493 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-08 00:18:49,513 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-08 00:18:49,543 - main - INFO - GET /static/css/style.css
+2025-07-08 00:22:01,374 - main - INFO - GET /user
+2025-07-08 00:22:01,430 - main - INFO - GET /static/css/style.css
+2025-07-08 00:22:01,464 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-08 00:22:01,607 - main - INFO - GET /api/v1/users/me
+2025-07-08 00:22:01,707 - main - INFO - GET /api/v1/users/templates
+2025-07-08 00:22:01,709 - main - INFO - GET /api/v1/users/parts
+2025-07-08 00:22:06,543 - main - INFO - GET /
+2025-07-08 00:22:06,633 - main - INFO - GET /static/js/services/apiService.js
+2025-07-08 00:22:06,666 - main - INFO - GET /static/js/services/stateService.js
+2025-07-08 00:22:06,670 - main - INFO - GET /static/js/services/uiService.js
+2025-07-08 00:22:06,683 - main - INFO - GET /static/js/services/editorService.js
+2025-07-08 00:22:06,687 - main - INFO - GET /static/js/app_new.js
+2025-07-08 00:22:07,323 - app.api.routes - INFO - 接続状態確認要求
+2025-07-08 00:22:07,325 - main - INFO - GET /api/v1/connection/status
+2025-07-08 00:22:07,442 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-08 00:22:07,446 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-08 00:22:07,474 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-08 00:22:07,491 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-08 00:22:07,491 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-08 00:22:07,491 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-08 00:22:07,499 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-08 00:22:07,506 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:22:07,510 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-08 00:22:07,513 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:22:07,514 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:22:07,516 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:22:07,518 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:22:07,520 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-08 00:22:07,524 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-08 00:22:07,524 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-08 00:22:07,524 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 81.9ms)
+2025-07-08 00:22:07,524 - main - INFO - GET /api/v1/metadata/all
+2025-07-08 00:22:07,556 - main - INFO - GET /api/v1/users/me
+2025-07-08 00:22:07,593 - main - INFO - GET /api/v1/visibility-settings
+2025-07-08 00:22:07,620 - main - INFO - GET /api/v1/users/templates
+2025-07-08 00:22:07,629 - main - INFO - GET /api/v1/admin/templates
+2025-07-08 00:22:07,655 - main - INFO - GET /api/v1/admin/parts
+2025-07-08 00:22:07,664 - main - INFO - GET /api/v1/users/parts
+2025-07-08 00:30:15,975 - main - INFO - アプリケーション終了

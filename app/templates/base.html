@@ -26,6 +26,9 @@
             <button type="button" class="btn btn-outline-light btn-sm" onclick="tutorialService.start('main')" title="アプリの使い方を説明">
                 <i class="fas fa-question-circle me-1"></i>アプリ説明
             </button>
+            <button type="button" class="btn btn-outline-light btn-sm" onclick="showKeyboardShortcuts()" title="キーボードショートカット">
+                <i class="fas fa-keyboard"></i>
+            </button>
             <a href="/user" class="btn btn-outline-light btn-sm">ユーザーページ</a>
             {% if request.url.path == '/' %}
             <a href="#" id="admin-page-btn" class="btn btn-outline-light btn-sm">管理者ページ</a>
@@ -36,32 +39,67 @@
         </div>
     </header>
 
-    <div class="content-wrapper">
-        <div class="sidebar p-3" id="sidebar">
-            <!-- プレースホルダー入力欄 -->
-            <div id="placeholder-inputs" style="display: none; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
-                <!-- ここにプレースホルダー入力欄が動的に生成される -->
+    <div class="tutorial-layout-container" id="tutorial-layout-container">
+        <div class="tutorial-main-content">
+            <div class="content-wrapper">
+                <div class="sidebar p-3" id="sidebar">
+                    <!-- プレースホルダー入力欄 -->
+                    <div id="placeholder-inputs" style="display: none; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                        <!-- ここにプレースホルダー入力欄が動的に生成される -->
+                    </div>
+                    
+                    <h5 class="mb-3 d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-sitemap me-2"></i>DB情報</span>
+                        <button type="button" id="apply-to-editor-btn" class="btn btn-primary btn-sm" style="display: none;">
+                            <i class="fas fa-arrow-right me-1"></i>エディタに反映
+                        </button>
+                    </h5>
+                    <div class="metadata-tree" id="metadata-tree">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">読み込み中...</span>
+                            </div>
+                            <span class="ms-2">DB情報読み込み中...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="resizer" id="resizer"></div>
+                <main class="main-content" id="main-content">
+                    {% block content %}{% endblock %}
+                </main>
+            </div>
+        </div>
+        
+        <!-- 新しいアプリ説明サイドバー -->
+        <div class="tutorial-sidebar" id="tutorial-sidebar" style="display: none;">
+            <div class="tutorial-sidebar-header">
+                <h5 class="tutorial-sidebar-title">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    <span id="tutorial-sidebar-title-text">アプリ説明</span>
+                </h5>
+                <button type="button" class="tutorial-sidebar-close" onclick="tutorialService.close()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
-            <h5 class="mb-3 d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-sitemap me-2"></i>DB情報</span>
-                <button type="button" id="apply-to-editor-btn" class="btn btn-primary btn-sm" style="display: none;">
-                    <i class="fas fa-arrow-right me-1"></i>エディタに反映
-                </button>
-            </h5>
-            <div class="metadata-tree" id="metadata-tree">
-                <div class="text-center">
-                    <div class="spinner-border spinner-border-sm" role="status">
-                        <span class="visually-hidden">読み込み中...</span>
-                    </div>
-                    <span class="ms-2">DB情報読み込み中...</span>
+            <div class="tutorial-sidebar-content" id="tutorial-sidebar-content">
+                <!-- 説明内容がここに表示される -->
+            </div>
+            
+            <div class="tutorial-sidebar-footer">
+                <div class="tutorial-progress">
+                    <span id="tutorial-current-step">1</span> / <span id="tutorial-total-steps">1</span>
+                </div>
+                <div class="tutorial-buttons">
+                    <button type="button" class="tutorial-btn" id="tutorial-prev-btn" onclick="tutorialService.previousStep()">
+                        <i class="fas fa-chevron-left"></i>前へ
+                    </button>
+                    <button type="button" class="tutorial-btn primary" id="tutorial-next-btn" onclick="tutorialService.nextStep()">
+                        次へ<i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
         </div>
-        <div class="resizer" id="resizer"></div>
-        <main class="main-content" id="main-content">
-            {% block content %}{% endblock %}
-        </main>
     </div>
 
     <!-- Bootstrap JS -->

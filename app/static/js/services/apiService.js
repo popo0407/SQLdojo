@@ -188,4 +188,32 @@ class ApiService {
             body: JSON.stringify({ password })
         });
     }
+
+    /**
+     * パーツを保存
+     * @param {string} sql - 保存するSQL
+     * @returns {Promise<Object>} 保存結果
+     */
+    async savePart(sql) {
+        try {
+            const response = await fetch('/api/v1/users/parts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sql: sql
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('パーツ保存エラー:', error);
+            throw error;
+        }
+    }
 } 

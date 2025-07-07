@@ -457,4 +457,34 @@ class EditorService {
         const selection = this.sqlEditor.getSelection();
         return selection && !selection.isEmpty();
     }
+
+    /**
+     * 選択されたテキストを取得
+     * @returns {string} 選択されたテキスト
+     */
+    getSelectedText() {
+        if (!this.sqlEditor) return '';
+        
+        const selection = this.sqlEditor.getSelection();
+        if (selection.isEmpty()) return '';
+        
+        return this.sqlEditor.getModel().getValueInRange(selection);
+    }
+
+    /**
+     * 選択されたテキストがあるかチェック
+     * @returns {boolean} 選択されたテキストがあるかどうか
+     */
+    hasSelectedText() {
+        return this.getSelectedText().trim().length > 0;
+    }
+
+    /**
+     * パーツとして保存可能かチェック
+     * @returns {boolean} パーツとして保存可能かどうか
+     */
+    canSaveAsPart() {
+        const selectedText = this.getSelectedText().trim();
+        return selectedText.length > 0 && selectedText.length <= 1000; // 1000文字以内
+    }
 } 
