@@ -849,7 +849,8 @@ function hideTemplatesOnClickOutside(event) {
 function loadTemplate(type, sql) {
     if (appController && appController.getEditorService()) {
         appController.getEditorService().setValue(sql);
-        appController.getUiService().showInfo(`${type === 'user' ? '個人用' : '共通'}テンプレートを読み込みました`);
+        // 完了報告（成功メッセージ等）は表示しない
+        // appController.getUiService().showInfo(`${type === 'user' ? '個人用' : '共通'}テンプレートを読み込みました`);
     }
     // テンプレート候補ウィンドウを閉じる
     const dropdown = document.getElementById('template-dropdown');
