@@ -1614,7 +1614,7 @@ body {
     display: flex;
     flex-direction: column;
     animation: tutorialSlideIn 0.3s ease-out;
-    z-index: 99999 !important;
+    z-index: 999999 !important;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -1795,7 +1795,7 @@ body {
 /* ターゲット要素のハイライト */
 .tutorial-highlight-target {
     position: relative;
-    z-index: 10002;
+    z-index: 999990;
     animation: tutorialTargetPulse 2s infinite;
     box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.3);
     border-radius: 4px;

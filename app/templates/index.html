@@ -148,21 +148,12 @@
 {% endblock %}
 
 {% block extra_js %}
-    {% if public_server_url %}
-        <script src="{{ public_server_url }}/static/js/services/apiService.js"></script>
-        <script src="{{ public_server_url }}/static/js/services/stateService.js"></script>
-        <script src="{{ public_server_url }}/static/js/services/uiService.js"></script>
-        <script src="{{ public_server_url }}/static/js/services/editorService.js"></script>
-        <script src="{{ public_server_url }}/static/js/services/tutorialService.js"></script>
-        <script src="{{ public_server_url }}/static/js/app_new.js"></script>
-    {% else %}
-        <script src="{{ url_for('static', path='js/services/apiService.js') }}"></script>
-        <script src="{{ url_for('static', path='js/services/stateService.js') }}"></script>
-        <script src="{{ url_for('static', path='js/services/uiService.js') }}"></script>
-        <script src="{{ url_for('static', path='js/services/editorService.js') }}"></script>
-        <script src="{{ url_for('static', path='js/services/tutorialService.js') }}"></script>
-        <script src="{{ url_for('static', path='js/app_new.js') }}"></script>
-    {% endif %}
+    <script src="/static/js/services/apiService.js"></script>
+    <script src="/static/js/services/stateService.js"></script>
+    <script src="/static/js/services/uiService.js"></script>
+    <script src="/static/js/services/editorService.js"></script>
+    <script src="/static/js/services/tutorialService.js"></script>
+    <script src="/static/js/app_new.js"></script>
     
     <script>
     // ログアウト関数を追加（base.htmlのextra_jsブロックが上書きされるため）

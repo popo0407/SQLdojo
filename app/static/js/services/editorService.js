@@ -309,26 +309,35 @@ class EditorService {
         let match;
 
         while ((match = placeholderRegex.exec(sql)) !== null) {
-            const fullMatch = match[0]; // {テーブル名.カラム名:表示名}
-            const content = match[1]; // テーブル名.カラム名:表示名
+            const fullMatch = match[0]; // {入力欄の説明} または {入力欄の説明[選択肢1,選択肢2,選択肢3]}
+            const content = match[1]; // 入力欄の説明 または 入力欄の説明[選択肢1,選択肢2,選択肢3]
             
-            // 内容を解析
-            const parts = content.split(':');
-            if (parts.length === 2) {
-                const columnInfo = parts[0].trim(); // テーブル名.カラム名
-                const displayName = parts[1].trim(); // 表示名
+            // 選択肢があるかどうかを判定（角括弧を使用）
+            const choiceMatch = content.match(/^(.+?)\[([^\]]+)\]$/);
+            
+            if (choiceMatch) {
+                // パターン②: {入力欄の説明[選択肢1,選択肢2,選択肢3]}
+                const displayName = choiceMatch[1].trim();
+                const choices = choiceMatch[2].split(',').map(choice => choice.trim());
                 
-                const columnParts = columnInfo.split('.');
-                if (columnParts.length === 2) {
-                    placeholders.push({
-                        fullMatch: fullMatch,
-                        tableName: columnParts[0].trim(),
-                        columnName: columnParts[1].trim(),
-                        displayName: displayName,
-                        startIndex: match.index,
-                        endIndex: match.index + fullMatch.length
-                    });
-                }
+                placeholders.push({
+                    fullMatch: fullMatch,
+                    displayName: displayName,
+                    choices: choices,
+                    isSelect: true,
+                    startIndex: match.index,
+                    endIndex: match.index + fullMatch.length
+                });
+            } else {
+                // パターン①: {入力欄の説明}
+                placeholders.push({
+                    fullMatch: fullMatch,
+                    displayName: content.trim(),
+                    choices: null,
+                    isSelect: false,
+                    startIndex: match.index,
+                    endIndex: match.index + fullMatch.length
+                });
             }
         }
 
@@ -351,11 +360,11 @@ class EditorService {
         // 後ろから置換（インデックスがずれるのを防ぐ）
         for (let i = placeholders.length - 1; i >= 0; i--) {
             const placeholder = placeholders[i];
-            const key = `${placeholder.tableName}.${placeholder.columnName}`;
+            const key = placeholder.displayName;
             const value = placeholderValues[key];
             
-            if (value !== undefined) {
-                // データ型に応じてクォートを追加
+            if (value !== undefined && value !== '') {
+                // 値をそのまま代入（処理なし）
                 const replacementValue = this.formatValueForSQL(value);
                 result = result.substring(0, placeholder.startIndex) + 
                         replacementValue + 
@@ -367,7 +376,7 @@ class EditorService {
     }
 
     /**
-     * 値をSQL用にフォーマット
+     * 値をSQL用にフォーマット（そのまま代入）
      * @param {string} value - 元の値
      * @returns {string} SQL用にフォーマットされた値
      */
@@ -376,12 +385,7 @@ class EditorService {
             return 'NULL';
         }
         
-        // 数値かどうかを判定
-        if (!isNaN(value) && value !== '') {
-            return String(value);
-        }
-        
-        // 文字列の場合はシングルクォートで囲む
-        return `'${String(value).replace(/'/g, "''")}'`;
+        // 値をそのまま代入（シングルクォートも含めてそのまま）
+        return String(value);
     }
 } 

@@ -58,7 +58,10 @@ class TutorialService {
                 </div>
             </div>
         `;
+        // オーバーレイを最前面に配置
         document.body.appendChild(this.overlay);
+        // z-indexを最優先に設定
+        this.overlay.style.zIndex = '999999';
     }
 
     /**
@@ -80,6 +83,26 @@ class TutorialService {
         return {
             title: "SQLエディタの使い方",
             steps: [
+                {
+                    title: "ヘッダーの機能",
+                    content: `
+                        <div class="tutorial-step-content">
+                            <h5><i class="fas fa-bars me-2"></i>ヘッダーの機能</h5>
+                            <p>画面上部のヘッダーには便利な機能があります。</p>
+                            <div class="tutorial-highlight">
+                                <strong>ヘッダーの機能：</strong>
+                                <ul>
+                                    <li>「アプリ説明」ボタン：このチュートリアルを表示</li>
+                                    <li>ユーザー名表示：現在のログインユーザー</li>
+                                    <li>ログアウト機能：セッション終了</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    target: ".header",
+                    type: null,
+                    blink: null
+                },
                 {
                     title: "データベース情報の活用",
                     content: `
@@ -196,32 +219,52 @@ class TutorialService {
                     blink: "#executeBtn"
                 },
                 {
-                    title: "テンプレート機能",
+                    title: "テンプレート保存機能",
                     content: `
                         <div class="tutorial-step-content">
-                            <h5><i class="fas fa-file-code me-2"></i>SQLテンプレート</h5>
+                            <h5><i class="fas fa-save me-2"></i>テンプレートの保存</h5>
                             <p>よく使うSQLをテンプレートとして保存できます。</p>
                             <div class="tutorial-highlight">
-                                <strong>テンプレートの活用：</strong>
+                                <strong>保存方法：</strong>
                                 <ul>
-                                    <li>「テンプレート保存」：現在のSQLを個人用テンプレートとして保存</li>
-                                    <li>「テンプレート」ドロップダウン：保存済みテンプレートを選択</li>
-                                    <li>テンプレート名にカーソルを合わせるとSQL全文を確認可能</li>
+                                    <li>「テンプレート保存」ボタンをクリック</li>
+                                    <li>現在のSQLが個人用テンプレートとして保存</li>
+                                    <li>テンプレート名は自動生成されます</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    target: "#sql-editor-container",
+                    type: "left",
+                    blink: "#save-template-btn"
+                },
+                {
+                    title: "テンプレート使用機能",
+                    content: `
+                        <div class="tutorial-step-content">
+                            <h5><i class="fas fa-folder-open me-2"></i>テンプレートの使用</h5>
+                            <p>保存したテンプレートを簡単に呼び出せます。</p>
+                            <div class="tutorial-highlight">
+                                <strong>使用方法：</strong>
+                                <ul>
+                                    <li>「テンプレート」ドロップダウンをクリック</li>
+                                    <li>保存済みテンプレートを選択</li>
+                                    <li>テンプレート名にカーソルを合わせるとSQL全文を確認</li>
                                     <li>不要なテンプレートは削除可能</li>
                                 </ul>
                             </div>
                         </div>
                     `,
                     target: "#sql-editor-container",
-                    type: "editor-bottom",
-                    blink: "#save-template-btn"
+                    type: "right",
+                    blink: "#template-dropdown"
                 },
                 {
                     title: "SQL実行履歴",
                     content: `
                         <div class="tutorial-step-content">
                             <h5><i class="fas fa-history me-2"></i>実行結果の確認</h5>
-                            <p>SQLを実行すると、右側に結果が表示されます。</p>
+                            <p>SQLを実行すると、下側に結果が表示されます。</p>
                             <div class="tutorial-highlight">
                                 <strong>結果の確認方法：</strong>
                                 <ul>
@@ -234,8 +277,8 @@ class TutorialService {
                         </div>
                     `,
                     target: "#results-container",
-                    type: "half-bottom",
-                    blink: null
+                    type: "center-bottom",
+                    blink: "#results-container"
                 },
                 {
                     title: "ヘッダーの機能",
@@ -372,7 +415,7 @@ class TutorialService {
                             <p>過去に実行したSQLの履歴（日時、SQL文、処理時間）を確認できます。「更新」ボタンで最新の情報を取得します。</p>
                         </div>
                     `,
-                    target: ".user-card .table-responsive",
+                    target: ".user-card:first-child",
                     type: null,
                     blink: null
                 },
@@ -381,10 +424,11 @@ class TutorialService {
                     content: `
                         <div class="tutorial-step-content">
                             <h5><i class="fas fa-edit me-2"></i>テンプレートの新規登録・編集</h5>
-                            <p>左側のフォームに「テンプレート名」と「SQL」を入力し、「保存」ボタンを押すと、新しいテンプレートを登録できます。</p>
+                            <p>左側のフォームに「テンプレート名」と「SQL」を入力し、</p>
+                            <p>「保存」ボタンを押すと、新しいテンプレートを登録できます。</p>
                         </div>
                     `,
-                    target: ".user-card .col-md-6:first-child",
+                    target: ".user-card:last-child",
                     type: "right",
                     blink: null
                 },
@@ -393,23 +437,12 @@ class TutorialService {
                     content: `
                         <div class="tutorial-step-content">
                             <h5><i class="fas fa-list-alt me-2"></i>保存済みテンプレート一覧</h5>
-                            <p>右側には、保存済みのテンプレートが表示されます。ここで内容を確認したり、不要なテンプレートを削除したりできます。</p>
+                            <p>右側には、保存済みのテンプレートが表示されます。</p>
+                            <p>ここで内容を確認したり、不要なテンプレートを削除したりできます。</p>
                         </div>
                     `,
-                    target: ".user-card .col-md-6:last-child",
+                    target: ".user-card:last-child",
                     type: "left",
-                    blink: null
-                },
-                {
-                    title: "完了",
-                    content: `
-                        <div class="tutorial-step-content">
-                            <h5><i class="fas fa-check-circle me-2"></i>チュートリアル完了</h5>
-                            <p>これでユーザーページの機能もマスターです！メインページに戻ってSQLの学習を続けましょう。</p>
-                        </div>
-                    `,
-                    target: null,
-                    type: null,
                     blink: null
                 }
             ]
@@ -431,8 +464,78 @@ class TutorialService {
             this.tutorialData = this.getMainPageTutorialData();
         }
 
+        // ダミーデータを追加
+        this.addDummyData();
+
         this.showOverlay();
         this.showStep(0);
+    }
+
+    /**
+     * チュートリアル用のダミーデータを追加
+     */
+    addDummyData() {
+        // 結果コンテナにダミーデータを表示
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'block';
+            
+            // 結果情報を更新
+            const resultInfo = document.getElementById('result-info');
+            if (resultInfo) {
+                resultInfo.textContent = '3件';
+            }
+            
+            const executionTime = document.getElementById('execution-time');
+            if (executionTime) {
+                executionTime.textContent = '0.045秒';
+            }
+            
+            // ダミーテーブルを作成
+            const dataTable = document.getElementById('dataTable');
+            if (dataTable) {
+                dataTable.innerHTML = `
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名前</th>
+                                <th>メール</th>
+                                <th>作成日</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>田中太郎</td>
+                                <td>tanaka@example.com</td>
+                                <td>2024-01-15</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>佐藤花子</td>
+                                <td>sato@example.com</td>
+                                <td>2024-01-16</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>鈴木一郎</td>
+                                <td>suzuki@example.com</td>
+                                <td>2024-01-17</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+        }
+        
+        // 少し遅延させてからダミーデータを表示（DOMの準備を待つ）
+        setTimeout(() => {
+            const resultsContainer = document.getElementById('results-container');
+            if (resultsContainer) {
+                resultsContainer.style.display = 'block';
+            }
+        }, 100);
     }
 
     /**
@@ -441,6 +544,13 @@ class TutorialService {
     showOverlay() {
         this.overlay.style.display = 'block';
         document.body.style.overflow = 'hidden';
+        // オーバーレイを最前面に強制配置
+        this.overlay.style.zIndex = '999999';
+        // 説明枠も最前面に強制配置
+        const annotation = document.getElementById('tutorial-annotation');
+        if (annotation) {
+            annotation.style.zIndex = '999999';
+        }
     }
 
     /**
@@ -503,12 +613,18 @@ class TutorialService {
                 targetElement.classList.add('tutorial-highlight-target');
                 targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 this.adjustTargetElement(targetElement);
+                console.log('ハイライト追加:', targetSelector);
+            } else {
+                console.log('ターゲット要素が見つかりません:', targetSelector);
             }
         }
         if (blinkSelector) {
             const blinkElement = document.querySelector(blinkSelector);
             if (blinkElement) {
                 blinkElement.classList.add('tutorial-blink');
+                console.log('黄色点滅枠追加:', blinkSelector);
+            } else {
+                console.log('点滅要素が見つかりません:', blinkSelector);
             }
         }
     }
@@ -563,6 +679,11 @@ class TutorialService {
         const annotation = document.getElementById('tutorial-annotation');
         if (!annotation) return;
 
+        // 説明枠の高さを取得
+        const annotationHeight = annotation.offsetHeight;
+        const viewportHeight = window.innerHeight;
+        const margin = 20; // 下端からの余白
+
         // デフォルトは中央
         let left = '50%';
         let top = '50%';
@@ -570,11 +691,16 @@ class TutorialService {
 
         if (stepType === 'editor-bottom') {
             left = '50%';
-            top = 'calc(100vh - 220px)';
+            // 説明枠の高さを考慮して画面下端に配置
+            top = `${viewportHeight - annotationHeight - margin}px`;
             transform = 'translateX(-50%)';
         } else if (stepType === 'half-bottom') {
             left = '50%';
             top = '75%';
+            transform = 'translate(-50%, 0)';
+        } else if (stepType === 'center-bottom') {
+            left = '50%';
+            top = '70%';
             transform = 'translate(-50%, 0)';
         } else if (stepType === 'left') {
             left = '10vw';

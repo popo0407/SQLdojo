@@ -87,66 +87,41 @@ class ConnectionManagerODBC:
             dsn = getattr(self.config, 'snowflake_odbc_dsn', None)
             use_keypair = getattr(self.config, 'snowflake_use_keypair', True)
             
-            if dsn:
-                # DSNを使用する場合
-                connection = pyodbc.connect(f"DSN={dsn}", timeout=self._connection_timeout, autocommit=True)
-            else:
-                if use_keypair:
-                    # キーペア認証（JWT）の場合
-                    private_key_path = os.path.normpath(self.config.snowflake_private_key_path)
-                    passphrase = self.config.snowflake_private_key_passphrase
-                    
-                    # ファイルの存在確認
-                    if not os.path.exists(private_key_path):
-                        raise FileNotFoundError(f"秘密鍵ファイルが見つかりません: {private_key_path}")
-                    
-                    # アカウント識別子の形式を修正
-                    # ODBCドライバーでは.snowflakecomputing.comが必要
-                    account = self.config.snowflake_account
-                    if not account.endswith('.snowflakecomputing.com'):
-                        account = f"{account}.snowflakecomputing.com"
-                    
-                    # Snowflake ODBCドライバーでキーペア認証を使用
-                    # PRIV_KEY_FILEで秘密鍵ファイルのパスを指定
-                    conn_str = (
-                        f"DRIVER={{SnowflakeDSIIDriver}};"
-                        f"SERVER={account};"
-                        f"UID={self.config.snowflake_user};"
-                        f"AUTHENTICATOR=SNOWFLAKE_JWT;"
-                        f"PRIV_KEY_FILE={private_key_path};"
-                        f"PRIV_KEY_FILE_PWD={passphrase};"
-                        f"WAREHOUSE={self.config.snowflake_warehouse};"
-                        f"DATABASE={self.config.snowflake_database};"
-                        f"SCHEMA={self.config.snowflake_schema};"
-                        f"ROLE={self.config.snowflake_role};"
-                    )
-                else:
-                    # パスワード認証の場合
-                    password = getattr(self.config, 'snowflake_password', '')
-                    if not password:
-                        raise ValueError("パスワード認証を使用する場合はsnowflake_passwordを設定してください")
-                    
-                    # アカウント識別子の形式を修正
-                    account = self.config.snowflake_account
-                    if not account.endswith('.snowflakecomputing.com'):
-                        account = f"{account}.snowflakecomputing.com"
-                    
-                    conn_str = (
-                        f"DRIVER={{SnowflakeDSIIDriver}};"
-                        f"SERVER={account};"
-                        f"UID={self.config.snowflake_user};"
-                        f"PWD={password};"
-                        f"WAREHOUSE={self.config.snowflake_warehouse};"
-                        f"DATABASE={self.config.snowflake_database};"
-                        f"SCHEMA={self.config.snowflake_schema};"
-                        f"ROLE={self.config.snowflake_role};"
-                    )
-                
-                # デバッグ用：接続文字列をログに出力（パスワードは隠す）
-                debug_conn_str = conn_str.replace(f"PRIV_KEY_FILE_PWD={passphrase};", "PRIV_KEY_FILE_PWD=***;") if use_keypair else conn_str.replace(f"PWD={password};", "PWD=***;")
-                self.logger.info(f"ODBC接続文字列: {debug_conn_str}")
-                
-                connection = pyodbc.connect(conn_str, timeout=self._connection_timeout, autocommit=True)
+            # キーペア認証（JWT）の場合
+            private_key_path = os.path.normpath(self.config.snowflake_private_key_path)
+            passphrase = self.config.snowflake_private_key_passphrase
+            
+            # ファイルの存在確認
+            if not os.path.exists(private_key_path):
+                raise FileNotFoundError(f"秘密鍵ファイルが見つかりません: {private_key_path}")
+            
+            # アカウント識別子の形式を修正
+            # ODBCドライバーでは.snowflakecomputing.comが必要
+            account = self.config.snowflake_account
+            if not account.endswith('.snowflakecomputing.com'):
+                account = f"{account}.snowflakecomputing.com"
+            
+            # Snowflake ODBCドライバーでキーペア認証を使用
+            # PRIV_KEY_FILEで秘密鍵ファイルのパスを指定
+            conn_str = (
+                f"DRIVER={{SnowflakeDSIIDriver}};"
+                f"SERVER={account};"
+                f"UID={self.config.snowflake_user};"
+                f"AUTHENTICATOR=SNOWFLAKE_JWT;"
+                f"PRIV_KEY_FILE={private_key_path};"
+                f"PRIV_KEY_FILE_PWD={passphrase};"
+                f"WAREHOUSE={self.config.snowflake_warehouse};"
+                f"DATABASE={self.config.snowflake_database};"
+                f"SCHEMA={self.config.snowflake_schema};"
+                f"ROLE={self.config.snowflake_role};"
+                f"PROXY={self.config.SNOWFLAKE_PROXY_HOST}:{self.config.SNOWFLAKE_PROXY_PORT}"
+            )
+
+            # デバッグ用：接続文字列をログに出力（パスワードは隠す）
+            debug_conn_str = conn_str.replace(f"PRIV_KEY_FILE_PWD={passphrase};", "PRIV_KEY_FILE_PWD=***;") if use_keypair else conn_str.replace(f"PWD={password};", "PWD=***;")
+            self.logger.info(f"ODBC接続文字列: {debug_conn_str}")
+            
+            connection = pyodbc.connect(conn_str, timeout=self._connection_timeout, autocommit=True)
             
             connection_id = f"conn_odbc_{len(self._connections)}_{int(datetime.now().timestamp())}"
             return connection_id, connection

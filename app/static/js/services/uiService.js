@@ -243,28 +243,57 @@ class UiService {
             label.className = 'form-label small mb-1';
             label.textContent = placeholder.displayName;
             
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'form-control form-control-sm';
-            input.placeholder = `${placeholder.tableName}.${placeholder.columnName}`;
-            input.dataset.tableName = placeholder.tableName;
-            input.dataset.columnName = placeholder.columnName;
-            input.dataset.displayName = placeholder.displayName;
-            
-            // 入力値の変更を監視
-            input.addEventListener('input', (e) => {
-                const key = `${placeholder.tableName}.${placeholder.columnName}`;
-                this.placeholderInputs.set(key, e.target.value);
-                console.log('プレースホルダー値更新:', key, e.target.value);
-            });
-            
-            inputGroup.appendChild(label);
-            inputGroup.appendChild(input);
-            this.placeholderContainer.appendChild(inputGroup);
-            
-            // 入力欄をマップに保存
-            const key = `${placeholder.tableName}.${placeholder.columnName}`;
-            this.placeholderInputs.set(key, '');
+            if (placeholder.isSelect) {
+                // 選択式の場合
+                const select = document.createElement('select');
+                select.className = 'form-control form-control-sm';
+                
+                // 空のオプションを追加
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = '選択してください';
+                select.appendChild(emptyOption);
+                
+                // 選択肢を追加
+                placeholder.choices.forEach(choice => {
+                    const option = document.createElement('option');
+                    option.value = choice;
+                    option.textContent = choice;
+                    select.appendChild(option);
+                });
+                
+                // 選択値の変更を監視
+                select.addEventListener('change', (e) => {
+                    this.placeholderInputs.set(placeholder.displayName, e.target.value);
+                    console.log('プレースホルダー値更新:', placeholder.displayName, e.target.value);
+                });
+                
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(select);
+                this.placeholderContainer.appendChild(inputGroup);
+                
+                // 入力欄をマップに保存
+                this.placeholderInputs.set(placeholder.displayName, '');
+            } else {
+                // フリーフォームの場合
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control form-control-sm';
+                input.placeholder = placeholder.displayName;
+                
+                // 入力値の変更を監視
+                input.addEventListener('input', (e) => {
+                    this.placeholderInputs.set(placeholder.displayName, e.target.value);
+                    console.log('プレースホルダー値更新:', placeholder.displayName, e.target.value);
+                });
+                
+                inputGroup.appendChild(label);
+                inputGroup.appendChild(input);
+                this.placeholderContainer.appendChild(inputGroup);
+                
+                // 入力欄をマップに保存
+                this.placeholderInputs.set(placeholder.displayName, '');
+            }
         });
     }
 

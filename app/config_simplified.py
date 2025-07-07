@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     snowflake_database: str = Field(..., description="Snowflakeデータベース")
     snowflake_schema: str = Field(default="PUBLIC", description="Snowflakeスキーマ")
     snowflake_role: str = Field(default="", description="Snowflakeロール")
+    SNOWFLAKE_PROXY_HOST: str = Field(default="", description="Snowflakeプロキシホスト")
+    SNOWFLAKE_PROXY_PORT: str = Field(default="", description="Snowflakeプロキシポート")
     
     # ODBC接続設定（キーペア認証またはパスワード認証）
     snowflake_odbc_dsn: Optional[str] = Field(default=None, description="ODBC DSN名")

@@ -298,5 +298,25 @@
     "success": false,
     "error_message": "SELECT文のみ実行可能です。INSERT、UPDATE、DELETE文は許可されていません",
     "timestamp": "2025-07-07T00:08:07.567841"
+  },
+  {
+    "log_id": "bdf4b34d-d657-44e6-971d-49d77c15b958",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM MASTER_STA WHERE STA = A001",
+    "execution_time": 3.329786777496338,
+    "row_count": 0,
+    "success": false,
+    "error_message": "クエリ実行エラー: SQL構文エラー: ('42000', '[42000] SQLコンパイルエラー：位置 37のエラー行 1 \\n無効な識別子「A001」 (904) (SQLExecDirectW)')",
+    "timestamp": "2025-07-07T22:06:44.889918"
+  },
+  {
+    "log_id": "1def02b2-f2ec-45c4-8591-ef7118d74bc6",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM MASTER_STA WHERE STA = 'A001'",
+    "execution_time": 0.20219016075134277,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-07T22:07:02.032706"
   }
 ]
