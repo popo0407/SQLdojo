@@ -85,7 +85,7 @@ body {
 
 /* サイドバー */
 .sidebar {
-    width: 350px;
+    width: 450px;
     background-color: var(--sidebar-background);
     border-right: 1px solid var(--border-color);
     overflow-y: auto;

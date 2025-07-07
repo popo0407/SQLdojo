@@ -549,6 +549,7 @@ class UiService {
                     <input type="checkbox" class="table-checkbox" data-table="${table.name}" data-schema="${table.schema_name}">
                 </div>
             `;
+
             tableHeader.classList.add('collapsed');
 
             const columnList = document.createElement('ul');
@@ -577,6 +578,13 @@ class UiService {
                     return;
                 }
                 
+                // テーブル名クリックの場合は、エディタへの挿入を優先
+                if (e.target.classList.contains('table-name-clickable')) {
+                    // エディタへの挿入処理を先に実行
+                    this.handleTableNameClick(e.target);
+                    // その後でテーブル開閉処理を実行
+                }
+                
                 e.stopPropagation();
                 const isCollapsed = tableHeader.classList.contains('collapsed');
                 if (isCollapsed) {
@@ -602,10 +610,10 @@ class UiService {
         this.metadataTree.innerHTML = '';
         this.metadataTree.appendChild(tableList);
         
-        // イベントハンドラーを設定（少し遅延させて確実に設定）
+        // イベントハンドラーを設定（より確実に設定するため遅延を増加）
         setTimeout(() => {
             this.setupMetadataEventHandlers();
-        }, 100);
+        }, 200);
     }
 
     /**
@@ -647,6 +655,7 @@ class UiService {
                             <input type="checkbox" class="table-checkbox" data-table="${table.name}" data-schema="${schema.name}">
                         </div>
                     `;
+
                     tableHeader.classList.add('collapsed');
                     const columnList = document.createElement('ul');
                     columnList.className = 'column-list list-unstyled ps-4 mt-1 collapsed';
@@ -674,6 +683,13 @@ class UiService {
                         // チェックボックスがクリックされた場合はテーブル開閉処理をスキップ
                         if (e.target.classList.contains('table-checkbox')) {
                             return;
+                        }
+                        
+                        // テーブル名クリックの場合は、エディタへの挿入を優先
+                        if (e.target.classList.contains('table-name-clickable')) {
+                            // エディタへの挿入処理を先に実行
+                            this.handleTableNameClick(e.target);
+                            // その後でテーブル開閉処理を実行
                         }
                         
                         e.stopPropagation();
@@ -719,10 +735,10 @@ class UiService {
             });
         });
         
-        // イベントハンドラーを設定（少し遅延させて確実に設定）
+        // イベントハンドラーを設定（より確実に設定するため遅延を増加）
         setTimeout(() => {
             this.setupMetadataEventHandlers();
-        }, 100);
+        }, 200);
     }
 
     /**
@@ -848,21 +864,34 @@ class UiService {
     setupMetadataEventHandlers() {
         if (!this.metadataTree) return;
 
-        // テーブル名クリックイベント
-        this.metadataTree.addEventListener('click', (e) => {
+        // 既存のイベントリスナーを削除（重複を防ぐ）
+        const existingHandler = this.metadataTree._clickHandler;
+        if (existingHandler) {
+            this.metadataTree.removeEventListener('click', existingHandler);
+        }
+
+        // 新しいイベントハンドラーを作成
+        const clickHandler = (e) => {
             const tableNameClickable = e.target.closest('.table-name-clickable');
             const columnNameClickable = e.target.closest('.column-name-clickable');
 
-            if (tableNameClickable) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.handleTableNameClick(tableNameClickable);
-            } else if (columnNameClickable) {
+            // テーブル名クリックは、テーブルヘッダーのイベントリスナーで処理済みのためスキップ
+            if (e.target.classList.contains('table-name-clickable')) {
+                return;
+            }
+
+            if (columnNameClickable) {
                 e.preventDefault();
                 e.stopPropagation();
                 this.handleColumnNameClick(columnNameClickable);
             }
-        });
+        };
+
+        // イベントリスナーを追加
+        this.metadataTree.addEventListener('click', clickHandler);
+        
+        // ハンドラーを保存（後で削除するため）
+        this.metadataTree._clickHandler = clickHandler;
 
         // チェックボックスのイベント（changeイベントを使用）
         this.metadataTree.addEventListener('change', (e) => {
@@ -896,7 +925,12 @@ class UiService {
         
         // エディタにテーブル名を挿入（スキーマ情報は除外）
         if (window.appController && window.appController.getEditorService()) {
-            window.appController.getEditorService().insertText(tableName);
+            const editorService = window.appController.getEditorService();
+            // エディタにフォーカスを当ててから挿入
+            editorService.focus();
+            editorService.insertText(tableName);
+        } else {
+            console.error('エディタサービスが利用できません');
         }
     }
 
@@ -909,7 +943,12 @@ class UiService {
         
         // エディタにカラム名を挿入
         if (window.appController && window.appController.getEditorService()) {
-            window.appController.getEditorService().insertText(columnName);
+            const editorService = window.appController.getEditorService();
+            // エディタにフォーカスを当ててから挿入
+            editorService.focus();
+            editorService.insertText(columnName);
+        } else {
+            console.error('エディタサービスが利用できません');
         }
     }
 
