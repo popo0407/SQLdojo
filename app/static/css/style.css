@@ -83,6 +83,254 @@ body {
     overflow: hidden;
 }
 
+/* 説明機能のレイアウト */
+.tutorial-layout-container {
+    display: flex;
+    height: calc(100vh - 56px);
+    transition: all 0.3s ease;
+}
+
+.tutorial-layout-container.explanation-active {
+    flex-direction: column;
+}
+
+.tutorial-main-content {
+    flex: 1;
+    display: flex;
+    transition: all 0.3s ease;
+}
+
+.tutorial-main-content.explanation-active {
+    height: calc(100vh - 56px - 300px);
+    overflow: hidden;
+}
+
+/* 説明スペース */
+/* フローティング説明ウィンドウ */
+.explanation-floating-window {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 800px;
+    height: 300px;
+    background-color: #fff3e0;
+    border: 2px solid #ff8c00;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.explanation-active .explanation-floating-window {
+    display: flex;
+}
+
+/* 既存の説明スペース（非推奨） */
+.explanation-space {
+    height: 300px;
+    background-color: #fff3e0;
+    border-top: 1px solid var(--border-color);
+    display: none;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.explanation-active .explanation-space {
+    display: flex;
+}
+
+.explanation-header {
+    padding: 0.25rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: #fff3e0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.explanation-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.explanation-title::before {
+    content: "アプリ説明";
+    font-weight: 700;
+    margin-right: 0.5rem;
+}
+
+.explanation-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.explanation-close:hover {
+    color: var(--text-color);
+}
+
+.explanation-content {
+    flex: 1;
+    padding: 1.25rem;
+    overflow-y: auto;
+    color: #000000;
+    line-height: 1.6;
+}
+
+.explanation-footer {
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid var(--border-color);
+    background-color: #fff3e0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #000000;
+}
+
+.explanation-progress {
+    color: #000000;
+    font-size: 0.85rem;
+}
+
+.explanation-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.explanation-btn {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-background);
+    color: var(--text-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.explanation-btn:hover {
+    background-color: var(--border-light);
+}
+
+.explanation-btn.primary {
+    background-color: #ff8c00;
+    color: white;
+    border-color: #ff8c00;
+}
+
+.explanation-btn.primary:hover {
+    background-color: #e67e00;
+    border-color: #e67e00;
+}
+
+/* ハイライト効果 */
+.explanation-highlight {
+    position: relative;
+    z-index: 1000;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.explanation-highlight::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 6px solid #ffeb3b;
+    border-radius: 8px;
+    animation: explanationPulse 2s infinite;
+    pointer-events: none;
+    z-index: 1001;
+}
+
+@keyframes explanationPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.02);
+    }
+}
+
+/* 個別説明アイコン */
+.explanation-icon {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 1002;
+    transition: all 0.2s ease;
+}
+
+.explanation-icon:hover {
+    background-color: var(--accent-hover);
+    transform: scale(1.1);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1200px) {
+    .explanation-floating-window {
+        width: 95vw;
+        min-width: 0;
+        left: 2.5vw;
+        right: 2.5vw;
+    }
+}
+
+@media (max-width: 768px) {
+    .explanation-floating-window {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        height: 250px;
+    }
+    
+    .explanation-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .explanation-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .explanation-floating-window {
+        bottom: 5px;
+        right: 5px;
+        left: 5px;
+        height: 200px;
+    }
+}
+
 /* サイドバー */
 .sidebar {
     width: 450px;

@@ -23,7 +23,7 @@
         </div>
         <div class="d-flex align-items-center gap-3">
             <span id="current-user" style="color: var(--text-color);"></span>
-            <button type="button" class="btn btn-outline-light btn-sm" onclick="tutorialService.start('main')" title="アプリの使い方を説明">
+            <button type="button" class="btn btn-outline-light btn-sm" onclick="explanationService.start('main')" title="アプリの使い方を説明">
                 <i class="fas fa-question-circle me-1"></i>アプリ説明
             </button>
             <button type="button" class="btn btn-outline-light btn-sm" onclick="showKeyboardShortcuts()" title="キーボードショートカット">
@@ -40,7 +40,7 @@
     </header>
 
     <div class="tutorial-layout-container" id="tutorial-layout-container">
-        <div class="tutorial-main-content">
+        <div class="tutorial-main-content" id="tutorial-main-content">
             <div class="content-wrapper">
                 <div class="sidebar p-3" id="sidebar">
                     <!-- プレースホルダー入力欄 -->
@@ -69,35 +69,34 @@
                 </main>
             </div>
         </div>
+    </div>
+    
+    <!-- フローティング説明ウィンドウ -->
+    <div class="explanation-floating-window" id="explanation-floating-window">
+        <div class="explanation-header">
+            <h5 class="explanation-title" id="explanation-title">
+                <i class="fas fa-graduation-cap me-2"></i>
+            </h5>
+            <button type="button" class="explanation-close" onclick="explanationService.close()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
         
-        <!-- 新しいアプリ説明サイドバー -->
-        <div class="tutorial-sidebar" id="tutorial-sidebar" style="display: none;">
-            <div class="tutorial-sidebar-header">
-                <h5 class="tutorial-sidebar-title">
-                    <i class="fas fa-graduation-cap me-2"></i>
-                    <span id="tutorial-sidebar-title-text">アプリ説明</span>
-                </h5>
-                <button type="button" class="tutorial-sidebar-close" onclick="tutorialService.close()">
-                    <i class="fas fa-times"></i>
+        <div class="explanation-content" id="explanation-content">
+            <!-- 説明内容がここに表示される -->
+        </div>
+        
+        <div class="explanation-footer">
+            <div class="explanation-progress">
+                <span id="explanation-current">1</span> / <span id="explanation-total">1</span>
+            </div>
+            <div class="explanation-buttons">
+                <button type="button" class="explanation-btn" id="explanation-prev-btn" onclick="explanationService.previousStep()">
+                    <i class="fas fa-chevron-left"></i>前へ
                 </button>
-            </div>
-            
-            <div class="tutorial-sidebar-content" id="tutorial-sidebar-content">
-                <!-- 説明内容がここに表示される -->
-            </div>
-            
-            <div class="tutorial-sidebar-footer">
-                <div class="tutorial-progress">
-                    <span id="tutorial-current-step">1</span> / <span id="tutorial-total-steps">1</span>
-                </div>
-                <div class="tutorial-buttons">
-                    <button type="button" class="tutorial-btn" id="tutorial-prev-btn" onclick="tutorialService.previousStep()">
-                        <i class="fas fa-chevron-left"></i>前へ
-                    </button>
-                    <button type="button" class="tutorial-btn primary" id="tutorial-next-btn" onclick="tutorialService.nextStep()">
-                        次へ<i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
+                <button type="button" class="explanation-btn primary" id="explanation-next-btn" onclick="explanationService.nextStep()">
+                    次へ<i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
     </div>

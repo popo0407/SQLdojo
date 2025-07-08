@@ -338,5 +338,25 @@
     "success": true,
     "error_message": null,
     "timestamp": "2025-07-07T22:21:21.336814"
+  },
+  {
+    "log_id": "9ca90c5d-da0e-4bf5-a89d-f98c159c95ae",
+    "user_id": 1,
+    "sql": "SELECT id, name FROM test_table WHERE id = 1",
+    "execution_time": 0.1,
+    "row_count": 1,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-08T00:56:57.311886"
+  },
+  {
+    "log_id": "3f09d8e7-d343-4aac-b42e-a2fdf4afd3b0",
+    "user_id": 1,
+    "sql": "SELECT * FROM non_existent_table",
+    "execution_time": 0.1,
+    "row_count": 0,
+    "success": false,
+    "error_message": "Table not found",
+    "timestamp": "2025-07-08T00:57:07.448688"
   }
 ]
