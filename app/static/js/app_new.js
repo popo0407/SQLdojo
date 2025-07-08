@@ -279,8 +279,16 @@ class AppController {
         if (!this.isResizing) return;
         
         const sidebar = document.getElementById('sidebar');
-        const newWidth = e.clientX;
-        sidebar.style.width = `${newWidth}px`;
+        // 親要素の左端からの相対的なマウス位置を計算
+        const newWidth = e.clientX - sidebar.parentElement.getBoundingClientRect().left;
+        
+        // 最小幅・最大幅を設定
+        const minWidth = 200;
+        const maxWidth = window.innerWidth / 2;
+        
+        if (newWidth >= minWidth && newWidth <= maxWidth) {
+            sidebar.style.width = `${newWidth}px`;
+        }
     }
 
     /**
@@ -299,11 +307,12 @@ class AppController {
         if (!this.isHorizontalResizing) return;
         
         const editorContainer = document.getElementById('sql-editor-container');
-        const resultsContainer = document.getElementById('results-container');
         
-        if (editorContainer && resultsContainer) {
-            const newHeight = e.clientY;
-            const minHeight = 120; // 最小高さ（3行程度）
+        if (editorContainer) {
+            // エディタコンテナの上端からの相対的なマウス位置を計算
+            const newHeight = e.clientY - editorContainer.getBoundingClientRect().top;
+
+            const minHeight = 120; // 最小高さ
             const maxHeight = window.innerHeight - 200; // 最大高さ
             
             if (newHeight >= minHeight && newHeight <= maxHeight) {
@@ -691,18 +700,17 @@ class AppController {
             return;
         }
 
+        const name = prompt('パーツ名を入力してください:');
+        if (!name) return;
+
         try {
-            const response = await this.apiService.savePart(selectedText);
-            if (response.success) {
-                this.uiService.showNotification('パーツを保存しました', 'success');
-                // パーツ一覧を更新
-                this.loadAllParts();
-            } else {
-                this.uiService.showNotification(response.message || 'パーツの保存に失敗しました', 'error');
-            }
+            await this.apiService.saveUserPart(name, selectedText);
+            await this.loadAllParts(); // パーツ一覧を再読み込み
+            // 成功メッセージは表示しない（ユーザーが見た目で保存成功がわかるため）
         } catch (error) {
             console.error('パーツ保存エラー:', error);
-            this.uiService.showNotification('パーツの保存に失敗しました', 'error');
+            const errorMessage = error.message.replace(/^パーツ保存エラー:\s*/, '');
+            this.uiService.showError(errorMessage);
         }
     }
 

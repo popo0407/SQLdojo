@@ -1,5 +1,5 @@
-import json
-import os
+# app/services/sql_log_service.py
+
 import uuid
 from datetime import datetime
 from typing import List, Dict, Any, Optional
@@ -10,189 +10,87 @@ from app import __version__
 logger = get_logger("SQLLogService")
 
 class SQLLogService:
-    """SQL実行ログ管理サービス"""
-    
-    def __init__(self, query_executor: QueryExecutor, log_file: str = None):
+    def __init__(self, query_executor: QueryExecutor):
         self.query_executor = query_executor
-        if log_file is None:
-            # デフォルトのログファイルパス
-            log_file = os.path.join(os.path.dirname(__file__), '../../sql_execution_logs.json')
-        
-        self.log_file = log_file
-        self._ensure_log_file_exists()
-    
-    def _ensure_log_file_exists(self):
-        """ログファイルが存在しない場合は作成"""
-        if not os.path.exists(self.log_file):
-            with open(self.log_file, 'w', encoding='utf-8') as f:
-                json.dump([], f, ensure_ascii=False, indent=2)
-    
-    def _load_logs(self) -> List[Dict[str, Any]]:
-        """ログファイルからログを読み込み"""
-        try:
-            with open(self.log_file, 'r', encoding='utf-8') as f:
-                content = f.read().strip()
-                if content:
-                    return json.loads(content)
-                else:
-                    return []
-        except Exception as e:
-            logger.error(f"ログファイル読み込みエラー: {e}")
-            return []
-    
-    def _save_logs(self, logs: List[Dict[str, Any]]):
-        """ログをファイルに保存"""
-        try:
-            with open(self.log_file, 'w', encoding='utf-8') as f:
-                json.dump(logs, f, ensure_ascii=False, indent=2)
-        except Exception as e:
-            logger.error(f"ログファイル保存エラー: {e}")
-    
-    def add_log(self, user_id: str, sql: str, execution_time: float, 
-                row_count: int, success: bool, error_message: Optional[str] = None) -> str:
-        """SQL実行ログを追加"""
-        log_id = str(uuid.uuid4())
-        log_entry = {
-            "log_id": log_id,
-            "user_id": user_id,
-            "sql": sql,
-            "execution_time": execution_time,
-            "row_count": row_count,
-            "success": success,
-            "error_message": error_message,
-            "timestamp": datetime.now().isoformat()
-        }
-        
-        logs = self._load_logs()
-        logs.append(log_entry)
-        
-        # 最新の1000件のみ保持
-        if len(logs) > 1000:
-            logs = logs[-1000:]
-        
-        self._save_logs(logs)
-        logger.info(f"SQL実行ログを追加: {log_id}")
-        
-        return log_id
-    
-    def get_logs(self, user_id: Optional[str] = None, limit: int = 100, 
-                 offset: int = 0) -> Dict[str, Any]:
-        """ログを取得"""
-        logs = self._load_logs()
-        
-        # ユーザーIDでフィルタリング
-        if user_id:
-            logs = [log for log in logs if log.get("user_id") == user_id]
-        
-        # 日時順でソート（最新順）
-        logs.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-        
-        # ページネーション
-        total_count = len(logs)
-        logs = logs[offset:offset + limit]
-        
-        return {
-            "logs": logs,
-            "total_count": total_count
-        }
-    
-    def get_user_logs(self, user_id: str, limit: int = 50) -> List[Dict[str, Any]]:
-        """特定ユーザーのログを取得"""
-        result = self.get_logs(user_id=user_id, limit=limit)
-        return result["logs"]
-    
-    def get_all_logs(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """全ログを取得（管理者用）"""
-        result = self.get_logs(limit=limit)
-        return result["logs"]
-    
-    def clear_logs(self, user_id: Optional[str] = None):
-        """ログをクリア"""
-        if user_id:
-            # 特定ユーザーのログのみクリア
-            logs = self._load_logs()
-            logs = [log for log in logs if log.get("user_id") != user_id]
-            self._save_logs(logs)
-            logger.info(f"ユーザー {user_id} のログをクリア")
-        else:
-            # 全ログをクリア
-            self._save_logs([])
-            logger.info("全ログをクリア")
-    
-    def get_log_statistics(self, user_id: Optional[str] = None) -> Dict[str, Any]:
-        """ログ統計を取得"""
-        logs = self._load_logs()
-        
-        if user_id:
-            logs = [log for log in logs if log.get("user_id") == user_id]
-        
-        if not logs:
-            return {
-                "total_executions": 0,
-                "successful_executions": 0,
-                "failed_executions": 0,
-                "average_execution_time": 0.0,
-                "total_rows_processed": 0
-            }
-        
-        successful_logs = [log for log in logs if log.get("success", False)]
-        failed_logs = [log for log in logs if not log.get("success", False)]
-        
-        total_execution_time = sum(log.get("execution_time", 0) for log in logs)
-        total_rows = sum(log.get("row_count", 0) for log in logs)
-        
-        return {
-            "total_executions": len(logs),
-            "successful_executions": len(successful_logs),
-            "failed_executions": len(failed_logs),
-            "average_execution_time": total_execution_time / len(logs) if logs else 0.0,
-            "total_rows_processed": total_rows
-        }
 
-    # ★追加: SnowflakeのLog.TOOL_LOGテーブルにログを書き込むメソッド
-    def add_log_to_db(self, user_id: str, sql: str, execution_time: float, start_time: datetime):
-        """SnowflakeのLog.TOOL_LOGテーブルにログを書き込む"""
+    def add_log_to_db(self, user_id: str, sql: str, execution_time: float, start_time: datetime, row_count: int, success: bool, error_message: Optional[str]):
         try:
             end_time = datetime.now()
             mk_date = end_time.strftime('%Y%m%d%H%M%S')
             from_date = start_time.strftime('%Y%m%d%H%M%S')
             
-            # SQLを直接文字列に埋め込む（パラメータ化は複雑なため）
-            # SQLの長さを制限（OPTION_NOフィールドの制限に合わせる）
-            truncated_sql = sql[:4000] if len(sql) > 4000 else sql
+            truncated_sql = sql[:3900] if len(sql) > 3900 else sql
             
-            # バージョンを数値に変換（例: 1.4.0 -> 140）
             version_parts = __version__.split('.')
-            version_number = int(version_parts[0]) * 1 + int(version_parts[1]) * 0.1 + int(version_parts[2]) * 0.01
-            
-            log_sql = f"""
+            version_number = int(version_parts[0]) * 100 + int(version_parts[1]) * 10 + int(version_parts[2])
+
+            log_sql = """
             INSERT INTO Log.TOOL_LOG (
                 MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
-            ) VALUES (
-                '{mk_date}',
-                '{user_id}',
-                'SQLDOJOWEB',
-                '{truncated_sql.replace("'", "''")}',  -- SQLインジェクション対策
-                {round(execution_time, 6)},
-                '{from_date}',
-                '{mk_date}',
-                {version_number}
-            )
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER,
+                ROW_COUNT, SUCCESS, ERROR_MESSAGE
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
-            
-            # INSERT文を実行する (結果は返ってこない)
-            logger.info("Snowflakeへのログ記録を開始", user_id=user_id, sql_length=len(truncated_sql))
-            result = self.query_executor.execute_query(log_sql)
-            if result.success:
-                logger.info("SnowflakeのLog.TOOL_LOGにログを記録しました", user_id=user_id, row_count=result.row_count)
-            else:
-                logger.error("Snowflakeへのログ記録に失敗しました", error=result.error_message, sql=log_sql)
+            params = (
+                mk_date, user_id, 'SQLDOJOWEB', truncated_sql,
+                round(execution_time, 6), from_date, mk_date, version_number,
+                row_count, 1 if success else 0, error_message
+            )
 
+            result = self.query_executor.execute_query(log_sql, params)
+            if not result.success:
+                logger.error("OracleDBへのログ記録に失敗しました", error=result.error_message)
         except Exception as e:
-            logger.error(f"Snowflakeへのログ記録に失敗しました: {e}")
-            # ここでのエラーはユーザーへのレスポンスに影響させない
-            # エラーの詳細をログに出力
-            logger.error(f"エラー詳細: {type(e).__name__}: {str(e)}")
-            import traceback
-            logger.error(f"トレースバック: {traceback.format_exc()}") 
+            logger.error(f"OracleDBへのログ記録中に予期せぬエラーが発生しました: {e}", exc_info=True)
+
+    def get_logs(self, user_id: Optional[str] = None, limit: int = 100, offset: int = 0) -> Dict[str, Any]:
+        try:
+            base_sql = "FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
+            params = []
+            if user_id:
+                base_sql += " AND OPE_CODE = ?"
+                params.append(user_id)
+
+            count_sql = f"SELECT COUNT(*) as TOTAL_COUNT {base_sql}"
+            count_result = self.query_executor.execute_query(count_sql, tuple(params))
+            total_count = count_result.data[0]['TOTAL_COUNT'] if count_result.success and count_result.data else 0
+
+            data_sql = f"""
+            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER, ROW_COUNT, SUCCESS, ERROR_MESSAGE
+            {base_sql} ORDER BY MK_DATE DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+            """
+            params.extend([offset, limit])
+            logs_result = self.query_executor.execute_query(data_sql, tuple(params))
+            
+            if not logs_result.success:
+                return {"logs": [], "total_count": 0}
+
+            logs_data = [{
+                "log_id": str(uuid.uuid4()),
+                "user_id": row.get("OPE_CODE"),
+                "sql": row.get("OPTION_NO"),
+                "execution_time": row.get("SYSTEM_WORKNUMBER"),
+                "row_count": row.get("ROW_COUNT"),
+                "success": bool(row.get("SUCCESS")),
+                "error_message": row.get("ERROR_MESSAGE"),
+                "timestamp": datetime.strptime(row.get("MK_DATE"), '%Y%m%d%H%M%S').isoformat()
+            } for row in logs_result.data]
+
+            return {"logs": logs_data, "total_count": total_count}
+        except Exception as e:
+            logger.error(f"OracleDBからのログ取得中に予期せぬエラーが発生しました: {e}", exc_info=True)
+            return {"logs": [], "total_count": 0}
+
+    def clear_logs(self, user_id: Optional[str] = None):
+        try:
+            sql = "DELETE FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
+            params = []
+            if user_id:
+                sql += " AND OPE_CODE = ?"
+                params.append(user_id)
+            
+            result = self.query_executor.execute_query(sql, tuple(params))
+            if not result.success:
+                logger.error("OracleDBのログクリアに失敗", error=result.error_message)
+        except Exception as e:
+            logger.error(f"OracleDBのログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True)

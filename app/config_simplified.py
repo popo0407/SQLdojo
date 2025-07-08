@@ -39,6 +39,15 @@ class Settings(BaseSettings):
     snowflake_password: Optional[str] = Field(default=None, description="Snowflakeパスワード（ODBC用）")
     snowflake_use_keypair: bool = Field(default=True, description="キーペア認証を使用するかどうか")
     
+    # Oracle接続設定 (DSN-less対応)
+    oracle_dsn: Optional[str] = Field(default=None, description="Oracle ODBC DSN名（D-lessの場合は不要）")
+    oracle_driver: Optional[str] = Field(default=None, description="Oracle ODBCドライバ名")
+    oracle_host: Optional[str] = Field(default=None, description="Oracleサーバーホスト名")
+    oracle_port: Optional[int] = Field(default=1521, description="Oracleサーバーポート番号")
+    oracle_service_name: Optional[str] = Field(default=None, description="Oracleサービス名")
+    oracle_user: Optional[str] = Field(default=None, description="Oracleユーザー名")
+    oracle_password: Optional[str] = Field(default=None, description="Oracleパスワード")
+
     # アプリケーション設定
     app_host: str = Field(default="0.0.0.0", description="アプリケーションホスト")
     app_port: int = Field(default=8000, description="アプリケーションポート")

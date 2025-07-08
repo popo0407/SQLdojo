@@ -161,11 +161,20 @@ def get_current_admin(request: Request):
     return True
 
 
-# SQLLogServiceの依存性注入
+# --- Oracle用のDIを追加 ---
+@lru_cache()
+def get_connection_manager_oracle_di() -> ConnectionManagerOracle:
+    return ConnectionManagerOracle()
+
+def get_query_executor_for_oracle_di(
+    connection_manager: Annotated[ConnectionManagerOracle, Depends(get_connection_manager_oracle_di)]
+) -> QueryExecutor:
+    return QueryExecutor(connection_manager)
+
+# --- SQLLogServiceのDIを修正 ---
 def get_sql_log_service_di(
-    query_executor: Annotated[QueryExecutor, Depends(get_query_executor_di)]
+    query_executor: Annotated[QueryExecutor, Depends(get_query_executor_for_oracle_di)]
 ) -> SQLLogService:
-    """SQLLogServiceのインスタンスを取得"""
     return SQLLogService(query_executor=query_executor)
 
 
@@ -201,6 +210,6 @@ SQLValidatorDep = Annotated[SQLValidator, Depends(get_sql_validator_di)]
 MetadataCacheDep = Annotated[MetadataCache, Depends(get_metadata_cache_di)]
 CurrentUserDep = Annotated[dict, Depends(get_current_user)]
 CurrentAdminDep = Annotated[bool, Depends(get_current_admin)]
-SQLLogServiceDep = Annotated[SQLLogService, Depends(get_sql_log_service_di)] 
+SQLLogServiceDep = Annotated[SQLLogService, Depends(get_sql_log_service_di)]
 AdminServiceDep = Annotated[AdminService, Depends(get_admin_service_di)]
 VisibilityControlServiceDep = Annotated[VisibilityControlService, Depends(get_visibility_control_service_di)] 

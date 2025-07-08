@@ -36,6 +36,10 @@ body {
     line-height: 1.6;
     font-size: 14px;
     font-weight: 400;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* bodyレベルでのスクロールを禁止 */
 }
 
 .container {
@@ -78,38 +82,48 @@ body {
     height: calc(100vh - 56px);
     margin: 0;
     max-width: none;
+    position: relative;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-grow: 1; /* ヘッダー以外の残りの高さをすべて使用 */
+    height: calc(100vh - 56px); /* ヘッダーの高さを引いた分 */
+    overflow: hidden; /* コンテンツラッパー内でのスクロールを管理 */
 }
 
 .sidebar {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
-    height: 100%;
-    overflow-y: auto;
-    background: var(--sidebar-background);
+    /* min-widthとmax-widthを削除し、JSで幅を変更できるようにする */
+    width: 300px; 
+    background-color: var(--sidebar-background);
     border-right: 1px solid var(--border-color);
+    overflow-y: auto; /* サイドバー内が長くなった場合にスクロール */
+    flex-shrink: 0; /* サイドバーが縮まないようにする */
 }
 
 .resizer {
-    width: 5px;
-    flex-shrink: 0;
-    height: 100%;
+    /* position: absolute を削除し、flexアイテムとして扱う */
+    flex: 0 0 5px; /* 幅を5pxに固定し、伸縮しない */
+    cursor: col-resize;
+    background-color: var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.resizer:hover {
+    background-color: var(--accent-color);
 }
 
 .main-content {
-    flex: 1 1 0%;
-    min-width: 0;
-    height: 100%;
-    background: var(--background-color);
+    flex: 1; /* 残りの利用可能なスペースをすべて使用 */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto; /* メインコンテンツが長くなった場合にスクロール */
+    min-width: 0; /* flexアイテムがコンテンツによって縮まなくなるのを防ぐ */
 }
 
 /* 説明機能のレイアウト */
 .tutorial-layout-container,
-.tutorial-main-content,
-.content-wrapper {
+.tutorial-main-content {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
@@ -799,7 +813,7 @@ body {
 
 /* リサイザー */
 #resizer {
-    width: 4px;
+    flex: 0 0 4px; /* 幅を4pxに固定し、伸縮しない */
     background-color: var(--border-color);
     cursor: col-resize;
     transition: background-color 0.2s ease;
@@ -1206,7 +1220,7 @@ body {
     }
     
     .main-content {
-        margin-left: 300px;
+        margin-left: unset; /* margin-leftを削除 */
     }
 }
 
@@ -1216,7 +1230,7 @@ body {
     }
     
     .main-content {
-        margin-left: 250px;
+        margin-left: unset; /* margin-leftを削除 */
     }
 }
 
@@ -1633,19 +1647,21 @@ body {
 }
 
 /* base.htmlから移動したスタイル定義 */
-body {
+/* 重複したbody定義を削除 - 上部のbody定義を使用 */
+/* body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-}
+} */
 
-.content-wrapper {
+/* 重複したcontent-wrapper定義を削除 - 上部のcontent-wrapper定義を使用 */
+/* .content-wrapper {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0;
     display: flex;
-}
+} */
 
 .loading {
     display: none;
