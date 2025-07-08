@@ -358,5 +358,25 @@
     "success": false,
     "error_message": "Table not found",
     "timestamp": "2025-07-08T00:57:07.448688"
+  },
+  {
+    "log_id": "42735b4b-2ccb-465b-8972-f5c6be372eec",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM HF3IGM01 WHERE 1=1",
+    "execution_time": 5.464844226837158,
+    "row_count": 11,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-09T00:08:08.937671"
+  },
+  {
+    "log_id": "0516dde7-74a3-4b51-9fd9-a4e3c0a5ef98",
+    "user_id": "hint0531",
+    "sql": "SELECT * FROM TRA_3 WHERE 1=1",
+    "execution_time": 2.049978256225586,
+    "row_count": 5000,
+    "success": true,
+    "error_message": null,
+    "timestamp": "2025-07-09T00:08:36.681981"
   }
 ]

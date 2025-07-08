@@ -116,11 +116,20 @@ class ExplanationService {
         // 個別説明アイコンを削除
         this.removeExplanationIcons();
         
+        // エディタを最大化に戻す
+        this.maximizeEditor();
+        
         // レイアウトを元に戻す
         this.hideExplanationLayout();
         
         // キーボードショートカットを削除
         this.removeKeyboardShortcuts();
+
+        // 実行結果エリアを非表示に戻す
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
     }
 
     /**
@@ -160,6 +169,27 @@ class ExplanationService {
 
         // 説明対象要素までスクロール
         this.scrollToTarget(step.target);
+
+        // エディタの表示制御
+        this.controlEditorDisplay(step.id);
+
+        // 実行結果の説明ステップの場合、ダミーデータが表示されていることを確認
+        const resultsContainer = document.getElementById('results-container');
+        if (step.id === 'results') {
+            // 結果エリアを表示
+            if (resultsContainer) {
+                resultsContainer.style.display = 'block';
+            }
+            // ダミーデータが表示されていない場合は挿入
+            if (resultsContainer && !resultsContainer.querySelector('.result-card')) {
+                this.insertDummyResultsAfterAnimation();
+            }
+        } else {
+            // 実行結果以外のステップでは非表示に戻す
+            if (resultsContainer) {
+                resultsContainer.style.display = 'none';
+            }
+        }
 
         // 説明文を更新
         this.updateExplanationContent(step);
@@ -309,6 +339,28 @@ class ExplanationService {
         if (step) {
             this.highlightElement(step.highlight);
             this.scrollToTarget(step.target);
+            
+            // エディタの表示制御
+            this.controlEditorDisplay(elementId);
+            
+            // 実行結果の説明の場合、ダミーデータが表示されていることを確認
+            const resultsContainer = document.getElementById('results-container');
+            if (elementId === 'results') {
+                // 結果エリアを表示
+                if (resultsContainer) {
+                    resultsContainer.style.display = 'block';
+                }
+                // ダミーデータが表示されていない場合は挿入
+                if (resultsContainer && !resultsContainer.querySelector('.result-card')) {
+                    this.insertDummyResultsAfterAnimation();
+                }
+            } else {
+                // 実行結果以外の個別説明時は非表示に戻す
+                if (resultsContainer) {
+                    resultsContainer.style.display = 'none';
+                }
+            }
+            
             this.updateExplanationContent(step);
         }
     }
@@ -346,6 +398,42 @@ class ExplanationService {
     }
 
     /**
+     * エディタの表示制御
+     * @param {string} stepId - 現在のステップID
+     */
+    controlEditorDisplay(stepId) {
+        if (stepId === 'results') {
+            // 実行結果の説明時はエディタを最小化
+            this.minimizeEditor();
+        } else {
+            // それ以外ではエディタを最大化
+            this.maximizeEditor();
+        }
+    }
+
+    /**
+     * エディタを最小化
+     */
+    minimizeEditor() {
+        const editorContainer = document.getElementById('sql-editor-container');
+        if (editorContainer) {
+            editorContainer.classList.add('editor-minimized');
+            editorContainer.classList.remove('editor-maximized');
+        }
+    }
+
+    /**
+     * エディタを最大化
+     */
+    maximizeEditor() {
+        const editorContainer = document.getElementById('sql-editor-container');
+        if (editorContainer) {
+            editorContainer.classList.add('editor-maximized');
+            editorContainer.classList.remove('editor-minimized');
+        }
+    }
+
+    /**
      * 説明対象要素までスクロール
      * @param {string} target - スクロール対象のセレクタ
      */
@@ -371,7 +459,7 @@ class ExplanationService {
     insertDummySQL() {
         const dummySQL = `SELECT * FROM employees 
 WHERE department = {department:部署名} 
-AND status = {status[active,inactive,pending]:ステータス}
+AND status = {status[active,inactive,pending]}
 AND salary > {salary:給与下限}`;
         
         // Monaco Editorが利用可能な場合
@@ -397,6 +485,68 @@ AND salary > {salary:給与下限}`;
      * ダミー実行結果を挿入
      */
     insertDummyResults() {
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            const dummyResults = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <h5><i class="fas fa-table me-2"></i>実行結果</h5>
+                        <div class="result-stats">
+                            <span class="stat-item"><i class="fas fa-list me-1"></i>3件</span>
+                            <span class="stat-item"><i class="fas fa-clock me-1"></i>0.15秒</span>
+                        </div>
+                    </div>
+                    <div class="export-buttons">
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-download me-1"></i>CSV出力
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>名前</th>
+                                    <th>部署</th>
+                                    <th>給与</th>
+                                    <th>ステータス</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>田中太郎</td>
+                                    <td>営業部</td>
+                                    <td>350000</td>
+                                    <td>active</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>佐藤花子</td>
+                                    <td>開発部</td>
+                                    <td>420000</td>
+                                    <td>active</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>鈴木一郎</td>
+                                    <td>営業部</td>
+                                    <td>380000</td>
+                                    <td>inactive</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            resultsContainer.innerHTML = dummyResults;
+        }
+    }
+
+    /**
+     * ダミー実行結果を挿入（アニメーション後に）
+     */
+    insertDummyResultsAfterAnimation() {
         const resultsContainer = document.getElementById('results-container');
         if (resultsContainer) {
             const dummyResults = `

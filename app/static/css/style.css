@@ -72,22 +72,49 @@ body {
 }
 
 /* メインコンテンツ */
-.main-content {
+.main-layout {
+    display: flex;
     width: 100vw;
-    max-width: 100vw;
-    padding: 0;
+    height: calc(100vh - 56px);
     margin: 0;
+    max-width: none;
+}
+
+.sidebar {
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
+    height: 100%;
+    overflow-y: auto;
+    background: var(--sidebar-background);
+    border-right: 1px solid var(--border-color);
+}
+
+.resizer {
+    width: 5px;
+    flex-shrink: 0;
+    height: 100%;
+}
+
+.main-content {
+    flex: 1 1 0%;
+    min-width: 0;
+    height: 100%;
     background: var(--background-color);
     display: flex;
-    height: calc(100vh - 80px);
+    flex-direction: column;
     overflow: hidden;
 }
 
 /* 説明機能のレイアウト */
-.tutorial-layout-container {
+.tutorial-layout-container,
+.tutorial-main-content,
+.content-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
     display: flex;
-    height: calc(100vh - 56px);
-    transition: all 0.3s ease;
 }
 
 .tutorial-layout-container.explanation-active {
@@ -101,8 +128,8 @@ body {
 }
 
 .tutorial-main-content.explanation-active {
-    height: calc(100vh - 56px - 300px);
-    overflow: hidden;
+    /* height: calc(100vh - 56px - 300px); */
+    /* overflow: hidden; */
 }
 
 /* 説明スペース */
@@ -240,31 +267,8 @@ body {
     z-index: 1000;
     margin: 5px;
     border-radius: 5px;
-}
-
-.explanation-highlight::before {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
-    border: 6px solid #ffeb3b;
-    border-radius: 8px;
-    animation: explanationPulse 2s infinite;
-    pointer-events: none;
-    z-index: 1001;
-}
-
-@keyframes explanationPulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.7;
-        transform: scale(1.02);
-    }
+    background-color: #fff3e0 !important;
+    transition: background-color 0.3s ease;
 }
 
 /* 個別説明アイコン */
@@ -332,14 +336,6 @@ body {
 }
 
 /* サイドバー */
-.sidebar {
-    width: 450px;
-    background-color: var(--sidebar-background);
-    border-right: 1px solid var(--border-color);
-    overflow-y: auto;
-    flex-shrink: 0;
-}
-
 .sidebar-header {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
@@ -384,8 +380,8 @@ body {
 /* SQLエディタ */
 .sql-editor-container {
     width: 100%;
-    max-width: 100vw;
-    margin: 0 auto 0 auto;
+    max-width: 100%;
+    margin: 0;
     box-sizing: border-box;
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
@@ -523,8 +519,8 @@ body {
 /* 結果表示 */
 #results-container {
     width: 100%;
-    max-width: 100vw;
-    margin: 0 auto 0 auto;
+    max-width: 100%;
+    margin: 0;
     box-sizing: border-box;
     flex: 1;
     overflow: hidden;
@@ -535,8 +531,8 @@ body {
 
 .result-card {
     width: 100%;
-    max-width: 100vw;
-    margin: 0 auto 0 auto;
+    max-width: 100%;
+    margin: 0;
     box-sizing: border-box;
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
@@ -1629,7 +1625,8 @@ body {
 
 .main-stack {
     width: 100%;
-    max-width: 100vw;
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -1643,19 +1640,11 @@ body {
 }
 
 .content-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
     display: flex;
-    flex-grow: 1;
-}
-
-.resizer {
-    flex: 0 0 5px;
-    cursor: col-resize;
-    background-color: var(--border-color);
-    transition: background-color 0.2s ease;
-}
-
-.resizer:hover {
-    background-color: var(--accent-color);
 }
 
 .loading {

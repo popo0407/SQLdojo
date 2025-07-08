@@ -29,6 +29,28 @@
   - デスクトップ: 固定サイズのフローティングウィンドウ
   - モバイル: 画面下部に固定表示（現在の方式を維持）
 
+### 問題の根本原因
+
+- エディタ最小化時に results-container の高さが変化し、DOM 描画が完了する前に insertDummyResults()が実行される
+- setTimeout による遅延では根本解決にならない
+
+### 解決策
+
+- requestAnimationFrame を使用して複数フレーム後にダミーデータを挿入
+- これにより DOM 描画が完了した後に確実にダミーデータが表示される
+
+### 実装内容
+
+1. showCurrentStep()で実行結果ステップの場合、requestAnimationFrame で 3 フレーム後に insertDummyResults()を呼び出し
+2. showIndividualExplanation()でも同様の処理を適用
+3. 既存の setTimeout は削除
+
+### 理由
+
+- requestAnimationFrame はブラウザの描画サイクルに合わせて実行されるため、DOM 更新完了後に確実に実行される
+- 複数フレーム待つことで、エディタ最小化によるレイアウト変更が完全に完了する
+- 開発憲章の「問題特定と修正」に従い、根本原因を特定して適切な解決策を実装
+
 ## 開発憲章準拠の注意点
 
 ### 1. 本番機能の絶対保護
