@@ -5858,3 +5858,21 @@ SELECT * FROM HF3IGM01 WHERE 1=1
 2025-07-09 00:08:37,561 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
 2025-07-09 00:08:37,562 - SQLLogService - INFO - SnowflakeのLog.TOOL_LOGにログを記録しました
 2025-07-09 00:08:55,912 - main - INFO - アプリケーション終了
+2025-07-09 00:14:01,710 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-09 00:14:01,713 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-09 00:14:01,854 - main - INFO - GET /user
+2025-07-09 00:14:02,064 - main - INFO - GET /static/css/style.css
+2025-07-09 00:14:02,078 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 00:14:02,458 - main - INFO - GET /api/v1/users/me
+2025-07-09 00:14:02,498 - main - INFO - GET /api/v1/users/parts
+2025-07-09 00:14:02,513 - main - INFO - GET /api/v1/users/templates
+2025-07-09 00:15:04,940 - main - INFO - GET /user
+2025-07-09 00:15:05,031 - main - INFO - GET /static/img/hint.png
+2025-07-09 00:15:05,039 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 00:15:05,041 - main - INFO - GET /static/css/style.css
+2025-07-09 00:15:05,285 - main - INFO - GET /api/v1/users/me
+2025-07-09 00:15:05,294 - main - INFO - GET /api/v1/users/parts
+2025-07-09 00:15:05,318 - main - INFO - GET /api/v1/users/templates
+2025-07-09 00:15:05,731 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-09 00:15:05,731 - main - INFO - GET /favicon.ico
+2025-07-09 00:15:35,002 - main - INFO - アプリケーション終了

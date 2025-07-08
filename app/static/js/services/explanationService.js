@@ -161,6 +161,17 @@ class ExplanationService {
         const step = this.explanationData[this.type][this.currentStep];
         if (!step) return;
 
+        // ウィンドウ位置の切り替え
+        const floatingWindow = document.getElementById('explanation-floating-window');
+        if (floatingWindow) {
+            floatingWindow.classList.remove('top', 'bottom');
+            if (step.id === 'parts') {
+                floatingWindow.classList.add('top');
+            } else {
+                floatingWindow.classList.add('bottom');
+            }
+        }
+
         // ハイライトをクリア
         this.clearHighlights();
 

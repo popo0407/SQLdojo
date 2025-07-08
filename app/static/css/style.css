@@ -1841,3 +1841,19 @@ body {
     align-items: center;
     gap: 0.5rem;
 }
+
+.explanation-floating-window.bottom {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    left: auto;
+    top: auto;
+}
+
+.explanation-floating-window.top {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    left: auto;
+    bottom: auto;
+}
