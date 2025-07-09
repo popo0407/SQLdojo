@@ -109,6 +109,7 @@ body {
     border-right: 1px solid var(--border-color);
     overflow-y: auto; /* サイドバー内が長くなった場合にスクロール */
     flex-shrink: 0; /* サイドバーが縮まないようにする */
+    padding: 1rem; /* サイドバー全体に余白を追加 */
 }
 
 .resizer {
@@ -295,8 +296,8 @@ body {
     transition: background-color 0.3s ease;
 }
 
-/* 個別説明アイコン */
-.explanation-icon {
+/* 個別説明アイコン（無効化） */
+/* .explanation-icon {
     position: absolute;
     top: -8px;
     right: -8px;
@@ -317,7 +318,7 @@ body {
 .explanation-icon:hover {
     background-color: var(--accent-hover);
     transform: scale(1.1);
-}
+} */
 
 /* レスポンシブ対応 */
 @media (max-width: 1200px) {
@@ -364,6 +365,7 @@ body {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--primary-color);
+    margin: -1rem -1rem 1rem -1rem; /* サイドバーのパディングを相殺してヘッダーを全幅に */
 }
 
 .sidebar-header h3 {
@@ -1120,9 +1122,9 @@ body {
 .error-footer .btn {
     min-width: 100px;
     padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    border-radius: var(--border-radius-large);
     font-weight: 600;
-    transition: all 0.2s ease;
+    transition: all var(--transition-normal);
 }
 
 .error-footer .btn:hover {
@@ -1308,9 +1310,9 @@ body {
 }
 
 .sql-toolbar .btn {
-    border-radius: 6px;
+    border-radius: var(--border-radius-normal);
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all var(--transition-normal);
 }
 
 .sql-toolbar .btn:hover {
@@ -1480,9 +1482,9 @@ body {
 }
 
 .export-buttons .btn {
-    border-radius: 6px;
+    border-radius: var(--border-radius-normal);
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all var(--transition-normal);
 }
 
 .export-buttons .btn:hover {
@@ -1509,7 +1511,8 @@ body {
     color: var(--text-color);
 }
 
-.keyboard-shortcuts {
+/* 重複した.keyboard-shortcutsと.shortcuts-btnの定義を削除 - 1154行目の定義を使用 */
+/* .keyboard-shortcuts {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -1558,9 +1561,10 @@ body {
     font-family: monospace;
     font-size: 0.875rem;
     color: #495057;
-}
+} */
 
-.loading-overlay {
+/* 重複した.loading-overlayの定義を削除 - 874行目の定義を使用 */
+/* .loading-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -1572,7 +1576,7 @@ body {
     justify-content: center;
     z-index: 100;
     border-radius: 8px;
-}
+} */
 
 .spinner-border-sm {
     width: 1.5rem;
@@ -1703,9 +1707,10 @@ body {
     margin-bottom: 1rem;
 }
 
-.card {
+/* .card の重複定義を削除 - 388行目の定義を使用 */
+/* .card {
     margin-bottom: 1rem;
-}
+} */
 
 .table-responsive {
     margin-top: 1rem;

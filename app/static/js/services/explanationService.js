@@ -380,32 +380,34 @@ class ExplanationService {
      * 個別説明アイコンを追加
      */
     addExplanationIcons() {
-        const elements = [
-            { selector: '.header', id: 'header' },
-            { selector: '#sidebar', id: 'sidebar' },
-            { selector: '#sql-editor-container', id: 'sql-editor' },
-            { selector: '#results-container', id: 'results' }
-        ];
+        // 個別説明アイコンの追加を無効化
+        // const elements = [
+        //     { selector: '.header', id: 'header' },
+        //     { selector: '#sidebar', id: 'sidebar' },
+        //     { selector: '#sql-editor-container', id: 'sql-editor' },
+        //     { selector: '#results-container', id: 'results' }
+        // ];
 
-        elements.forEach(element => {
-            const el = document.querySelector(element.selector);
-            if (el && !el.querySelector('.explanation-icon')) {
-                const icon = document.createElement('div');
-                icon.className = 'explanation-icon';
-                icon.innerHTML = '?';
-                icon.onclick = () => this.showIndividualExplanation(element.id);
-                el.style.position = 'relative';
-                el.appendChild(icon);
-            }
-        });
+        // elements.forEach(element => {
+        //     const el = document.querySelector(element.selector);
+        //     if (el && !el.querySelector('.explanation-icon')) {
+        //         const icon = document.createElement('div');
+        //         icon.className = 'explanation-icon';
+        //         icon.innerHTML = '?';
+        //         icon.onclick = () => this.showIndividualExplanation(element.id);
+        //         el.style.position = 'relative';
+        //         el.appendChild(icon);
+        //     }
+        // });
     }
 
     /**
-     * 個別説明アイコンを削除
+     * 個別説明アイコンを削除（無効化）
      */
     removeExplanationIcons() {
-        const icons = document.querySelectorAll('.explanation-icon');
-        icons.forEach(icon => icon.remove());
+        // 個別説明アイコンの削除を無効化
+        // const icons = document.querySelectorAll('.explanation-icon');
+        // icons.forEach(icon => icon.remove());
     }
 
     /**
