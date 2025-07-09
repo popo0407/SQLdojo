@@ -176,7 +176,8 @@ def get_query_executor_for_oracle_di(
 def get_sql_log_service_di(
     query_executor: Annotated[QueryExecutor, Depends(get_query_executor_for_oracle_di)]
 ) -> SQLLogService:
-    return SQLLogService(query_executor=query_executor)
+    settings = get_settings()
+    return SQLLogService(query_executor=query_executor, log_storage_type=settings.log_storage_type)
 
 
 # AdminServiceの依存性注入を追加

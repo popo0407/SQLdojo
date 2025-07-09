@@ -5,92 +5,64 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from app.logger import get_logger
 from app.services.query_executor import QueryExecutor
+from app.services.log_handlers import OracleLogHandler, SqliteLogHandler, SnowflakeLogHandler
+from app.config_simplified import get_settings
 from app import __version__
 
 logger = get_logger("SQLLogService")
 
 class SQLLogService:
-    def __init__(self, query_executor: QueryExecutor):
+    def __init__(self, query_executor: QueryExecutor, log_storage_type: str = "oracle"):
         self.query_executor = query_executor
+        self.log_storage_type = log_storage_type
+        self.settings = get_settings()
+        self.logger = get_logger(__name__)
+        
+        self.logger.info(f"SQLLogService初期化: log_storage_type={log_storage_type}")
+        
+        # ログハンドラの初期化
+        if log_storage_type == "oracle":
+            self.logger.info("Oracleログハンドラを初期化します")
+            self.log_handler = OracleLogHandler(query_executor)
+        elif log_storage_type == "sqlite":
+            self.logger.info("SQLiteログハンドラを初期化します")
+            # SQLite用のQueryExecutorを作成
+            from app.services.connection_manager_sqlite import ConnectionManagerSQLite
+            sqlite_connection_manager = ConnectionManagerSQLite()
+            sqlite_query_executor = QueryExecutor(sqlite_connection_manager)
+            self.log_handler = SqliteLogHandler(self.settings.sqlite_db_path)
+        elif log_storage_type == "snowflake":
+            self.logger.info("Snowflakeログハンドラを初期化します")
+            # Snowflake用のQueryExecutorを作成
+            from app.services.connection_manager_snowflake_log import ConnectionManagerSnowflakeLog
+            snowflake_log_connection_manager = ConnectionManagerSnowflakeLog()
+            snowflake_log_query_executor = QueryExecutor(snowflake_log_connection_manager)
+            self.log_handler = SnowflakeLogHandler(snowflake_log_query_executor)
+        else:
+            raise ValueError(f"サポートされていないログストレージタイプ: {log_storage_type}")
+        
+        self.logger.info(f"ログハンドラ初期化完了: {type(self.log_handler).__name__}")
 
     def add_log_to_db(self, user_id: str, sql: str, execution_time: float, start_time: datetime, row_count: int, success: bool, error_message: Optional[str]):
+        """ログハンドラを使用してログを追加"""
         try:
-            end_time = datetime.now()
-            mk_date = end_time.strftime('%Y%m%d%H%M%S')
-            from_date = start_time.strftime('%Y%m%d%H%M%S')
-            
-            truncated_sql = sql[:3900] if len(sql) > 3900 else sql
-            
-            version_parts = __version__.split('.')
-            version_number = int(version_parts[0]) * 100 + int(version_parts[1]) * 10 + int(version_parts[2])
-
-            log_sql = """
-            INSERT INTO Log.TOOL_LOG (
-                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER,
-                ROW_COUNT, SUCCESS, ERROR_MESSAGE
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
-            params = (
-                mk_date, user_id, 'SQLDOJOWEB', truncated_sql,
-                round(execution_time, 6), from_date, mk_date, version_number,
-                row_count, 1 if success else 0, error_message
-            )
-
-            result = self.query_executor.execute_query(log_sql, params)
-            if not result.success:
-                logger.error("OracleDBへのログ記録に失敗しました", error=result.error_message)
+            self.logger.info(f"ログ記録を開始: storage_type={self.log_storage_type}, user_id={user_id}")
+            self.log_handler.add_log(user_id, sql, execution_time, start_time, row_count, success, error_message)
+            self.logger.info(f"ログ記録が完了しました: storage_type={self.log_storage_type}")
         except Exception as e:
-            logger.error(f"OracleDBへのログ記録中に予期せぬエラーが発生しました: {e}", exc_info=True)
+            self.logger.error(f"{self.log_storage_type}へのログ記録中に予期せぬエラーが発生しました: {e}", exc_info=True)
 
     def get_logs(self, user_id: Optional[str] = None, limit: int = 100, offset: int = 0) -> Dict[str, Any]:
+        """ログハンドラを使用してログを取得"""
         try:
-            base_sql = "FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
-            params = []
-            if user_id:
-                base_sql += " AND OPE_CODE = ?"
-                params.append(user_id)
-
-            count_sql = f"SELECT COUNT(*) as TOTAL_COUNT {base_sql}"
-            count_result = self.query_executor.execute_query(count_sql, tuple(params))
-            total_count = count_result.data[0]['TOTAL_COUNT'] if count_result.success and count_result.data else 0
-
-            data_sql = f"""
-            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER, ROW_COUNT, SUCCESS, ERROR_MESSAGE
-            {base_sql} ORDER BY MK_DATE DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
-            """
-            params.extend([offset, limit])
-            logs_result = self.query_executor.execute_query(data_sql, tuple(params))
-            
-            if not logs_result.success:
-                return {"logs": [], "total_count": 0}
-
-            logs_data = [{
-                "log_id": str(uuid.uuid4()),
-                "user_id": row.get("OPE_CODE"),
-                "sql": row.get("OPTION_NO"),
-                "execution_time": row.get("SYSTEM_WORKNUMBER"),
-                "row_count": row.get("ROW_COUNT"),
-                "success": bool(row.get("SUCCESS")),
-                "error_message": row.get("ERROR_MESSAGE"),
-                "timestamp": datetime.strptime(row.get("MK_DATE"), '%Y%m%d%H%M%S').isoformat()
-            } for row in logs_result.data]
-
-            return {"logs": logs_data, "total_count": total_count}
+            return self.log_handler.get_logs(user_id, limit, offset)
         except Exception as e:
-            logger.error(f"OracleDBからのログ取得中に予期せぬエラーが発生しました: {e}", exc_info=True)
+            self.logger.error(f"{self.log_storage_type}からのログ取得中に予期せぬエラーが発生しました: {e}", exc_info=True)
             return {"logs": [], "total_count": 0}
 
     def clear_logs(self, user_id: Optional[str] = None):
+        """ログハンドラを使用してログをクリア"""
         try:
-            sql = "DELETE FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
-            params = []
-            if user_id:
-                sql += " AND OPE_CODE = ?"
-                params.append(user_id)
-            
-            result = self.query_executor.execute_query(sql, tuple(params))
-            if not result.success:
-                logger.error("OracleDBのログクリアに失敗", error=result.error_message)
+            self.log_handler.clear_logs(user_id)
         except Exception as e:
-            logger.error(f"OracleDBのログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True)
+            self.logger.error(f"{self.log_storage_type}のログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True)

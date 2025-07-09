@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     oracle_sid: Optional[str] = Field(default=None, description="Oracle SID")
     oracle_user: Optional[str] = Field(default=None, description="Oracleユーザー名")
     oracle_password: Optional[str] = Field(default=None, description="Oracleパスワード")
+    
+    # SQLite接続設定
+    sqlite_db_path: str = Field(default="./logs/sql_logs.db", description="SQLiteデータベースファイルパス")
 
     # アプリケーション設定
     app_host: str = Field(default="0.0.0.0", description="アプリケーションホスト")
@@ -56,6 +59,7 @@ class Settings(BaseSettings):
     
     # ログ設定
     log_level: str = Field(default="INFO", description="ログレベル")
+    log_storage_type: str = Field(default="oracle", description="ログ保存先タイプ (oracle, sqlite, snowflake)")
 
     # 補完機能設定
     completion_target_schemas: List[str] = Field(default=["PUBLIC"], description="補完対象のスキーマリスト")
@@ -115,6 +119,14 @@ class Settings(BaseSettings):
         if v.upper() not in valid_levels:
             raise ValueError(f'ログレベルは{valid_levels}のいずれかである必要があります')
         return v.upper()
+    
+    @field_validator('log_storage_type')
+    @classmethod
+    def validate_log_storage_type(cls, v):
+        valid_types = ['oracle', 'sqlite', 'snowflake']
+        if v.lower() not in valid_types:
+            raise ValueError(f'ログストレージタイプは{valid_types}のいずれかである必要があります')
+        return v.lower()
 
 
 # グローバル設定インスタンス

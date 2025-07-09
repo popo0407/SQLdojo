@@ -6812,3 +6812,593 @@ SELECT * FROM HF3IGM01 WHERE 1=1
 2025-07-09 22:17:38,628 - main - INFO - GET /api/v1/admin/parts
 2025-07-09 22:17:38,639 - main - INFO - GET /api/v1/users/parts
 2025-07-09 22:17:47,862 - main - INFO - アプリケーション終了
+2025-07-09 22:30:48,277 - app.services.log_handlers.oracle - ERROR - OracleDBへのログ記録に失敗しました
+2025-07-09 22:30:48,472 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmpq3n86r6f.db
+2025-07-09 22:30:48,540 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmp5638vr1v.db
+2025-07-09 22:30:48,624 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmpyy8c0cbe.db
+2025-07-09 22:30:48,896 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmpt8n27hml.db
+2025-07-09 22:30:58,525 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:30:58,525 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:30:58,542 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 22:30:58,542 - snowsight_app - INFO - SQL実行完了
+2025-07-09 22:30:58,557 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:30:58,558 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:30:58,559 - snowsight_app - WARNING - SQLバリデーション失敗
+2025-07-09 22:32:54,138 - app.services.log_handlers.oracle - ERROR - OracleDBへのログ記録に失敗しました
+2025-07-09 22:32:54,265 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmpzinjao49.db
+2025-07-09 22:32:54,322 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmpawe_u1jb.db
+2025-07-09 22:32:54,415 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmp4yjifo0e.db
+2025-07-09 22:32:55,534 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmp_9qqv8kx.db
+2025-07-09 22:32:57,364 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:32:57,371 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:32:57,373 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 22:32:57,374 - snowsight_app - INFO - SQL実行完了
+2025-07-09 22:32:57,440 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:32:57,441 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:32:57,456 - snowsight_app - WARNING - SQLバリデーション失敗
+2025-07-09 22:47:12,271 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-09 22:47:12,274 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-09 22:47:30,146 - main - INFO - GET /
+2025-07-09 22:47:30,495 - main - INFO - GET /static/css/style.css
+2025-07-09 22:47:30,502 - main - INFO - GET /static/img/hint.png
+2025-07-09 22:47:30,532 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-09 22:47:30,562 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-09 22:47:30,568 - main - INFO - GET /static/js/services/apiService.js
+2025-07-09 22:47:30,633 - main - INFO - GET /static/js/services/stateService.js
+2025-07-09 22:47:30,654 - main - INFO - GET /static/js/services/uiService.js
+2025-07-09 22:47:30,708 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 22:47:30,713 - main - INFO - GET /static/js/services/editorService.js
+2025-07-09 22:47:30,721 - main - INFO - GET /static/js/app_new.js
+2025-07-09 22:47:31,954 - app.api.routes - INFO - 接続状態確認要求
+2025-07-09 22:47:31,985 - main - INFO - GET /api/v1/connection/status
+2025-07-09 22:47:32,086 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-09 22:47:32,089 - main - INFO - GET /favicon.ico
+2025-07-09 22:47:32,174 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-09 22:47:32,176 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 22:47:32,201 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 22:47:32,216 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-09 22:47:32,218 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-09 22:47:32,227 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-09 22:47:32,230 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-09 22:47:32,233 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 22:47:32,242 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-09 22:47:32,247 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 22:47:32,249 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 22:47:32,254 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 22:47:32,257 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 22:47:32,259 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 22:47:32,260 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 22:47:32,269 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-09 22:47:32,272 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 98.3ms)
+2025-07-09 22:47:32,275 - main - INFO - GET /api/v1/metadata/all
+2025-07-09 22:47:32,301 - main - INFO - GET /api/v1/users/me
+2025-07-09 22:47:32,337 - main - INFO - GET /api/v1/visibility-settings
+2025-07-09 22:47:32,375 - main - INFO - GET /api/v1/admin/templates
+2025-07-09 22:47:32,394 - main - INFO - GET /api/v1/users/templates
+2025-07-09 22:47:32,440 - main - INFO - GET /api/v1/admin/parts
+2025-07-09 22:47:32,441 - main - INFO - GET /api/v1/users/parts
+2025-07-09 22:47:37,677 - app.api.routes - INFO - SQL補完候補要求
+2025-07-09 22:47:37,678 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'HF3IGM01'
+2025-07-09 22:47:37,680 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 22:47:37,687 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 22:47:37,689 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-09 22:47:37,690 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 12.6ms)
+2025-07-09 22:47:37,692 - main - INFO - POST /api/v1/sql/suggest
+2025-07-09 22:47:38,803 - app.api.routes - INFO - SQL補完候補要求
+2025-07-09 22:47:38,805 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: 'W'
+2025-07-09 22:47:38,806 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 22:47:38,816 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 22:47:38,817 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-09 22:47:38,818 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 15.1ms)
+2025-07-09 22:47:38,825 - main - INFO - POST /api/v1/sql/suggest
+2025-07-09 22:47:47,899 - app.services.template_service - INFO - ユーザーテンプレートを作成しました
+2025-07-09 22:47:47,899 - main - INFO - POST /api/v1/users/templates
+2025-07-09 22:47:47,948 - main - INFO - GET /api/v1/users/templates
+2025-07-09 22:47:47,960 - main - INFO - GET /api/v1/admin/templates
+2025-07-09 22:47:49,793 - main - INFO - GET /user
+2025-07-09 22:47:49,881 - main - INFO - GET /api/v1/users/me
+2025-07-09 22:47:49,912 - main - INFO - GET /api/v1/users/templates
+2025-07-09 22:47:49,919 - main - INFO - GET /api/v1/users/parts
+2025-07-09 22:47:57,113 - app.services.template_service - INFO - ユーザーテンプレートを削除しました
+2025-07-09 22:47:57,118 - main - INFO - DELETE /api/v1/users/templates/c124c7d4-0f96-440b-9636-7ccd02da8802
+2025-07-09 22:47:57,144 - main - INFO - GET /api/v1/users/templates
+2025-07-09 22:47:58,622 - app.services.template_service - INFO - ユーザーテンプレートを削除しました
+2025-07-09 22:47:58,624 - main - INFO - DELETE /api/v1/users/templates/5ca6aeb6-91da-416c-9e93-612e9d146b0f
+2025-07-09 22:47:58,648 - main - INFO - GET /api/v1/users/templates
+2025-07-09 22:48:10,610 - app.services.template_service - INFO - ユーザーテンプレートを作成しました
+2025-07-09 22:48:10,610 - main - INFO - POST /api/v1/users/templates
+2025-07-09 22:48:10,646 - main - INFO - GET /api/v1/users/templates
+2025-07-09 22:48:13,012 - app.services.template_service - INFO - ユーザーテンプレートを削除しました
+2025-07-09 22:48:13,012 - main - INFO - DELETE /api/v1/users/templates/af17b268-9172-4eab-b338-cb9192044852
+2025-07-09 22:48:13,048 - main - INFO - GET /api/v1/users/templates
+2025-07-09 22:48:16,581 - main - INFO - GET /
+2025-07-09 22:48:16,651 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-09 22:48:16,655 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-09 22:48:17,316 - app.api.routes - INFO - 接続状態確認要求
+2025-07-09 22:48:17,317 - main - INFO - GET /api/v1/connection/status
+2025-07-09 22:48:17,366 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-09 22:48:17,380 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 22:48:17,397 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 22:48:17,401 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-09 22:48:17,428 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-09 22:48:17,436 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-09 22:48:17,439 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-09 22:48:17,445 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 22:48:17,463 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-09 22:48:17,467 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 22:48:17,479 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 22:48:17,498 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 22:48:17,512 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 22:48:17,520 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 22:48:17,522 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 22:48:17,523 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-09 22:48:17,537 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 170.7ms)
+2025-07-09 22:48:17,539 - main - INFO - GET /api/v1/metadata/all
+2025-07-09 22:48:17,571 - main - INFO - GET /api/v1/users/me
+2025-07-09 22:48:17,594 - main - INFO - GET /api/v1/visibility-settings
+2025-07-09 22:48:17,639 - main - INFO - GET /api/v1/users/templates
+2025-07-09 22:48:17,642 - main - INFO - GET /api/v1/admin/templates
+2025-07-09 22:48:17,660 - main - INFO - GET /api/v1/admin/parts
+2025-07-09 22:48:17,674 - main - INFO - GET /api/v1/users/parts
+2025-07-09 22:48:25,614 - app.services.connection_manager_snowflake_log - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-09 22:48:25,614 - app.api.routes - INFO - SQL実行要求
+2025-07-09 22:48:25,614 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:48:25,614 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:48:25,666 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-09 22:48:25,666 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 22:48:25,666 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-09 22:48:28,697 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 22:48:28,697 - snowsight_app - INFO - SQL実行完了
+2025-07-09 22:48:28,714 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.1s)
+2025-07-09 22:48:28,714 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 22:48:28,726 - app.services.connection_manager_snowflake_log - INFO - Snowflakeログ用ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=LOG;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-09 22:48:29,114 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 22:48:29,114 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-09 22:48:38,623 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 22:48:38,633 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 22:49:04,464 - app.api.routes - INFO - SQL実行要求
+2025-07-09 22:49:04,465 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:49:04,466 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:49:04,474 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-09 22:49:04,480 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 22:49:04,658 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 22:49:04,658 - snowsight_app - INFO - SQL実行完了
+2025-07-09 22:49:04,680 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 216.4ms)
+2025-07-09 22:49:04,680 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 22:49:04,860 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 22:49:04,869 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-09 22:50:14,067 - app.api.routes - INFO - SQL実行要求
+2025-07-09 22:50:14,067 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:50:14,067 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:50:14,067 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-09 22:50:14,082 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 22:50:14,226 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 22:50:14,253 - snowsight_app - INFO - SQL実行完了
+2025-07-09 22:50:14,257 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 190.2ms)
+2025-07-09 22:50:14,259 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 22:50:14,391 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 22:50:14,395 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-09 22:50:28,098 - app.api.routes - INFO - SQL補完候補要求
+2025-07-09 22:50:28,099 - app.services.completion_service - INFO - DEBUG: get_completions called. Current word: '5'
+2025-07-09 22:50:28,100 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 22:50:28,110 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 22:50:28,112 - app.api.routes - INFO - SQL補完候補取得完了
+2025-07-09 22:50:28,113 - snowsight_app - INFO - パフォーマンス記録: sql_suggest (実行時間: 15.0ms)
+2025-07-09 22:50:28,125 - main - INFO - POST /api/v1/sql/suggest
+2025-07-09 22:50:31,803 - app.api.routes - INFO - SQL実行要求
+2025-07-09 22:50:31,804 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:50:31,807 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:50:31,833 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 5=5
+2025-07-09 22:50:31,842 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 22:50:32,440 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 22:50:32,440 - snowsight_app - INFO - SQL実行完了
+2025-07-09 22:50:32,440 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 636.8ms)
+2025-07-09 22:50:32,461 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 22:50:32,593 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 22:50:32,594 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-09 22:50:45,044 - app.api.routes - INFO - SQL実行要求
+2025-07-09 22:50:45,045 - snowsight_app - INFO - SQL実行開始
+2025-07-09 22:50:45,048 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 22:50:45,065 - sql_validator - INFO - SQLバリデーション: SELECT ROLE_ID FROM HF3IGM01 WHERE 5=5
+2025-07-09 22:50:45,066 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 22:50:45,192 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 22:50:45,194 - snowsight_app - INFO - SQL実行完了
+2025-07-09 22:50:45,204 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 160.9ms)
+2025-07-09 22:50:45,206 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 22:50:45,340 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 22:50:45,347 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-09 23:02:57,249 - main - INFO - GET /user
+2025-07-09 23:02:58,261 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:02:58,635 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:02:58,705 - main - INFO - GET /static/css/style.css
+2025-07-09 23:02:58,788 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 23:03:00,666 - main - INFO - GET /api/v1/users/me
+2025-07-09 23:03:00,773 - main - INFO - GET /api/v1/users/parts
+2025-07-09 23:03:00,856 - main - INFO - GET /api/v1/users/templates
+2025-07-09 23:09:37,021 - app.services.metadata_service - INFO - スキーマ一覧取得開始
+2025-07-09 23:09:37,021 - app.services.metadata_service - INFO - キャッシュからスキーマ一覧取得完了
+2025-07-09 23:09:37,050 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-09 23:09:37,051 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-09 23:09:37,065 - app.services.metadata_service - INFO - テーブル詳細情報取得開始
+2025-07-09 23:09:37,066 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-09 23:09:37,068 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-09 23:09:37,069 - app.services.metadata_service - INFO - カラム一覧取得開始
+2025-07-09 23:09:37,069 - app.services.metadata_service - INFO - キャッシュからカラム一覧取得完了
+2025-07-09 23:09:37,069 - app.services.metadata_service - INFO - テーブル詳細情報取得完了
+2025-07-09 23:09:37,083 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得開始
+2025-07-09 23:09:37,105 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得完了
+2025-07-09 23:09:37,120 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得開始
+2025-07-09 23:09:37,120 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得完了
+2025-07-09 23:09:37,148 - snowsight_app - INFO - CSVエクスポート開始
+2025-07-09 23:09:37,152 - snowsight_app - INFO - データをCSV形式に変換開始
+2025-07-09 23:09:37,153 - snowsight_app - INFO - CSV形式への変換完了
+2025-07-09 23:09:37,172 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:09:37,188 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 23:09:37,216 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:09:37,235 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:09:37,237 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:09:37,240 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 23:09:37,240 - snowsight_app - INFO - SQL実行完了
+2025-07-09 23:09:37,240 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:09:37,258 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:09:37,258 - snowsight_app - WARNING - SQLバリデーション失敗
+2025-07-09 23:11:12,394 - main - INFO - アプリケーション終了
+2025-07-09 23:11:20,346 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-09 23:11:20,346 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-09 23:11:26,736 - main - INFO - GET /user
+2025-07-09 23:11:26,993 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:11:27,013 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:11:27,710 - main - INFO - GET /static/css/style.css
+2025-07-09 23:11:27,711 - main - INFO - GET /static/img/hint.png
+2025-07-09 23:11:27,740 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 23:11:28,413 - main - INFO - GET /api/v1/users/me
+2025-07-09 23:11:28,759 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-09 23:11:28,812 - main - INFO - GET /favicon.ico
+2025-07-09 23:11:28,969 - main - INFO - GET /api/v1/users/templates
+2025-07-09 23:11:28,972 - main - INFO - GET /api/v1/users/parts
+2025-07-09 23:11:31,528 - main - INFO - GET /
+2025-07-09 23:11:31,934 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:11:32,423 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:11:32,771 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-09 23:11:32,799 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-09 23:11:32,887 - main - INFO - GET /static/js/app_new.js
+2025-07-09 23:11:36,054 - app.api.routes - INFO - 接続状態確認要求
+2025-07-09 23:11:36,073 - main - INFO - GET /api/v1/connection/status
+2025-07-09 23:11:36,170 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-09 23:11:36,188 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 23:11:36,227 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 23:11:36,230 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-09 23:11:36,233 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-09 23:11:36,253 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-09 23:11:36,254 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-09 23:11:36,257 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:11:36,258 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-09 23:11:36,261 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:11:36,263 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:11:36,282 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:11:36,296 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:11:36,302 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:11:36,304 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:11:36,322 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-09 23:11:36,533 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 362.7ms)
+2025-07-09 23:11:36,655 - main - INFO - GET /api/v1/metadata/all
+2025-07-09 23:11:36,706 - main - INFO - GET /api/v1/users/me
+2025-07-09 23:11:36,778 - main - INFO - GET /api/v1/visibility-settings
+2025-07-09 23:11:36,804 - main - INFO - GET /api/v1/users/templates
+2025-07-09 23:11:36,841 - main - INFO - GET /api/v1/admin/templates
+2025-07-09 23:11:36,881 - main - INFO - GET /api/v1/users/parts
+2025-07-09 23:11:36,906 - main - INFO - GET /api/v1/admin/parts
+2025-07-09 23:11:39,809 - app.api.routes - INFO - SQL実行要求
+2025-07-09 23:11:39,825 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:11:39,827 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:11:39,947 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-09 23:11:39,949 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 23:11:39,959 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-09 23:11:44,241 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:11:44,241 - snowsight_app - INFO - SQL実行完了
+2025-07-09 23:11:44,241 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 4.4s)
+2025-07-09 23:11:44,257 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 23:11:44,259 - app.services.connection_manager_oracle - INFO - OracleにDSN-less方式(SID)で接続します（パスワード除く）: DRIVER=Oracle in OraDB19Home1;DBQ=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=your_oracle_host_ip)(PORT=1521))(CONNECT_DATA=(SID=ILC05)));UID=your_oracle_user
+2025-07-09 23:11:44,277 - app.services.connection_manager_oracle - ERROR - Oracle(ODBC)への接続に失敗しました: ('IM002', '[IM002] [Microsoft][ODBC Driver Manager] データ ソース名および指定された既定のドライバーが見つかりません。 (0) (SQLDriverConnect)')
+2025-07-09 23:11:44,279 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 23:11:44,282 - SQLLogService - ERROR - OracleDBへのログ記録に失敗しました
+2025-07-09 23:15:19,120 - main - INFO - アプリケーション終了
+2025-07-09 23:15:22,568 - app.services.metadata_service - INFO - スキーマ一覧取得開始
+2025-07-09 23:15:22,568 - app.services.metadata_service - INFO - キャッシュからスキーマ一覧取得完了
+2025-07-09 23:15:22,582 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-09 23:15:22,582 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-09 23:15:22,601 - app.services.metadata_service - INFO - テーブル詳細情報取得開始
+2025-07-09 23:15:22,601 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-09 23:15:22,607 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-09 23:15:22,610 - app.services.metadata_service - INFO - カラム一覧取得開始
+2025-07-09 23:15:22,615 - app.services.metadata_service - INFO - キャッシュからカラム一覧取得完了
+2025-07-09 23:15:22,617 - app.services.metadata_service - INFO - テーブル詳細情報取得完了
+2025-07-09 23:15:22,628 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得開始
+2025-07-09 23:15:22,631 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得完了
+2025-07-09 23:15:22,649 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得開始
+2025-07-09 23:15:22,650 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得完了
+2025-07-09 23:15:22,680 - snowsight_app - INFO - CSVエクスポート開始
+2025-07-09 23:15:22,681 - snowsight_app - INFO - データをCSV形式に変換開始
+2025-07-09 23:15:22,693 - snowsight_app - INFO - CSV形式への変換完了
+2025-07-09 23:15:22,723 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:15:22,733 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 23:15:22,758 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:15:22,786 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:15:22,787 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:15:22,791 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 23:15:22,794 - snowsight_app - INFO - SQL実行完了
+2025-07-09 23:15:22,805 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:15:22,806 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:15:22,810 - snowsight_app - WARNING - SQLバリデーション失敗
+2025-07-09 23:15:30,852 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-09 23:15:30,854 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-09 23:15:51,870 - main - INFO - GET /
+2025-07-09 23:15:52,247 - main - INFO - GET /static/css/style.css
+2025-07-09 23:15:52,265 - main - INFO - GET /static/img/hint.png
+2025-07-09 23:15:52,343 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-09 23:15:52,398 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-09 23:15:52,405 - main - INFO - GET /static/js/services/stateService.js
+2025-07-09 23:15:52,409 - main - INFO - GET /static/js/services/apiService.js
+2025-07-09 23:15:52,472 - main - INFO - GET /static/js/services/uiService.js
+2025-07-09 23:15:52,648 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:15:52,713 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:15:52,852 - main - INFO - GET /static/js/services/editorService.js
+2025-07-09 23:15:52,993 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 23:15:53,073 - main - INFO - GET /static/js/app_new.js
+2025-07-09 23:15:54,640 - app.api.routes - INFO - 接続状態確認要求
+2025-07-09 23:15:54,645 - main - INFO - GET /api/v1/connection/status
+2025-07-09 23:15:55,715 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-09 23:15:55,715 - main - INFO - GET /favicon.ico
+2025-07-09 23:15:55,764 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-09 23:15:55,772 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 23:15:55,797 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 23:15:55,801 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-09 23:15:55,806 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-09 23:15:55,817 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-09 23:15:55,821 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-09 23:15:55,823 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:15:55,823 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-09 23:15:55,823 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:15:55,823 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:15:55,836 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:15:55,839 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:15:55,840 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:15:55,842 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:15:55,843 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-09 23:15:55,845 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 80.5ms)
+2025-07-09 23:15:55,847 - main - INFO - GET /api/v1/metadata/all
+2025-07-09 23:15:56,079 - main - INFO - GET /api/v1/users/me
+2025-07-09 23:15:56,109 - main - INFO - GET /api/v1/visibility-settings
+2025-07-09 23:15:56,151 - main - INFO - GET /api/v1/admin/templates
+2025-07-09 23:15:56,160 - main - INFO - GET /api/v1/users/templates
+2025-07-09 23:15:56,209 - main - INFO - GET /api/v1/admin/parts
+2025-07-09 23:15:56,213 - main - INFO - GET /api/v1/users/parts
+2025-07-09 23:16:48,068 - app.api.routes - INFO - SQL実行要求
+2025-07-09 23:16:48,069 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:16:48,072 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:16:48,091 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-09 23:16:48,091 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 23:16:48,091 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-09 23:16:53,008 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:16:53,008 - snowsight_app - INFO - SQL実行完了
+2025-07-09 23:16:53,008 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 4.9s)
+2025-07-09 23:16:53,024 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 23:16:53,034 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 23:16:53,037 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました
+2025-07-09 23:24:41,380 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmpps0cundz\test_logs.db
+2025-07-09 23:24:41,481 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmp6_s0dgh9\existing_logs.db
+2025-07-09 23:24:41,517 - app.services.log_handlers.sqlite - INFO - SQLiteログデータベースを初期化しました: C:\Users\user\AppData\Local\Temp\tmp6_s0dgh9\existing_logs.db
+2025-07-09 23:26:52,413 - main - INFO - アプリケーション終了
+2025-07-09 23:28:02,737 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-09 23:28:02,737 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-09 23:28:05,774 - main - INFO - GET /
+2025-07-09 23:28:06,395 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:28:06,401 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:28:06,642 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-09 23:28:06,644 - main - INFO - GET /static/img/hint.png
+2025-07-09 23:28:06,646 - main - INFO - GET /static/css/style.css
+2025-07-09 23:28:06,652 - main - INFO - GET /static/js/services/apiService.js
+2025-07-09 23:28:06,659 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-09 23:28:06,669 - main - INFO - GET /static/js/services/stateService.js
+2025-07-09 23:28:06,696 - main - INFO - GET /static/js/services/uiService.js
+2025-07-09 23:28:06,758 - main - INFO - GET /static/js/services/editorService.js
+2025-07-09 23:28:07,278 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 23:28:07,463 - main - INFO - GET /static/js/app_new.js
+2025-07-09 23:28:10,432 - app.api.routes - INFO - 接続状態確認要求
+2025-07-09 23:28:10,463 - main - INFO - GET /api/v1/connection/status
+2025-07-09 23:28:11,190 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-09 23:28:11,193 - main - INFO - GET /favicon.ico
+2025-07-09 23:28:11,296 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-09 23:28:11,302 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 23:28:11,338 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 23:28:11,349 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-09 23:28:11,362 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-09 23:28:11,362 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-09 23:28:11,376 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-09 23:28:11,376 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:28:11,376 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-09 23:28:11,376 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:28:11,376 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:28:11,394 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:28:11,396 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:28:11,397 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:28:11,398 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:28:11,399 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-09 23:28:11,401 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 105.2ms)
+2025-07-09 23:28:11,413 - main - INFO - GET /api/v1/metadata/all
+2025-07-09 23:28:12,008 - main - INFO - GET /api/v1/users/me
+2025-07-09 23:28:12,023 - main - INFO - GET /api/v1/visibility-settings
+2025-07-09 23:28:12,046 - main - INFO - GET /api/v1/users/templates
+2025-07-09 23:28:12,053 - main - INFO - GET /api/v1/admin/templates
+2025-07-09 23:28:12,472 - main - INFO - GET /api/v1/admin/parts
+2025-07-09 23:28:12,515 - main - INFO - GET /api/v1/users/parts
+2025-07-09 23:28:15,256 - app.api.error_handlers - ERROR - 予期しない例外: 'SQLLogService' object has no attribute 'logger'
+2025-07-09 23:30:44,997 - app.services.metadata_service - INFO - スキーマ一覧取得開始
+2025-07-09 23:30:44,998 - app.services.metadata_service - INFO - キャッシュからスキーマ一覧取得完了
+2025-07-09 23:30:45,011 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-09 23:30:45,012 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-09 23:30:45,018 - app.services.metadata_service - INFO - テーブル詳細情報取得開始
+2025-07-09 23:30:45,018 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-09 23:30:45,018 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-09 23:30:45,018 - app.services.metadata_service - INFO - カラム一覧取得開始
+2025-07-09 23:30:45,018 - app.services.metadata_service - INFO - キャッシュからカラム一覧取得完了
+2025-07-09 23:30:45,018 - app.services.metadata_service - INFO - テーブル詳細情報取得完了
+2025-07-09 23:30:45,041 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得開始
+2025-07-09 23:30:45,043 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得完了
+2025-07-09 23:30:45,050 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得開始
+2025-07-09 23:30:45,053 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得完了
+2025-07-09 23:30:45,063 - snowsight_app - INFO - CSVエクスポート開始
+2025-07-09 23:30:45,068 - snowsight_app - INFO - データをCSV形式に変換開始
+2025-07-09 23:30:45,070 - snowsight_app - INFO - CSV形式への変換完了
+2025-07-09 23:30:45,083 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:30:45,085 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 23:30:45,109 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:30:45,127 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:30:45,128 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:30:45,130 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 23:30:45,131 - snowsight_app - INFO - SQL実行完了
+2025-07-09 23:30:45,139 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:30:45,140 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:30:45,141 - snowsight_app - WARNING - SQLバリデーション失敗
+2025-07-09 23:31:02,831 - main - INFO - アプリケーション終了
+2025-07-09 23:31:13,551 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-09 23:31:13,556 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-09 23:31:34,142 - main - INFO - GET /
+2025-07-09 23:31:34,387 - main - INFO - GET /static/css/style.css
+2025-07-09 23:31:34,441 - main - INFO - GET /static/img/hint.png
+2025-07-09 23:31:34,454 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:31:34,535 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:31:34,553 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-09 23:31:34,587 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-09 23:31:34,757 - main - INFO - GET /static/js/services/stateService.js
+2025-07-09 23:31:34,764 - main - INFO - GET /static/js/services/apiService.js
+2025-07-09 23:31:34,893 - main - INFO - GET /static/js/services/uiService.js
+2025-07-09 23:31:34,919 - main - INFO - GET /static/js/services/editorService.js
+2025-07-09 23:31:34,957 - main - INFO - GET /static/js/app_new.js
+2025-07-09 23:31:35,052 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 23:31:37,392 - app.api.routes - INFO - 接続状態確認要求
+2025-07-09 23:31:37,394 - main - INFO - GET /api/v1/connection/status
+2025-07-09 23:31:37,679 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-09 23:31:37,681 - main - INFO - GET /favicon.ico
+2025-07-09 23:31:37,702 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-09 23:31:37,707 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 23:31:37,769 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 23:31:37,789 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-09 23:31:37,815 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-09 23:31:37,820 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-09 23:31:37,832 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-09 23:31:37,877 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:31:37,910 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-09 23:31:37,917 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:31:37,927 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:31:37,929 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:31:37,931 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:31:37,933 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:31:37,936 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:31:37,938 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-09 23:31:37,942 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 239.3ms)
+2025-07-09 23:31:37,944 - main - INFO - GET /api/v1/metadata/all
+2025-07-09 23:31:38,171 - main - INFO - GET /api/v1/users/me
+2025-07-09 23:31:38,244 - main - INFO - GET /api/v1/visibility-settings
+2025-07-09 23:31:38,321 - main - INFO - GET /api/v1/users/templates
+2025-07-09 23:31:38,339 - main - INFO - GET /api/v1/admin/templates
+2025-07-09 23:31:38,423 - main - INFO - GET /api/v1/admin/parts
+2025-07-09 23:31:38,428 - main - INFO - GET /api/v1/users/parts
+2025-07-09 23:31:40,989 - app.services.sql_log_service - INFO - SQLLogService初期化: log_storage_type=snowflake
+2025-07-09 23:31:40,993 - app.services.sql_log_service - INFO - Snowflakeログハンドラを初期化します
+2025-07-09 23:31:42,490 - app.services.sql_log_service - INFO - ログハンドラ初期化完了: SnowflakeLogHandler
+2025-07-09 23:31:42,490 - app.api.routes - INFO - SQL実行要求
+2025-07-09 23:31:42,508 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:31:42,508 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:31:42,563 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-09 23:31:42,563 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 23:31:42,563 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-09 23:31:45,689 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:31:45,689 - snowsight_app - INFO - SQL実行完了
+2025-07-09 23:31:45,705 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.2s)
+2025-07-09 23:31:45,705 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 23:31:45,705 - app.services.sql_log_service - INFO - ログ記録を開始: storage_type=snowflake, user_id=hint0531
+2025-07-09 23:31:45,712 - app.services.log_handlers.snowflake - INFO - Snowflakeログ記録を開始: user_id=hint0531, success=True
+2025-07-09 23:31:45,728 - app.services.log_handlers.snowflake - DEBUG - SQL長: 32 -> 32
+2025-07-09 23:31:45,740 - app.services.log_handlers.snowflake - DEBUG - 実行SQL: 
+            INSERT INTO Log.TOOL_LOG (
+                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER,
+                ROW_COUNT, SUCCESS, ERROR_MESSAGE
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            
+2025-07-09 23:31:45,798 - app.services.log_handlers.snowflake - DEBUG - パラメータ: ('20250709233145', 'hint0531', 'SQLDOJOWEB', 'SELECT * FROM HF3IGM01 WHERE 1=1', 3.126412, '20250709233142', '20250709233145', 140, 11, 1, None)
+2025-07-09 23:31:45,823 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 23:31:45,837 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました: クエリ実行エラー: 'ConnectionManagerSnowflakeLog' object has no attribute 'get_connection'
+2025-07-09 23:31:45,843 - app.services.sql_log_service - INFO - ログ記録が完了しました: storage_type=snowflake
+2025-07-09 23:37:27,481 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-09 23:37:27,484 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-09 23:38:08,516 - main - INFO - GET /
+2025-07-09 23:38:08,633 - app.api.error_handlers - DEBUG - 404 Not Found: /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:38:08,633 - main - INFO - GET /.well-known/appspecific/com.chrome.devtools.json
+2025-07-09 23:38:08,972 - main - INFO - GET /static/css/style.css
+2025-07-09 23:38:08,977 - main - INFO - GET /static/img/hint.png
+2025-07-09 23:38:08,994 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-09 23:38:09,058 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-09 23:38:09,074 - main - INFO - GET /static/js/services/apiService.js
+2025-07-09 23:38:09,079 - main - INFO - GET /static/js/services/stateService.js
+2025-07-09 23:38:09,272 - main - INFO - GET /static/js/services/uiService.js
+2025-07-09 23:38:09,304 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-09 23:38:09,397 - main - INFO - GET /static/js/services/editorService.js
+2025-07-09 23:38:09,489 - main - INFO - GET /static/js/app_new.js
+2025-07-09 23:38:11,487 - app.api.routes - INFO - 接続状態確認要求
+2025-07-09 23:38:11,518 - main - INFO - GET /api/v1/connection/status
+2025-07-09 23:38:11,736 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-09 23:38:11,789 - main - INFO - GET /favicon.ico
+2025-07-09 23:38:11,838 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-09 23:38:11,846 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-09 23:38:11,884 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-09 23:38:11,896 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-09 23:38:11,902 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-09 23:38:11,909 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-09 23:38:11,912 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-09 23:38:11,929 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:38:11,937 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-09 23:38:11,959 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:38:11,964 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:38:11,978 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:38:12,011 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:38:12,022 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-09 23:38:12,045 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-09 23:38:12,059 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-09 23:38:12,091 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 252.1ms)
+2025-07-09 23:38:12,096 - main - INFO - GET /api/v1/metadata/all
+2025-07-09 23:38:12,160 - main - INFO - GET /api/v1/users/me
+2025-07-09 23:38:12,215 - main - INFO - GET /api/v1/visibility-settings
+2025-07-09 23:38:12,309 - main - INFO - GET /api/v1/users/templates
+2025-07-09 23:38:12,335 - main - INFO - GET /api/v1/admin/templates
+2025-07-09 23:38:12,396 - main - INFO - GET /api/v1/admin/parts
+2025-07-09 23:38:12,400 - main - INFO - GET /api/v1/users/parts
+2025-07-09 23:38:14,550 - app.services.sql_log_service - INFO - SQLLogService初期化: log_storage_type=snowflake
+2025-07-09 23:38:14,553 - app.services.sql_log_service - INFO - Snowflakeログハンドラを初期化します
+2025-07-09 23:38:15,400 - app.services.sql_log_service - INFO - ログハンドラ初期化完了: SnowflakeLogHandler
+2025-07-09 23:38:15,400 - app.api.routes - INFO - SQL実行要求
+2025-07-09 23:38:15,416 - snowsight_app - INFO - SQL実行開始
+2025-07-09 23:38:15,416 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-09 23:38:15,471 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-09 23:38:15,471 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-09 23:38:15,471 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-09 23:38:18,667 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-09 23:38:18,667 - snowsight_app - INFO - SQL実行完了
+2025-07-09 23:38:18,667 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 3.3s)
+2025-07-09 23:38:18,683 - main - INFO - POST /api/v1/sql/execute
+2025-07-09 23:38:18,692 - app.services.sql_log_service - INFO - ログ記録を開始: storage_type=snowflake, user_id=hint0531
+2025-07-09 23:38:18,700 - app.services.log_handlers.snowflake - INFO - Snowflakeログ記録を開始: user_id=hint0531, success=True
+2025-07-09 23:38:18,704 - app.services.log_handlers.snowflake - DEBUG - SQL長: 32 -> 32
+2025-07-09 23:38:18,707 - app.services.log_handlers.snowflake - DEBUG - 実行SQL: 
+            INSERT INTO Log.TOOL_LOG (
+                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER,
+                ROW_COUNT, SUCCESS, ERROR_MESSAGE
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            
+2025-07-09 23:38:18,746 - app.services.log_handlers.snowflake - DEBUG - パラメータ: ('20250709233818', 'hint0531', 'SQLDOJOWEB', 'SELECT * FROM HF3IGM01 WHERE 1=1', 3.196311, '20250709233815', '20250709233818', 140, 11, 1, None)
+2025-07-09 23:38:18,762 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗
+2025-07-09 23:38:18,766 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました: クエリ実行エラー: 'ConnectionManagerSnowflakeLog' object has no attribute 'get_connection'
+2025-07-09 23:38:18,769 - app.services.sql_log_service - INFO - ログ記録が完了しました: storage_type=snowflake
+2025-07-09 23:40:27,487 - main - INFO - アプリケーション終了

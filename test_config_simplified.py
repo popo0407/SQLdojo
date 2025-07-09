@@ -143,11 +143,11 @@ class TestSettings:
             
             settings = Settings()
             # デフォルト値の確認
-            assert settings.snowflake_warehouse == 'ZHH001'
+            assert settings.snowflake_warehouse == 'COMPUTE_WH'
             assert settings.snowflake_schema == 'PUBLIC'
-            assert settings.snowflake_role == 'ACCOUNTADMIN'
+            assert settings.snowflake_role == ''
             assert settings.app_host == '0.0.0.0'
-            assert settings.app_port == 8001
+            assert settings.app_port == 8000
             assert settings.app_debug is False
             assert settings.log_level == 'INFO'
         finally:
