@@ -33,10 +33,7 @@ class SqliteLogHandler(BaseLogHandler):
                     SYSTEM_WORKNUMBER REAL NOT NULL,
                     FROM_DATE TEXT NOT NULL,
                     TO_DATE TEXT NOT NULL,
-                    TOOL_VER INTEGER NOT NULL,
-                    ROW_COUNT INTEGER,
-                    SUCCESS INTEGER NOT NULL,
-                    ERROR_MESSAGE TEXT
+                    TOOL_VER INTEGER NOT NULL
                 )
                 """)
                 conn.commit()
@@ -60,14 +57,11 @@ class SqliteLogHandler(BaseLogHandler):
                 conn.execute("""
                 INSERT INTO TOOL_LOG (
                     MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                    SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER,
-                    ROW_COUNT, SUCCESS, ERROR_MESSAGE
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, (
                     mk_date, user_id, 'SQLDOJOWEB', sql,
-                    round(execution_time, 6), from_date, mk_date, version_number,
-                    row_count if row_count is not None else -1,
-                    1 if success else 0, error_message
+                    int(execution_time), from_date, mk_date, version_number
                 ))
                 conn.commit()
         except Exception as e:
@@ -91,7 +85,7 @@ class SqliteLogHandler(BaseLogHandler):
                 
                 # ログデータを取得
                 data_sql = """
-                SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER, ROW_COUNT, SUCCESS, ERROR_MESSAGE
+                SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER
                 FROM TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'
                 """
                 data_params = []
@@ -109,9 +103,9 @@ class SqliteLogHandler(BaseLogHandler):
                     "user_id": row['OPE_CODE'],
                     "sql": row['OPTION_NO'],
                     "execution_time": row['SYSTEM_WORKNUMBER'],
-                    "row_count": row['ROW_COUNT'],
-                    "success": bool(row['SUCCESS']),
-                    "error_message": row['ERROR_MESSAGE'],
+                    "row_count": None,  # テーブルに存在しないためNone
+                    "success": True,     # テーブルに存在しないためデフォルト値
+                    "error_message": None,  # テーブルに存在しないためNone
                     "timestamp": datetime.strptime(row['MK_DATE'], '%Y%m%d%H%M%S').isoformat()
                 } for row in logs_result]
                 

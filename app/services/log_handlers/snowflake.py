@@ -31,23 +31,24 @@ class SnowflakeLogHandler(BaseLogHandler):
             log_sql = """
             INSERT INTO Log.TOOL_LOG (
                 MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER,
-                ROW_COUNT, SUCCESS, ERROR_MESSAGE
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """
             params = (
                 mk_date, user_id, 'SQLDOJOWEB', truncated_sql,
-                round(execution_time, 6), from_date, mk_date, version_number,
-                row_count if row_count is not None else -1,
-                1 if success else 0, error_message
+                int(execution_time), from_date, mk_date, version_number
             )
             
             self.logger.debug(f"実行SQL: {log_sql}")
             self.logger.debug(f"パラメータ: {params}")
 
+            self.logger.info("Snowflakeクエリ実行を開始します")
             result = self.query_executor.execute_query(log_sql, params)
+            self.logger.info(f"クエリ実行結果: success={result.success}")
+            
             if not result.success:
                 self.logger.error(f"Snowflakeへのログ記録に失敗しました: {result.error_message}")
+                self.logger.error(f"失敗の詳細: {result}")
             else:
                 self.logger.info("Snowflakeへのログ記録が成功しました")
         except Exception as e:
@@ -67,7 +68,7 @@ class SnowflakeLogHandler(BaseLogHandler):
             total_count = count_result.data[0]['TOTAL_COUNT'] if count_result.success and count_result.data else 0
 
             data_sql = f"""
-            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER, ROW_COUNT, SUCCESS, ERROR_MESSAGE
+            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER
             {base_sql} ORDER BY MK_DATE DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
             """
             params.extend([offset, limit])
@@ -82,9 +83,9 @@ class SnowflakeLogHandler(BaseLogHandler):
                 "user_id": row.get("OPE_CODE"),
                 "sql": row.get("OPTION_NO"),
                 "execution_time": row.get("SYSTEM_WORKNUMBER"),
-                "row_count": row.get("ROW_COUNT"),
-                "success": bool(row.get("SUCCESS")),
-                "error_message": row.get("ERROR_MESSAGE"),
+                "row_count": None,  # テーブルに存在しないためNone
+                "success": True,     # テーブルに存在しないためデフォルト値
+                "error_message": None,  # テーブルに存在しないためNone
                 "timestamp": datetime.strptime(row.get("MK_DATE"), '%Y%m%d%H%M%S').isoformat()
             } for row in logs_result.data]
 
@@ -104,6 +105,6 @@ class SnowflakeLogHandler(BaseLogHandler):
             
             result = self.query_executor.execute_query(sql, tuple(params))
             if not result.success:
-                self.logger.error("Snowflakeのログクリアに失敗", error=result.error_message)
+                self.logger.error(f"Snowflakeのログクリアに失敗: {result.error_message}")
         except Exception as e:
             self.logger.error(f"Snowflakeのログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True) 

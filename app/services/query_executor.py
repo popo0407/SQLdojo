@@ -61,10 +61,10 @@ class QueryExecutor:
             execution_time = time.time() - start_time
             error_message = f"クエリ実行エラー: {str(e)}"
             
-            self.logger.error(f"Snowflakeクエリ実行失敗", 
-                            sql=sql,
-                            error=error_message,
-                            execution_time=execution_time)
+            self.logger.error(f"Snowflakeクエリ実行失敗: {error_message}")
+            self.logger.error(f"エラーの詳細: {type(e).__name__}: {str(e)}")
+            self.logger.error(f"SQL: {sql}")
+            self.logger.error(f"実行時間: {execution_time}")
             
             return QueryResult(
                 success=False,
@@ -85,12 +85,16 @@ class QueryExecutor:
         cursor = None
         
         try:
+            self.logger.info("内部クエリ実行: カーソルを作成します")
             cursor = connection.cursor()
             
+            self.logger.info("内部クエリ実行: SQLを実行します")
             # パラメータがある場合はバインド
             if params:
+                self.logger.info(f"内部クエリ実行: パラメータ付きで実行: {params}")
                 cursor.execute(sql, params)
             else:
+                self.logger.info("内部クエリ実行: パラメータなしで実行")
                 cursor.execute(sql)
             
             # クエリIDを取得（ODBCでは利用できないためNone）

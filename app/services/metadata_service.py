@@ -134,8 +134,8 @@ class MetadataService:
                 self.logger.warning("メタデータ取得に失敗しました")
                 return 0
         except Exception as e:
-            self.logger.error("メタデータキャッシュの更新に失敗", error=str(e))
-            raise
+            self.logger.error(f"メタデータキャッシュの更新に失敗: {str(e)}")
+            raise MetadataError(f"メタデータキャッシュの更新に失敗しました: {str(e)}")
 
     def get_schemas(self) -> List[Dict[str, Any]]:
         """スキーマ一覧を取得（キャッシュ優先）"""
@@ -264,7 +264,7 @@ class MetadataService:
         result = self.query_executor.execute_query(sql)
         
         if not result.success:
-            self.logger.error("ウェアハウス情報の取得に失敗", error=result.error_message)
+            self.logger.error(f"ウェアハウス情報の取得に失敗: {result.error_message}")
             return []
         
         warehouses = []
@@ -299,7 +299,7 @@ class MetadataService:
         result = self.query_executor.execute_query(sql)
         
         if not result.success:
-            self.logger.error("データベース情報の取得に失敗", error=result.error_message)
+            self.logger.error(f"データベース情報の取得に失敗: {result.error_message}")
             return []
         
         databases = []
@@ -380,7 +380,7 @@ class MetadataService:
             
             tables_result = self.query_executor.execute_query(all_tables_sql)
             if not tables_result.success:
-                self.logger.error("テーブル情報の一括取得に失敗", error=tables_result.error_message)
+                self.logger.error(f"テーブル情報の一括取得に失敗: {tables_result.error_message}")
                 return []
             
             # テーブル情報をスキーマ別に整理
@@ -416,7 +416,7 @@ class MetadataService:
             
             columns_result = self.query_executor.execute_query(all_columns_sql)
             if not columns_result.success:
-                self.logger.error("カラム情報の一括取得に失敗", error=columns_result.error_message)
+                self.logger.error(f"カラム情報の一括取得に失敗: {columns_result.error_message}")
                 return []
             
             # カラム情報をテーブル別に整理
@@ -468,7 +468,7 @@ class MetadataService:
             return all_schemas_data
             
         except Exception as e:
-            self.logger.error("全メタデータ取得中にエラーが発生", exception=e)
+            self.logger.error(f"メタデータ取得中にエラーが発生: {str(e)}")
             return []
 
     def _fetch_all_from_snowflake_direct(self) -> List[Dict[str, Any]]:
@@ -481,7 +481,7 @@ class MetadataService:
             schemas_result = self.query_executor.execute_query(schemas_sql)
             
             if not schemas_result.success:
-                self.logger.error("スキーマ情報の取得に失敗", error=schemas_result.error_message)
+                self.logger.error(f"スキーマ情報の取得に失敗: {schemas_result.error_message}")
                 return []
             
             schemas = []
@@ -509,7 +509,7 @@ class MetadataService:
             
             tables_result = self.query_executor.execute_query(all_tables_sql)
             if not tables_result.success:
-                self.logger.error("テーブル情報の一括取得に失敗", error=tables_result.error_message)
+                self.logger.error(f"テーブル情報の一括取得に失敗: {tables_result.error_message}")
                 return []
             
             # テーブル情報をスキーマ別に整理
@@ -547,7 +547,7 @@ class MetadataService:
             
             columns_result = self.query_executor.execute_query(all_columns_sql)
             if not columns_result.success:
-                self.logger.error("カラム情報の一括取得に失敗", error=columns_result.error_message)
+                self.logger.error(f"カラム情報の一括取得に失敗: {columns_result.error_message}")
                 return []
             
             # カラム情報をテーブル別に整理
@@ -604,7 +604,7 @@ class MetadataService:
             return all_schemas_data
             
         except Exception as e:
-            self.logger.error("メタデータ取得中にエラーが発生", error=str(e))
+            self.logger.error(f"メタデータ取得中にエラーが発生: {str(e)}")
             return []
 
     def clear_cache(self):
@@ -617,7 +617,7 @@ class MetadataService:
         result = self.query_executor.execute_query(sql)
         
         if not result.success:
-            self.logger.error("スキーマ情報の取得に失敗", error=result.error_message)
+            self.logger.error(f"スキーマ情報の取得に失敗: {result.error_message}")
             return []
         
         schemas = []
@@ -642,7 +642,7 @@ class MetadataService:
         result = self.query_executor.execute_query(sql)
         
         if not result.success:
-            self.logger.error("テーブル情報の取得に失敗", error=result.error_message, schema=schema_name)
+            self.logger.error(f"テーブル情報の取得に失敗: {result.error_message}", schema=schema_name)
             return []
         
         tables = []
@@ -670,7 +670,7 @@ class MetadataService:
         result = self.query_executor.execute_query(sql)
         
         if not result.success:
-            self.logger.error("カラム情報の取得に失敗", error=result.error_message, 
+            self.logger.error(f"カラム情報の取得に失敗: {result.error_message}", 
                             schema=schema_name, table=table_name)
             return []
         

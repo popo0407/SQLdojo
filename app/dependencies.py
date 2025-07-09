@@ -13,6 +13,8 @@ from app.sql_validator import SQLValidator, get_validator
 from app.metadata_cache import MetadataCache
 from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.services.query_executor import QueryExecutor
+from app.services.query_executor_snowflake_log import QueryExecutorSnowflakeLog
+from app.services.connection_manager_snowflake_log import ConnectionManagerSnowflakeLog
 # from app.services.database_service import DatabaseService  # 削除
 from app.services.sql_service import SQLService
 from app.services.metadata_service import MetadataService
@@ -172,11 +174,29 @@ def get_query_executor_for_oracle_di(
 ) -> QueryExecutor:
     return QueryExecutor(connection_manager)
 
+# --- Snowflakeログ用のDIを追加 ---
+@lru_cache()
+def get_connection_manager_snowflake_log_di() -> ConnectionManagerSnowflakeLog:
+    return ConnectionManagerSnowflakeLog()
+
+def get_query_executor_for_snowflake_log_di(
+    connection_manager: Annotated[ConnectionManagerSnowflakeLog, Depends(get_connection_manager_snowflake_log_di)]
+) -> QueryExecutorSnowflakeLog:
+    return QueryExecutorSnowflakeLog(connection_manager)
+
 # --- SQLLogServiceのDIを修正 ---
-def get_sql_log_service_di(
-    query_executor: Annotated[QueryExecutor, Depends(get_query_executor_for_oracle_di)]
-) -> SQLLogService:
+def get_sql_log_service_di() -> SQLLogService:
     settings = get_settings()
+    
+    if settings.log_storage_type == "snowflake":
+        # Snowflakeログ用のQueryExecutorを使用
+        connection_manager = get_connection_manager_snowflake_log_di()
+        query_executor = QueryExecutorSnowflakeLog(connection_manager)
+    else:
+        # Oracleログ用のQueryExecutorを使用
+        connection_manager = get_connection_manager_oracle_di()
+        query_executor = QueryExecutor(connection_manager)
+    
     return SQLLogService(query_executor=query_executor, log_storage_type=settings.log_storage_type)
 
 

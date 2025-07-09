@@ -258,7 +258,7 @@
                 const statusDiv = document.getElementById('history-status');
                 statusDiv.style.display = 'block';
                 statusDiv.className = 'status-message status-success';
-                statusDiv.textContent = `キャッシュされた履歴を表示中（${history.length}件）。最新の情報を取得するには更新ボタンを押してください。`;
+                statusDiv.textContent = `キャッシュされた履歴を表示中（${history.total_count}件）。最新の情報を取得するには更新ボタンを押してください。`;
             }
         }
 
@@ -267,19 +267,19 @@
             const statusDiv = document.getElementById('history-status');
             statusDiv.style.display = 'block';
             statusDiv.className = 'status-message';
-            statusDiv.textContent = 'Snowflakeから最新の履歴を読み込み中...';
+            statusDiv.textContent = '最新の履歴を読み込み中...';
 
             try {
                 const response = await fetch('/api/v1/users/history');
                 if (response.ok) {
-                    const history = await response.json();
+                    const result = await response.json();
                     
                     // 変更: 取得したデータをsessionStorageに保存
-                    sessionStorage.setItem('sqlHistoryCache', JSON.stringify(history));
+                    sessionStorage.setItem('sqlHistoryCache', JSON.stringify(result));
 
                     statusDiv.className = 'status-message status-success';
-                    statusDiv.textContent = `最新の履歴を読み込みました。件数: ${history.length}`;
-                    displayHistory(history);
+                    statusDiv.textContent = `最新の履歴を読み込みました。件数: ${result.total_count}`;
+                    displayHistory(result);
                 } else {
                     const error = await response.json();
                     statusDiv.className = 'status-message status-error';
@@ -295,34 +295,28 @@
         function displayHistory(history) {
             const tbody = document.getElementById('history-table');
             
-            if (history.length === 0) {
+            if (!history.logs || history.logs.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">履歴がありません</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = history.map(item => `
+            tbody.innerHTML = history.logs.map(item => `
                 <tr>
-                    <td>${formatDateTime(item.MK_DATE)}</td>
-                    <td class="sql-cell" onmouseover="showSqlTooltip(event, '${escapeHtml(item.OPTION_NO)}')" onmouseout="hideSqlTooltip()">
-                        ${escapeHtml(item.OPTION_NO ? item.OPTION_NO.substring(0, 50) : '')}...
+                    <td>${formatISODateTime(item.timestamp)}</td>
+                    <td class="sql-cell" onmouseover="showSqlTooltip(event, '${escapeHtml(item.sql)}')" onmouseout="hideSqlTooltip()">
+                        ${escapeHtml(item.sql ? item.sql.substring(0, 50) : '')}...
                     </td>
-                    <td>${item.SYSTEM_WORKNUMBER || '-'}</td>
-                    <td><button class="btn btn-sm btn-primary" onclick="copyToEditor('${escapeHtml(item.OPTION_NO)}')">エディタにコピー</button></td>
+                    <td>${item.execution_time ? item.execution_time.toFixed(3) : '-'}</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="copyToEditor('${escapeHtml(item.sql)}')">エディタにコピー</button></td>
                 </tr>
             `).join('');
         }
 
-        // 日時フォーマット
-        function formatDateTime(dateStr) {
-            if (!dateStr) return '-';
-            // YYYYMMDDhhmmss形式を読みやすい形式に変換
-            const year = dateStr.substring(0, 4);
-            const month = dateStr.substring(4, 6);
-            const day = dateStr.substring(6, 8);
-            const hour = dateStr.substring(8, 10);
-            const minute = dateStr.substring(10, 12);
-            const second = dateStr.substring(12, 14);
-            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        // ISO日時フォーマット
+        function formatISODateTime(isoString) {
+            if (!isoString) return '-';
+            const date = new Date(isoString);
+            return date.toLocaleString('ja-JP');
         }
 
         // HTMLエスケープ

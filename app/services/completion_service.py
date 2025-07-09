@@ -1,4 +1,3 @@
-
 """
 SQL Completion Service
 Provides SQL autocompletion for Monaco Editor.
@@ -77,8 +76,8 @@ class CompletionService:
             suggestions.sort(key=lambda x: x.sort_text or x.label)
             return SQLCompletionResponse(suggestions=suggestions, is_incomplete=False)
         except Exception as e:
-            self.logger.error("SQL completion error", error=str(e), exc_info=True)
-            return SQLCompletionResponse(suggestions=[], is_incomplete=False)
+            self.logger.error(f"SQL completion error: {str(e)}", exc_info=True)
+            return SQLCompletionResponse(suggestions=[])
 
     def _get_context_keyword(self, sql: str, position: int) -> Optional[str]:
         try:
@@ -184,5 +183,5 @@ class CompletionService:
                 if table_name.upper() not in self.sql_keywords:
                     tables.add(table_name)
         except Exception as e:
-            self.logger.error("Error extracting table names from SQL", error=str(e))
+            self.logger.error(f"Error extracting table names from SQL: {str(e)}")
         return list(tables)

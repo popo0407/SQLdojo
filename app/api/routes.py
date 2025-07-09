@@ -213,7 +213,7 @@ async def format_sql_endpoint(
     if response.success:
         logger.info("SQLフォーマット成功")
     else:
-        logger.error("SQLフォーマット失敗", error=response.error_message)
+        logger.error(f"SQLフォーマット失敗: {response.error_message}")
         raise SQLValidationError(response.error_message)
     
     return response
@@ -349,7 +349,7 @@ def export_data_endpoint(request: ExportRequest, export_service: ExportServiceDe
         
     except Exception as e:
         # エラーが発生した場合は例外を再発生
-        logger.error("エクスポートエラー", error=str(e))
+        logger.error(f"エクスポートエラー: {str(e)}")
         raise ExportError(f"エクスポートに失敗しました: {str(e)}")
 
 
@@ -494,28 +494,36 @@ async def delete_admin_part(part_id: str, current_admin: CurrentAdminDep, part_s
 @router.get("/users/history")
 async def get_user_history(
     current_user: CurrentUserDep,
-    connection_manager: ConnectionManagerDep
+    sql_log_service: SQLLogServiceDep
 ):
-    """Log.TOOL_LOGテーブルからログインユーザーの過去半年の実行履歴を取得"""
+    """ログインユーザーの過去半年の実行履歴を取得"""
     # 過去半年の日付を計算
     from datetime import datetime, timedelta
     six_months_ago = datetime.now() - timedelta(days=180)
     date_str = six_months_ago.strftime('%Y%m%d%H%M%S')
     
-    sql = f"""
-        SELECT MK_DATE, OPTION_NO, SYSTEM_WORKNUMBER
-        FROM Log.TOOL_LOG
-        WHERE OPE_CODE = '{current_user["user_id"]}'
-        AND MK_DATE >= '{date_str}'
-        ORDER BY MK_DATE DESC
-    """
+    # SQLLogService経由でログを取得（LOG_STORAGE_TYPEに依存）
+    result = sql_log_service.get_logs(
+        user_id=current_user["user_id"],
+        limit=1000,  # 過去半年分を取得
+        offset=0
+    )
     
-    try:
-        result = connection_manager.execute_query(sql)
-        return result
-    except Exception as e:
-        logger.error(f"SQL履歴取得エラー: {e}")
-        raise HTTPException(status_code=500, detail="履歴の取得に失敗しました")
+    # 日付フィルタリングをPython側で実行
+    filtered_logs = []
+    for log in result["logs"]:
+        try:
+            log_timestamp = datetime.fromisoformat(log["timestamp"])
+            if log_timestamp >= six_months_ago:
+                filtered_logs.append(log)
+        except Exception:
+            # 日付解析エラーは無視
+            continue
+    
+    return {
+        "logs": filtered_logs,
+        "total_count": len(filtered_logs)
+    }
 
 @router.get("/users/templates", response_model=List[TemplateResponse])
 async def get_user_templates(current_user: CurrentUserDep, template_service: TemplateServiceDep):

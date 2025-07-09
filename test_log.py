@@ -32,7 +32,10 @@ def test_sql_log():
             user_id=test_user,
             sql=test_sql,
             execution_time=test_execution_time,
-            start_time=test_start_time
+            start_time=test_start_time,
+            row_count=1,
+            success=True,
+            error_message=None
         )
         
         print("Snowflakeへのログ保存完了")

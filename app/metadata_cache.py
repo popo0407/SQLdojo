@@ -195,8 +195,7 @@ class MetadataCache:
                 conn.commit()
                 self.logger.debug("メタデータキャッシュを更新しました")
         except Exception as e:
-            self.logger.error("メタデータキャッシュの保存に失敗", error=str(e))
-            # 例外を再発生させる
+            self.logger.error(f"メタデータキャッシュの保存に失敗: {str(e)}")
             raise
 
     def load_schemas(self) -> List[Dict[str, Any]]:
