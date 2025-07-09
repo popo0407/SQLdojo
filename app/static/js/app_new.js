@@ -950,8 +950,14 @@ function toggleSchema(schemaId) {
     }
 }
 
-function toggleTemplates() {
-    const dropdown = document.getElementById('template-dropdown');
+/**
+ * ドロップダウンの表示・非表示を切り替える共通関数
+ * @param {string} dropdownId - ドロップダウンのID
+ * @param {string} containerClass - コンテナのクラス名
+ * @param {Function} hideFunction - クリック外での非表示処理関数
+ */
+function toggleDropdown(dropdownId, containerClass, hideFunction) {
+    const dropdown = document.getElementById(dropdownId);
     if (dropdown) {
         const isVisible = dropdown.style.display === 'block';
         dropdown.style.display = isVisible ? 'none' : 'block';
@@ -959,75 +965,70 @@ function toggleTemplates() {
         // ドロップダウンが表示された場合、クリック外での非表示を設定
         if (!isVisible) {
             setTimeout(() => {
-                document.addEventListener('click', hideTemplatesOnClickOutside);
+                document.addEventListener('click', hideFunction);
             }, 0);
         } else {
-            document.removeEventListener('click', hideTemplatesOnClickOutside);
+            document.removeEventListener('click', hideFunction);
         }
     }
 }
 
+function toggleTemplates() {
+    toggleDropdown('template-dropdown', '.sql-templates', hideTemplatesOnClickOutside);
+}
+
 function toggleParts() {
-    const dropdown = document.getElementById('part-dropdown');
-    if (dropdown) {
-        const isVisible = dropdown.style.display === 'block';
-        dropdown.style.display = isVisible ? 'none' : 'block';
-        
-        // ドロップダウンが表示された場合、クリック外での非表示を設定
-        if (!isVisible) {
-            setTimeout(() => {
-                document.addEventListener('click', hidePartsOnClickOutside);
-            }, 0);
-        } else {
-            document.removeEventListener('click', hidePartsOnClickOutside);
-        }
+    toggleDropdown('part-dropdown', '.sql-parts', hidePartsOnClickOutside);
+}
+
+/**
+ * クリック外でのドロップダウン非表示処理の共通関数
+ * @param {Event} event - クリックイベント
+ * @param {string} dropdownId - ドロップダウンのID
+ * @param {string} containerClass - コンテナのクラス名
+ * @param {Function} hideFunction - 非表示処理関数
+ */
+function hideDropdownOnClickOutside(event, dropdownId, containerClass, hideFunction) {
+    const dropdown = document.getElementById(dropdownId);
+    const container = event.target.closest(containerClass);
+    
+    if (dropdown && !container) {
+        dropdown.style.display = 'none';
+        document.removeEventListener('click', hideFunction);
     }
 }
 
 function hideTemplatesOnClickOutside(event) {
-    const dropdown = document.getElementById('template-dropdown');
-    const templateButton = event.target.closest('.sql-templates');
-    
-    if (dropdown && !templateButton) {
-        dropdown.style.display = 'none';
-        document.removeEventListener('click', hideTemplatesOnClickOutside);
-    }
+    hideDropdownOnClickOutside(event, 'template-dropdown', '.sql-templates', hideTemplatesOnClickOutside);
 }
 
 function hidePartsOnClickOutside(event) {
-    const dropdown = document.getElementById('part-dropdown');
-    const partButton = event.target.closest('.sql-parts');
-    
-    if (dropdown && !partButton) {
+    hideDropdownOnClickOutside(event, 'part-dropdown', '.sql-parts', hidePartsOnClickOutside);
+}
+
+/**
+ * エディタにコンテンツを挿入する共通関数
+ * @param {string} dropdownId - ドロップダウンのID
+ * @param {Function} insertFunction - 挿入処理関数
+ * @param {string} content - 挿入するコンテンツ
+ */
+function loadContentToEditor(dropdownId, insertFunction, content) {
+    if (appController && appController.getEditorService()) {
+        insertFunction.call(appController.getEditorService(), content);
+    }
+    // ドロップダウンを閉じる
+    const dropdown = document.getElementById(dropdownId);
+    if (dropdown) {
         dropdown.style.display = 'none';
-        document.removeEventListener('click', hidePartsOnClickOutside);
     }
 }
 
 function loadTemplate(type, sql) {
-    if (appController && appController.getEditorService()) {
-        appController.getEditorService().replaceContent(sql);
-        // 完了報告（成功メッセージ等）は表示しない
-        // appController.getUiService().showInfo(`${type === 'user' ? '個人用' : '共通'}テンプレートを読み込みました`);
-    }
-    // テンプレート候補ウィンドウを閉じる
-    const dropdown = document.getElementById('template-dropdown');
-    if (dropdown) {
-        dropdown.style.display = 'none';
-    }
+    loadContentToEditor('template-dropdown', appController.getEditorService().replaceContent, sql);
 }
 
 function loadPart(type, sql) {
-    if (appController && appController.getEditorService()) {
-        appController.getEditorService().insertText(sql);
-        // 完了報告（成功メッセージ等）は表示しない
-        // appController.getUiService().showInfo(`${type === 'user' ? '個人用' : '共通'}パーツを挿入しました`);
-    }
-    // パーツ候補ウィンドウを閉じる
-    const dropdown = document.getElementById('part-dropdown');
-    if (dropdown) {
-        dropdown.style.display = 'none';
-    }
+    loadContentToEditor('part-dropdown', appController.getEditorService().insertText, sql);
 }
 
 function showKeyboardShortcuts() {

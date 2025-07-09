@@ -25,6 +25,7 @@ from app.services.part_service import PartService
 from app.services.sql_log_service import SQLLogService
 from app.services.admin_service import AdminService
 from app.services.visibility_control_service import VisibilityControlService
+from app.services.connection_manager_oracle import ConnectionManagerOracle
 
 
 # 設定の依存性注入

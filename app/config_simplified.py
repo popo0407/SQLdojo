@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     oracle_host: Optional[str] = Field(default=None, description="Oracleサーバーホスト名")
     oracle_port: Optional[int] = Field(default=1521, description="Oracleサーバーポート番号")
     oracle_service_name: Optional[str] = Field(default=None, description="Oracleサービス名")
+    oracle_sid: Optional[str] = Field(default=None, description="Oracle SID")
     oracle_user: Optional[str] = Field(default=None, description="Oracleユーザー名")
     oracle_password: Optional[str] = Field(default=None, description="Oracleパスワード")
 

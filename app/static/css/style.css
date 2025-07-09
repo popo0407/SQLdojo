@@ -21,6 +21,16 @@
     --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.05);
     --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.08);
     --shadow-heavy: 0 10px 25px rgba(0, 0, 0, 0.1);
+    
+    /* 共通スタイル変数 */
+    --transition-fast: 0.1s ease-in-out;
+    --transition-normal: 0.2s ease;
+    --transition-slow: 0.3s ease;
+    --border-radius-small: 4px;
+    --border-radius-normal: 6px;
+    --border-radius-large: 8px;
+    --border-radius-xl: 12px;
+    --border-radius-circle: 50%;
 }
 
 * {
@@ -39,7 +49,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow: hidden; /* bodyレベルでのスクロールを禁止 */
+    /* overflow: hidden を削除してスクロールを有効化 */
 }
 
 .container {
@@ -89,7 +99,7 @@ body {
     display: flex;
     flex-grow: 1; /* ヘッダー以外の残りの高さをすべて使用 */
     height: calc(100vh - 56px); /* ヘッダーの高さを引いた分 */
-    overflow: hidden; /* コンテンツラッパー内でのスクロールを管理 */
+    /* overflow: hidden を削除してスクロールを有効化 */
 }
 
 .sidebar {
@@ -106,7 +116,7 @@ body {
     flex: 0 0 5px; /* 幅を5pxに固定し、伸縮しない */
     cursor: col-resize;
     background-color: var(--border-color);
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-normal);
 }
 
 .resizer:hover {
@@ -138,7 +148,7 @@ body {
 .tutorial-main-content {
     flex: 1;
     display: flex;
-    transition: all 0.3s ease;
+    transition: all var(--transition-slow);
 }
 
 .tutorial-main-content.explanation-active {
@@ -156,12 +166,12 @@ body {
     height: 300px;
     background-color: #fff3e0;
     border: 2px solid #ff8c00;
-    border-radius: 8px;
+    border-radius: var(--border-radius-large);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     display: none;
     flex-direction: column;
     z-index: 1000;
-    transition: all 0.3s ease;
+    transition: all var(--transition-slow);
 }
 
 .explanation-active .explanation-floating-window {
@@ -175,7 +185,7 @@ body {
     border-top: 1px solid var(--border-color);
     display: none;
     flex-direction: column;
-    transition: all 0.3s ease;
+    transition: all var(--transition-slow);
 }
 
 .explanation-active .explanation-space {
@@ -379,7 +389,7 @@ body {
 .card {
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: var(--border-radius-large);
     box-shadow: var(--shadow-light);
     overflow: hidden;
 }
@@ -399,7 +409,7 @@ body {
     box-sizing: border-box;
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: var(--border-radius-large);
     box-shadow: var(--shadow-light);
     overflow: hidden;
     margin-bottom: 1rem;
@@ -443,11 +453,11 @@ body {
     border: 1px solid rgba(27, 31, 36, 0.15); /* 枠線を薄く */
     color: #24292f; /* テキスト色を濃いグレーに */
     padding: 0.5rem 1rem;
-    border-radius: 6px;
+    border-radius: var(--border-radius-normal);
     cursor: pointer;
     font-size: 0.875rem;
     font-weight: 600; /* フォントを少し太く */
-    transition: all 0.1s ease-in-out;
+    transition: all var(--transition-fast);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -537,7 +547,7 @@ body {
     margin: 0;
     box-sizing: border-box;
     flex: 1;
-    overflow: hidden;
+    overflow: auto; /* hiddenからautoに変更してスクロールを有効化 */
     display: flex;
     flex-direction: column;
     padding: 1rem;
@@ -550,9 +560,9 @@ body {
     box-sizing: border-box;
     background-color: var(--card-background);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: var(--border-radius-large);
     box-shadow: var(--shadow-light);
-    overflow: hidden;
+    overflow: auto; /* hiddenからautoに変更してスクロールを有効化 */
     flex: 1;
     display: flex;
     flex-direction: column;

@@ -137,19 +137,12 @@ async def execute_sql_endpoint(
         sql=result.sql
     )
     
-    if result.success:
-        background_tasks.add_task(
-            sql_log_service.add_log_to_db,
-            user_id=current_user["user_id"],
-            sql=request.sql,
-            execution_time=result.execution_time,
-            start_time=start_time
-        )
-    
-    sql_log_service.add_log(
+    background_tasks.add_task(
+        sql_log_service.add_log_to_db,
         user_id=current_user["user_id"],
         sql=request.sql,
         execution_time=result.execution_time,
+        start_time=start_time,
         row_count=result.row_count,
         success=result.success,
         error_message=result.error_message

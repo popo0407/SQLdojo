@@ -43,11 +43,19 @@ class ConnectionManagerOracle:
                 driver = self.config.oracle_driver
                 host = self.config.oracle_host
                 port = self.config.oracle_port
-                service_name = self.config.oracle_service_name
-                if not all([driver, host, port, service_name, user, password]):
-                    raise AppDatabaseError("OracleのDSN-less接続には、DRIVER, HOST, PORT, SERVICE_NAME, USER, PASSWORDが.envファイルに必要です。")
-                conn_str = f"DRIVER={{{driver}}};DBQ={host}:{port}/{service_name};UID={user};PWD={password}"
-                self.logger.info(f"OracleにDSN-less方式で接続します（パスワード除く）: DRIVER={driver};DBQ={host}:{port}/{service_name};UID={user}")
+                # service_name の代わりに sid を取得
+                sid = self.config.oracle_sid 
+                user = self.config.oracle_user
+                password = self.config.oracle_password
+
+                if not all([driver, host, port, sid, user, password]):
+                    raise AppDatabaseError("OracleのDSN-less接続には、DRIVER, HOST, PORT, SID, USER, PASSWORDが.envファイルに必要です。")
+                
+                # 接続文字列を SID を使う形式に変更
+                tns_entry = f"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={port}))(CONNECT_DATA=(SID={sid})))"
+                conn_str = f"DRIVER={{{driver}}};UID={user};PWD={password};DBQ={tns_entry}"
+
+                self.logger.info(f"OracleにDSN-less方式(SID)で接続します（パスワード除く）: DRIVER={driver};DBQ={tns_entry};UID={user}")
 
             connection = pyodbc.connect(conn_str, timeout=self._connection_timeout, autocommit=True)
             connection_id = f"conn_oracle_{len(self._connections)}_{int(datetime.now().timestamp())}"
