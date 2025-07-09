@@ -28,16 +28,16 @@ class SnowflakeLogHandler(BaseLogHandler):
             version_parts = __version__.split('.')
             version_number = int(version_parts[0]) * 100 + int(version_parts[1]) * 10 + int(version_parts[2])
 
-            log_sql = """
+            log_sql = f"""
             INSERT INTO Log.TOOL_LOG (
                 MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
                 SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """
-            params = (
-                mk_date, user_id, 'SQLDOJOWEB', truncated_sql,
-                int(execution_time), from_date, mk_date, version_number
+            ) VALUES (
+                '{mk_date}', '{user_id}', 'SQLDOJOWEB', '{truncated_sql}',
+                {int(execution_time)}, '{from_date}', '{mk_date}', {version_number}
             )
+            """
+            params = None
             
             self.logger.debug(f"実行SQL: {log_sql}")
             self.logger.debug(f"パラメータ: {params}")

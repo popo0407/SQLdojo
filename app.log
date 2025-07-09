@@ -8117,3 +8117,219 @@ SELECT * FROM HF3IGM01 WHERE 1=1
 2025-07-10 00:31:28,313 - main - INFO - アプリケーション終了
 2025-07-10 00:32:42,092 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
 2025-07-10 00:32:42,110 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-10 00:33:04,689 - main - INFO - GET /
+2025-07-10 00:33:04,905 - main - INFO - GET /static/css/style.css
+2025-07-10 00:33:04,911 - main - INFO - GET /static/img/hint.png
+2025-07-10 00:33:04,921 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-10 00:33:04,923 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-10 00:33:05,050 - main - INFO - GET /static/js/services/stateService.js
+2025-07-10 00:33:05,101 - main - INFO - GET /static/js/services/apiService.js
+2025-07-10 00:33:05,130 - main - INFO - GET /static/js/services/uiService.js
+2025-07-10 00:33:05,133 - main - INFO - GET /static/js/services/editorService.js
+2025-07-10 00:33:05,160 - main - INFO - GET /static/js/app_new.js
+2025-07-10 00:33:05,162 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-10 00:33:06,392 - app.api.routes - INFO - 接続状態確認要求
+2025-07-10 00:33:06,401 - main - INFO - GET /api/v1/connection/status
+2025-07-10 00:33:06,509 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-10 00:33:06,510 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-10 00:33:06,557 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-10 00:33:06,563 - main - INFO - GET /favicon.ico
+2025-07-10 00:33:06,558 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-10 00:33:06,575 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-10 00:33:06,577 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-10 00:33:06,581 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-10 00:33:06,582 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-10 00:33:06,599 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-10 00:33:06,605 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-10 00:33:06,632 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-10 00:33:06,639 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-10 00:33:06,646 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-10 00:33:06,647 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-10 00:33:06,654 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-10 00:33:06,654 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-10 00:33:06,654 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-10 00:33:06,654 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 145.1ms)
+2025-07-10 00:33:06,654 - main - INFO - GET /api/v1/metadata/all
+2025-07-10 00:33:06,694 - main - INFO - GET /api/v1/users/me
+2025-07-10 00:33:06,723 - main - INFO - GET /api/v1/visibility-settings
+2025-07-10 00:33:06,750 - main - INFO - GET /api/v1/admin/templates
+2025-07-10 00:33:06,760 - main - INFO - GET /api/v1/users/templates
+2025-07-10 00:33:06,822 - main - INFO - GET /api/v1/users/parts
+2025-07-10 00:33:06,838 - main - INFO - GET /api/v1/admin/parts
+2025-07-10 00:33:11,107 - app.services.sql_log_service - INFO - SQLLogService初期化: log_storage_type=snowflake
+2025-07-10 00:33:11,107 - app.services.sql_log_service - INFO - Snowflakeログハンドラを初期化します
+2025-07-10 00:33:11,107 - app.services.sql_log_service - INFO - ログハンドラ初期化完了: SnowflakeLogHandler
+2025-07-10 00:33:11,107 - app.api.routes - INFO - SQL実行要求
+2025-07-10 00:33:11,119 - snowsight_app - INFO - SQL実行開始
+2025-07-10 00:33:11,125 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-10 00:33:11,157 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-10 00:33:11,169 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-10 00:33:11,175 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-10 00:33:13,052 - app.services.query_executor - INFO - 内部クエリ実行: カーソルを作成します
+2025-07-10 00:33:13,067 - app.services.query_executor - INFO - 内部クエリ実行: SQLを実行します
+2025-07-10 00:33:13,067 - app.services.query_executor - INFO - 内部クエリ実行: パラメータなしで実行
+2025-07-10 00:33:14,013 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-10 00:33:14,014 - snowsight_app - INFO - SQL実行完了
+2025-07-10 00:33:14,016 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 2.9s)
+2025-07-10 00:33:14,017 - main - INFO - POST /api/v1/sql/execute
+2025-07-10 00:33:14,022 - app.services.sql_log_service - INFO - ログ記録を開始: storage_type=snowflake, user_id=hint0531
+2025-07-10 00:33:14,025 - app.services.log_handlers.snowflake - INFO - Snowflakeログ記録を開始: user_id=hint0531, success=True
+2025-07-10 00:33:14,029 - app.services.log_handlers.snowflake - DEBUG - SQL長: 32 -> 32
+2025-07-10 00:33:14,049 - app.services.log_handlers.snowflake - DEBUG - 実行SQL: 
+            INSERT INTO Log.TOOL_LOG (
+                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            
+2025-07-10 00:33:14,165 - app.services.log_handlers.snowflake - DEBUG - パラメータ: ('20250710003314', 'hint0531', 'SQLDOJOWEB', 'SELECT * FROM HF3IGM01 WHERE 1=1', 2, '20250710003311', '20250710003314', 140)
+2025-07-10 00:33:14,170 - app.services.log_handlers.snowflake - INFO - Snowflakeクエリ実行を開始します
+2025-07-10 00:33:14,175 - app.services.connection_manager_snowflake_log - INFO - Snowflakeログ用接続を開始します
+2025-07-10 00:33:14,178 - app.services.connection_manager_snowflake_log - INFO - 接続設定:
+2025-07-10 00:33:14,179 - app.services.connection_manager_snowflake_log - INFO -   - Account: LFBTWXR-HI40950.snowflakecomputing.com
+2025-07-10 00:33:14,181 - app.services.connection_manager_snowflake_log - INFO -   - User: Adiantum
+2025-07-10 00:33:14,182 - app.services.connection_manager_snowflake_log - INFO -   - Private Key Path: C:/Users/user/rsa_key.p8
+2025-07-10 00:33:14,184 - app.services.connection_manager_snowflake_log - INFO -   - Warehouse: ZHH001
+2025-07-10 00:33:14,185 - app.services.connection_manager_snowflake_log - INFO -   - Database: TEST_DATABASE
+2025-07-10 00:33:14,185 - app.services.connection_manager_snowflake_log - INFO -   - Schema: Log
+2025-07-10 00:33:14,186 - app.services.connection_manager_snowflake_log - INFO -   - Role: ACCOUNTADMIN
+2025-07-10 00:33:14,243 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗: クエリ実行エラー: "Attempt to overwrite 'exc_info' in LogRecord"
+2025-07-10 00:33:14,247 - app.services.query_executor - ERROR - エラーの詳細: KeyError: "Attempt to overwrite 'exc_info' in LogRecord"
+2025-07-10 00:33:14,247 - app.services.query_executor - ERROR - SQL: 
+            INSERT INTO Log.TOOL_LOG (
+                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            
+2025-07-10 00:33:14,247 - app.services.query_executor - ERROR - 実行時間: 0.06898760795593262
+2025-07-10 00:33:14,260 - app.services.log_handlers.snowflake - INFO - クエリ実行結果: success=False
+2025-07-10 00:33:14,265 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました: クエリ実行エラー: "Attempt to overwrite 'exc_info' in LogRecord"
+2025-07-10 00:33:14,266 - app.services.log_handlers.snowflake - ERROR - 失敗の詳細: QueryResult(success=False, data=None, columns=None, row_count=0, execution_time=0.06898760795593262, error_message='クエリ実行エラー: "Attempt to overwrite \'exc_info\' in LogRecord"', query_id=None, sql='\n            INSERT INTO Log.TOOL_LOG (\n                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, \n                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER\n            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n            ')
+2025-07-10 00:33:14,269 - app.services.sql_log_service - INFO - ログ記録が完了しました: storage_type=snowflake
+2025-07-10 00:36:54,647 - app.services.metadata_service - INFO - スキーマ一覧取得開始
+2025-07-10 00:36:54,647 - app.services.metadata_service - INFO - キャッシュからスキーマ一覧取得完了
+2025-07-10 00:36:54,663 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-10 00:36:54,664 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-10 00:36:54,677 - app.services.metadata_service - INFO - テーブル詳細情報取得開始
+2025-07-10 00:36:54,677 - app.services.metadata_service - INFO - テーブル一覧取得開始
+2025-07-10 00:36:54,677 - app.services.metadata_service - INFO - キャッシュからテーブル一覧取得完了
+2025-07-10 00:36:54,677 - app.services.metadata_service - INFO - カラム一覧取得開始
+2025-07-10 00:36:54,677 - app.services.metadata_service - INFO - キャッシュからカラム一覧取得完了
+2025-07-10 00:36:54,677 - app.services.metadata_service - INFO - テーブル詳細情報取得完了
+2025-07-10 00:36:54,696 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得開始
+2025-07-10 00:36:54,697 - app.services.metadata_service - INFO - Snowflakeからウェアハウス情報取得完了
+2025-07-10 00:36:54,710 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得開始
+2025-07-10 00:36:54,711 - app.services.metadata_service - INFO - Snowflakeからデータベース情報取得完了
+2025-07-10 00:36:54,730 - snowsight_app - INFO - CSVエクスポート開始
+2025-07-10 00:36:54,737 - snowsight_app - INFO - データをCSV形式に変換開始
+2025-07-10 00:36:54,737 - snowsight_app - INFO - CSV形式への変換完了
+2025-07-10 00:36:54,764 - app.services.query_executor - INFO - 内部クエリ実行: カーソルを作成します
+2025-07-10 00:36:54,769 - app.services.query_executor - INFO - 内部クエリ実行: SQLを実行します
+2025-07-10 00:36:54,773 - app.services.query_executor - INFO - 内部クエリ実行: パラメータなしで実行
+2025-07-10 00:36:54,780 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-10 00:36:54,793 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗: クエリ実行エラー: Connection failed
+2025-07-10 00:36:54,793 - app.services.query_executor - ERROR - エラーの詳細: Exception: Connection failed
+2025-07-10 00:36:54,809 - app.services.query_executor - ERROR - SQL: SELECT * FROM test_table
+2025-07-10 00:36:54,811 - app.services.query_executor - ERROR - 実行時間: 0.0
+2025-07-10 00:36:54,820 - app.services.query_executor - INFO - 内部クエリ実行: カーソルを作成します
+2025-07-10 00:36:54,820 - app.services.query_executor - INFO - 内部クエリ実行: SQLを実行します
+2025-07-10 00:36:54,820 - app.services.query_executor - INFO - 内部クエリ実行: パラメータなしで実行
+2025-07-10 00:36:54,847 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-10 00:36:54,886 - snowsight_app - INFO - SQL実行開始
+2025-07-10 00:36:54,894 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-10 00:36:54,895 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-10 00:36:54,898 - snowsight_app - INFO - SQL実行完了
+2025-07-10 00:36:54,916 - snowsight_app - INFO - SQL実行開始
+2025-07-10 00:36:54,923 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-10 00:36:54,923 - snowsight_app - WARNING - SQLバリデーション失敗
+2025-07-10 00:37:00,000 - main - INFO - アプリケーション終了
+2025-07-10 00:37:07,303 - app.services.connection_manager_odbc - ERROR - ODBCドライバーの確認中にエラー: %s
+2025-07-10 00:37:07,323 - main - INFO - アプリケーション起動 Ver: 1.4.0
+2025-07-10 00:37:11,830 - main - INFO - GET /
+2025-07-10 00:37:12,194 - main - INFO - GET /static/css/style.css
+2025-07-10 00:37:12,204 - main - INFO - GET /static/img/hint.png
+2025-07-10 00:37:12,256 - app.api.error_handlers - DEBUG - 404 Not Found: /static/js/services/tutorialService.js
+2025-07-10 00:37:12,261 - main - INFO - GET /static/js/services/tutorialService.js
+2025-07-10 00:37:12,274 - main - INFO - GET /static/js/services/apiService.js
+2025-07-10 00:37:12,286 - main - INFO - GET /static/js/services/stateService.js
+2025-07-10 00:37:12,358 - main - INFO - GET /static/js/services/uiService.js
+2025-07-10 00:37:12,379 - main - INFO - GET /static/js/services/explanationService.js
+2025-07-10 00:37:12,397 - main - INFO - GET /static/js/services/editorService.js
+2025-07-10 00:37:12,407 - main - INFO - GET /static/js/app_new.js
+2025-07-10 00:37:13,951 - app.api.routes - INFO - 接続状態確認要求
+2025-07-10 00:37:13,960 - main - INFO - GET /api/v1/connection/status
+2025-07-10 00:37:14,109 - app.api.routes - INFO - 全メタデータ取得要求（キャッシュ利用）
+2025-07-10 00:37:14,117 - app.api.error_handlers - DEBUG - 404 Not Found: /favicon.ico
+2025-07-10 00:37:14,114 - app.services.metadata_service - INFO - 全メタデータ取得開始
+2025-07-10 00:37:14,119 - main - INFO - GET /favicon.ico
+2025-07-10 00:37:14,136 - app.services.metadata_service - INFO - キャッシュから全メタデータ取得完了
+2025-07-10 00:37:14,156 - app.services.visibility_control_service - INFO - [DEBUG] filter_metadata: role=user
+2025-07-10 00:37:14,172 - app.services.visibility_control_service - INFO - [DEBUG] settings.keys=['LOG', 'LOG.TOOL_LOG', 'PUBLIC', 'PUBLIC.HF3IGM01', 'PUBLIC.MASTER_STA', 'PUBLIC.TRA_3']
+2025-07-10 00:37:14,172 - app.services.visibility_control_service - INFO - [DEBUG] schema: LOG, schema_settings={'DEFAULT': False, 'admin': True}
+2025-07-10 00:37:14,184 - app.services.visibility_control_service - INFO - [DEBUG] schema LOG: role(user) not found, DEFAULT used, is_schema_visible=False
+2025-07-10 00:37:14,185 - app.services.visibility_control_service - INFO - [DEBUG] schema: PUBLIC, schema_settings={'DEFAULT': True, 'admin': True}
+2025-07-10 00:37:14,187 - app.services.visibility_control_service - INFO - [DEBUG] schema PUBLIC: role(user) not found, DEFAULT used, is_schema_visible=True
+2025-07-10 00:37:14,188 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.HF3IGM01, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-10 00:37:14,189 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.HF3IGM01: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-10 00:37:14,194 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.MASTER_STA, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-10 00:37:14,198 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.MASTER_STA: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-10 00:37:14,199 - app.services.visibility_control_service - INFO - [DEBUG] table: PUBLIC.TRA_3, table_settings={'DEFAULT': True, 'admin': True}
+2025-07-10 00:37:14,200 - app.services.visibility_control_service - INFO - [DEBUG] table PUBLIC.TRA_3: role(user) not found, DEFAULT used, is_table_visible=True
+2025-07-10 00:37:14,201 - app.services.visibility_control_service - INFO - [DEBUG] filtered_metadata schema count: 1
+2025-07-10 00:37:14,203 - snowsight_app - INFO - パフォーマンス記録: get_all_metadata (実行時間: 93.3ms)
+2025-07-10 00:37:14,204 - main - INFO - GET /api/v1/metadata/all
+2025-07-10 00:37:14,616 - main - INFO - GET /api/v1/users/me
+2025-07-10 00:37:14,631 - main - INFO - GET /api/v1/visibility-settings
+2025-07-10 00:37:14,665 - main - INFO - GET /api/v1/admin/templates
+2025-07-10 00:37:14,667 - main - INFO - GET /api/v1/users/templates
+2025-07-10 00:37:15,578 - main - INFO - GET /api/v1/admin/parts
+2025-07-10 00:37:15,586 - main - INFO - GET /api/v1/users/parts
+2025-07-10 00:37:16,254 - app.services.sql_log_service - INFO - SQLLogService初期化: log_storage_type=snowflake
+2025-07-10 00:37:16,257 - app.services.sql_log_service - INFO - Snowflakeログハンドラを初期化します
+2025-07-10 00:37:16,259 - app.services.sql_log_service - INFO - ログハンドラ初期化完了: SnowflakeLogHandler
+2025-07-10 00:37:16,267 - app.api.routes - INFO - SQL実行要求
+2025-07-10 00:37:16,268 - snowsight_app - INFO - SQL実行開始
+2025-07-10 00:37:16,270 - snowsight_app - INFO - SQLバリデーション開始
+2025-07-10 00:37:16,314 - sql_validator - INFO - SQLバリデーション: SELECT * FROM HF3IGM01 WHERE 1=1
+2025-07-10 00:37:16,314 - snowsight_app - INFO - SQLバリデーション成功
+2025-07-10 00:37:16,332 - app.services.connection_manager_odbc - INFO - ODBC接続文字列: DRIVER={SnowflakeDSIIDriver};SERVER=LFBTWXR-HI40950.snowflakecomputing.com;UID=Adiantum;AUTHENTICATOR=SNOWFLAKE_JWT;PRIV_KEY_FILE=C:\Users\user\rsa_key.p8;PRIV_KEY_FILE_PWD=***;WAREHOUSE=ZHH001;DATABASE=TEST_DATABASE;SCHEMA=PUBLIC;ROLE=ACCOUNTADMIN;PROXY=:
+2025-07-10 00:37:18,197 - app.services.query_executor - INFO - 内部クエリ実行: カーソルを作成します
+2025-07-10 00:37:18,197 - app.services.query_executor - INFO - 内部クエリ実行: SQLを実行します
+2025-07-10 00:37:18,197 - app.services.query_executor - INFO - 内部クエリ実行: パラメータなしで実行
+2025-07-10 00:37:19,013 - app.services.query_executor - DEBUG - Snowflakeクエリ実行完了
+2025-07-10 00:37:19,013 - snowsight_app - INFO - SQL実行完了
+2025-07-10 00:37:19,028 - snowsight_app - INFO - パフォーマンス記録: sql_execute (実行時間: 2.8s)
+2025-07-10 00:37:19,035 - main - INFO - POST /api/v1/sql/execute
+2025-07-10 00:37:19,039 - app.services.sql_log_service - INFO - ログ記録を開始: storage_type=snowflake, user_id=hint0531
+2025-07-10 00:37:19,046 - app.services.log_handlers.snowflake - INFO - Snowflakeログ記録を開始: user_id=hint0531, success=True
+2025-07-10 00:37:19,048 - app.services.log_handlers.snowflake - DEBUG - SQL長: 32 -> 32
+2025-07-10 00:37:19,050 - app.services.log_handlers.snowflake - DEBUG - 実行SQL: 
+            INSERT INTO Log.TOOL_LOG (
+                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            
+2025-07-10 00:37:19,059 - app.services.log_handlers.snowflake - DEBUG - パラメータ: ('20250710003719', 'hint0531', 'SQLDOJOWEB', 'SELECT * FROM HF3IGM01 WHERE 1=1', 2, '20250710003716', '20250710003719', 140)
+2025-07-10 00:37:19,061 - app.services.log_handlers.snowflake - INFO - Snowflakeクエリ実行を開始します
+2025-07-10 00:37:19,077 - app.services.connection_manager_snowflake_log - INFO - Snowflakeログ用接続を開始します
+2025-07-10 00:37:19,083 - app.services.connection_manager_snowflake_log - INFO - 接続設定:
+2025-07-10 00:37:19,091 - app.services.connection_manager_snowflake_log - INFO -   - Account: LFBTWXR-HI40950.snowflakecomputing.com
+2025-07-10 00:37:19,104 - app.services.connection_manager_snowflake_log - INFO -   - User: Adiantum
+2025-07-10 00:37:19,109 - app.services.connection_manager_snowflake_log - INFO -   - Private Key Path: C:/Users/user/rsa_key.p8
+2025-07-10 00:37:19,110 - app.services.connection_manager_snowflake_log - INFO -   - Warehouse: ZHH001
+2025-07-10 00:37:19,126 - app.services.connection_manager_snowflake_log - INFO -   - Database: TEST_DATABASE
+2025-07-10 00:37:19,127 - app.services.connection_manager_snowflake_log - INFO -   - Schema: Log
+2025-07-10 00:37:19,152 - app.services.connection_manager_snowflake_log - INFO -   - Role: ACCOUNTADMIN
+2025-07-10 00:37:19,161 - app.services.query_executor - ERROR - Snowflakeクエリ実行失敗: クエリ実行エラー: "Attempt to overwrite 'exc_info' in LogRecord"
+2025-07-10 00:37:19,166 - app.services.query_executor - ERROR - エラーの詳細: KeyError: "Attempt to overwrite 'exc_info' in LogRecord"
+2025-07-10 00:37:19,168 - app.services.query_executor - ERROR - SQL: 
+            INSERT INTO Log.TOOL_LOG (
+                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            
+2025-07-10 00:37:19,171 - app.services.query_executor - ERROR - 実行時間: 0.08366227149963379
+2025-07-10 00:37:19,173 - app.services.log_handlers.snowflake - INFO - クエリ実行結果: success=False
+2025-07-10 00:37:19,174 - app.services.log_handlers.snowflake - ERROR - Snowflakeへのログ記録に失敗しました: クエリ実行エラー: "Attempt to overwrite 'exc_info' in LogRecord"
+2025-07-10 00:37:19,175 - app.services.log_handlers.snowflake - ERROR - 失敗の詳細: QueryResult(success=False, data=None, columns=None, row_count=0, execution_time=0.08366227149963379, error_message='クエリ実行エラー: "Attempt to overwrite \'exc_info\' in LogRecord"', query_id=None, sql='\n            INSERT INTO Log.TOOL_LOG (\n                MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, \n                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER\n            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)\n            ')
+2025-07-10 00:37:19,177 - app.services.sql_log_service - INFO - ログ記録が完了しました: storage_type=snowflake
+2025-07-10 00:42:35,873 - main - INFO - アプリケーション終了

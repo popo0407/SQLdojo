@@ -93,6 +93,9 @@ class ConnectionManagerSnowflakeLog:
             self.logger.info("クエリを実行します")
             if params:
                 self.logger.info(f"パラメータ付きで実行: {params}")
+                self.logger.info(f"パラメータの型: {type(params)}")
+                self.logger.info(f"パラメータの内容: {[type(p) for p in params]}")
+                # Snowflakeでは%sプレースホルダーを使用
                 cursor.execute(sql, params)
             else:
                 self.logger.info("パラメータなしで実行")

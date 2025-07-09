@@ -54,15 +54,15 @@ class SqliteLogHandler(BaseLogHandler):
             version_number = int(version_parts[0]) * 100 + int(version_parts[1]) * 10 + int(version_parts[2])
             
             with sqlite3.connect(self.db_path) as conn:
-                conn.execute("""
+                conn.execute(f"""
                 INSERT INTO TOOL_LOG (
                     MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
                     SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (
-                    mk_date, user_id, 'SQLDOJOWEB', sql,
-                    int(execution_time), from_date, mk_date, version_number
-                ))
+                ) VALUES (
+                    '{mk_date}', '{user_id}', 'SQLDOJOWEB', '{sql}',
+                    {int(execution_time)}, '{from_date}', '{mk_date}', {version_number}
+                )
+                """)
                 conn.commit()
         except Exception as e:
             self.logger.error(f"SQLiteへのログ記録中に予期せぬエラーが発生しました: {e}", exc_info=True)
