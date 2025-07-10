@@ -150,6 +150,34 @@
         </div>
     </div>
 </div>
+
+<!-- 管理者パスワード入力モーダル -->
+<div class="modal fade" id="adminPasswordModal" tabindex="-1" aria-labelledby="adminPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adminPasswordModalLabel">
+                    <i class="fas fa-shield-alt me-2"></i>管理者認証
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>管理者ページにアクセスするには認証が必要です。</p>
+                <div class="mb-3">
+                    <label for="modalAdminPassword" class="form-label">管理者パスワード</label>
+                    <input type="password" class="form-control" id="modalAdminPassword" placeholder="パスワードを入力">
+                </div>
+                <div id="modalAdminAuthStatus" class="alert" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                <button type="button" class="btn btn-primary" id="modalAdminLoginBtn">
+                    <i class="fas fa-sign-in-alt me-1"></i>ログイン
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}

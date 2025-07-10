@@ -716,21 +716,69 @@ class AppController {
      * 管理者ログインモーダルの表示
      */
     async showAdminLoginModal() {
-        const password = prompt('管理者パスワードを入力してください:');
-        if (!password) return;
-
-        try {
-            const result = await this.apiService.adminLogin(password);
-            // 管理者ログインAPIは成功時にmessageを返す
-            if (result.message) {
-                window.location.href = '/admin';
-            } else {
-                this.uiService.showError('パスワードが正しくありません');
+        // モーダルを表示
+        const modal = new bootstrap.Modal(document.getElementById('adminPasswordModal'));
+        modal.show();
+        
+        // パスワード入力フィールドにフォーカス
+        const passwordInput = document.getElementById('modalAdminPassword');
+        passwordInput.value = '';
+        
+        // モーダルが表示されたらパスワード入力にフォーカス
+        document.getElementById('adminPasswordModal').addEventListener('shown.bs.modal', function () {
+            passwordInput.focus();
+        });
+        
+        // ログインボタンのイベントハンドラ
+        const loginBtn = document.getElementById('modalAdminLoginBtn');
+        const statusDiv = document.getElementById('modalAdminAuthStatus');
+        
+        // 既存のイベントリスナーを削除
+        const newLoginBtn = loginBtn.cloneNode(true);
+        loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
+        
+        newLoginBtn.addEventListener('click', async () => {
+            const password = passwordInput.value;
+            if (!password) {
+                statusDiv.textContent = 'パスワードを入力してください';
+                statusDiv.className = 'alert alert-warning';
+                statusDiv.style.display = 'block';
+                return;
             }
-        } catch (error) {
-            console.error('管理者ログインエラー:', error);
-            this.uiService.showError(`ログインエラー: ${error.message}`);
-        }
+            
+            try {
+                statusDiv.textContent = '認証中...';
+                statusDiv.className = 'alert alert-info';
+                statusDiv.style.display = 'block';
+                newLoginBtn.disabled = true;
+                
+                const result = await this.apiService.adminLogin(password);
+                if (result.message) {
+                    statusDiv.textContent = '認証成功！管理者ページに移動します...';
+                    statusDiv.className = 'alert alert-success';
+                    setTimeout(() => {
+                        modal.hide();
+                        window.location.href = '/admin';
+                    }, 1000);
+                } else {
+                    statusDiv.textContent = 'パスワードが正しくありません';
+                    statusDiv.className = 'alert alert-danger';
+                }
+            } catch (error) {
+                console.error('管理者ログインエラー:', error);
+                statusDiv.textContent = `ログインエラー: ${error.message}`;
+                statusDiv.className = 'alert alert-danger';
+            } finally {
+                newLoginBtn.disabled = false;
+            }
+        });
+        
+        // Enterキーでログイン
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                newLoginBtn.click();
+            }
+        });
     }
 
     /**
