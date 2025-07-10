@@ -69,6 +69,90 @@
             max-height: 500px;
             overflow-y: auto;
         }
+        
+        /* 表示設定パネル用スタイル */
+        .preference-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            background: white;
+        }
+        
+        .preference-item-content {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .preference-item-name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        
+        .preference-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .item-type-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-right: 8px;
+            font-weight: 600;
+        }
+        
+        .item-type-badge.user {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .item-type-badge.admin {
+            background-color: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .move-btn {
+            background: none;
+            border: 1px solid #dee2e6;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .move-btn:hover {
+            color: #1976d2;
+            border-color: #1976d2;
+            background-color: #f8f9fa;
+        }
+        
+        .move-btn:disabled {
+            color: #dee2e6;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+            background-color: #f8f9fa;
+        }
+        
+        .preference-item.hidden {
+            opacity: 0.6;
+            background-color: #f8f9fa;
+        }
+        
+        .visibility-toggle {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -123,8 +207,31 @@
 
                 <!-- 個人テンプレート管理 -->
                 <div class="user-card" id="templates-section">
-            <h5><i class="fas fa-user-edit"></i> 個人テンプレート管理</h5>
-            <p>あなた専用のSQLテンプレートを管理します。</p>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-user-edit"></i> 個人テンプレート管理</h5>
+                    <p class="mb-0">あなた専用のSQLテンプレートを管理します。表示順序や表示/非表示を設定できます。</p>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleTemplatePreferencesView()">
+                    <i class="fas fa-cog me-1"></i><span id="template-prefs-toggle-text">表示設定</span>
+                </button>
+            </div>
+            
+            <!-- 表示設定パネル -->
+            <div id="template-preferences-panel" style="display: none;">
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-list me-2"></i>テンプレート表示設定</h6>
+                        <small class="text-muted">メインページのドロップダウンでの表示順序と表示/非表示を設定</small>
+                    </div>
+                    <div class="card-body">
+                        <div id="template-preferences-list">
+                            読み込み中...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -151,8 +258,31 @@
 
                 <!-- 個人パーツ管理 -->
                 <div class="user-card" id="parts-section">
-            <h5><i class="fas fa-puzzle-piece"></i> 個人パーツ管理</h5>
-            <p>あなた専用のSQLパーツを管理します。パーツは既存のコードを消さずにカーソル位置に挿入されます。</p>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <h5 class="mb-0"><i class="fas fa-puzzle-piece"></i> 個人パーツ管理</h5>
+                    <p class="mb-0">あなた専用のSQLパーツを管理します。パーツは既存のコードを消さずにカーソル位置に挿入されます。</p>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="togglePartPreferencesView()">
+                    <i class="fas fa-cog me-1"></i><span id="part-prefs-toggle-text">表示設定</span>
+                </button>
+            </div>
+            
+            <!-- 表示設定パネル -->
+            <div id="part-preferences-panel" style="display: none;">
+                <div class="card bg-light mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-list me-2"></i>パーツ表示設定</h6>
+                        <small class="text-muted">メインページのドロップダウンでの表示順序と表示/非表示を設定</small>
+                    </div>
+                    <div class="card-body">
+                        <div id="part-preferences-list">
+                            読み込み中...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
@@ -491,6 +621,297 @@
                 alert("SQLのコピーに失敗しました。");
             }
         }
+
+        // テンプレート表示設定機能
+        async function toggleTemplatePreferencesView() {
+            const panel = document.getElementById('template-preferences-panel');
+            const toggleText = document.getElementById('template-prefs-toggle-text');
+            
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                toggleText.textContent = '設定を閉じる';
+                await loadTemplatePreferences();
+            } else {
+                panel.style.display = 'none';
+                toggleText.textContent = '表示設定';
+            }
+        }
+
+        async function togglePartPreferencesView() {
+            const panel = document.getElementById('part-preferences-panel');
+            const toggleText = document.getElementById('part-prefs-toggle-text');
+            
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                toggleText.textContent = '設定を閉じる';
+                await loadPartPreferences();
+            } else {
+                panel.style.display = 'none';
+                toggleText.textContent = '表示設定';
+            }
+        }
+
+        async function loadTemplatePreferences() {
+            try {
+                const response = await fetch('/api/v1/users/template-preferences');
+                if (!response.ok) throw new Error('テンプレート設定取得エラー');
+                
+                const data = await response.json();
+                const templates = data.templates || [];
+                
+                const listElement = document.getElementById('template-preferences-list');
+                if (templates.length === 0) {
+                    listElement.innerHTML = '<p class="text-muted">テンプレートがありません</p>';
+                    return;
+                }
+                
+                let html = '';
+                templates.forEach((template, index) => {
+                    const typeClass = template.type === 'user' ? 'user' : 'admin';
+                    const typeLabel = template.type === 'user' ? 'ユーザー' : '共通';
+                    const isVisible = template.is_visible;
+                    
+                    html += `
+                        <div class="preference-item ${isVisible ? '' : 'hidden'}">
+                            <div class="preference-item-content">
+                                <span class="item-type-badge ${typeClass}">${typeLabel}</span>
+                                <span class="preference-item-name" title="${template.sql}">${template.name}</span>
+                            </div>
+                            <div class="preference-item-controls">
+                                <input type="checkbox" class="visibility-toggle" ${isVisible ? 'checked' : ''} 
+                                       onchange="toggleTemplateVisibility('${template.template_id}', '${template.type}', this.checked)">
+                                <button class="move-btn" onclick="moveTemplate('${template.template_id}', '${template.type}', 'up')" 
+                                        ${index === 0 ? 'disabled' : ''} title="上に移動">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <button class="move-btn" onclick="moveTemplate('${template.template_id}', '${template.type}', 'down')" 
+                                        ${index === templates.length - 1 ? 'disabled' : ''} title="下に移動">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                listElement.innerHTML = html;
+            } catch (error) {
+                console.error('テンプレート設定読み込みエラー:', error);
+                document.getElementById('template-preferences-list').innerHTML = '<p class="text-danger">読み込みエラー</p>';
+            }
+        }
+
+        async function loadPartPreferences() {
+            try {
+                const response = await fetch('/api/v1/users/part-preferences');
+                if (!response.ok) throw new Error('パーツ設定取得エラー');
+                
+                const data = await response.json();
+                const parts = data.parts || [];
+                
+                const listElement = document.getElementById('part-preferences-list');
+                if (parts.length === 0) {
+                    listElement.innerHTML = '<p class="text-muted">パーツがありません</p>';
+                    return;
+                }
+                
+                let html = '';
+                parts.forEach((part, index) => {
+                    const typeClass = part.type === 'user' ? 'user' : 'admin';
+                    const typeLabel = part.type === 'user' ? 'ユーザー' : '共通';
+                    const isVisible = part.is_visible;
+                    
+                    html += `
+                        <div class="preference-item ${isVisible ? '' : 'hidden'}">
+                            <div class="preference-item-content">
+                                <span class="item-type-badge ${typeClass}">${typeLabel}</span>
+                                <span class="preference-item-name" title="${part.sql}">${part.name}</span>
+                            </div>
+                            <div class="preference-item-controls">
+                                <input type="checkbox" class="visibility-toggle" ${isVisible ? 'checked' : ''} 
+                                       onchange="togglePartVisibility('${part.part_id}', '${part.type}', this.checked)">
+                                <button class="move-btn" onclick="movePart('${part.part_id}', '${part.type}', 'up')" 
+                                        ${index === 0 ? 'disabled' : ''} title="上に移動">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <button class="move-btn" onclick="movePart('${part.part_id}', '${part.type}', 'down')" 
+                                        ${index === parts.length - 1 ? 'disabled' : ''} title="下に移動">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                listElement.innerHTML = html;
+            } catch (error) {
+                console.error('パーツ設定読み込みエラー:', error);
+                document.getElementById('part-preferences-list').innerHTML = '<p class="text-danger">読み込みエラー</p>';
+            }
+        }
+
+        async function toggleTemplateVisibility(templateId, templateType, isVisible) {
+            try {
+                const response = await fetch('/api/v1/users/template-preferences');
+                if (!response.ok) throw new Error('設定取得エラー');
+                
+                const data = await response.json();
+                const preferences = data.templates || [];
+                
+                const updatedPreferences = preferences.map(pref => {
+                    if (pref.template_id === templateId && pref.type === templateType) {
+                        return { 
+                            template_id: pref.template_id,
+                            template_type: pref.type,
+                            display_order: pref.display_order,
+                            is_visible: isVisible 
+                        };
+                    }
+                    return {
+                        template_id: pref.template_id,
+                        template_type: pref.type,
+                        display_order: pref.display_order,
+                        is_visible: pref.is_visible
+                    };
+                });
+
+                const updateResponse = await fetch('/api/v1/users/template-preferences', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preferences: updatedPreferences })
+                });
+
+                if (!updateResponse.ok) throw new Error('設定更新エラー');
+                await loadTemplatePreferences();
+            } catch (error) {
+                console.error('テンプレート表示設定エラー:', error);
+                alert('設定の更新に失敗しました');
+            }
+        }
+
+        async function togglePartVisibility(partId, partType, isVisible) {
+            try {
+                const response = await fetch('/api/v1/users/part-preferences');
+                if (!response.ok) throw new Error('設定取得エラー');
+                
+                const data = await response.json();
+                const preferences = data.parts || [];
+                
+                const updatedPreferences = preferences.map(pref => {
+                    if (pref.part_id === partId && pref.type === partType) {
+                        return { 
+                            part_id: pref.part_id,
+                            part_type: pref.type,
+                            display_order: pref.display_order,
+                            is_visible: isVisible 
+                        };
+                    }
+                    return {
+                        part_id: pref.part_id,
+                        part_type: pref.type,
+                        display_order: pref.display_order,
+                        is_visible: pref.is_visible
+                    };
+                });
+
+                const updateResponse = await fetch('/api/v1/users/part-preferences', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preferences: updatedPreferences })
+                });
+
+                if (!updateResponse.ok) throw new Error('設定更新エラー');
+                await loadPartPreferences();
+            } catch (error) {
+                console.error('パーツ表示設定エラー:', error);
+                alert('設定の更新に失敗しました');
+            }
+        }
+
+        async function moveTemplate(templateId, templateType, direction) {
+            try {
+                const response = await fetch('/api/v1/users/template-preferences');
+                if (!response.ok) throw new Error('設定取得エラー');
+                
+                const data = await response.json();
+                const preferences = data.templates || [];
+                
+                const currentIndex = preferences.findIndex(pref => 
+                    pref.template_id === templateId && pref.type === templateType
+                );
+
+                if (currentIndex === -1) return;
+
+                const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+                if (newIndex < 0 || newIndex >= preferences.length) return;
+
+                // 要素を移動
+                const [movedItem] = preferences.splice(currentIndex, 1);
+                preferences.splice(newIndex, 0, movedItem);
+
+                // display_orderを更新し、APIモデルに合わせて形式を変換
+                const updatedPreferences = preferences.map((pref, index) => ({
+                    template_id: pref.template_id,
+                    template_type: pref.type,
+                    display_order: index,
+                    is_visible: pref.is_visible
+                }));
+
+                const updateResponse = await fetch('/api/v1/users/template-preferences', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preferences: updatedPreferences })
+                });
+
+                if (!updateResponse.ok) throw new Error('設定更新エラー');
+                await loadTemplatePreferences();
+            } catch (error) {
+                console.error('テンプレート並び替えエラー:', error);
+                alert('並び替えに失敗しました');
+            }
+        }
+
+        async function movePart(partId, partType, direction) {
+            try {
+                const response = await fetch('/api/v1/users/part-preferences');
+                if (!response.ok) throw new Error('設定取得エラー');
+                
+                const data = await response.json();
+                const preferences = data.parts || [];
+                
+                const currentIndex = preferences.findIndex(pref => 
+                    pref.part_id === partId && pref.type === partType
+                );
+
+                if (currentIndex === -1) return;
+
+                const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+                if (newIndex < 0 || newIndex >= preferences.length) return;
+
+                // 要素を移動
+                const [movedItem] = preferences.splice(currentIndex, 1);
+                preferences.splice(newIndex, 0, movedItem);
+
+                // display_orderを更新し、APIモデルに合わせて形式を変換
+                const updatedPreferences = preferences.map((pref, index) => ({
+                    part_id: pref.part_id,
+                    part_type: pref.type,
+                    display_order: index,
+                    is_visible: pref.is_visible
+                }));
+
+                const updateResponse = await fetch('/api/v1/users/part-preferences', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ preferences: updatedPreferences })
+                });
+
+                if (!updateResponse.ok) throw new Error('設定更新エラー');
+                await loadPartPreferences();
+            } catch (error) {
+                console.error('パーツ並び替えエラー:', error);
+                alert('並び替えに失敗しました');
+            }
+        }
     </script>
 </body>
-</html> 
+</html>

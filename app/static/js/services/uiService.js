@@ -749,16 +749,30 @@ class UiService {
         if (!this.editorContainer) return;
         
         if (maximized) {
+            // エディタを最大化：エディタ部分を大きくし、結果部分を隠す
             this.editorContainer.classList.remove('editor-minimized');
             this.editorContainer.classList.add('editor-maximized');
+            // 結果表示エリアを隠す
             if (this.resultsContainer) {
                 this.resultsContainer.style.display = 'none';
             }
+            // 水平リサイザーも隠す
+            const horizontalResizer = document.getElementById('horizontal-resizer');
+            if (horizontalResizer) {
+                horizontalResizer.style.display = 'none';
+            }
         } else {
+            // エディタを最小化：エディタ部分を通常サイズに戻し、結果部分を表示
             this.editorContainer.classList.remove('editor-maximized');
             this.editorContainer.classList.add('editor-minimized');
-            if (this.resultsContainer) {
+            // 結果表示エリアを表示（結果がある場合のみ）
+            if (this.resultsContainer && this.resultsContainer.querySelector('#dataTable')) {
                 this.resultsContainer.style.display = 'block';
+            }
+            // 水平リサイザーも表示
+            const horizontalResizer = document.getElementById('horizontal-resizer');
+            if (horizontalResizer) {
+                horizontalResizer.style.display = 'block';
             }
         }
         

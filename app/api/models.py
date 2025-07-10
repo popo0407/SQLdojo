@@ -250,6 +250,24 @@ class PartResponse(BaseModel):
     created_at: str = Field(..., description="作成日時")
 
 
+class TemplateDropdownResponse(BaseModel):
+    """ドロップダウン用テンプレートレスポンス"""
+    id: str = Field(..., description="テンプレートID")
+    name: str = Field(..., description="テンプレート名")
+    sql: str = Field(..., description="SQL文")
+    type: str = Field(..., description="テンプレート種別 (user/admin)")
+    is_common: bool = Field(default=False, description="共通テンプレートかどうか")
+
+
+class PartDropdownResponse(BaseModel):
+    """ドロップダウン用パーツレスポンス"""
+    id: str = Field(..., description="パーツID")
+    name: str = Field(..., description="パーツ名")
+    sql: str = Field(..., description="SQL文")
+    type: str = Field(..., description="パーツ種別 (user/admin)")
+    is_common: bool = Field(default=False, description="共通パーツかどうか")
+
+
 class UserRefreshResponse(BaseModel):
     message: str = Field(..., description="更新メッセージ")
     user_count: int = Field(..., description="更新されたユーザー数")
@@ -284,4 +302,71 @@ class VisibilitySetting(BaseModel):
 
 
 class SaveVisibilitySettingsRequest(BaseModel):
-    settings: List[VisibilitySetting] = Field(..., description="表示設定リスト") 
+    settings: List[VisibilitySetting] = Field(..., description="表示設定リスト")
+
+
+# ユーザー表示設定用のモデル
+class UserTemplatePreference(BaseModel):
+    """ユーザーテンプレート表示設定"""
+    template_id: str = Field(..., description="テンプレートID")
+    name: str = Field(..., description="テンプレート名")
+    sql: str = Field(..., description="SQL文")
+    created_at: str = Field(..., description="作成日時")
+    type: str = Field(..., description="テンプレート種別（user/admin）")
+    is_common: bool = Field(default=False, description="共通テンプレートかどうか")
+    display_order: int = Field(..., description="表示順序")
+    is_visible: bool = Field(..., description="表示フラグ")
+
+
+class UserPartPreference(BaseModel):
+    """ユーザーパーツ表示設定"""
+    part_id: str = Field(..., description="パーツID")
+    name: str = Field(..., description="パーツ名")
+    sql: str = Field(..., description="SQL文")
+    created_at: str = Field(..., description="作成日時")
+    type: str = Field(..., description="パーツ種別（user/admin）")
+    is_common: bool = Field(default=False, description="共通パーツかどうか")
+    display_order: int = Field(..., description="表示順序")
+    is_visible: bool = Field(..., description="表示フラグ")
+
+
+class UserTemplatePreferencesResponse(BaseModel):
+    """ユーザーテンプレート表示設定レスポンス"""
+    templates: List[UserTemplatePreference] = Field(..., description="テンプレート表示設定リスト")
+
+
+class UserPartPreferencesResponse(BaseModel):
+    """ユーザーパーツ表示設定レスポンス"""
+    parts: List[UserPartPreference] = Field(..., description="パーツ表示設定リスト")
+
+
+class UpdateTemplatePreferenceItem(BaseModel):
+    """テンプレート表示設定更新アイテム"""
+    template_id: str = Field(..., description="テンプレートID")
+    template_type: str = Field(..., description="テンプレート種別（user/admin）")
+    display_order: int = Field(..., description="表示順序")
+    is_visible: bool = Field(..., description="表示フラグ")
+
+
+class UpdatePartPreferenceItem(BaseModel):
+    """パーツ表示設定更新アイテム"""
+    part_id: str = Field(..., description="パーツID")
+    part_type: str = Field(..., description="パーツ種別（user/admin）")
+    display_order: int = Field(..., description="表示順序")
+    is_visible: bool = Field(..., description="表示フラグ")
+
+
+class UpdateTemplatePreferencesRequest(BaseModel):
+    """テンプレート表示設定更新リクエスト"""
+    preferences: List[UpdateTemplatePreferenceItem] = Field(..., description="表示設定リスト")
+
+
+class UpdatePartPreferencesRequest(BaseModel):
+    """パーツ表示設定更新リクエスト"""
+    preferences: List[UpdatePartPreferenceItem] = Field(..., description="表示設定リスト")
+
+
+class UpdateTemplateRequest(BaseModel):
+    """テンプレート更新リクエスト"""
+    name: str = Field(..., description="テンプレート名")
+    sql: str = Field(..., description="SQL文")

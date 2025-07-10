@@ -25,12 +25,12 @@ class OracleLogHandler(BaseLogHandler):
             
             # バージョン番号の計算
             version_parts = __version__.split('.')
-            version_number = int(version_parts[0]) * 100 + int(version_parts[1]) * 10 + int(version_parts[2])
+            version_number = int(version_parts[0]) + int(version_parts[1]) * 0.1 + int(version_parts[2]) *0.01
 
             log_sql = f"""
-            INSERT INTO Log.TOOL_LOG (
+            INSERT INTO HF3J8M01 (
                 MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+                SYSTEM_WORK_TIME, FROM_DATE, TO_DATE, TOOL_VER
             ) VALUES (
                 '{mk_date}', '{user_id}', 'SQLDOJOWEB', '{truncated_sql}',
                 {int(execution_time)}, '{from_date}', '{mk_date}', {version_number}
@@ -47,7 +47,7 @@ class OracleLogHandler(BaseLogHandler):
     def get_logs(self, user_id: Optional[str] = None, limit: int = 100, offset: int = 0) -> Dict[str, Any]:
         """OracleからSQL実行ログを取得する"""
         try:
-            base_sql = "FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
+            base_sql = "FROM HF3J8M01 WHERE TOOL_NAME = 'SQLDOJOWEB'"
             params = []
             if user_id:
                 base_sql += " AND OPE_CODE = ?"
@@ -55,10 +55,12 @@ class OracleLogHandler(BaseLogHandler):
 
             count_sql = f"SELECT COUNT(*) as TOTAL_COUNT {base_sql}"
             count_result = self.query_executor.execute_query(count_sql, tuple(params))
-            total_count = count_result.data[0]['TOTAL_COUNT'] if count_result.success and count_result.data else 0
+            
+            # 修正点: キーを 'TOTAL_COUNT' から 'total_count' に変更
+            total_count = count_result.data[0]['total_count'] if count_result.success and count_result.data else 0
 
             data_sql = f"""
-            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER
+            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORK_TIME
             {base_sql} ORDER BY MK_DATE DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
             """
             params.extend([offset, limit])
@@ -68,15 +70,16 @@ class OracleLogHandler(BaseLogHandler):
             if not logs_result.success:
                 return {"logs": [], "total_count": 0}
 
+            # 修正点: こちらのキーもすべて小文字に修正
             logs_data = [{
                 "log_id": str(uuid.uuid4()),
-                "user_id": row.get("OPE_CODE"),
-                "sql": row.get("OPTION_NO"),
-                "execution_time": row.get("SYSTEM_WORKNUMBER"),
+                "user_id": row.get("ope_code"),
+                "sql": row.get("option_no"),
+                "execution_time": row.get("system_work_time"),
                 "row_count": None,  # テーブルに存在しないためNone
                 "success": True,     # テーブルに存在しないためデフォルト値
                 "error_message": None,  # テーブルに存在しないためNone
-                "timestamp": datetime.strptime(row.get("MK_DATE"), '%Y%m%d%H%M%S').isoformat()
+                "timestamp": datetime.strptime(row.get("mk_date"), '%Y%m%d%H%M%S').isoformat()
             } for row in logs_result.data]
 
             return {"logs": logs_data, "total_count": total_count}
@@ -87,7 +90,7 @@ class OracleLogHandler(BaseLogHandler):
     def clear_logs(self, user_id: Optional[str] = None):
         """OracleのSQL実行ログをクリアする"""
         try:
-            sql = "DELETE FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
+            sql = "DELETE FROM HF3J8M01 WHERE TOOL_NAME = 'SQLDOJOWEB'"
             params = []
             if user_id:
                 sql += " AND OPE_CODE = ?"

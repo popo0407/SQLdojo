@@ -28,6 +28,7 @@ from app.services.sql_log_service import SQLLogService
 from app.services.admin_service import AdminService
 from app.services.visibility_control_service import VisibilityControlService
 from app.services.connection_manager_oracle import ConnectionManagerOracle
+from app.services.user_preference_service import UserPreferenceService
 
 
 # 設定の依存性注入
@@ -143,6 +144,14 @@ def get_part_service_di(
     return PartService(metadata_cache)
 
 
+# ユーザー表示設定サービスの依存性注入
+def get_user_preference_service_di(
+    metadata_cache: Annotated[MetadataCache, Depends(get_metadata_cache_di)]
+) -> UserPreferenceService:
+    """ユーザー表示設定サービスを取得"""
+    return UserPreferenceService(metadata_cache)
+
+
 # 認証チェックの依存性注入
 def get_current_user(request: Request):
     """現在のユーザーを取得（認証チェック付き）"""
@@ -234,4 +243,5 @@ CurrentUserDep = Annotated[dict, Depends(get_current_user)]
 CurrentAdminDep = Annotated[bool, Depends(get_current_admin)]
 SQLLogServiceDep = Annotated[SQLLogService, Depends(get_sql_log_service_di)]
 AdminServiceDep = Annotated[AdminService, Depends(get_admin_service_di)]
-VisibilityControlServiceDep = Annotated[VisibilityControlService, Depends(get_visibility_control_service_di)] 
+UserPreferenceServiceDep = Annotated[UserPreferenceService, Depends(get_user_preference_service_di)]
+VisibilityControlServiceDep = Annotated[VisibilityControlService, Depends(get_visibility_control_service_di)]

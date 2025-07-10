@@ -98,6 +98,10 @@ class PartService:
                 )
                 conn.commit()
             self.logger.info("ユーザーパーツを作成しました", part_id=new_part["id"], user_id=user_id)
+            
+            # ユーザー表示設定に新しいパーツを追加
+            self._add_part_to_user_preferences(new_part["id"], "user", user_id)
+            
             return new_part
         except Exception as e:
             self.logger.error("ユーザーパーツ作成エラー", exception=e)
@@ -111,6 +115,68 @@ class PartService:
                 cursor.execute("DELETE FROM user_parts WHERE id = ? AND user_id = ?", (part_id, user_id))
                 conn.commit()
             self.logger.info("ユーザーパーツを削除しました", part_id=part_id, user_id=user_id)
+            
+            # ユーザー表示設定からパーツを削除
+            self._remove_part_from_all_user_preferences(part_id, "user")
+            
         except Exception as e:
             self.logger.error("ユーザーパーツ削除エラー", exception=e)
-            raise 
+            raise
+    
+    def _add_part_to_user_preferences(self, part_id: str, part_type: str, user_id: str = None):
+        """パーツをユーザー表示設定に追加"""
+        try:
+            if part_type == "admin":
+                # 管理者パーツの場合、全ユーザーに追加
+                with self._get_conn() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT user_id FROM users")
+                    users = cursor.fetchall()
+                    
+                    for user in users:
+                        cursor.execute("""
+                        SELECT COALESCE(MAX(display_order), 0) + 1 as next_order
+                        FROM user_part_preferences WHERE user_id = ?
+                        """, (user[0],))
+                        next_order = cursor.fetchone()[0]
+                        
+                        cursor.execute("""
+                        INSERT OR IGNORE INTO user_part_preferences 
+                        (user_id, part_id, part_type, display_order, is_visible)
+                        VALUES (?, ?, ?, ?, 1)
+                        """, (user[0], part_id, part_type, next_order))
+                    
+                    conn.commit()
+            else:
+                # ユーザーパーツの場合、該当ユーザーのみに追加
+                if user_id:
+                    with self._get_conn() as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("""
+                        SELECT COALESCE(MAX(display_order), 0) + 1 as next_order
+                        FROM user_part_preferences WHERE user_id = ?
+                        """, (user_id,))
+                        next_order = cursor.fetchone()[0]
+                        
+                        cursor.execute("""
+                        INSERT OR IGNORE INTO user_part_preferences 
+                        (user_id, part_id, part_type, display_order, is_visible)
+                        VALUES (?, ?, ?, ?, 1)
+                        """, (user_id, part_id, part_type, next_order))
+                        
+                        conn.commit()
+        except Exception as e:
+            self.logger.error("パーツ表示設定追加エラー", exception=e)
+    
+    def _remove_part_from_all_user_preferences(self, part_id: str, part_type: str):
+        """パーツを全ユーザーの表示設定から削除"""
+        try:
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                DELETE FROM user_part_preferences 
+                WHERE part_id = ? AND part_type = ?
+                """, (part_id, part_type))
+                conn.commit()
+        except Exception as e:
+            self.logger.error("パーツ表示設定削除エラー", exception=e)

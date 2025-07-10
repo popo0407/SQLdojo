@@ -117,6 +117,14 @@ async def user_page(request: Request):
     
     return templates.TemplateResponse("user.html", {"request": request})
 
+@app.get("/manage-templates", response_class=HTMLResponse)
+async def template_management_page(request: Request):
+    user = request.session.get("user")
+    if not user:
+        return RedirectResponse(url="/login")
+    
+    return templates.TemplateResponse("template-management.html", {"request": request})
+
 @app.get("/api/health")
 async def health_check():
     """簡易ヘルスチェック"""
@@ -132,4 +140,4 @@ if __name__ == "__main__":
         port=settings.app_port,
         reload=settings.app_debug,
         log_level="info"
-    ) 
+    )

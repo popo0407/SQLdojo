@@ -216,4 +216,62 @@ class ApiService {
             throw error;
         }
     }
-} 
+
+    /**
+     * ドロップダウン用の表示可能テンプレート一覧を取得（並び順・表示設定反映）
+     * @returns {Promise<Array>} 表示可能テンプレート配列
+     */
+    getVisibleTemplatesForDropdown() {
+        return this._fetch('/users/templates-for-dropdown');
+    }
+
+    /**
+     * ドロップダウン用の表示可能パーツ一覧を取得（並び順・表示設定反映）
+     * @returns {Promise<Array>} 表示可能パーツ配列
+     */
+    getVisiblePartsForDropdown() {
+        return this._fetch('/users/parts-for-dropdown');
+    }
+
+    /**
+     * ユーザーのテンプレート表示設定を取得
+     * @returns {Promise<Object>} テンプレート表示設定
+     */
+    getUserTemplatePreferences() {
+        return this._fetch('/users/template-preferences');
+    }
+
+    /**
+     * ユーザーのパーツ表示設定を取得
+     * @returns {Promise<Object>} パーツ表示設定
+     */
+    getUserPartPreferences() {
+        return this._fetch('/users/part-preferences');
+    }
+
+    /**
+     * ユーザーのテンプレート表示設定を更新
+     * @param {Array} preferences - 表示設定配列
+     * @returns {Promise<Object>} 更新結果
+     */
+    updateTemplatePreferences(preferences) {
+        return this._fetch('/users/template-preferences', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ preferences })
+        });
+    }
+
+    /**
+     * ユーザーのパーツ表示設定を更新
+     * @param {Array} preferences - 表示設定配列
+     * @returns {Promise<Object>} 更新結果
+     */
+    updatePartPreferences(preferences) {
+        return this._fetch('/users/part-preferences', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ preferences })
+        });
+    }
+}

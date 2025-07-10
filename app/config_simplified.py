@@ -61,14 +61,22 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", description="ログレベル")
     log_storage_type: str = Field(default="oracle", description="ログ保存先タイプ (oracle, sqlite, snowflake)")
 
+    # Snowflakeログ用接続設定（キーペア認証）
+    snowflake_log_account: Optional[str] = Field(default=None, description="Snowflakeログ用アカウント")
+    snowflake_log_user: Optional[str] = Field(default=None, description="Snowflakeログ用ユーザー名")
+    snowflake_log_private_key_path: Optional[str] = Field(default=None, description="Snowflakeログ用秘密鍵ファイルパス")
+    snowflake_log_private_key_passphrase: Optional[str] = Field(default=None, description="Snowflakeログ用秘密鍵パスフレーズ")
+    snowflake_log_warehouse: Optional[str] = Field(default=None, description="Snowflakeログ用ウェアハウス")
+    snowflake_log_database: Optional[str] = Field(default=None, description="Snowflakeログ用データベース")
+    snowflake_log_schema: str = Field(default="LOG", description="Snowflakeログ用スキーマ")
+    snowflake_log_role: Optional[str] = Field(default=None, description="Snowflakeログ用ロール")
+    snowflake_log_use_keypair: bool = Field(default=True, description="Snowflakeログ用キーペア認証を使用するかどうか")
+
     # 補完機能設定
     completion_target_schemas: List[str] = Field(default=["PUBLIC"], description="補完対象のスキーマリスト")
     
     # サーバー設定
     public_server_url: Optional[str] = Field(default=None, description="公開サーバーURL（IIS発行時用）")
-    
-    # 外部サーバーURL
-    public_server_url: Optional[str] = Field(default=None)
 
     @field_validator('snowflake_account')
     @classmethod
@@ -187,4 +195,4 @@ def get_log_config():
     settings = get_settings()
     return type('LogConfig', (), {
         'level': settings.log_level
-    })() 
+    })()

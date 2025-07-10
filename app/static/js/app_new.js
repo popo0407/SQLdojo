@@ -529,11 +529,12 @@ class AppController {
      */
     async loadAllTemplates() {
         try {
-            // ユーザーテンプレートと共通テンプレートを並行して読み込み
-            const [userTemplates, commonTemplates] = await Promise.all([
-                this.apiService.getAllTemplates(),
-                this.apiService.getCommonTemplates()
-            ]);
+            // ドロップダウン用のテンプレート一覧を取得（表示設定に基づく）
+            const visibleTemplates = await this.apiService.getVisibleTemplatesForDropdown();
+            
+            // is_commonの代わりにtypeプロパティで個人用と共通用に分類
+            const userTemplates = visibleTemplates.filter(t => t.type === 'user');
+            const commonTemplates = visibleTemplates.filter(t => t.type === 'admin');
             
             this.stateService.setUserTemplates(userTemplates);
             this.stateService.setAdminTemplates(commonTemplates);
@@ -553,11 +554,12 @@ class AppController {
      */
     async loadAllParts() {
         try {
-            // ユーザーパーツと共通パーツを並行して読み込み
-            const [userParts, commonParts] = await Promise.all([
-                this.apiService.getAllParts(),
-                this.apiService.getCommonParts()
-            ]);
+            // ドロップダウン用のパーツ一覧を取得（表示設定に基づく）
+            const visibleParts = await this.apiService.getVisiblePartsForDropdown();
+            
+            // is_commonの代わりにtypeプロパティで個人用と共通用に分類
+            const userParts = visibleParts.filter(p => p.type === 'user');
+            const commonParts = visibleParts.filter(p => p.type === 'admin');
             
             this.stateService.setUserParts(userParts);
             this.stateService.setAdminParts(commonParts);
@@ -570,7 +572,8 @@ class AppController {
             this.stateService.setAdminParts([]);
         }
     }
-
+    
+    
     /**
      * テンプレートドロップダウンの更新
      */
@@ -580,39 +583,29 @@ class AppController {
 
         let html = '';
         
-        // ユーザーテンプレート
-        const userTemplates = this.stateService.getUserTemplates();
-        if (userTemplates && userTemplates.length > 0) {
-            html += '<div class="template-section"><strong>自分のテンプレート</strong></div>';
-            userTemplates.forEach(template => {
+        const userTemplates = this.stateService.getUserTemplates() || [];
+        const commonTemplates = this.stateService.getAdminTemplates() || [];
+        
+        const allTemplates = [...userTemplates, ...commonTemplates];
+        
+        if (allTemplates.length > 0) {
+            allTemplates.forEach(template => {
+                // is_commonの代わりにtypeでアイコンを判定し、onclickではIDを渡すように変更
+                const iconClass = template.type === 'admin' ? 'fas fa-shield-alt' : 'fas fa-user';
                 html += `
-                    <div class="template-item" onclick="loadTemplate('user', '${template.sql.replace(/'/g, "\\'")}')" title="${template.sql}">
-                        <i class="fas fa-user me-2"></i>${template.name}
+                    <div class="template-item" onclick="appController.loadTemplateById('${template.id}')" title="${this.uiService.escapeHtml(template.sql)}">
+                        <i class="${iconClass} me-2"></i>${this.uiService.escapeHtml(template.name)}
                     </div>
                 `;
             });
-        }
-        
-        // 共通テンプレート
-        const commonTemplates = this.stateService.getAdminTemplates();
-        if (commonTemplates && commonTemplates.length > 0) {
-            html += '<div class="template-section"><strong>共通テンプレート</strong></div>';
-            commonTemplates.forEach(template => {
-                html += `
-                    <div class="template-item" onclick="loadTemplate('admin', '${template.sql.replace(/'/g, "\\'")}')" title="${template.sql}">
-                        <i class="fas fa-shield-alt me-2"></i>${template.name}
-                    </div>
-                `;
-            });
-        }
-        
-        if (html === '') {
+        } else {
             html = '<div class="template-item disabled">テンプレートがありません<br><small>「テンプレート保存」ボタンで新しいテンプレートを作成できます</small></div>';
         }
-        
+
         dropdown.innerHTML = html;
     }
-
+    
+    
     /**
      * パーツドロップダウンの更新
      */
@@ -622,39 +615,28 @@ class AppController {
 
         let html = '';
         
-        // ユーザーパーツ
-        const userParts = this.stateService.getUserParts();
-        if (userParts && userParts.length > 0) {
-            html += '<div class="part-section"><strong>自分のパーツ</strong></div>';
-            userParts.forEach(part => {
+        const userParts = this.stateService.getUserParts() || [];
+        const commonParts = this.stateService.getAdminParts() || [];
+        
+        const allParts = [...userParts, ...commonParts];
+        
+        if (allParts.length > 0) {
+            allParts.forEach(part => {
+                // is_commonの代わりにtypeでアイコンを判定し、onclickではIDを渡すように変更
+                const iconClass = part.type === 'admin' ? 'fas fa-shield-alt' : 'fas fa-user';
                 html += `
-                    <div class="part-item" onclick="loadPart('user', '${part.sql.replace(/'/g, "\\'")}')" title="${part.sql}">
-                        <i class="fas fa-user me-2"></i>${part.name}
+                    <div class="part-item" onclick="appController.loadPartById('${part.id}')" title="${this.uiService.escapeHtml(part.sql)}">
+                        <i class="${iconClass} me-2"></i>${this.uiService.escapeHtml(part.name)}
                     </div>
                 `;
             });
-        }
-        
-        // 共通パーツ
-        const commonParts = this.stateService.getAdminParts();
-        if (commonParts && commonParts.length > 0) {
-            html += '<div class="part-section"><strong>共通パーツ</strong></div>';
-            commonParts.forEach(part => {
-                html += `
-                    <div class="part-item" onclick="loadPart('admin', '${part.sql.replace(/'/g, "\\'")}')" title="${part.sql}">
-                        <i class="fas fa-shield-alt me-2"></i>${part.name}
-                    </div>
-                `;
-            });
-        }
-        
-        if (html === '') {
+        } else {
             html = '<div class="part-item disabled">パーツがありません<br><small>「パーツ保存」ボタンで新しいパーツを作成できます</small></div>';
         }
-        
+
         dropdown.innerHTML = html;
     }
-
+    
     /**
      * ユーザーテンプレートの保存
      */
@@ -933,6 +915,31 @@ class AppController {
         this.uiService.updateFilterIcons();
         this.uiService.updateSortIcons(sortState.column, sortState.direction); // ソートアイコンも更新
     }
+
+    loadTemplateById(templateId) {
+        const allTemplates = this.stateService.getAllTemplates();
+        const template = allTemplates.find(t => t.id === templateId);
+        if (template) {
+            this.editorService.replaceContent(template.sql);
+            document.getElementById('template-dropdown').style.display = 'none';
+        } else {
+            console.error(`Template with ID ${templateId} not found.`);
+            this.uiService.showError('テンプレートの読み込みに失敗しました。');
+        }
+    }
+
+    loadPartById(partId) {
+        const allParts = this.stateService.getAllParts();
+        const part = allParts.find(p => p.id === partId);
+        if (part) {
+            this.editorService.insertText(part.sql);
+            document.getElementById('part-dropdown').style.display = 'none';
+        } else {
+            console.error(`Part with ID ${partId} not found.`);
+            this.uiService.showError('パーツの読み込みに失敗しました。');
+        }
+    }
+    
 }
 
 // グローバルスコープに公開（後方互換性のため）
@@ -1041,4 +1048,4 @@ function toggleFullscreen() {
     if (appController) {
         appController.toggleFullscreen();
     }
-} 
+}

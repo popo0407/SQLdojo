@@ -6,7 +6,7 @@
 import sqlite3
 import uuid
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from app.metadata_cache import MetadataCache
 from app.logger import get_logger
 
@@ -14,9 +14,10 @@ from app.logger import get_logger
 class TemplateService:
     """テンプレート管理サービス"""
     
-    def __init__(self, metadata_cache: MetadataCache):
+    def __init__(self, metadata_cache: MetadataCache, user_preference_service = None):
         self.cache = metadata_cache
         self.logger = get_logger(__name__)
+        self._user_preference_service = user_preference_service
 
     def _get_conn(self):
         """MetadataCacheのDB接続を再利用"""
@@ -98,6 +99,10 @@ class TemplateService:
                 )
                 conn.commit()
             self.logger.info("ユーザーテンプレートを作成しました", template_id=new_template["id"], user_id=user_id)
+            
+            # ユーザー表示設定に新しいテンプレートを追加
+            self._add_template_to_user_preferences(new_template["id"], "user", user_id)
+            
             return new_template
         except Exception as e:
             self.logger.error("ユーザーテンプレート作成エラー", exception=e)
@@ -112,6 +117,68 @@ class TemplateService:
                 cursor.execute("DELETE FROM user_templates WHERE id = ? AND user_id = ?", (template_id, user_id))
                 conn.commit()
             self.logger.info("ユーザーテンプレートを削除しました", template_id=template_id, user_id=user_id)
+            
+            # ユーザー表示設定からテンプレートを削除
+            self._remove_template_from_all_user_preferences(template_id, "user")
+            
         except Exception as e:
             self.logger.error("ユーザーテンプレート削除エラー", exception=e)
-            raise 
+            raise
+    
+    def _add_template_to_user_preferences(self, template_id: str, template_type: str, user_id: str = None):
+        """テンプレートをユーザー表示設定に追加"""
+        try:
+            if template_type == "admin":
+                # 管理者テンプレートの場合、全ユーザーに追加
+                with self._get_conn() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT user_id FROM users")
+                    users = cursor.fetchall()
+                    
+                    for user in users:
+                        cursor.execute("""
+                        SELECT COALESCE(MAX(display_order), 0) + 1 as next_order
+                        FROM user_template_preferences WHERE user_id = ?
+                        """, (user[0],))
+                        next_order = cursor.fetchone()[0]
+                        
+                        cursor.execute("""
+                        INSERT OR IGNORE INTO user_template_preferences 
+                        (user_id, template_id, template_type, display_order, is_visible)
+                        VALUES (?, ?, ?, ?, 1)
+                        """, (user[0], template_id, template_type, next_order))
+                    
+                    conn.commit()
+            else:
+                # ユーザーテンプレートの場合、該当ユーザーのみに追加
+                if user_id:
+                    with self._get_conn() as conn:
+                        cursor = conn.cursor()
+                        cursor.execute("""
+                        SELECT COALESCE(MAX(display_order), 0) + 1 as next_order
+                        FROM user_template_preferences WHERE user_id = ?
+                        """, (user_id,))
+                        next_order = cursor.fetchone()[0]
+                        
+                        cursor.execute("""
+                        INSERT OR IGNORE INTO user_template_preferences 
+                        (user_id, template_id, template_type, display_order, is_visible)
+                        VALUES (?, ?, ?, ?, 1)
+                        """, (user_id, template_id, template_type, next_order))
+                        
+                        conn.commit()
+        except Exception as e:
+            self.logger.error("テンプレート表示設定追加エラー", exception=e)
+    
+    def _remove_template_from_all_user_preferences(self, template_id: str, template_type: str):
+        """テンプレートを全ユーザーの表示設定から削除"""
+        try:
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                DELETE FROM user_template_preferences 
+                WHERE template_id = ? AND template_type = ?
+                """, (template_id, template_type))
+                conn.commit()
+        except Exception as e:
+            self.logger.error("テンプレート表示設定削除エラー", exception=e)

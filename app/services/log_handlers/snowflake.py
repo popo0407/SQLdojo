@@ -12,6 +12,9 @@ class SnowflakeLogHandler(BaseLogHandler):
     def __init__(self, query_executor: QueryExecutor):
         self.query_executor = query_executor
         self.logger = get_logger(__name__)
+        # Snowflake接続マネージャーを直接使用
+        from app.services.connection_manager_snowflake_log import ConnectionManagerSnowflakeLog
+        self.connection_manager = ConnectionManagerSnowflakeLog()
 
     def add_log(self, user_id: str, sql: str, execution_time: float, start_time: datetime, row_count: int, success: bool, error_message: Optional[str] = None):
         """SnowflakeにSQL実行ログを追加する"""
@@ -43,11 +46,12 @@ class SnowflakeLogHandler(BaseLogHandler):
             self.logger.debug(f"パラメータ: {params}")
 
             self.logger.info("Snowflakeクエリ実行を開始します")
-            result = self.query_executor.execute_query(log_sql, params)
-            self.logger.info(f"クエリ実行結果: success={result.success}")
+            # 直接ConnectionManagerSnowflakeLogを使用
+            result = self.connection_manager.execute_query(log_sql, params)
+            self.logger.info(f"クエリ実行結果: success={result['success']}")
             
-            if not result.success:
-                self.logger.error(f"Snowflakeへのログ記録に失敗しました: {result.error_message}")
+            if not result['success']:
+                self.logger.error(f"Snowflakeへのログ記録に失敗しました: {result['error_message']}")
                 self.logger.error(f"失敗の詳細: {result}")
             else:
                 self.logger.info("Snowflakeへのログ記録が成功しました")
@@ -58,24 +62,21 @@ class SnowflakeLogHandler(BaseLogHandler):
         """SnowflakeからSQL実行ログを取得する"""
         try:
             base_sql = "FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
-            params = []
             if user_id:
-                base_sql += " AND OPE_CODE = ?"
-                params.append(user_id)
+                base_sql += f" AND OPE_CODE = '{user_id}'"
 
             count_sql = f"SELECT COUNT(*) as TOTAL_COUNT {base_sql}"
-            count_result = self.query_executor.execute_query(count_sql, tuple(params))
-            total_count = count_result.data[0]['TOTAL_COUNT'] if count_result.success and count_result.data else 0
+            count_result = self.connection_manager.execute_query(count_sql, None)
+            total_count = count_result['data'][0]['TOTAL_COUNT'] if count_result['success'] and count_result['data'] else 0
 
             data_sql = f"""
             SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER
-            {base_sql} ORDER BY MK_DATE DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
+            {base_sql} ORDER BY MK_DATE DESC OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY
             """
-            params.extend([offset, limit])
             
-            logs_result = self.query_executor.execute_query(data_sql, tuple(params))
+            logs_result = self.connection_manager.execute_query(data_sql, None)
             
-            if not logs_result.success:
+            if not logs_result['success']:
                 return {"logs": [], "total_count": 0}
 
             logs_data = [{
@@ -87,7 +88,7 @@ class SnowflakeLogHandler(BaseLogHandler):
                 "success": True,     # テーブルに存在しないためデフォルト値
                 "error_message": None,  # テーブルに存在しないためNone
                 "timestamp": datetime.strptime(row.get("MK_DATE"), '%Y%m%d%H%M%S').isoformat()
-            } for row in logs_result.data]
+            } for row in logs_result['data']]
 
             return {"logs": logs_data, "total_count": total_count}
         except Exception as e:
@@ -98,13 +99,11 @@ class SnowflakeLogHandler(BaseLogHandler):
         """SnowflakeのSQL実行ログをクリアする"""
         try:
             sql = "DELETE FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
-            params = []
             if user_id:
-                sql += " AND OPE_CODE = ?"
-                params.append(user_id)
+                sql += f" AND OPE_CODE = '{user_id}'"
             
-            result = self.query_executor.execute_query(sql, tuple(params))
-            if not result.success:
-                self.logger.error(f"Snowflakeのログクリアに失敗: {result.error_message}")
+            result = self.connection_manager.execute_query(sql, None)
+            if not result['success']:
+                self.logger.error(f"Snowflakeのログクリアに失敗: {result['error_message']}")
         except Exception as e:
             self.logger.error(f"Snowflakeのログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True) 
