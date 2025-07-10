@@ -77,6 +77,9 @@ class Settings(BaseSettings):
     
     # サーバー設定
     public_server_url: Optional[str] = Field(default=None, description="公開サーバーURL（IIS発行時用）")
+    
+    # 管理者設定
+    admin_password: str = Field(..., description="管理者パスワード")
 
     @field_validator('snowflake_account')
     @classmethod

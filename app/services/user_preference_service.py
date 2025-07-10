@@ -304,6 +304,7 @@ class UserPreferenceService:
     def get_visible_templates_for_dropdown(self, user_id: str) -> List[Dict[str, Any]]:
         """メイン画面のドロップダウン用：表示設定に基づいた表示順のテンプレート一覧"""
         try:
+            self.sync_admin_templates_for_user(user_id)
             with self._get_conn() as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
@@ -349,6 +350,7 @@ class UserPreferenceService:
     def get_visible_parts_for_dropdown(self, user_id: str) -> List[Dict[str, Any]]:
         """メイン画面のドロップダウン用：表示設定に基づいた表示順のパーツ一覧"""
         try:
+            self.sync_admin_parts_for_user(user_id)
             with self._get_conn() as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()

@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.services.user_service import UserService
 from app.metadata_cache import MetadataCache
+from app.config_simplified import get_settings
 
 class TestUserService:
     def setup_method(self):
@@ -200,7 +201,8 @@ class TestAdminAuth:
         shutil.rmtree(self.temp_dir)
 
     def test_admin_login_success(self):
-        response = self.client.post("/api/v1/admin/login", json={"password": "mono0000"})
+        settings = get_settings()
+        response = self.client.post("/api/v1/admin/login", json={"password": settings.admin_password})
         assert response.status_code == 200
         data = response.json()
         assert data["message"] == "管理者認証成功"
@@ -213,7 +215,8 @@ class TestAdminAuth:
 
     def test_admin_logout(self):
         # まず管理者認証
-        login_response = self.client.post("/api/v1/admin/login", json={"password": "mono0000"})
+        settings = get_settings()
+        login_response = self.client.post("/api/v1/admin/login", json={"password": settings.admin_password})
         assert login_response.status_code == 200
         
         # ログアウト
@@ -239,7 +242,8 @@ class TestAdminAuth:
         assert user_login.status_code == 200
         
         # 管理者認証
-        admin_login = self.client.post("/api/v1/admin/login", json={"password": "mono0000"})
+        settings = get_settings()
+        admin_login = self.client.post("/api/v1/admin/login", json={"password": settings.admin_password})
         assert admin_login.status_code == 200
         
         # 管理者機能にアクセス

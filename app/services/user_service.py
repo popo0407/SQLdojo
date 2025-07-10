@@ -57,7 +57,7 @@ class UserService:
             with self._get_conn() as conn:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+                cursor.execute("SELECT * FROM users WHERE user_id = ? COLLATE NOCASE", (user_id,))
                 user = cursor.fetchone()
                 return dict(user) if user else None
         except Exception as e:

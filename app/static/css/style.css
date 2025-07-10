@@ -416,6 +416,7 @@ body {
     overflow: hidden;
     margin-bottom: 1rem;
     padding: 1rem;
+    transition: all 0.3s ease-in-out;
 }
 
 .sql-toolbar {
@@ -1460,13 +1461,13 @@ body {
 }
 
 .sql-editor-container.editor-minimized {
-    height: 150px !important;
-    min-height: 150px !important;
-    flex: 0 0 150px !important;
+    height: 120px !important;
+    min-height: 120px !important;
+    flex: 0 0 120px !important;
 }
 
 .sql-editor-container.editor-minimized .sql-editor,
 .sql-editor-container.editor-minimized #monaco-editor-container {
-    height: 90px !important; /* 最小化時は90px */
-    min-height: 90px !important;
+    height: 60px !important; /* 最小化時は60px */
+    min-height: 60px !important;
 }

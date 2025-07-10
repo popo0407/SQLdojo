@@ -248,8 +248,9 @@ async def get_current_user_info(current_user: CurrentUserDep):
 # 管理者認証API
 @router.post("/admin/login")
 async def admin_login(request: Request, admin_req: AdminLoginRequest):
-    """管理者認証（パスワード: mono0000）"""
-    if admin_req.password == "mono0000":
+    """管理者認証"""
+    settings = get_settings()
+    if admin_req.password == settings.admin_password:
         # 管理者フラグをセッションに保存
         request.session["is_admin"] = True
         return {"message": "管理者認証成功"}
