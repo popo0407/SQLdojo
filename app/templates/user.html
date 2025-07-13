@@ -345,12 +345,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/services/explanationService.js"></script>
+    <script src="/static/js/services/stateService.js"></script>
+    <script src="/static/js/services/apiService.js"></script>
+    <script src="/static/js/app_new.js"></script>
     <script>
         // ページ読み込み時の処理
         document.addEventListener('DOMContentLoaded', function() {
-                    loadCurrentUser();
-        loadUserTemplates();
-        loadUserParts();
+            loadCurrentUser();
+            loadUserTemplates();
+            loadUserParts();
             displayHistoryFromCache();
         });
 
@@ -364,16 +367,6 @@
                 }
             } catch (error) {
                 console.error('ユーザー情報取得エラー:', error);
-            }
-        }
-
-        // ログアウト
-        async function logout() {
-            try {
-                await fetch('/api/v1/logout', { method: 'POST' });
-                window.location.href = '/login';
-            } catch (error) {
-                console.error('ログアウトエラー:', error);
             }
         }
 

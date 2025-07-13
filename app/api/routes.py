@@ -30,7 +30,9 @@ from app.api.models import (
     SQLExecutionLog, SQLExecutionLogResponse, SaveVisibilitySettingsRequest,
     UserTemplatePreferencesResponse, UserPartPreferencesResponse,
     UpdateTemplatePreferencesRequest, UpdatePartPreferencesRequest, UpdateTemplateRequest,
-    TemplateDropdownResponse, PartDropdownResponse
+    TemplateDropdownResponse, PartDropdownResponse,
+    CacheSQLRequest, CacheSQLResponse, CacheReadRequest, CacheReadResponse,
+    SessionStatusResponse, CancelRequest, CancelResponse
 )
 from app.sql_validator import validate_sql, format_sql
 from app.logger import get_logger, log_execution_time, get_performance_metrics
@@ -40,7 +42,7 @@ from app.dependencies import (
     SQLServiceDep, MetadataServiceDep, PerformanceServiceDep, ExportServiceDep,
     SQLValidatorDep, ConnectionManagerDep, CompletionServiceDep, CurrentUserDep, CurrentAdminDep, SQLLogServiceDep,
     UserServiceDep, TemplateServiceDep, PartServiceDep, AdminServiceDep, VisibilityControlServiceDep,
-    UserPreferenceServiceDep
+    UserPreferenceServiceDep, HybridSQLServiceDep, SessionServiceDep, StreamingStateServiceDep
 )
 from app.exceptions import ExportError, SQLValidationError, SQLExecutionError, MetadataError
 from app.services.metadata_service import MetadataService
@@ -234,9 +236,32 @@ async def login(request: Request, login_req: UserLoginRequest, user_service: Use
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="ユーザーIDが無効です")
 
+# キャッシュクリア用のヘルパー関数を定義
+def cleanup_user_cache_task(
+    user_id: str, 
+    hybrid_sql_service: HybridSQLServiceDep, 
+    session_service: SessionServiceDep, 
+    streaming_state_service: StreamingStateServiceDep
+):
+    """バックグラウンドでユーザーのキャッシュをクリーンアップするタスク"""
+    logger.info(f"バックグラウンドでユーザーキャッシュをクリーンアップ: user_id={user_id}")
+    try:
+        if hybrid_sql_service:
+            hybrid_sql_service.cleanup_user_sessions(user_id)
+        if session_service:
+            session_service.cleanup_user_sessions(user_id)
+        if streaming_state_service:
+            streaming_state_service.cleanup_user_states(user_id)
+        logger.info(f"バックグラウンドキャッシュクリーンアップ完了: user_id={user_id}")
+    except Exception as e:
+        logger.error(f"バックグラウンドキャッシュクリーンアップ中にエラーが発生: {e}", exc_info=True)
+
+
 @router.post("/logout")
 async def logout(request: Request):
+    user = request.session.get("user")
     request.session.clear()
+    logger.info(f"セッションをクリアしました。ユーザー: {user.get('user_id') if user else '不明'}")
     return {"message": "ログアウトしました"}
 
 @router.get("/users/me", response_model=UserInfo)
@@ -820,3 +845,290 @@ async def get_user_history(
         "logs": filtered_logs,
         "total_count": len(filtered_logs)
     }
+
+
+# キャッシュ機能用のエンドポイント
+@router.post("/sql/cache/execute", response_model=CacheSQLResponse)
+@log_execution_time("cache_sql_execute")
+async def execute_sql_with_cache_endpoint(
+    request: CacheSQLRequest,
+    hybrid_sql_service: HybridSQLServiceDep,
+    session_service: SessionServiceDep,
+    streaming_state_service: StreamingStateServiceDep,
+    current_user: CurrentUserDep,
+    sql_log_service: SQLLogServiceDep,
+    background_tasks: BackgroundTasks
+):
+    """キャッシュ機能付きSQL実行エンドポイント"""
+    logger.info(f"キャッシュSQL実行要求, sql={request.sql}, limit={request.limit}")
+
+    if not request.sql:
+        raise SQLExecutionError("SQLクエリが無効です")
+
+    start_time = datetime.now()
+
+    try:
+        # SQLを実行してキャッシュに保存
+        result = await hybrid_sql_service.execute_sql_with_cache(
+            request.sql, 
+            current_user["user_id"], 
+            request.limit
+        )
+        
+        # セッションIDを取得
+        session_id = result['session_id']
+        
+        # エディタセッションを作成（セッションIDを一致させる）
+        editor_session_id = session_service.create_editor_session(
+            current_user["user_id"], 
+            request.editor_id,
+            session_id  # セッションIDを渡す
+        )
+        
+        # ストリーミング状態を作成（同じセッションIDを使用）
+        streaming_state_service.create_streaming_state(session_id, result['total_count'])
+        
+        # セッション情報を更新
+        session_service.update_cache_session(editor_session_id, session_id)
+        
+        # ストリーミング完了
+        streaming_state_service.complete_streaming(session_id, result['processed_rows'])
+        
+        response = CacheSQLResponse(
+            success=result['success'],
+            session_id=session_id,
+            total_count=result['total_count'],
+            processed_rows=result['processed_rows'],
+            execution_time=result['execution_time'],
+            message=result['message'],
+            error_message=result.get('error_message')
+        )
+        
+        # ログを記録
+        background_tasks.add_task(
+            sql_log_service.add_log_to_db,
+            user_id=current_user["user_id"],
+            sql=request.sql,
+            execution_time=result['execution_time'],
+            start_time=start_time,
+            row_count=result['processed_rows'],
+            success=result['success'],
+            error_message=result.get('error_message')
+        )
+        
+        if not result['success']:
+            raise SQLExecutionError(result.get('error_message', 'SQL実行に失敗しました'))
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"キャッシュSQL実行エラー: {e}")
+        raise SQLExecutionError(f"SQL実行に失敗しました: {str(e)}")
+
+
+@router.post("/sql/cache/read", response_model=CacheReadResponse)
+async def read_cached_data_endpoint(
+    request: CacheReadRequest,
+    hybrid_sql_service: HybridSQLServiceDep
+):
+    """キャッシュされたデータを読み出し"""
+    logger.info(f"キャッシュ読み出し要求, session_id={request.session_id}")
+
+    try:
+        result = hybrid_sql_service.get_cached_data(
+            request.session_id,
+            request.page,
+            request.page_size,
+            request.filters,
+            request.sort_by,
+            request.sort_order
+        )
+        
+        response = CacheReadResponse(
+            success=result['success'],
+            data=result['data'],
+            columns=result['columns'],
+            total_count=result['total_count'],
+            page=result['page'],
+            page_size=result['page_size'],
+            total_pages=result['total_pages'],
+            session_info=result['session_info'],
+            execution_time=result.get('execution_time'),
+            error_message=result.get('error_message')
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"キャッシュ読み出しエラー: {e}")
+        raise SQLExecutionError(f"キャッシュデータの読み出しに失敗しました: {str(e)}")
+
+
+@router.get("/sql/cache/status/{session_id}", response_model=SessionStatusResponse)
+async def get_session_status_endpoint(
+    session_id: str,
+    streaming_state_service: StreamingStateServiceDep
+):
+    """セッションの状態を取得"""
+    logger.info(f"セッション状態取得要求, session_id={session_id}")
+
+    try:
+        state = streaming_state_service.get_state(session_id)
+        if not state:
+            # セッションが見つからない場合は404を返す
+            raise HTTPException(status_code=404, detail="セッションが見つかりません")
+        
+        progress_percentage = 0
+        if state['total_count'] > 0:
+            progress_percentage = (state['processed_count'] / state['total_count']) * 100
+        
+        response = SessionStatusResponse(
+            session_id=state['session_id'],
+            status=state['status'],
+            total_count=state['total_count'],
+            processed_count=state['processed_count'],
+            progress_percentage=progress_percentage,
+            is_complete=state['status'] == 'completed',
+            error_message=state.get('error_message')
+        )
+        
+        return response
+        
+    except HTTPException:
+        # HTTPExceptionはそのまま再送出
+        raise
+    except Exception as e:
+        logger.error(f"セッション状態取得エラー: {e}")
+        # 詳細なエラー情報をログに出力
+        import traceback
+        logger.error(f"詳細エラー: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"セッション状態の取得に失敗しました: {str(e)}")
+
+
+@router.post("/sql/cache/cancel", response_model=CancelResponse)
+async def cancel_streaming_endpoint(
+    request: CancelRequest,
+    streaming_state_service: StreamingStateServiceDep,
+    hybrid_sql_service: HybridSQLServiceDep
+):
+    """ストリーミングをキャンセル"""
+    logger.info(f"ストリーミングキャンセル要求, session_id={request.session_id}")
+
+    try:
+        # ストリーミングをキャンセル
+        success = streaming_state_service.cancel_streaming(request.session_id)
+        
+        if success:
+            # キャッシュセッションをクリーンアップ
+            hybrid_sql_service.cleanup_session(request.session_id)
+            
+            response = CancelResponse(
+                success=True,
+                message="ストリーミングをキャンセルしました"
+            )
+        else:
+            response = CancelResponse(
+                success=False,
+                error_message="キャンセルできませんでした"
+            )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"ストリーミングキャンセルエラー: {e}")
+        raise HTTPException(status_code=500, detail=f"キャンセルに失敗しました: {str(e)}")
+
+
+@router.delete("/sql/cache/session/{session_id}")
+async def cleanup_session_endpoint(
+    session_id: str,
+    hybrid_sql_service: HybridSQLServiceDep,
+    session_service: SessionServiceDep,
+    streaming_state_service: StreamingStateServiceDep
+):
+    """セッションをクリーンアップ"""
+    logger.info(f"セッションクリーンアップ要求, session_id={session_id}")
+
+    try:
+        # 各サービスでクリーンアップ
+        hybrid_sql_service.cleanup_session(session_id)
+        session_service.cleanup_session(session_id)
+        streaming_state_service.cleanup_state(session_id)
+        
+        return {"message": "セッションをクリーンアップしました"}
+        
+    except Exception as e:
+        logger.error(f"セッションクリーンアップエラー: {e}")
+        raise HTTPException(status_code=500, detail=f"クリーンアップに失敗しました: {str(e)}")
+
+
+@router.delete("/sql/cache/user/{user_id}")
+async def cleanup_user_cache_endpoint(
+    user_id: str,
+    hybrid_sql_service: HybridSQLServiceDep,
+    session_service: SessionServiceDep,
+    streaming_state_service: StreamingStateServiceDep
+):
+    """ユーザーの全キャッシュをクリーンアップ"""
+    logger.info(f"ユーザーキャッシュクリーンアップ要求, user_id={user_id}")
+
+    try:
+        # 各サービスでユーザーの全セッションをクリーンアップ
+        try:
+            hybrid_sql_service.cleanup_user_sessions(user_id)
+        except Exception as e:
+            logger.error(f"HybridSQLService クリーンアップエラー: {e}")
+        
+        try:
+            session_service.cleanup_user_sessions(user_id)
+        except Exception as e:
+            logger.error(f"SessionService クリーンアップエラー: {e}")
+        
+        try:
+            streaming_state_service.cleanup_user_states(user_id)
+        except Exception as e:
+            logger.error(f"StreamingStateService クリーンアップエラー: {e}")
+        
+        return {"message": f"ユーザー {user_id} の全キャッシュをクリーンアップしました"}
+        
+    except Exception as e:
+        logger.error(f"ユーザーキャッシュクリーンアップエラー: {e}")
+        # エラーが発生しても200を返す（フロントエンドでログアウトを続行するため）
+        return {"message": "キャッシュクリーンアップを試行しました"}
+
+
+@router.delete("/sql/cache/current-user")
+async def cleanup_current_user_cache_endpoint(
+    current_user: CurrentUserDep,
+    hybrid_sql_service: HybridSQLServiceDep,
+    session_service: SessionServiceDep,
+    streaming_state_service: StreamingStateServiceDep
+):
+    """現在のユーザーの全キャッシュをクリーンアップ"""
+    logger.info(f"現在のユーザーキャッシュクリーンアップ要求, user_id={current_user['user_id']}")
+
+    try:
+        user_id = current_user["user_id"]
+        
+        # 各サービスでユーザーの全セッションをクリーンアップ
+        try:
+            hybrid_sql_service.cleanup_user_sessions(user_id)
+        except Exception as e:
+            logger.error(f"HybridSQLService クリーンアップエラー: {e}")
+        
+        try:
+            session_service.cleanup_user_sessions(user_id)
+        except Exception as e:
+            logger.error(f"SessionService クリーンアップエラー: {e}")
+        
+        try:
+            streaming_state_service.cleanup_user_states(user_id)
+        except Exception as e:
+            logger.error(f"StreamingStateService クリーンアップエラー: {e}")
+        
+        return {"message": f"ユーザー {user_id} の全キャッシュをクリーンアップしました"}
+        
+    except Exception as e:
+        logger.error(f"現在のユーザーキャッシュクリーンアップエラー: {e}")
+        # エラーが発生しても200を返す（フロントエンドでログアウトを続行するため）
+        return {"message": "キャッシュクリーンアップを試行しました"}

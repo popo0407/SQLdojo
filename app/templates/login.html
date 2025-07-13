@@ -36,7 +36,15 @@
             body: JSON.stringify({ user_id: userId })
         });
         if (res.ok) {
-            window.location.href = '/';
+            // ログイン成功時にユーザーのキャッシュをクリア
+            try {
+                await fetch(`/api/v1/sql/cache/user/${userId}`, { method: 'DELETE' });
+            } catch (error) {
+                console.error('キャッシュクリアエラー:', error);
+                // エラーが発生してもログインは続行
+            }
+            // ★ 変更点
+            window.location.replace('/');
         } else {
             const data = await res.json();
             document.getElementById('error-msg').textContent = data.detail || 'ログインに失敗しました';

@@ -29,6 +29,10 @@ from app.services.admin_service import AdminService
 from app.services.visibility_control_service import VisibilityControlService
 from app.services.connection_manager_oracle import ConnectionManagerOracle
 from app.services.user_preference_service import UserPreferenceService
+from app.services.cache_service import CacheService
+from app.services.hybrid_sql_service import HybridSQLService
+from app.services.session_service import SessionService
+from app.services.streaming_state_service import StreamingStateService
 
 
 # 設定の依存性注入
@@ -152,6 +156,37 @@ def get_user_preference_service_di(
     return UserPreferenceService(metadata_cache)
 
 
+# キャッシュサービスの依存性注入
+@lru_cache()
+def get_cache_service_di() -> CacheService:
+    """キャッシュサービスを取得"""
+    return CacheService()
+
+
+# セッションサービスの依存性注入
+@lru_cache()
+def get_session_service_di() -> SessionService:
+    """セッションサービスを取得"""
+    return SessionService()
+
+
+# ストリーミング状態管理サービスの依存性注入
+@lru_cache()
+def get_streaming_state_service_di() -> StreamingStateService:
+    """ストリーミング状態管理サービスを取得"""
+    return StreamingStateService()
+
+
+# ハイブリッドSQLサービスの依存性注入
+def get_hybrid_sql_service_di(
+    cache_service: Annotated[CacheService, Depends(get_cache_service_di)],
+    connection_manager: Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)],
+    streaming_state_service: Annotated[StreamingStateService, Depends(get_streaming_state_service_di)]
+) -> HybridSQLService:
+    """ハイブリッドSQLサービスを取得"""
+    return HybridSQLService(cache_service, connection_manager, streaming_state_service)
+
+
 # 認証チェックの依存性注入
 def get_current_user(request: Request):
     """現在のユーザーを取得（認証チェック付き）"""
@@ -245,3 +280,6 @@ SQLLogServiceDep = Annotated[SQLLogService, Depends(get_sql_log_service_di)]
 AdminServiceDep = Annotated[AdminService, Depends(get_admin_service_di)]
 UserPreferenceServiceDep = Annotated[UserPreferenceService, Depends(get_user_preference_service_di)]
 VisibilityControlServiceDep = Annotated[VisibilityControlService, Depends(get_visibility_control_service_di)]
+HybridSQLServiceDep = Annotated[HybridSQLService, Depends(get_hybrid_sql_service_di)]
+SessionServiceDep = Annotated[SessionService, Depends(get_session_service_di)]
+StreamingStateServiceDep = Annotated[StreamingStateService, Depends(get_streaming_state_service_di)]

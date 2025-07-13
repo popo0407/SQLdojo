@@ -412,7 +412,7 @@ class AppController {
     }
 
     /**
-     * SQLの実行
+     * SQL実行
      */
     async executeSQL() {
         if (!this.editorService.isReady()) {
@@ -437,22 +437,31 @@ class AppController {
         this.uiService.showLoading(true);
         
         try {
-            const limit = document.getElementById('limit-check')?.checked ? 5000 : null;
-            const result = await this.apiService.executeSQL(sql, limit);
+            // 既存のキャッシュをクリア
+            const currentSessionId = this.stateService.getCurrentSessionId();
+            if (currentSessionId) {
+                try {
+                    await this.apiService.cleanupSession(currentSessionId);
+                    this.stateService.setCurrentSessionId(null);
+                    console.log('既存のキャッシュをクリアしました');
+                } catch (error) {
+                    console.error('キャッシュクリアエラー:', error);
+                    // エラーが発生してもSQL実行は続行
+                }
+            }
+            
+            // キャッシュ機能付きSQL実行
+            const result = await this.apiService.executeSQLWithCache(sql);
             
             if (result.success) {
-                this.stateService.setCurrentResults(result);
-                this.uiService.displayResults(result.data, result.columns);
-                this.uiService.updateSortInfo(null, null);
+                // セッションIDを保存
+                this.currentSessionId = result.session_id;
                 
-                // 実行時間の表示
-                const executionTimeElement = document.getElementById('execution-time');
-                if (executionTimeElement) {
-                    executionTimeElement.textContent = `${result.execution_time.toFixed(3)}秒`;
-                }
+                // キャッシュ進捗表示を開始
+                this.uiService.startCacheProgress(result.session_id);
                 
-                // SQL実行成功時にエディタを最小化
-                this.minimizeEditor();
+                // 進捗監視を開始
+                this.startProgressMonitoring(result.session_id);
                 
                 // 成功メッセージは表示しない（ユーザーが見た目で実行成功がわかるため）
             } else {
@@ -463,8 +472,106 @@ class AppController {
             // エラーメッセージから「SQL実行エラー:」プレフィックスを除去
             const errorMessage = error.message.replace(/^SQL実行エラー:\s*/, '');
             this.uiService.showError(errorMessage);
-        } finally {
             this.uiService.showLoading(false);
+        }
+    }
+
+    /**
+     * 進捗監視を開始
+     * @param {string} sessionId - セッションID
+     */
+    startProgressMonitoring(sessionId) {
+        const checkProgress = async () => {
+            try {
+                const status = await this.apiService.getSessionStatus(sessionId);
+                
+                // 進捗を更新
+                this.uiService.updateCacheProgress(status);
+                
+                if (status.status === 'completed') {
+                    // キャッシュ完了
+                    this.uiService.stopCacheProgress();
+                    this.uiService.showLoading(false);
+                    
+                    // キャッシュされたデータを読み取り
+                    await this.loadCachedData(sessionId);
+                    
+                } else if (status.status === 'error') {
+                    // エラー発生
+                    this.uiService.stopCacheProgress();
+                    this.uiService.showLoading(false);
+                    this.uiService.showError(status.error_message || 'データの取得中にエラーが発生しました');
+                    
+                } else if (status.status === 'cancelled') {
+                    // キャンセルされた場合も部分的なデータを表示
+                    this.uiService.stopCacheProgress();
+                    this.uiService.showLoading(false);
+                    await this.loadCachedData(sessionId);
+                    
+                } else {
+                    // 処理中は1秒後に再チェック
+                    setTimeout(checkProgress, 1000);
+                }
+                
+            } catch (error) {
+                console.error('進捗監視エラー:', error);
+                
+                // 404エラーの場合はセッションが見つからない
+                if (error.message && error.message.includes('404')) {
+                    this.uiService.stopCacheProgress();
+                    this.uiService.showLoading(false);
+                    this.uiService.showError('セッションが見つかりません。再度SQLを実行してください。');
+                    return;
+                }
+                
+                // その他のエラーの場合は再試行
+                console.log('進捗監視でエラーが発生しました。1秒後に再試行します。');
+                setTimeout(checkProgress, 1000);
+            }
+        };
+        
+        // 初回チェックを開始
+        checkProgress();
+    }
+
+    /**
+     * キャッシュされたデータを読み取り
+     * @param {string} sessionId - セッションID
+     */
+    async loadCachedData(sessionId) {
+        try {
+            const result = await this.apiService.readCachedData(sessionId, 1, 100);
+            
+            if (result.success) {
+                // セッションIDを保存
+                this.stateService.setCurrentSessionId(sessionId);
+                
+                // キャッシュされたデータを表示
+                this.uiService.displayCachedResults(
+                    result.data, 
+                    result.columns, 
+                    result.total_count
+                );
+                
+                // 実行時間の表示（undefinedチェックを追加）
+                const executionTimeElement = document.getElementById('execution-time');
+                if (executionTimeElement && result.execution_time !== undefined) {
+                    executionTimeElement.textContent = `${result.execution_time.toFixed(3)}秒`;
+                } else if (executionTimeElement) {
+                    executionTimeElement.textContent = '実行時間: 計測中...';
+                }
+                
+                // SQL実行成功時にエディタを最小化
+                this.minimizeEditor();
+                
+                // 成功メッセージは表示しない（ユーザーが見た目で実行成功がわかるため）
+            } else {
+                throw new Error(result.error_message || 'キャッシュされたデータの読み取りに失敗しました');
+            }
+        } catch (error) {
+            console.error('キャッシュデータ読み取りエラー:', error);
+            const errorMessage = error.message.replace(/^キャッシュデータ読み取りエラー:\s*/, '');
+            this.uiService.showError(errorMessage);
         }
     }
 
@@ -830,6 +937,53 @@ class AppController {
         modal.show();
     }
 
+    /**
+     * ログアウト処理
+     */
+    async logout() {
+        try {
+            console.log('ログアウト処理を開始します');
+            
+            // ① サーバーサイドのキャッシュを同期的にクリア
+            console.log('サーバーサイドのキャッシュをクリアします...');
+            await this.apiService.cleanupCurrentUserCache();
+            console.log('サーバーサイドのキャッシュクリアが完了しました。');
+
+            // ② ローカルキャッシュをクリア
+            console.log('ローカルキャッシュをクリアします');
+            sessionStorage.clear();
+            localStorage.removeItem('sqlHistoryCache');
+            localStorage.removeItem('userPreferences');
+            localStorage.removeItem('sqlToCopy'); // 追加
+            
+            // ③ セッションをクリアするためにログアウトAPIを呼び出す
+            console.log('セッションをクリアするためにログアウトAPIを呼び出します...');
+            const logoutResponse = await this.apiService.logout();
+            
+            console.log('ログアウトAPI応答:', logoutResponse);
+            
+            if (logoutResponse && logoutResponse.message) {
+                console.log('ログアウト成功:', logoutResponse.message);
+            } else {
+                console.log('ログアウト応答が不正です:', logoutResponse);
+            }
+            
+            console.log('ログインページに遷移します');
+            window.location.replace('/login');
+            
+        } catch (error) {
+            // 通信エラー等でも最終的にはログインページへ
+            console.error('ログアウト処理中にエラーが発生しました:', error);
+            console.log('エラーが発生しましたが、安全のためログインページに遷移します');
+            
+            // エラーが発生した場合でも、念のためローカルストレージはクリアしておく
+            sessionStorage.clear();
+            localStorage.clear();
+            
+            window.location.replace('/login');
+        }
+    }
+
     // グローバル関数として公開（後方互換性のため）
     getApiService() { return this.apiService; }
     getStateService() { return this.stateService; }
@@ -838,6 +992,12 @@ class AppController {
 
     // AppController クラス内に新しいメソッドとして追加
     handleSort(column) {
+        // キャッシュデータの場合は専用の処理を使用
+        if (this.stateService.getCurrentSessionId()) {
+            this.handleCachedSort(column);
+            return;
+        }
+
         if (!this.stateService.getCurrentResults()) return;
 
         const sortState = this.stateService.getSortState();
@@ -857,6 +1017,12 @@ class AppController {
 
     // AppController クラス内に新しいメソッドとして追加
     showFilterPopup(column, targetIcon) {
+        // キャッシュデータの場合は専用の処理を使用
+        if (this.stateService.getCurrentSessionId()) {
+            this.showCachedFilterPopup(column, targetIcon);
+            return;
+        }
+
         // 他のフィルターで絞り込み済みのデータを元に候補を作成する
         const currentlyVisibleData = this._getFilteredData(column);
 
@@ -877,6 +1043,51 @@ class AppController {
         document.getElementById('apply-filter-btn').onclick = () => this.applyAndCloseFilterPopup(column);
         document.getElementById('clear-filter-btn').onclick = () => this.clearAndCloseFilterPopup(column);
         document.getElementById('close-filter-btn').onclick = () => this.uiService.clearFilterPopup();
+    }
+
+    /**
+     * キャッシュデータ用のフィルタポップアップ表示
+     */
+    async showCachedFilterPopup(column, targetIcon) {
+        try {
+            // 現在のフィルタ条件を取得（対象カラムを除く）
+            const currentFilters = { ...this.stateService.getFilters() };
+            delete currentFilters[column];
+            
+            // フィルタ条件付きでデータを取得してユニーク値を抽出
+            const result = await this.apiService.readCachedData(
+                this.stateService.getCurrentSessionId(),
+                1,
+                1000, // より多くのデータを取得してユニーク値を抽出
+                currentFilters,
+                null // ソートなし
+            );
+            
+            if (result.success && result.data.length > 0) {
+                // ユニークな値を抽出
+                const uniqueValues = [...new Set(result.data.map(row => row[column]))].sort((a, b) => {
+                    const numA = parseFloat(a);
+                    const numB = parseFloat(b);
+                    if (!isNaN(numA) && !isNaN(numB)) {
+                        return numA - numB;
+                    }
+                    return String(a).localeCompare(String(b));
+                });
+                
+                const selectedValues = this.stateService.getFilters()[column] || [];
+                this.uiService.showFilterPopup(column, targetIcon, uniqueValues, selectedValues);
+                
+                // イベントリスナーを設定
+                document.getElementById('apply-filter-btn').onclick = () => this.applyCachedFilterAndClose(column);
+                document.getElementById('clear-filter-btn').onclick = () => this.clearCachedFilterAndClose(column);
+                document.getElementById('close-filter-btn').onclick = () => this.uiService.clearFilterPopup();
+            } else {
+                this.uiService.showError('フィルタ候補の取得に失敗しました');
+            }
+        } catch (error) {
+            console.error('キャッシュフィルタポップアップエラー:', error);
+            this.uiService.showError('フィルタ候補の取得に失敗しました');
+        }
     }
 
     // AppController クラス内に新しいメソッドとして追加
@@ -959,9 +1170,90 @@ class AppController {
             });
         }
         
+        // 結果を表示
         this.uiService.displayResults(processedData, results.columns);
+    }
+
+    /**
+     * キャッシュデータ用のフィルタとソート機能
+     */
+    async applyCachedFiltersAndSort() {
+        const sessionId = this.stateService.getCurrentSessionId();
+        if (!sessionId) return;
+        
+        try {
+            // フィルタとソート条件を取得
+            const filters = this.stateService.getFilters();
+            const sortState = this.stateService.getSortState();
+            
+            // APIを呼び出してフィルタ・ソート済みのデータを取得
+            const result = await this.apiService.readCachedData(
+                sessionId,
+                1, // 1ページ目から再取得
+                this.stateService.getPageSize(),
+                filters,
+                sortState
+            );
+            
+            if (result.success) {
+                // 状態をリセットして新しいデータを設定
+                this.stateService.setCachedData(result.data);
+                this.stateService.setCurrentPage(1);
+                this.stateService.setTotalRecords(result.total_records);
+                this.stateService.setHasMoreData(result.data.length < result.total_records);
+                
+                // テーブルを再構築
+                this.uiService.buildDataTable(result.data, result.columns);
+                
+                // 表示件数を更新
+                this.uiService.updateDisplayCount();
+                
+                // ソート情報を更新
+                this.uiService.updateSortInfo(sortState.column, sortState.direction);
+            } else {
+                throw new Error(result.error_message || 'フィルタ・ソートの適用に失敗しました');
+            }
+        } catch (error) {
+            console.error('キャッシュフィルタ・ソートエラー:', error);
+            this.uiService.showError('フィルタ・ソートの適用に失敗しました');
+        }
+    }
+
+    /**
+     * キャッシュデータ用のソート処理
+     */
+    async handleCachedSort(column) {
+        const sortState = this.stateService.getSortState();
+        let direction = 'asc';
+
+        if (sortState.column === column) {
+            // 同じカラムをクリックしたら昇順・降順を切り替え
+            direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+        }
+        
+        this.stateService.setSortState(column, direction);
+        
+        // キャッシュデータ用のフィルタ・ソートを適用
+        await this.applyCachedFiltersAndSort();
+        this.uiService.updateSortInfo(column, direction);
+    }
+
+    /**
+     * キャッシュデータ用のフィルタ適用
+     */
+    async applyCachedFilter(column, selectedValues) {
+        this.stateService.setFilter(column, selectedValues);
+        await this.applyCachedFiltersAndSort();
         this.uiService.updateFilterIcons();
-        this.uiService.updateSortIcons(sortState.column, sortState.direction); // ソートアイコンも更新
+    }
+
+    /**
+     * キャッシュデータ用のフィルタクリア
+     */
+    async clearCachedFilter(column) {
+        this.stateService.setFilter(column, []);
+        await this.applyCachedFiltersAndSort();
+        this.uiService.updateFilterIcons();
     }
 
     loadTemplateById(templateId) {
@@ -1095,5 +1387,42 @@ function showKeyboardShortcuts() {
 function toggleFullscreen() {
     if (appController) {
         appController.toggleFullscreen();
+    }
+}
+
+// グローバルスコープから AppController の logout を呼び出せるようにする
+async function logout() {
+    console.log('グローバルlogout関数が呼び出されました');
+    
+    // ローカルキャッシュをクリア
+    console.log('ローカルキャッシュをクリアします');
+    sessionStorage.clear();
+    localStorage.removeItem('sqlHistoryCache');
+    localStorage.removeItem('userPreferences');
+    
+    if (window.appController) {
+        console.log('AppControllerを使用してログアウトします');
+        await window.appController.logout();
+    } else {
+        // appControllerが初期化されていない場合のフォールバック
+        console.error('AppController is not initialized.');
+        console.log('直接APIを呼び出してログアウトします');
+        
+        try {
+            // サーバーサイドのキャッシュをクリア
+            console.log('サーバーサイドのキャッシュをクリアします...');
+            const cleanupResponse = await fetch('/api/v1/sql/cache/current-user', { method: 'DELETE' });
+            console.log('サーバーサイドのキャッシュクリア結果:', cleanupResponse.status);
+            
+            // セッションをクリア
+            const response = await fetch('/api/v1/logout', { method: 'POST' });
+            console.log('直接API呼び出し結果:', response.status);
+        } catch (error) {
+            console.error('直接API呼び出しエラー:', error);
+        } finally {
+            console.log('ログインページに遷移します');
+            // ★ 変更点
+            window.location.replace('/login');
+        }
     }
 }

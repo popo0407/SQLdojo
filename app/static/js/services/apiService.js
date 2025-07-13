@@ -274,4 +274,111 @@ class ApiService {
             body: JSON.stringify({ preferences })
         });
     }
+
+    /**
+     * キャッシュ機能付きSQL実行
+     * @param {string} sql - 実行するSQL
+     * @returns {Promise<Object>} 実行結果
+     */
+    executeSQLWithCache(sql) {
+        // エディタIDを生成（または既存のものを使用）
+        const editorId = this.generateEditorId();
+        
+        return this._fetch('/sql/cache/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sql,
+                editor_id: editorId
+            })
+        });
+    }
+
+    /**
+     * エディタIDを生成
+     * @returns {string} エディタID
+     */
+    generateEditorId() {
+        // 既存のエディタIDがあれば使用、なければ新規生成
+        if (!this.editorId) {
+            this.editorId = 'editor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        return this.editorId;
+    }
+
+    /**
+     * キャッシュされたデータを読み取り
+     * @param {string} sessionId - セッションID
+     * @param {number} page - ページ番号
+     * @param {number} pageSize - 1ページあたりの件数
+     * @param {Object} filters - フィルタ条件
+     * @param {Object} sort - ソート条件
+     * @returns {Promise<Object>} 読み取り結果
+     */
+    readCachedData(sessionId, page = 1, pageSize = 100, filters = null, sort = null) {
+        return this._fetch('/sql/cache/read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: sessionId,
+                page,
+                page_size: pageSize,
+                filters,
+                sort
+            })
+        });
+    }
+
+    /**
+     * セッションの進捗状況を取得
+     * @param {string} sessionId - セッションID
+     * @returns {Promise<Object>} 進捗状況
+     */
+    getSessionStatus(sessionId) {
+        return this._fetch(`/sql/cache/status/${sessionId}`);
+    }
+
+    /**
+     * キャッシュ処理をキャンセル
+     * @param {string} sessionId - セッションID
+     * @returns {Promise<Object>} キャンセル結果
+     */
+    cancelCacheProcessing(sessionId) {
+        return this._fetch('/sql/cache/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: sessionId })
+        });
+    }
+
+    /**
+     * セッションをクリーンアップ
+     * @param {string} sessionId - セッションID
+     * @returns {Promise<Object>} クリーンアップ結果
+     */
+    cleanupSession(sessionId) {
+        return this._fetch(`/sql/cache/session/${sessionId}`, {
+            method: 'DELETE'
+        });
+    }
+
+    /**
+     * ログアウト
+     * @returns {Promise<Object>} ログアウト結果
+     */
+    logout() {
+        return this._fetch('/logout', {
+            method: 'POST'
+        });
+    }
+
+    /**
+     * 現在のユーザーのキャッシュをサーバーサイドでクリア
+     * @returns {Promise<Object>} クリーンアップ結果
+     */
+    cleanupCurrentUserCache() {
+        return this._fetch('/sql/cache/current-user', {
+            method: 'DELETE'
+        });
+    }
 }

@@ -31,6 +31,15 @@ class StateService {
         
         // 接続状態
         this.connectionStatus = null;
+        
+        // キャッシュ関連の状態
+        this.currentSessionId = null;
+        this.cachedData = [];
+        this.totalRecords = null; // 0ではなくnullで初期化
+        this.currentPage = 1;
+        this.pageSize = 100;
+        this.isLoadingMore = false;
+        this.hasMoreData = true;
     }
 
     // 実行結果の管理
@@ -182,5 +191,78 @@ class StateService {
         const userParts = this.userParts.map(p => ({ ...p, type: 'user' }));
         const adminParts = this.adminParts.map(p => ({ ...p, type: 'admin' }));
         return [...userParts, ...adminParts];
+    }
+
+    // キャッシュ関連の状態管理
+    setCurrentSessionId(sessionId) {
+        this.currentSessionId = sessionId;
+    }
+    
+    getCurrentSessionId() {
+        return this.currentSessionId;
+    }
+    
+    setCachedData(data) {
+        this.cachedData = data;
+    }
+    
+    getCachedData() {
+        return this.cachedData;
+    }
+    
+    appendCachedData(data) {
+        this.cachedData = [...this.cachedData, ...data];
+    }
+    
+    setTotalRecords(total) {
+        this.totalRecords = total;
+    }
+    
+    getTotalRecords() {
+        return this.totalRecords;
+    }
+    
+    setCurrentPage(page) {
+        this.currentPage = page;
+    }
+    
+    getCurrentPage() {
+        return this.currentPage;
+    }
+    
+    setPageSize(size) {
+        this.pageSize = size;
+    }
+    
+    getPageSize() {
+        return this.pageSize;
+    }
+    
+    setLoadingMore(loading) {
+        this.isLoadingMore = loading;
+    }
+    
+    isLoadingMore() {
+        return this.isLoadingMore;
+    }
+    
+    setHasMoreData(hasMore) {
+        this.hasMoreData = hasMore;
+    }
+    
+    hasMoreData() {
+        return this.hasMoreData;
+    }
+    
+    /**
+     * キャッシュ状態をリセット
+     */
+    resetCache() {
+        this.currentSessionId = null;
+        this.cachedData = [];
+        this.totalRecords = 0;
+        this.currentPage = 1;
+        this.isLoadingMore = false;
+        this.hasMoreData = true;
     }
 } 

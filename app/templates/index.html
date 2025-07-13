@@ -189,16 +189,6 @@
     <script src="/static/js/app_new.js"></script>
     
     <script>
-    // ログアウト関数を追加（base.htmlのextra_jsブロックが上書きされるため）
-    async function logout() {
-        try {
-            await fetch('/api/v1/logout', { method: 'POST' });
-            window.location.href = '/login';
-        } catch (error) {
-            console.error('ログアウトエラー:', error);
-        }
-    }
-    
     // アプリケーションの初期化
     document.addEventListener('DOMContentLoaded', async function() {
         try {

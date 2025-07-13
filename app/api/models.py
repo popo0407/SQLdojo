@@ -370,3 +370,69 @@ class UpdateTemplateRequest(BaseModel):
     """テンプレート更新リクエスト"""
     name: str = Field(..., description="テンプレート名")
     sql: str = Field(..., description="SQL文")
+
+
+# キャッシュ機能用のモデル
+class CacheSQLRequest(BaseModel):
+    """キャッシュSQL実行リクエスト"""
+    sql: str = Field(..., description="実行するSQL")
+    limit: Optional[int] = Field(default=None, description="結果の最大件数")
+    editor_id: Optional[str] = Field(default=None, description="エディタID")
+
+
+class CacheSQLResponse(BaseModel):
+    """キャッシュSQL実行レスポンス"""
+    success: bool = Field(..., description="実行成功フラグ")
+    session_id: Optional[str] = Field(default=None, description="セッションID")
+    total_count: Optional[int] = Field(default=None, description="総件数")
+    processed_rows: Optional[int] = Field(default=None, description="処理済み件数")
+    execution_time: Optional[float] = Field(default=None, description="実行時間（秒）")
+    message: Optional[str] = Field(default=None, description="メッセージ")
+    error_message: Optional[str] = Field(default=None, description="エラーメッセージ")
+
+
+class CacheReadRequest(BaseModel):
+    """キャッシュ読み出しリクエスト"""
+    session_id: str = Field(..., description="セッションID")
+    page: int = Field(default=1, description="ページ番号")
+    page_size: int = Field(default=100, description="1ページあたりの件数")
+    filters: Optional[Dict[str, str]] = Field(default=None, description="フィルタ条件")
+    sort_by: Optional[str] = Field(default=None, description="ソート対象カラム")
+    sort_order: str = Field(default="ASC", description="ソート順序")
+
+
+class CacheReadResponse(BaseModel):
+    """キャッシュ読み出しレスポンス"""
+    success: bool = Field(..., description="取得成功フラグ")
+    data: Optional[List[List[Any]]] = Field(default=None, description="データ")
+    columns: Optional[List[str]] = Field(default=None, description="カラム名リスト")
+    total_count: Optional[int] = Field(default=None, description="総件数")
+    page: Optional[int] = Field(default=None, description="現在のページ")
+    page_size: Optional[int] = Field(default=None, description="ページサイズ")
+    total_pages: Optional[int] = Field(default=None, description="総ページ数")
+    session_info: Optional[Dict[str, Any]] = Field(default=None, description="セッション情報")
+    execution_time: Optional[float] = Field(default=None, description="実行時間（秒）")
+    error_message: Optional[str] = Field(default=None, description="エラーメッセージ")
+
+
+class SessionStatusResponse(BaseModel):
+    """セッション状態レスポンス"""
+    session_id: str = Field(..., description="セッションID")
+    status: str = Field(..., description="ステータス")
+    total_count: Optional[int] = Field(default=None, description="総件数")
+    processed_count: Optional[int] = Field(default=None, description="処理済み件数")
+    progress_percentage: Optional[float] = Field(default=None, description="進捗率")
+    is_complete: bool = Field(default=False, description="完了フラグ")
+    error_message: Optional[str] = Field(default=None, description="エラーメッセージ")
+
+
+class CancelRequest(BaseModel):
+    """キャンセルリクエスト"""
+    session_id: str = Field(..., description="セッションID")
+
+
+class CancelResponse(BaseModel):
+    """キャンセルレスポンス"""
+    success: bool = Field(..., description="キャンセル成功フラグ")
+    message: Optional[str] = Field(default=None, description="メッセージ")
+    error_message: Optional[str] = Field(default=None, description="エラーメッセージ")

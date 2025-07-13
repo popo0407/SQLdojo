@@ -366,14 +366,22 @@ class UiService {
         // データ行
         tableHTML += '<tbody>';
         if (data.length > 0) {
-        data.forEach(row => {
-            tableHTML += '<tr>';
-            columns.forEach(column => {
-                const value = row[column];
-                tableHTML += `<td>${this.escapeHtml(value !== null && value !== undefined ? String(value) : '')}</td>`;
+            data.forEach(row => {
+                tableHTML += '<tr>';
+                columns.forEach(column => {
+                    let value;
+                    if (Array.isArray(row)) {
+                        // 配列の配列形式の場合
+                        const columnIndex = columns.indexOf(column);
+                        value = row[columnIndex];
+                    } else {
+                        // オブジェクト形式の場合
+                        value = row[column];
+                    }
+                    tableHTML += `<td>${this.escapeHtml(value !== null && value !== undefined ? String(value) : '')}</td>`;
+                });
+                tableHTML += '</tr>';
             });
-            tableHTML += '</tr>';
-        });
         } else {
             // データがない場合でもテーブル構造は残し、メッセージ行を追加
             tableHTML += `
@@ -1252,5 +1260,308 @@ class UiService {
                 }
             }
         });
+    }
+
+    /**
+     * キャッシュ処理の進捗表示を開始
+     * @param {string} sessionId - セッションID
+     */
+    startCacheProgress(sessionId) {
+        // 既存のローディング表示を非表示
+        this.showLoading(false);
+        
+        // キャッシュ進捗表示を作成
+        const progressContainer = document.createElement('div');
+        progressContainer.id = 'cache-progress-container';
+        progressContainer.className = 'cache-progress-container';
+        progressContainer.innerHTML = `
+            <div class="cache-progress-content">
+                <div class="cache-progress-header">
+                    <i class="fas fa-database me-2"></i>
+                    <span>データをキャッシュ中...</span>
+                </div>
+                <div class="cache-progress-body">
+                    <div class="progress-info">
+                        <span id="cache-progress-text">データを取得中...</span>
+                        <span id="cache-progress-count">0件</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div id="cache-progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="cache-progress-actions">
+                        <button id="cache-cancel-btn" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-stop me-1"></i>停止
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(progressContainer);
+        
+        // 停止ボタンのイベントリスナーを設定
+        const cancelBtn = document.getElementById('cache-cancel-btn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                this.cancelCacheProcessing(sessionId);
+            });
+        }
+        
+        // セッションIDを保存
+        this.currentSessionId = sessionId;
+    }
+
+    /**
+     * キャッシュ処理の進捗を更新
+     * @param {Object} status - 進捗状況
+     */
+    updateCacheProgress(status) {
+        const progressText = document.getElementById('cache-progress-text');
+        const progressCount = document.getElementById('cache-progress-count');
+        const progressBar = document.getElementById('cache-progress-bar');
+        
+        if (progressText && progressCount && progressBar) {
+            // 進捗テキストを更新
+            if (status.status === 'processing') {
+                progressText.textContent = 'データを取得中...';
+            } else if (status.status === 'completed') {
+                progressText.textContent = 'キャッシュ完了';
+            } else if (status.status === 'cancelled') {
+                progressText.textContent = '処理を停止しました';
+            } else if (status.status === 'error') {
+                progressText.textContent = 'エラーが発生しました';
+            }
+            
+            // 件数を更新
+            if (status.records_processed !== undefined) {
+                progressCount.textContent = `${status.records_processed.toLocaleString()}件`;
+            }
+            
+            // プログレスバーを更新
+            if (status.progress_percentage !== undefined) {
+                progressBar.style.width = `${status.progress_percentage}%`;
+            }
+        }
+    }
+
+    /**
+     * キャッシュ処理の進捗表示を終了
+     */
+    stopCacheProgress() {
+        const progressContainer = document.getElementById('cache-progress-container');
+        if (progressContainer) {
+            progressContainer.remove();
+        }
+        this.currentSessionId = null;
+    }
+
+    /**
+     * キャッシュ処理をキャンセル
+     * @param {string} sessionId - セッションID
+     */
+    async cancelCacheProcessing(sessionId) {
+        try {
+            // 停止ボタンを無効化
+            const cancelBtn = document.getElementById('cache-cancel-btn');
+            if (cancelBtn) {
+                cancelBtn.disabled = true;
+                cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>停止中...';
+            }
+            
+            // APIを呼び出してキャンセル
+            await window.appController.getApiService().cancelCacheProcessing(sessionId);
+            
+            // 進捗表示を更新
+            this.updateCacheProgress({ status: 'cancelled' });
+            
+            // 少し待ってから進捗表示を終了
+            setTimeout(() => {
+                this.stopCacheProgress();
+                this.showInfo('処理を停止しました。取得済みのデータを表示します。');
+            }, 1000);
+            
+        } catch (error) {
+            console.error('キャッシュ処理のキャンセルエラー:', error);
+            this.showError('処理の停止に失敗しました');
+        }
+    }
+
+    /**
+     * 無限スクロール機能を初期化
+     */
+    initInfiniteScroll() {
+        const resultsContainer = document.getElementById('results-container');
+        if (!resultsContainer) return;
+        
+        // スクロールイベントリスナーを追加
+        resultsContainer.addEventListener('scroll', this.handleScroll.bind(this));
+    }
+
+    /**
+     * スクロールイベントハンドラー
+     */
+    handleScroll(event) {
+        const container = event.target;
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        
+        // スクロールが下端に近づいたら次のページを読み込み
+        if (scrollTop + clientHeight >= scrollHeight - 100) {
+            this.loadMoreData();
+        }
+    }
+
+    /**
+     * 次のページのデータを読み込み
+     */
+    async loadMoreData() {
+        const stateService = window.appController.getStateService();
+        
+        // 既に読み込み中またはデータがない場合は何もしない
+        if (stateService.isLoadingMore() || !stateService.hasMoreData()) {
+            return;
+        }
+        
+        // 読み込み中フラグを設定
+        stateService.setLoadingMore(true);
+        
+        try {
+            const nextPage = stateService.getCurrentPage() + 1;
+            const sessionId = stateService.getCurrentSessionId();
+            
+            if (!sessionId) {
+                console.error('セッションIDが設定されていません');
+                return;
+            }
+            
+            // 次のページのデータを取得
+            const result = await window.appController.getApiService().readCachedData(
+                sessionId,
+                nextPage,
+                stateService.getPageSize(),
+                stateService.getFilters(),
+                stateService.getSortState()
+            );
+            
+            if (result.success && result.data.length > 0) {
+                // データを追加
+                stateService.appendCachedData(result.data);
+                stateService.setCurrentPage(nextPage);
+                
+                // テーブルに新しい行を追加
+                this.appendTableRows(result.data);
+                
+                // 表示件数を更新
+                this.updateDisplayCount();
+                
+                // データがなくなった場合はフラグを更新
+                if (result.data.length < stateService.getPageSize()) {
+                    stateService.setHasMoreData(false);
+                }
+            } else {
+                // データがない場合はフラグを更新
+                stateService.setHasMoreData(false);
+            }
+            
+        } catch (error) {
+            console.error('追加データ読み込みエラー:', error);
+            this.showError('追加データの読み込みに失敗しました');
+        } finally {
+            stateService.setLoadingMore(false);
+        }
+    }
+
+    /**
+     * テーブルに新しい行を追加
+     * @param {Array} data - 追加するデータ
+     */
+    appendTableRows(data) {
+        const table = document.getElementById('dataTable');
+        if (!table) return;
+        
+        const tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            row.forEach(cell => {
+                const td = document.createElement('td');
+                td.textContent = cell;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    }
+
+    /**
+     * 表示件数を更新
+     */
+    updateDisplayCount() {
+        const stateService = window.appController.getStateService();
+        const displayCount = stateService.getCachedData()?.length || 0;
+        const totalCount = stateService.getTotalRecords();
+        
+        const resultInfo = document.getElementById('result-info');
+        if (resultInfo) {
+            if (totalCount !== null && totalCount !== undefined) {
+                resultInfo.textContent = `全${totalCount.toLocaleString()}件中 ${displayCount.toLocaleString()}件を表示中`;
+            } else {
+                resultInfo.textContent = `${displayCount.toLocaleString()}件を表示中`;
+            }
+        }
+    }
+
+    /**
+     * キャッシュされたデータを表示
+     * @param {Array} data - 表示するデータ
+     * @param {Array} columns - カラム情報
+     * @param {number} totalRecords - 総件数
+     */
+    displayCachedResults(data, columns, totalRecords) {
+        const stateService = window.appController.getStateService();
+        
+        // データ形式を確認し、必要に応じて変換
+        let processedData = data;
+        if (data && data.length > 0 && Array.isArray(data[0])) {
+            // 配列の配列形式の場合、オブジェクトの配列に変換
+            processedData = data.map(row => {
+                const obj = {};
+                columns.forEach((column, index) => {
+                    obj[column] = row[index];
+                });
+                return obj;
+            });
+        }
+        
+        // 状態を更新
+        stateService.setCachedData(processedData);
+        stateService.setTotalRecords(totalRecords);
+        stateService.setCurrentPage(1);
+        stateService.setHasMoreData(processedData.length < totalRecords);
+        
+        // テーブルを構築
+        this.buildDataTable(processedData, columns);
+        
+        // 表示件数を更新
+        this.updateDisplayCount();
+        
+        // 結果表示エリアを表示
+        this.showResults();
+        
+        // 無限スクロールを初期化
+        this.initInfiniteScroll();
+    }
+
+    /**
+     * 結果表示エリアを表示
+     */
+    showResults() {
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'block';
+        }
     }
 } 
