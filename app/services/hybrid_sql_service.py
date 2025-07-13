@@ -11,6 +11,7 @@ from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.services.streaming_state_service import StreamingStateService
 from app.logger import get_logger
 from app.exceptions import SQLExecutionError, DatabaseError
+from app.config_simplified import settings
 
 logger = get_logger("HybridSQLService")
 
@@ -21,7 +22,7 @@ class HybridSQLService:
         self.cache_service = cache_service
         self.connection_manager = connection_manager
         self.streaming_state_service = streaming_state_service
-        self.chunk_size = 1000  # 一度に取得する行数
+        self.chunk_size = settings.cursor_chunk_size  # 一度に取得する行数
     
     async def execute_sql_with_cache(self, sql: str, user_id: str, limit: Optional[int] = None) -> Dict[str, Any]:
         """SQLを実行し、結果をキャッシュに保存"""
@@ -172,10 +173,14 @@ class HybridSQLService:
                 self.connection_manager.release_connection(conn_id)
                 logger.info(f"ODBC接続を解放しました: {conn_id}")
     
-    def get_cached_data(self, session_id: str, page: int = 1, page_size: int = 100,
+    def get_cached_data(self, session_id: str, page: int = 1, page_size: int = None,
                         filters: Optional[Dict] = None, sort_by: Optional[str] = None,
                         sort_order: str = 'ASC') -> Dict[str, Any]:
         """キャッシュされたデータを取得"""
+        # page_sizeが指定されていない場合は設定ファイルの値を使用
+        if page_size is None:
+            page_size = settings.default_page_size
+            
         try:
             # セッション情報を確認
             session_info = self.cache_service.get_session_info(session_id)

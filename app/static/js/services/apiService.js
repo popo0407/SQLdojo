@@ -316,6 +316,13 @@ class ApiService {
      * @returns {Promise<Object>} 読み取り結果
      */
     readCachedData(sessionId, page = 1, pageSize = 100, filters = null, sort = null) {
+        // ソートパラメータを正しい形式に変換
+        let sortParams = {};
+        if (sort && sort.column) {
+            sortParams.sort_by = sort.column;
+            sortParams.sort_order = sort.direction ? sort.direction.toUpperCase() : 'ASC';
+        }
+
         return this._fetch('/sql/cache/read', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -324,7 +331,7 @@ class ApiService {
                 page,
                 page_size: pageSize,
                 filters,
-                sort
+                ...sortParams
             })
         });
     }

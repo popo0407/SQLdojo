@@ -80,6 +80,16 @@ class Settings(BaseSettings):
     
     # 管理者設定
     admin_password: str = Field(..., description="管理者パスワード")
+    
+    # ページネーション設定
+    default_page_size: int = Field(default=100, description="デフォルトのページサイズ（表示件数）")
+    max_page_size: int = Field(default=1000, description="最大ページサイズ")
+    
+    # カーソル方式設定
+    cursor_chunk_size: int = Field(default=1000, description="カーソル方式での一度に取得する行数")
+    
+    # 無限スクロール設定
+    infinite_scroll_threshold: int = Field(default=200, description="無限スクロールで表示する最大件数")
 
     @field_validator('snowflake_account')
     @classmethod
@@ -142,14 +152,16 @@ class Settings(BaseSettings):
 
 # グローバル設定インスタンス
 _settings: Optional[Settings] = None
+settings = None  # 後方互換性のため
 
 
 def get_settings() -> Settings:
     """設定を取得（シングルトン）"""
-    global _settings
+    global _settings, settings
     if _settings is None:
         try:
             _settings = Settings()
+            settings = _settings  # 後方互換性のため
         except Exception as e:
             raise ConfigurationError(f"設定の読み込みに失敗しました: {str(e)}")
     return _settings

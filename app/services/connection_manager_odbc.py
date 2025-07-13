@@ -114,8 +114,13 @@ class ConnectionManagerODBC:
                 f"DATABASE={self.config.snowflake_database};"
                 f"SCHEMA={self.config.snowflake_schema};"
                 f"ROLE={self.config.snowflake_role};"
-                f"PROXY={self.config.SNOWFLAKE_PROXY_HOST}:{self.config.SNOWFLAKE_PROXY_PORT}"
             )
+            
+            # プロキシ設定が有効な場合のみ追加
+            proxy_host = getattr(self.config, 'SNOWFLAKE_PROXY_HOST', '')
+            proxy_port = getattr(self.config, 'SNOWFLAKE_PROXY_PORT', '')
+            if proxy_host and proxy_port:
+                conn_str += f"PROXY={proxy_host}:{proxy_port};"
 
             # デバッグ用：接続文字列をログに出力（パスワードは隠す）
             debug_conn_str = conn_str.replace(f"PRIV_KEY_FILE_PWD={passphrase};", "PRIV_KEY_FILE_PWD=***;") if use_keypair else conn_str.replace(f"PWD={password};", "PWD=***;")

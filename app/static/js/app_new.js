@@ -538,20 +538,21 @@ class AppController {
      */
     async loadCachedData(sessionId) {
         try {
-            const result = await this.apiService.readCachedData(sessionId, 1, 100);
+            // 設定ファイルのページサイズを使用して1ページ目のデータを取得
+            const pageSize = this.stateService.getPageSize();
+            const result = await this.apiService.readCachedData(sessionId, 1, pageSize);
             
             if (result.success) {
-                // セッションIDを保存
                 this.stateService.setCurrentSessionId(sessionId);
                 
-                // キャッシュされたデータを表示
-                this.uiService.displayCachedResults(
-                    result.data, 
-                    result.columns, 
+                // 共通描画メソッドを呼び出す
+                this.uiService.renderResults(
+                    result.data,
+                    result.columns,
                     result.total_count
                 );
                 
-                // 実行時間の表示（undefinedチェックを追加）
+                // 実行時間の表示
                 const executionTimeElement = document.getElementById('execution-time');
                 if (executionTimeElement && result.execution_time !== undefined) {
                     executionTimeElement.textContent = `${result.execution_time.toFixed(3)}秒`;
@@ -561,8 +562,6 @@ class AppController {
                 
                 // SQL実行成功時にエディタを最小化
                 this.minimizeEditor();
-                
-                // 成功メッセージは表示しない（ユーザーが見た目で実行成功がわかるため）
             } else {
                 throw new Error(result.error_message || 'キャッシュされたデータの読み取りに失敗しました');
             }
@@ -998,6 +997,7 @@ class AppController {
             return;
         }
 
+        // 通常のSQL実行結果の場合
         if (!this.stateService.getCurrentResults()) return;
 
         const sortState = this.stateService.getSortState();
@@ -1013,6 +1013,7 @@ class AppController {
         // ソートとフィルターを適用
         this.applyFiltersAndSort();
         this.uiService.updateSortInfo(column, direction);
+        this.uiService.updateSortIcons(column, direction);
     }
 
     // AppController クラス内に新しいメソッドとして追加
@@ -1023,23 +1024,46 @@ class AppController {
             return;
         }
 
+        console.log('通常フィルターポップアップ表示開始:', column);
+
         // 他のフィルターで絞り込み済みのデータを元に候補を作成する
         const currentlyVisibleData = this._getFilteredData(column);
 
-        if (!currentlyVisibleData) return;
+        if (!currentlyVisibleData) {
+            console.error('フィルタリング対象データがありません');
+            return;
+        }
 
-        // 絞り込み後のデータからユニークな値を取得し、数値も考慮してソート
-        const uniqueValues = [...new Set(currentlyVisibleData.map(row => row[column]))].sort((a, b) => {
-            const numA = parseFloat(a);
-            const numB = parseFloat(b);
-            if (!isNaN(numA) && !isNaN(numB)) {
-                return numA - numB;
+        console.log('フィルタリング対象データ件数:', currentlyVisibleData.length);
+
+        // 絞り込み後のデータからユニークな値とその出現回数を取得
+        const valueCounts = {};
+        currentlyVisibleData.forEach(row => {
+            const value = row[column];
+            if (value !== null && value !== undefined) {
+                const key = String(value);
+                valueCounts[key] = (valueCounts[key] || 0) + 1;
             }
-            return String(a).localeCompare(String(b));
         });
+
+        console.log('値の出現回数:', valueCounts);
+
+        // 数値と文字列を区別してソート
+        const uniqueValuesWithCount = Object.entries(valueCounts)
+            .map(([value, count]) => ({ value, count }))
+            .sort((a, b) => {
+                const numA = parseFloat(a.value);
+                const numB = parseFloat(b.value);
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return numA - numB;
+                }
+                return String(a.value).localeCompare(String(b.value));
+            });
+        
+        console.log('ソート済み候補:', uniqueValuesWithCount);
         
         const selectedValues = this.stateService.getFilters()[column] || [];
-        this.uiService.showFilterPopup(column, targetIcon, uniqueValues, selectedValues);
+        this.uiService.showFilterPopup(column, targetIcon, uniqueValuesWithCount, selectedValues);
         document.getElementById('apply-filter-btn').onclick = () => this.applyAndCloseFilterPopup(column);
         document.getElementById('clear-filter-btn').onclick = () => this.clearAndCloseFilterPopup(column);
         document.getElementById('close-filter-btn').onclick = () => this.uiService.clearFilterPopup();
@@ -1050,9 +1074,14 @@ class AppController {
      */
     async showCachedFilterPopup(column, targetIcon) {
         try {
+            console.log('フィルターポップアップ表示開始:', column);
+            
             // 現在のフィルタ条件を取得（対象カラムを除く）
             const currentFilters = { ...this.stateService.getFilters() };
             delete currentFilters[column];
+            
+            console.log('現在のフィルター条件:', currentFilters);
+            console.log('セッションID:', this.stateService.getCurrentSessionId());
             
             // フィルタ条件付きでデータを取得してユニーク値を抽出
             const result = await this.apiService.readCachedData(
@@ -1063,25 +1092,57 @@ class AppController {
                 null // ソートなし
             );
             
-            if (result.success && result.data.length > 0) {
-                // ユニークな値を抽出
-                const uniqueValues = [...new Set(result.data.map(row => row[column]))].sort((a, b) => {
-                    const numA = parseFloat(a);
-                    const numB = parseFloat(b);
-                    if (!isNaN(numA) && !isNaN(numB)) {
-                        return numA - numB;
+            console.log('API結果:', result);
+            
+            if (result.success && result.data && result.data.length > 0) {
+                console.log('取得データ件数:', result.data.length);
+                console.log('カラム情報:', result.columns);
+                
+                // カラムのインデックスを取得
+                const columnIndex = result.columns.indexOf(column);
+                console.log('対象カラムインデックス:', columnIndex);
+                
+                if (columnIndex === -1) {
+                    console.error('カラムが見つかりません:', column);
+                    this.uiService.showError(`カラム "${column}" が見つかりません`);
+                    return;
+                }
+                
+                // ユニークな値とその出現回数を抽出
+                const valueCounts = {};
+                result.data.forEach((row, rowIndex) => {
+                    const value = row[columnIndex];
+                    if (value !== null && value !== undefined) {
+                        const key = String(value);
+                        valueCounts[key] = (valueCounts[key] || 0) + 1;
                     }
-                    return String(a).localeCompare(String(b));
                 });
+
+                console.log('値の出現回数:', valueCounts);
+
+                // 数値と文字列を区別してソート
+                const uniqueValuesWithCount = Object.entries(valueCounts)
+                    .map(([value, count]) => ({ value, count }))
+                    .sort((a, b) => {
+                        const numA = parseFloat(a.value);
+                        const numB = parseFloat(b.value);
+                        if (!isNaN(numA) && !isNaN(numB)) {
+                            return numA - numB;
+                        }
+                        return String(a.value).localeCompare(String(b.value));
+                    });
+                
+                console.log('ソート済み候補:', uniqueValuesWithCount);
                 
                 const selectedValues = this.stateService.getFilters()[column] || [];
-                this.uiService.showFilterPopup(column, targetIcon, uniqueValues, selectedValues);
+                this.uiService.showFilterPopup(column, targetIcon, uniqueValuesWithCount, selectedValues);
                 
                 // イベントリスナーを設定
                 document.getElementById('apply-filter-btn').onclick = () => this.applyCachedFilterAndClose(column);
                 document.getElementById('clear-filter-btn').onclick = () => this.clearCachedFilterAndClose(column);
                 document.getElementById('close-filter-btn').onclick = () => this.uiService.clearFilterPopup();
             } else {
+                console.error('データが取得できませんでした:', result);
                 this.uiService.showError('フィルタ候補の取得に失敗しました');
             }
         } catch (error) {
@@ -1170,8 +1231,20 @@ class AppController {
             });
         }
         
-        // 結果を表示
-        this.uiService.displayResults(processedData, results.columns);
+        // 結果を表示（displayResultsの代わりに直接buildDataTableを使用）
+        this.uiService.buildDataTable(processedData, results.columns);
+        
+        // 表示件数を更新
+        const resultInfo = document.getElementById('result-info');
+        if (resultInfo) {
+            resultInfo.textContent = `${processedData.length}件`;
+        }
+        
+        // 結果表示エリアを表示
+        const resultsContainer = document.getElementById('results-container');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'block';
+        }
     }
 
     /**
@@ -1182,31 +1255,27 @@ class AppController {
         if (!sessionId) return;
         
         try {
-            // フィルタとソート条件を取得
+            this.uiService.showLoading(true); // ローディング表示
             const filters = this.stateService.getFilters();
             const sortState = this.stateService.getSortState();
             
-            // APIを呼び出してフィルタ・ソート済みのデータを取得
+            // 設定ファイルのページサイズを使用してAPIからフィルタ/ソートされた1ページ目のデータを取得
+            const pageSize = this.stateService.getPageSize();
             const result = await this.apiService.readCachedData(
                 sessionId,
-                1, // 1ページ目から再取得
-                this.stateService.getPageSize(),
+                1,
+                pageSize,
                 filters,
                 sortState
             );
             
             if (result.success) {
-                // 状態をリセットして新しいデータを設定
-                this.stateService.setCachedData(result.data);
-                this.stateService.setCurrentPage(1);
-                this.stateService.setTotalRecords(result.total_records);
-                this.stateService.setHasMoreData(result.data.length < result.total_records);
-                
-                // テーブルを再構築
-                this.uiService.buildDataTable(result.data, result.columns);
-                
-                // 表示件数を更新
-                this.uiService.updateDisplayCount();
+                // 共通描画メソッドを呼び出す
+                this.uiService.renderResults(
+                    result.data,
+                    result.columns,
+                    result.total_count
+                );
                 
                 // ソート情報を更新
                 this.uiService.updateSortInfo(sortState.column, sortState.direction);
@@ -1216,6 +1285,8 @@ class AppController {
         } catch (error) {
             console.error('キャッシュフィルタ・ソートエラー:', error);
             this.uiService.showError('フィルタ・ソートの適用に失敗しました');
+        } finally {
+            this.uiService.showLoading(false); // ローディング非表示
         }
     }
 
@@ -1236,6 +1307,7 @@ class AppController {
         // キャッシュデータ用のフィルタ・ソートを適用
         await this.applyCachedFiltersAndSort();
         this.uiService.updateSortInfo(column, direction);
+        this.uiService.updateSortIcons(column, direction);
     }
 
     /**
@@ -1254,6 +1326,25 @@ class AppController {
         this.stateService.setFilter(column, []);
         await this.applyCachedFiltersAndSort();
         this.uiService.updateFilterIcons();
+    }
+
+    /**
+     * キャッシュデータ用のフィルタ適用とポップアップ閉じる
+     */
+    async applyCachedFilterAndClose(column) {
+        const popup = document.getElementById('filter-popup-active');
+        if (!popup) return;
+        const selectedValues = Array.from(popup.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+        await this.applyCachedFilter(column, selectedValues);
+        this.uiService.clearFilterPopup();
+    }
+
+    /**
+     * キャッシュデータ用のフィルタクリアとポップアップ閉じる
+     */
+    async clearCachedFilterAndClose(column) {
+        await this.clearCachedFilter(column);
+        this.uiService.clearFilterPopup();
     }
 
     loadTemplateById(templateId) {

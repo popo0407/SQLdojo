@@ -7,6 +7,10 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 from datetime import datetime
 import time
+from app.config_simplified import get_settings
+
+# 設定を取得
+settings = get_settings()
 
 
 class UserLoginRequest(BaseModel):
@@ -395,8 +399,8 @@ class CacheReadRequest(BaseModel):
     """キャッシュ読み出しリクエスト"""
     session_id: str = Field(..., description="セッションID")
     page: int = Field(default=1, description="ページ番号")
-    page_size: int = Field(default=100, description="1ページあたりの件数")
-    filters: Optional[Dict[str, str]] = Field(default=None, description="フィルタ条件")
+    page_size: int = Field(default=settings.default_page_size, description="1ページあたりの件数")  # 設定ファイルから取得
+    filters: Optional[Dict[str, List[str]]] = Field(default=None, description="フィルタ条件")
     sort_by: Optional[str] = Field(default=None, description="ソート対象カラム")
     sort_order: str = Field(default="ASC", description="ソート順序")
 

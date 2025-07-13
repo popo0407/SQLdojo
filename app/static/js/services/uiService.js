@@ -321,31 +321,36 @@ class UiService {
     }
 
     /**
-     * 結果を表示
-     * @param {Array} resultData - 結果データ
-     * @param {Array} columns - カラム情報
+     * displayResults (レガシーコードの可能性あり)
+     * 
+     * 現在は主にdisplayCachedResults()が利用されており、
+     * 本関数は今後削除・統合される可能性があります。
+     * 
+     * 旧来のクライアントサイド全件表示用。
      */
-    displayResults(resultData, columns) {
-        if (this.resultsContainer) {
-            this.resultsContainer.style.display = 'block';
-        }
-        
-        if (this.resultInfo) {
-            this.resultInfo.textContent = `${resultData.length}件`;
-        }
-        
-        if (this.dataTableContainer) {
-            this.buildDataTable(resultData, columns);
-        }
-    }
+    // displayResults(resultData, columns) {
+    //     if (this.resultsContainer) {
+    //         this.resultsContainer.style.display = 'block';
+    //     }
+    //     if (this.resultInfo) {
+    //         this.resultInfo.textContent = `${resultData.length}件`;
+    //     }
+    //     if (this.dataTableContainer) {
+    //         this.buildDataTable(resultData, columns);
+    //     }
+    // }
 
     /**
      * データテーブルを構築
-     * @param {Array} data - データ配列
-     * @param {Array} columns - カラム配列
+     * @param {Array} data - 表示するデータ
+     * @param {Array} columns - カラム情報
      */
     buildDataTable(data, columns) {
-        if (!this.dataTableContainer) return;
+        this.dataTableContainer = document.getElementById('dataTable');
+        if (!this.dataTableContainer) {
+            console.error('dataTable element not found');
+            return;
+        }
         
         // テーブルの基本構造を常に描画
         let tableHTML = '<table class="table table-striped table-hover">';
@@ -1199,17 +1204,17 @@ class UiService {
      * @param {Array<string>} uniqueValues - 表示するユニークな値のリスト
      * @param {Array<string>} selectedValues - 現在選択されている値のリスト
      */
-    showFilterPopup(column, targetIcon, uniqueValues, selectedValues) {
+    showFilterPopup(column, targetIcon, uniqueValuesWithCount, selectedValues) {
         this.clearFilterPopup();
         const popup = document.createElement('div');
         popup.className = 'filter-popup';
         popup.id = 'filter-popup-active';
-        let optionsHTML = uniqueValues.map(value => `
+        let optionsHTML = uniqueValuesWithCount.map(item => `
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="${this.escapeHtml(value)}" id="filter-${column}-${value}" 
-                       data-column="${column}" ${selectedValues.includes(String(value)) ? 'checked' : ''}>
-                <label class="form-check-label" for="filter-${column}-${value}">
-                    ${this.escapeHtml(value)}
+                <input class="form-check-input" type="checkbox" value="${this.escapeHtml(item.value)}" id="filter-${column}-${item.value}" 
+                       data-column="${column}" ${selectedValues.includes(String(item.value)) ? 'checked' : ''}>
+                <label class="form-check-label" for="filter-${column}-${item.value}">
+                    ${this.escapeHtml(item.value)} (${item.count})
                 </label>
             </div>
         `).join('');
@@ -1227,10 +1232,32 @@ class UiService {
             </div>
         `;
         document.body.appendChild(popup);
-        // アイコンの隣にポップアップを配置
+        
+        // フィルターボタンの位置を基準にポップアップを配置
         const rect = targetIcon.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const popupHeight = 300; // ポップアップの推定高さ
+        
+        // 画面下部に収まらない場合は上側に表示
+        let topPosition;
+        if (rect.bottom + popupHeight > viewportHeight) {
+            topPosition = rect.top - popupHeight + window.scrollY;
+        } else {
+            topPosition = rect.bottom + window.scrollY;
+        }
+        
+        popup.style.position = 'absolute';
         popup.style.left = `${rect.left}px`;
-        popup.style.top = `${rect.bottom + window.scrollY}px`;
+        popup.style.top = `${topPosition}px`;
+        popup.style.zIndex = '1000';
+        popup.style.backgroundColor = 'white';
+        popup.style.border = '1px solid #ccc';
+        popup.style.borderRadius = '4px';
+        popup.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+        popup.style.padding = '10px';
+        popup.style.minWidth = '200px';
+        popup.style.maxHeight = '300px';
+        popup.style.overflowY = 'auto';
     }
 
     /**
@@ -1363,25 +1390,15 @@ class UiService {
      */
     async cancelCacheProcessing(sessionId) {
         try {
-            // 停止ボタンを無効化
-            const cancelBtn = document.getElementById('cache-cancel-btn');
-            if (cancelBtn) {
-                cancelBtn.disabled = true;
-                cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>停止中...';
+            const response = await fetch(`/api/v1/sql/cache/${sessionId}/cancel`, {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                this.showInfo('処理の停止をリクエストしました');
+            } else {
+                throw new Error('キャンセルリクエストに失敗しました');
             }
-            
-            // APIを呼び出してキャンセル
-            await window.appController.getApiService().cancelCacheProcessing(sessionId);
-            
-            // 進捗表示を更新
-            this.updateCacheProgress({ status: 'cancelled' });
-            
-            // 少し待ってから進捗表示を終了
-            setTimeout(() => {
-                this.stopCacheProgress();
-                this.showInfo('処理を停止しました。取得済みのデータを表示します。');
-            }, 1000);
-            
         } catch (error) {
             console.error('キャッシュ処理のキャンセルエラー:', error);
             this.showError('処理の停止に失敗しました');
@@ -1392,24 +1409,34 @@ class UiService {
      * 無限スクロール機能を初期化
      */
     initInfiniteScroll() {
-        const mainContent = document.getElementById('main-content');
-        if (!mainContent) {
-            console.error('Error: main-content element not found. Infinite scroll cannot be initialized.');
+        // 結果表示エリア内のtable-containerを取得
+        const resultsContainer = document.getElementById('results-container');
+        
+        if (!resultsContainer) {
+            console.error('Error: results-container element not found. Infinite scroll cannot be initialized.');
+            return;
+        }
+        
+        const tableContainer = resultsContainer.querySelector('.table-container');
+        
+        if (!tableContainer) {
+            console.error('Error: table-container element not found. Infinite scroll cannot be initialized.');
             return;
         }
 
         // 既存のリスナーを削除（重複防止のため）
-        if (mainContent._scrollHandler) {
-            mainContent.removeEventListener('scroll', mainContent._scrollHandler);
+        if (tableContainer._scrollHandler) {
+            tableContainer.removeEventListener('scroll', tableContainer._scrollHandler);
         }
         
         // 新しいハンドラをバインドして設定
         const scrollHandler = this.handleScroll.bind(this);
-        mainContent.addEventListener('scroll', scrollHandler);
+        tableContainer.addEventListener('scroll', scrollHandler);
         
         // 設定したハンドラを要素に保存（後で削除できるようにするため）
-        mainContent._scrollHandler = scrollHandler;
+        tableContainer._scrollHandler = scrollHandler;
     }
+
     /**
      * スクロールイベントハンドラー
      */
@@ -1579,18 +1606,17 @@ class UiService {
     }
 
     /**
-     * キャッシュされたデータを表示
+     * 結果を再描画し、関連イベントを初期化する共通メソッド
      * @param {Array} data - 表示するデータ
      * @param {Array} columns - カラム情報
      * @param {number} totalRecords - 総件数
      */
-    displayCachedResults(data, columns, totalRecords) {
+    renderResults(data, columns, totalRecords) {
         const stateService = window.appController.getStateService();
-        
+
         // データ形式を確認し、必要に応じて変換
         let processedData = data;
         if (data && data.length > 0 && Array.isArray(data[0])) {
-            // 配列の配列形式の場合、オブジェクトの配列に変換
             processedData = data.map(row => {
                 const obj = {};
                 columns.forEach((column, index) => {
@@ -1599,24 +1625,26 @@ class UiService {
                 return obj;
             });
         }
-        
-        // 状態を更新
+
+        // StateServiceの状態をリセットして新しいデータで更新
         stateService.setCachedData(processedData);
         stateService.setTotalRecords(totalRecords);
-        stateService.setCurrentPage(1);
+        stateService.setCurrentPage(1); // 常に1ページ目から再描画
         stateService.setHasMoreData(processedData.length < totalRecords);
-        
-        // テーブルを構築
+
+        // テーブルを再構築
         this.buildDataTable(processedData, columns);
-        
+
         // 表示件数を更新
         this.updateDisplayCount();
-        
+
         // 結果表示エリアを表示
         this.showResults();
-        
-        // 無限スクロールを初期化
-        this.initInfiniteScroll();
+
+        // 無限スクロールを再初期化（DOMの更新を待つため少し遅らせる）
+        setTimeout(() => {
+            this.initInfiniteScroll();
+        }, 100);
     }
 
     /**

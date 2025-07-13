@@ -12,6 +12,7 @@ from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime, date
 from decimal import Decimal
 from app.logger import get_logger
+from app.config_simplified import settings
 
 logger = get_logger("CacheService")
 
@@ -326,10 +327,14 @@ class CacheService:
             logger.error(f"ユーザー({user_id})のセッションクリーンアップ中に予期せぬエラーが発生しました: {e}", exc_info=True)
             raise
     
-    def get_cached_data(self, session_id: str, page: int = 1, page_size: int = 100, 
+    def get_cached_data(self, session_id: str, page: int = 1, page_size: int = None, 
                         filters: Optional[Dict] = None, sort_by: Optional[str] = None, 
                         sort_order: str = 'ASC') -> Dict[str, Any]:
         """キャッシュされたデータを取得"""
+        # page_sizeが指定されていない場合は設定ファイルの値を使用
+        if page_size is None:
+            page_size = settings.default_page_size
+            
         # セッションIDからテーブル名を生成
         parts = session_id.split('_')
         if len(parts) >= 3:
@@ -351,10 +356,13 @@ class CacheService:
             params = []
             if filters:
                 conditions = []
-                for col, value in filters.items():
-                    safe_col = col.replace('"', '""')
-                    conditions.append(f'"{safe_col}" LIKE ?')
-                    params.append(f"%{value}%")
+                for col, values in filters.items():
+                    if values and len(values) > 0:  # 空でない配列の場合のみ処理
+                        safe_col = col.replace('"', '""')
+                        # IN句を使用して複数の値に対応
+                        placeholders = ','.join(['?' for _ in values])
+                        conditions.append(f'"{safe_col}" IN ({placeholders})')
+                        params.extend(values)
                 if conditions:
                     where_clause = f"WHERE {' AND '.join(conditions)}"
             

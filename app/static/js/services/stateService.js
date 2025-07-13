@@ -37,9 +37,30 @@ class StateService {
         this.cachedData = [];
         this.totalRecords = null; // 0ではなくnullで初期化
         this.currentPage = 1;
-        this.pageSize = 100;
+        this.pageSize = 100; // 初期値（設定取得後に更新される）
         this.isLoadingMore = false;
         this.hasMoreData = true;
+        
+        // 設定値を初期化時に取得
+        this.loadSettings();
+    }
+
+    /**
+     * 設定値を取得
+     */
+    async loadSettings() {
+        try {
+            const response = await fetch('/api/v1/config/settings');
+            if (response.ok) {
+                const settings = await response.json();
+                this.pageSize = settings.default_page_size || 100;
+                console.log('設定値を読み込みました:', settings);
+            } else {
+                console.warn('設定値の取得に失敗しました。デフォルト値を使用します。');
+            }
+        } catch (error) {
+            console.error('設定値取得エラー:', error);
+        }
     }
 
     // 実行結果の管理

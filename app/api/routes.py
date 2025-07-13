@@ -1111,3 +1111,15 @@ async def cleanup_current_user_cache_endpoint(
         logger.error(f"現在のユーザーキャッシュクリーンアップエラー: {e}")
         # エラーが発生しても200を返す（フロントエンドでログアウトを続行するため）
         return {"message": "キャッシュクリーンアップを試行しました"}
+
+
+@router.get("/config/settings")
+async def get_config_settings():
+    """アプリケーション設定を取得"""
+    settings = get_settings()
+    return {
+        "default_page_size": settings.default_page_size,
+        "max_page_size": settings.max_page_size,
+        "cursor_chunk_size": settings.cursor_chunk_size,
+        "infinite_scroll_threshold": settings.infinite_scroll_threshold
+    }
