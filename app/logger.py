@@ -12,6 +12,7 @@ from typing import Dict, Any, Optional, Callable
 from functools import wraps
 from collections import defaultdict, deque
 from datetime import datetime
+import os
 
 from app.config_simplified import get_settings
 from app.exceptions import LoggingError
@@ -103,7 +104,6 @@ class PerformanceMonitor:
         except Exception as e:
             raise LoggingError(f"メトリクスのクリアに失敗しました: {str(e)}")
 
-
 class Logger:
     """拡張ロガークラス"""
     
@@ -119,7 +119,8 @@ class Logger:
             logger = logging.getLogger(self.name)
             
             # 既存のハンドラーをクリア
-            logger.handlers.clear()
+            if logger.hasHandlers():
+                logger.handlers.clear()
             
             # ログレベルを設定
             logger.setLevel(getattr(logging, self.config.log_level))
@@ -134,6 +135,10 @@ class Logger:
             
             # ファイルハンドラー（簡素化）
             try:
+                log_dir = os.path.dirname('app.log')
+                if not os.path.exists(log_dir) and log_dir:
+                    os.makedirs(log_dir)
+
                 file_handler = logging.handlers.RotatingFileHandler(
                     'app.log',
                     maxBytes=10 * 1024 * 1024,  # 10MB
@@ -145,6 +150,9 @@ class Logger:
             except Exception as e:
                 # ファイルハンドラーの作成に失敗した場合はコンソールのみ
                 logger.warning(f"ログファイルハンドラーの作成に失敗しました: {str(e)}")
+            
+            # 親ロガーへの伝播を無効化
+            logger.propagate = False
             
             return logger
             
@@ -181,31 +189,69 @@ class Logger:
     
     def debug(self, message: str, **kwargs) -> None:
         """デバッグログ"""
-        self.logger.debug(message, extra=kwargs)
-    
+        log_kwargs = {
+            'exc_info': kwargs.pop('exc_info', None),
+            'stack_info': kwargs.pop('stack_info', False),
+            'stacklevel': kwargs.pop('stacklevel', 1),
+            'extra': kwargs
+        }
+        self.logger.debug(message, **log_kwargs)
+
     def info(self, message: str, **kwargs) -> None:
         """情報ログ"""
-        self.logger.info(message, extra=kwargs)
-    
+        log_kwargs = {
+            'exc_info': kwargs.pop('exc_info', None),
+            'stack_info': kwargs.pop('stack_info', False),
+            'stacklevel': kwargs.pop('stacklevel', 1),
+            'extra': kwargs
+        }
+        self.logger.info(message, **log_kwargs)
+
     def warning(self, message: str, **kwargs) -> None:
         """警告ログ"""
-        self.logger.warning(message, extra=kwargs)
-    
+        log_kwargs = {
+            'exc_info': kwargs.pop('exc_info', None),
+            'stack_info': kwargs.pop('stack_info', False),
+            'stacklevel': kwargs.pop('stacklevel', 1),
+            'extra': kwargs
+        }
+        self.logger.warning(message, **log_kwargs)
+
     def error(self, message: str, exception: Optional[Exception] = None, **kwargs) -> None:
         """エラーログ"""
+        exc_info_val = kwargs.pop('exc_info', None)
+        if exception and exc_info_val is None:
+            exc_info_val = True
+
         if exception:
             kwargs['exception'] = str(exception)
             kwargs['exception_type'] = type(exception).__name__
-        
-        self.logger.error(message, extra=kwargs)
-    
+
+        log_kwargs = {
+            'exc_info': exc_info_val,
+            'stack_info': kwargs.pop('stack_info', False),
+            'stacklevel': kwargs.pop('stacklevel', 1),
+            'extra': kwargs
+        }
+        self.logger.error(message, **log_kwargs)
+
     def critical(self, message: str, exception: Optional[Exception] = None, **kwargs) -> None:
         """重大エラーログ"""
+        exc_info_val = kwargs.pop('exc_info', None)
+        if exception and exc_info_val is None:
+            exc_info_val = True
+
         if exception:
             kwargs['exception'] = str(exception)
             kwargs['exception_type'] = type(exception).__name__
-        
-        self.logger.critical(message, extra=kwargs)
+
+        log_kwargs = {
+            'exc_info': exc_info_val,
+            'stack_info': kwargs.pop('stack_info', False),
+            'stacklevel': kwargs.pop('stacklevel', 1),
+            'extra': kwargs
+        }
+        self.logger.critical(message, **log_kwargs)
     
     def log_performance(self, operation_name: str, execution_time: float, **kwargs) -> None:
         """パフォーマンスログ"""
@@ -243,7 +289,6 @@ class Logger:
     def get_performance_metrics(self) -> Dict[str, Any]:
         """パフォーマンスメトリクスを取得"""
         return self.performance_monitor.get_metrics()
-
 
 # グローバルロガーインスタンス
 _loggers: Dict[str, Logger] = {}

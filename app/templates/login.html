@@ -26,7 +26,7 @@
             <div class="error" id="error-msg" style="display:none;"></div>
         </form>
     </div>
-    <script>
+<script>
     document.getElementById('login-form').addEventListener('submit', async function(e) {
         e.preventDefault();
         const userId = document.getElementById('user_id').value;
@@ -36,14 +36,13 @@
             body: JSON.stringify({ user_id: userId })
         });
         if (res.ok) {
-            // ログイン成功時にユーザーのキャッシュをクリア
-            try {
-                await fetch(`/api/v1/sql/cache/user/${userId}`, { method: 'DELETE' });
-            } catch (error) {
-                console.error('キャッシュクリアエラー:', error);
-                // エラーが発生してもログインは続行
-            }
-            // ★ 変更点
+            // ログイン成功時にユーザーのキャッシュをクリア（非同期で実行し、完了を待たない）
+            fetch(`/api/v1/sql/cache/user/${userId}`, { method: 'DELETE' })
+                .catch(error => {
+                    console.warn('ログイン時の非同期キャッシュクリアに失敗しました:', error);
+                });
+            
+            // すぐにページ遷移する
             window.location.replace('/');
         } else {
             const data = await res.json();
@@ -51,6 +50,6 @@
             document.getElementById('error-msg').style.display = 'block';
         }
     });
-    </script>
+</script>
 </body>
 </html> 

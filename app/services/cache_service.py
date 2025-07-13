@@ -156,19 +156,45 @@ class CacheService:
     def register_session(self, session_id: str, user_id: str, total_rows: int = 0) -> bool:
         """セッションを登録（同時実行制限チェック付き）"""
         with self._lock:
-            # 同時実行制限チェック
-            active_count = len([s for s in self._active_sessions.values() if s['status'] == 'active'])
-            if active_count >= self._max_concurrent_sessions:
-                logger.warning(f"同時実行制限に達しました: {active_count}/{self._max_concurrent_sessions}")
-                return False
+            logger.info(f"---[REGISTER_SESSION: START] (Session: {session_id})---")
+            logger.info(f"現在のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
+
+            # DB上のアクティブセッション数をチェック（is_complete=0のもののみ）
+            try:
+                with sqlite3.connect(self.cache_db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT COUNT(*) FROM cache_sessions WHERE is_complete = 0")
+                    db_active_count = cursor.fetchone()[0]
+                    
+                    # メモリ上のアクティブセッション数もチェック
+                    memory_active_count = len([s for s in self._active_sessions.values() if s['status'] == 'active'])
+                    
+                    # より大きい方を採用（整合性を保つため）
+                    active_count = max(db_active_count, memory_active_count)
+                    
+                    logger.info(f"DB上のアクティブセッション数: {db_active_count}, メモリ上のアクティブセッション数: {memory_active_count}")
+                    
+                    if active_count >= self._max_concurrent_sessions:
+                        logger.warning(f"同時実行制限に達しました: {active_count}/{self._max_concurrent_sessions}")
+                        logger.info(f"---[REGISTER_SESSION: END - BLOCKED] (Session: {session_id})---")
+                        return False
+                        
+            except Exception as e:
+                logger.error(f"DBアクティブセッション数チェックエラー: {e}")
+                # エラーが発生した場合はメモリ上のチェックのみを使用
+                active_count = len([s for s in self._active_sessions.values() if s['status'] == 'active'])
+                if active_count >= self._max_concurrent_sessions:
+                    logger.warning(f"同時実行制限に達しました: {active_count}/{self._max_concurrent_sessions}")
+                    logger.info(f"---[REGISTER_SESSION: END - BLOCKED] (Session: {session_id})---")
+                    return False
             
             # セッションを登録
             with sqlite3.connect(self.cache_db_path) as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
                     INSERT INTO cache_sessions 
-                    (session_id, user_id, total_rows, processed_rows, status)
-                    VALUES (?, ?, ?, 0, 'active')
+                    (session_id, user_id, total_rows, processed_rows, status, is_complete)
+                    VALUES (?, ?, ?, 0, 'active', 0)
                 """, (session_id, user_id, total_rows))
                 conn.commit()
             
@@ -180,13 +206,34 @@ class CacheService:
             }
             
             logger.info(f"セッション登録完了: {session_id}, ユーザー: {user_id}")
+            logger.info(f"---[REGISTER_SESSION: END - SUCCESS] (Session: {session_id})---")
             return True
+
+    def complete_active_session(self, session_id: str):
+        """メモリ上のアクティブセッションを完了状態にする（DBのキャッシュは消さない）"""
+        with self._lock:
+            logger.info(f"---[COMPLETE_SESSION: START] (Session: {session_id})---")
+            logger.info(f"削除前のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
+
+            session = self._active_sessions.pop(session_id, None)
+
+            if session:
+                logger.info(f"アクティブセッションを完了しました: {session_id}")
+            else:
+                logger.warning(f"完了しようとしたセッションが見つかりません（既に削除済みか、存在しませんでした）: {session_id}")
+            
+            logger.info(f"削除後のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
+            logger.info(f"---[COMPLETE_SESSION: END] (Session: {session_id})---")
     
     def cleanup_session(self, session_id: str):
         """セッションをクリーンアップ"""
         with self._lock:
-            if session_id in self._active_sessions:
-                del self._active_sessions[session_id]
+            logger.info(f"---[CLEANUP_SESSION: START] (Session: {session_id})---")
+            logger.info(f"クリーンアップ前のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
+            
+            self._active_sessions.pop(session_id, None)
+            
+            logger.info(f"クリーンアップ後のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
             
             # セッションIDからテーブル名を生成
             parts = session_id.split('_')
@@ -215,7 +262,9 @@ class CacheService:
                 cursor = conn.cursor()
                 cursor.execute("DELETE FROM cache_sessions WHERE session_id = ?", (session_id,))
                 conn.commit()
-    
+            
+            logger.info(f"---[CLEANUP_SESSION: END] (Session: {session_id})---")
+
     def cleanup_user_sessions(self, user_id: str):
         """ユーザーの全セッションをクリーンアップ（効率化版）"""
         logger.info(f"ユーザー({user_id})の全セッションクリーンアップを開始します。")
@@ -365,4 +414,4 @@ class CacheService:
                 elif not isinstance(value, (str, int, float, bool)):
                     data[row_idx][col_idx] = str(value)
         
-        return True, None 
+        return True, None

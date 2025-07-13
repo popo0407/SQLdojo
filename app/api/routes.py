@@ -853,8 +853,6 @@ async def get_user_history(
 async def execute_sql_with_cache_endpoint(
     request: CacheSQLRequest,
     hybrid_sql_service: HybridSQLServiceDep,
-    session_service: SessionServiceDep,
-    streaming_state_service: StreamingStateServiceDep,
     current_user: CurrentUserDep,
     sql_log_service: SQLLogServiceDep,
     background_tasks: BackgroundTasks
@@ -868,35 +866,16 @@ async def execute_sql_with_cache_endpoint(
     start_time = datetime.now()
 
     try:
-        # SQLを実行してキャッシュに保存
+        # サービス層に処理を一任する
         result = await hybrid_sql_service.execute_sql_with_cache(
-            request.sql, 
-            current_user["user_id"], 
-            request.limit
+            sql=request.sql, 
+            user_id=current_user["user_id"], 
+            limit=request.limit
         )
-        
-        # セッションIDを取得
-        session_id = result['session_id']
-        
-        # エディタセッションを作成（セッションIDを一致させる）
-        editor_session_id = session_service.create_editor_session(
-            current_user["user_id"], 
-            request.editor_id,
-            session_id  # セッションIDを渡す
-        )
-        
-        # ストリーミング状態を作成（同じセッションIDを使用）
-        streaming_state_service.create_streaming_state(session_id, result['total_count'])
-        
-        # セッション情報を更新
-        session_service.update_cache_session(editor_session_id, session_id)
-        
-        # ストリーミング完了
-        streaming_state_service.complete_streaming(session_id, result['processed_rows'])
         
         response = CacheSQLResponse(
             success=result['success'],
-            session_id=session_id,
+            session_id=result['session_id'],
             total_count=result['total_count'],
             processed_rows=result['processed_rows'],
             execution_time=result['execution_time'],
@@ -904,7 +883,7 @@ async def execute_sql_with_cache_endpoint(
             error_message=result.get('error_message')
         )
         
-        # ログを記録
+        # ログ記録のタスクを追加
         background_tasks.add_task(
             sql_log_service.add_log_to_db,
             user_id=current_user["user_id"],
@@ -922,9 +901,9 @@ async def execute_sql_with_cache_endpoint(
         return response
         
     except Exception as e:
-        logger.error(f"キャッシュSQL実行エラー: {e}")
+        logger.error(f"キャッシュSQL実行エラー: {e}", exc_info=True)
+        # エラーをラップして再送出
         raise SQLExecutionError(f"SQL実行に失敗しました: {str(e)}")
-
 
 @router.post("/sql/cache/read", response_model=CacheReadResponse)
 async def read_cached_data_endpoint(

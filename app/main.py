@@ -138,6 +138,6 @@ if __name__ == "__main__":
         "app.main:app",
         host=settings.app_host,
         port=settings.app_port,
-        reload=settings.app_debug,
+        reload=False, 
         log_level="info"
     )

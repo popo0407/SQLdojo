@@ -1392,13 +1392,24 @@ class UiService {
      * 無限スクロール機能を初期化
      */
     initInfiniteScroll() {
-        const resultsContainer = document.getElementById('results-container');
-        if (!resultsContainer) return;
-        
-        // スクロールイベントリスナーを追加
-        resultsContainer.addEventListener('scroll', this.handleScroll.bind(this));
-    }
+        const mainContent = document.getElementById('main-content');
+        if (!mainContent) {
+            console.error('Error: main-content element not found. Infinite scroll cannot be initialized.');
+            return;
+        }
 
+        // 既存のリスナーを削除（重複防止のため）
+        if (mainContent._scrollHandler) {
+            mainContent.removeEventListener('scroll', mainContent._scrollHandler);
+        }
+        
+        // 新しいハンドラをバインドして設定
+        const scrollHandler = this.handleScroll.bind(this);
+        mainContent.addEventListener('scroll', scrollHandler);
+        
+        // 設定したハンドラを要素に保存（後で削除できるようにするため）
+        mainContent._scrollHandler = scrollHandler;
+    }
     /**
      * スクロールイベントハンドラー
      */
@@ -1434,6 +1445,7 @@ class UiService {
             
             if (!sessionId) {
                 console.error('セッションIDが設定されていません');
+                stateService.setLoadingMore(false);
                 return;
             }
             
@@ -1447,12 +1459,22 @@ class UiService {
             );
             
             if (result.success && result.data.length > 0) {
-                // データを追加
-                stateService.appendCachedData(result.data);
+                const columns = result.columns || stateService.getCurrentResults()?.columns || [];
+
+                // 配列の配列からオブジェクトの配列に変換
+                const newDataAsObjects = result.data.map(rowArray => {
+                    const obj = {};
+                    columns.forEach((col, index) => {
+                        obj[col] = rowArray[index];
+                    });
+                    return obj;
+                });
+
+                stateService.appendCachedData(newDataAsObjects);
                 stateService.setCurrentPage(nextPage);
                 
                 // テーブルに新しい行を追加
-                this.appendTableRows(result.data);
+                this.appendTableRows(newDataAsObjects, columns);
                 
                 // 表示件数を更新
                 this.updateDisplayCount();
@@ -1476,10 +1498,11 @@ class UiService {
 
     /**
      * テーブルに新しい行を追加
-     * @param {Array} data - 追加するデータ
+     * @param {Array} data - 追加するデータ（オブジェクトの配列）
+     * @param {Array} columns - カラム情報
      */
-    appendTableRows(data) {
-        const table = document.getElementById('dataTable');
+    appendTableRows(data, columns) {
+        const table = this.dataTableContainer?.querySelector('table');
         if (!table) return;
         
         const tbody = table.querySelector('tbody');
@@ -1487,9 +1510,9 @@ class UiService {
         
         data.forEach(row => {
             const tr = document.createElement('tr');
-            row.forEach(cell => {
+            columns.forEach(column => {
                 const td = document.createElement('td');
-                td.textContent = cell;
+                td.textContent = this.escapeHtml(row[column] !== null && row[column] !== undefined ? String(row[column]) : '');
                 tr.appendChild(td);
             });
             tbody.appendChild(tr);

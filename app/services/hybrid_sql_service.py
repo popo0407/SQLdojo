@@ -26,7 +26,8 @@ class HybridSQLService:
     async def execute_sql_with_cache(self, sql: str, user_id: str, limit: Optional[int] = None) -> Dict[str, Any]:
         """SQLを実行し、結果をキャッシュに保存"""
         start_time = datetime.now()
-        
+        session_id = None  # finallyブロックで参照できるよう、tryの外で初期化
+
         try:
             # セッションIDを生成
             session_id = self.cache_service.generate_session_id(user_id)
@@ -47,7 +48,7 @@ class HybridSQLService:
             
             # ストリーミング状態を更新
             if self.streaming_state_service:
-                self.streaming_state_service.update_progress(session_id, 0)
+                self.streaming_state_service.create_streaming_state(session_id, total_count)
             
             # カーソル方式でデータを取得・キャッシュ
             processed_rows = await self._fetch_and_cache_data(sql, session_id, limit)
@@ -58,6 +59,9 @@ class HybridSQLService:
             # セッション完了（実行時間を含む）
             self.cache_service.update_session_progress(session_id, processed_rows, True, execution_time)
             
+            # メモリ上のアクティブセッションリストから削除
+            self.cache_service.complete_active_session(session_id)
+
             # ストリーミング完了
             if self.streaming_state_service:
                 self.streaming_state_service.complete_streaming(session_id, processed_rows)
@@ -72,9 +76,17 @@ class HybridSQLService:
             }
             
         except Exception as e:
-            logger.error(f"SQL実行エラー: {e}")
+            logger.error(f"SQL実行エラー: {e}", exc_info=True)
+            if session_id:
+                # エラーが発生した場合、セッションをクリーンアップする
+                logger.info(f"エラー発生のためセッションをクリーンアップします: {session_id}")
+                self.cache_service.cleanup_session(session_id)
+                if self.streaming_state_service:
+                    self.streaming_state_service.error_streaming(session_id, str(e))
+            
+            # 元の例外メッセージを維持しつつ、エラーを再発生させる
             raise SQLExecutionError(f"SQL実行に失敗しました: {str(e)}")
-    
+
     async def _get_total_count(self, sql: str) -> int:
         """SQLの総件数を取得"""
         count_sql = f"SELECT COUNT(*) FROM ({sql}) as count_query"
@@ -88,12 +100,16 @@ class HybridSQLService:
         except Exception as e:
             logger.error(f"総件数取得エラー: {e}")
             raise DatabaseError(f"総件数の取得に失敗しました: {str(e)}")
-    
+        finally:
+            if 'conn_id' in locals() and conn_id:
+                self.connection_manager.release_connection(conn_id)
+
     async def _fetch_and_cache_data(self, sql: str, session_id: str, limit: Optional[int] = None) -> int:
         """カーソル方式でデータを取得し、キャッシュに保存"""
         processed_rows = 0
         table_name = None
         columns = None
+        conn_id = None
         
         try:
             conn_id, connection = self.connection_manager.get_connection()
@@ -110,6 +126,11 @@ class HybridSQLService:
             
             # チャンク単位でデータを取得・キャッシュ
             while True:
+                # キャンセルされたかチェック
+                if self.streaming_state_service and self.streaming_state_service.is_cancelled(session_id):
+                    logger.info(f"処理がキャンセルされたため、データ取得を中断します: {session_id}")
+                    break
+
                 chunk = cursor.fetchmany(self.chunk_size)
                 if not chunk:
                     break
@@ -200,4 +221,4 @@ class HybridSQLService:
     
     def get_session_status(self, session_id: str) -> Optional[Dict[str, Any]]:
         """セッションの状態を取得"""
-        return self.cache_service.get_session_info(session_id) 
+        return self.cache_service.get_session_info(session_id)

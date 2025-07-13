@@ -440,14 +440,12 @@ class AppController {
             // 既存のキャッシュをクリア
             const currentSessionId = this.stateService.getCurrentSessionId();
             if (currentSessionId) {
-                try {
-                    await this.apiService.cleanupSession(currentSessionId);
-                    this.stateService.setCurrentSessionId(null);
-                    console.log('既存のキャッシュをクリアしました');
-                } catch (error) {
-                    console.error('キャッシュクリアエラー:', error);
-                    // エラーが発生してもSQL実行は続行
-                }
+                // 非同期でクリーンアップを実行（完了を待たない）
+                this.apiService.cleanupSession(currentSessionId).catch(err => {
+                    console.warn(`旧セッション(${currentSessionId})の非同期クリーンアップ中にエラーが発生しました。`, err);
+                });
+                this.stateService.setCurrentSessionId(null);
+                console.log('旧キャッシュセッションのクリーンアップをリクエストしました。');
             }
             
             // キャッシュ機能付きSQL実行
@@ -944,17 +942,19 @@ class AppController {
         try {
             console.log('ログアウト処理を開始します');
             
-            // ① サーバーサイドのキャッシュを同期的にクリア
-            console.log('サーバーサイドのキャッシュをクリアします...');
-            await this.apiService.cleanupCurrentUserCache();
-            console.log('サーバーサイドのキャッシュクリアが完了しました。');
+            // ① サーバーサイドのキャッシュを非同期でクリア（完了を待たない）
+            console.log('サーバーサイドのキャッシュクリアをリクエストします...');
+            this.apiService.cleanupCurrentUserCache().catch(err => {
+                // エラーはコンソールに警告として出すが、処理はブロックしない
+                console.warn('非同期キャッシュクリア中にエラーが発生しましたが、ログアウト処理を続行します。', err);
+            });
 
             // ② ローカルキャッシュをクリア
             console.log('ローカルキャッシュをクリアします');
             sessionStorage.clear();
             localStorage.removeItem('sqlHistoryCache');
             localStorage.removeItem('userPreferences');
-            localStorage.removeItem('sqlToCopy'); // 追加
+            localStorage.removeItem('sqlToCopy');
             
             // ③ セッションをクリアするためにログアウトAPIを呼び出す
             console.log('セッションをクリアするためにログアウトAPIを呼び出します...');
