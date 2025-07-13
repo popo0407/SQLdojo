@@ -90,6 +90,10 @@ class Settings(BaseSettings):
     
     # 無限スクロール設定
     infinite_scroll_threshold: int = Field(default=200, description="無限スクロールで表示する最大件数")
+    
+    # 大容量データ処理設定
+    max_records_for_display: int = Field(default=1000000, description="画面表示を試みる最大レコード数の閾値")
+    max_records_for_csv_download: int = Field(default=10000000, description="CSVダウンロードを許可する最大レコード数の閾値")
 
     @field_validator('snowflake_account')
     @classmethod

@@ -59,6 +59,39 @@ class UiService {
     }
 
     /**
+     * モーダルローディングを表示
+     * @param {string} message - 表示するメッセージ
+     */
+    showModalLoading(message = '処理中です...') {
+        // 既存のモーダルローディングをクリア
+        this.hideModalLoading();
+        
+        const modalLoading = document.createElement('div');
+        modalLoading.id = 'modal-loading';
+        modalLoading.className = 'modal-loading';
+        modalLoading.innerHTML = `
+            <div class="modal-loading-content">
+                <div class="modal-loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                <div class="modal-loading-message">${this.escapeHtml(message)}</div>
+            </div>
+        `;
+        
+        document.body.appendChild(modalLoading);
+    }
+
+    /**
+     * モーダルローディングを非表示
+     */
+    hideModalLoading() {
+        const modalLoading = document.getElementById('modal-loading');
+        if (modalLoading && modalLoading.parentNode) {
+            modalLoading.parentNode.removeChild(modalLoading);
+        }
+    }
+
+    /**
      * ポップアップ通知を表示 - 改善版
      * @param {string} message - 表示するメッセージ
      * @param {string} type - 通知タイプ（info, success, warning, error）

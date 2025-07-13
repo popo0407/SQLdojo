@@ -873,6 +873,19 @@ async def execute_sql_with_cache_endpoint(
             limit=request.limit
         )
         
+        # 大容量データの確認要求の場合
+        if result.get('status') == 'requires_confirmation':
+            response = CacheSQLResponse(
+                success=False,
+                session_id=None,
+                total_count=result['total_count'],
+                processed_rows=0,
+                execution_time=0,
+                message=result['message'],
+                error_message=None
+            )
+            return response
+        
         response = CacheSQLResponse(
             success=result['success'],
             session_id=result['session_id'],
@@ -1121,5 +1134,105 @@ async def get_config_settings():
         "default_page_size": settings.default_page_size,
         "max_page_size": settings.max_page_size,
         "cursor_chunk_size": settings.cursor_chunk_size,
-        "infinite_scroll_threshold": settings.infinite_scroll_threshold
+        "infinite_scroll_threshold": settings.infinite_scroll_threshold,
+        "max_records_for_display": settings.max_records_for_display,
+        "max_records_for_csv_download": settings.max_records_for_csv_download
     }
+
+
+@router.post("/sql/download/csv")
+async def download_csv_endpoint(
+    request: SQLRequest,
+    connection_manager: ConnectionManagerDep,
+    current_user: CurrentUserDep
+):
+    """CSVストリーミングダウンロードエンドポイント"""
+    logger.info(f"CSVダウンロード要求, sql={request.sql}, ユーザー: {current_user['user_id']}")
+    
+    if not request.sql:
+        raise HTTPException(status_code=400, detail="SQLクエリが無効です")
+    
+    try:
+        # 総件数を取得して制限チェック
+        count_sql = f"SELECT COUNT(*) FROM ({request.sql}) as count_query"
+        conn_id, connection = connection_manager.get_connection()
+        cursor = connection.cursor()
+        cursor.execute(count_sql)
+        result = cursor.fetchone()
+        total_count = result[0] if result else 0
+        
+        # CSVダウンロード制限チェック
+        from app.config_simplified import get_settings
+        settings = get_settings()
+        max_records_for_csv_download = settings.max_records_for_csv_download
+        
+        if total_count > max_records_for_csv_download:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"データが大きすぎます（{total_count:,}件）。クエリを制限してから再実行してください。"
+            )
+        
+        # ファイル名を生成
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"query_result_{timestamp}.csv"
+        
+        def csv_stream_generator():
+            """CSVストリーミング生成器"""
+            try:
+                # SQLを実行
+                cursor.execute(request.sql)
+                
+                # カラム情報を取得
+                columns = [column[0] for column in cursor.description]
+                
+                # CSVライターを作成
+                output = io.StringIO()
+                writer = csv.writer(output)
+                
+                # ヘッダーを書き込み
+                writer.writerow(columns)
+                yield output.getvalue()
+                output.seek(0)
+                output.truncate()
+                
+                # データをチャンク単位で取得・書き込み
+                chunk_size = 1000
+                processed_rows = 0
+                
+                while True:
+                    chunk = cursor.fetchmany(chunk_size)
+                    if not chunk:
+                        break
+                    
+                    for row in chunk:
+                        writer.writerow(row)
+                        processed_rows += 1
+                    
+                    # チャンクごとにストリーミング
+                    yield output.getvalue()
+                    output.seek(0)
+                    output.truncate()
+                
+                logger.info(f"CSVダウンロード完了: {processed_rows}件, ユーザー: {current_user['user_id']}")
+                
+            except Exception as e:
+                logger.error(f"CSVダウンロードエラー: {e}", exc_info=True)
+                raise HTTPException(status_code=500, detail=f"CSVダウンロードに失敗しました: {str(e)}")
+            finally:
+                if 'conn_id' in locals() and conn_id:
+                    connection_manager.release_connection(conn_id)
+        
+        return StreamingResponse(
+            csv_stream_generator(),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}",
+                "Content-Type": "text/csv; charset=utf-8"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CSVダウンロードエラー: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"CSVダウンロードに失敗しました: {str(e)}")

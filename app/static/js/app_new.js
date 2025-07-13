@@ -451,6 +451,13 @@ class AppController {
             // キャッシュ機能付きSQL実行
             const result = await this.apiService.executeSQLWithCache(sql);
             
+            // 大容量データの確認要求の場合
+            if (result.message && result.message.includes('ダウンロードしますか？')) {
+                this.uiService.showLoading(false);
+                this.showLargeDataConfirmation(result);
+                return;
+            }
+            
             if (result.success) {
                 // セッションIDを保存
                 this.currentSessionId = result.session_id;
@@ -599,6 +606,63 @@ class AppController {
         if (this.editorService.isReady()) {
             this.editorService.clear();
             // 成功メッセージは表示しない（ユーザーが見た目でクリア成功がわかるため）
+        }
+    }
+
+    /**
+     * 大容量データの確認ダイアログを表示
+     * @param {Object} result - APIレスポンス
+     */
+    showLargeDataConfirmation(result) {
+        const message = result.message || `表示限界を超えるデータです（${result.total_count.toLocaleString()}件）。ダウンロードしますか？`;
+        
+        // 確認ダイアログを表示
+        if (confirm(message)) {
+            this.downloadCSV();
+        }
+    }
+
+    /**
+     * CSVダウンロードを実行
+     */
+    async downloadCSV() {
+        const sql = this.editorService.getValue();
+        if (!sql.trim()) {
+            this.uiService.showError('ダウンロードするSQLを入力してください');
+            return;
+        }
+
+        try {
+            this.uiService.showLoading(true);
+            this.uiService.showModalLoading('CSVファイルを生成・ダウンロード中です...');
+            
+            // CSVダウンロードAPIを呼び出し
+            const response = await this.apiService.downloadCSV(sql);
+            
+            // レスポンスをファイルとしてダウンロード
+            const blob = new Blob([response], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            link.href = URL.createObjectURL(blob);
+            link.download = `query_result_${timestamp}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            this.uiService.hideModalLoading();
+            this.uiService.showLoading(false);
+            
+        } catch (error) {
+            console.error('CSVダウンロードエラー:', error);
+            this.uiService.hideModalLoading();
+            this.uiService.showLoading(false);
+            
+            // エラーレスポンスの場合は詳細メッセージを表示
+            if (error.response && error.response.data && error.response.data.detail) {
+                this.uiService.showError(`ダウンロードに失敗しました：${error.response.data.detail}`);
+            } else {
+                this.uiService.showError(`ダウンロードに失敗しました：${error.message}`);
+            }
         }
     }
 

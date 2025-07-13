@@ -40,9 +40,23 @@ class HybridSQLService:
             # 総件数を取得
             total_count = await self._get_total_count(sql)
             
-            # 100万件超の場合は警告
-            if total_count > 1000000:
+            # 大容量データの条件分岐
+            max_records_for_display = settings.max_records_for_display
+            max_records_for_csv_download = settings.max_records_for_csv_download
+            
+            if total_count > max_records_for_display:
                 logger.warning(f"大容量データ検出: {total_count}件, ユーザー: {user_id}")
+                
+                # CSVダウンロードも不可な場合
+                if total_count > max_records_for_csv_download:
+                    raise SQLExecutionError(f"データが大きすぎます（{total_count:,}件）。クエリを制限してから再実行してください。")
+                
+                # 確認要求のレスポンスを返す
+                return {
+                    'status': 'requires_confirmation',
+                    'total_count': total_count,
+                    'message': f"表示限界を超えるデータです（{total_count:,}件）。ダウンロードしますか？"
+                }
             
             # セッション情報を更新
             self.cache_service.update_session_progress(session_id, 0, False)

@@ -117,6 +117,19 @@ class ApiService {
     }
 
     /**
+     * CSVダウンロード
+     * @param {string} sql - ダウンロードするSQL
+     * @returns {Promise<Blob>} CSVデータ
+     */
+    downloadCSV(sql) {
+        return this._fetch('/sql/download/csv', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql })
+        });
+    }
+
+    /**
      * 全テンプレートを取得
      * @returns {Promise<Array>} テンプレート配列
      */
