@@ -1431,13 +1431,46 @@ class UiService {
     async loadMoreData() {
         const stateService = window.appController.getStateService();
         
+        // stateServiceの存在をチェック
+        if (!stateService) {
+            console.error('stateService is not available');
+            return;
+        }
+        
+        // isLoadingMoreの状態を安全に取得
+        let isLoadingMore = false;
+        if (typeof stateService.isLoadingMore === 'function') {
+            isLoadingMore = stateService.isLoadingMore();
+        } else if (typeof stateService.isLoadingMore === 'boolean') {
+            isLoadingMore = stateService.isLoadingMore;
+        } else {
+            console.error('stateService.isLoadingMore is not available');
+            return;
+        }
+        
+        // hasMoreDataの状態を安全に取得
+        let hasMoreData = true;
+        if (typeof stateService.hasMoreData === 'function') {
+            hasMoreData = stateService.hasMoreData();
+        } else if (typeof stateService.hasMoreData === 'boolean') {
+            hasMoreData = stateService.hasMoreData;
+        } else {
+            console.error('stateService.hasMoreData is not available');
+            return;
+        }
+        
         // 既に読み込み中またはデータがない場合は何もしない
-        if (stateService.isLoadingMore() || !stateService.hasMoreData()) {
+        if (isLoadingMore || !hasMoreData) {
             return;
         }
         
         // 読み込み中フラグを設定
-        stateService.setLoadingMore(true);
+        if (typeof stateService.setLoadingMore === 'function') {
+            stateService.setLoadingMore(true);
+        } else {
+            console.error('stateService.setLoadingMore is not available');
+            return;
+        }
         
         try {
             const nextPage = stateService.getCurrentPage() + 1;
@@ -1445,7 +1478,9 @@ class UiService {
             
             if (!sessionId) {
                 console.error('セッションIDが設定されていません');
-                stateService.setLoadingMore(false);
+                if (typeof stateService.setLoadingMore === 'function') {
+                    stateService.setLoadingMore(false);
+                }
                 return;
             }
             
@@ -1481,18 +1516,24 @@ class UiService {
                 
                 // データがなくなった場合はフラグを更新
                 if (result.data.length < stateService.getPageSize()) {
-                    stateService.setHasMoreData(false);
+                    if (typeof stateService.setHasMoreData === 'function') {
+                        stateService.setHasMoreData(false);
+                    }
                 }
             } else {
                 // データがない場合はフラグを更新
-                stateService.setHasMoreData(false);
+                if (typeof stateService.setHasMoreData === 'function') {
+                    stateService.setHasMoreData(false);
+                }
             }
             
         } catch (error) {
             console.error('追加データ読み込みエラー:', error);
             this.showError('追加データの読み込みに失敗しました');
         } finally {
-            stateService.setLoadingMore(false);
+            if (typeof stateService.setLoadingMore === 'function') {
+                stateService.setLoadingMore(false);
+            }
         }
     }
 
