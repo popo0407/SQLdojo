@@ -10,6 +10,11 @@ type SortConfig = {
 
 type CellValue = string | number | boolean | null;
 
+// FilterConfigの型定義を追加
+type FilterConfig = {
+  [columnName: string]: string[];
+};
+
 interface ResultTableProps {
   // `columns`が文字列または文字列配列の両方を受け付けられるように修正
   columns: string | string[];
@@ -18,9 +23,18 @@ interface ResultTableProps {
   sortConfig: SortConfig | null;
   onSort: (key: string) => void;
   onFilter: (key: string) => void;
+  // フィルタ情報を追加
+  filters?: FilterConfig;
 }
 
-const ResultTable: React.FC<ResultTableProps> = ({ columns, data, sortConfig, onSort, onFilter }) => {
+const ResultTable: React.FC<ResultTableProps> = ({ 
+  columns, 
+  data, 
+  sortConfig, 
+  onSort, 
+  onFilter,
+  filters = {}
+}) => {
   // columnsを安全にstring[]に変換
   const safeColumns: string[] = Array.isArray(columns)
     ? columns.flat().filter((c) => typeof c === 'string')
@@ -38,6 +52,11 @@ const ResultTable: React.FC<ResultTableProps> = ({ columns, data, sortConfig, on
     return <i className="fas fa-sort-down"></i>;
   };
 
+  const getFilterIconClass = (columnName: string) => {
+    const hasActiveFilter = filters[columnName] && filters[columnName].length > 0;
+    return `${styles.filterIcon} ${hasActiveFilter ? styles.active : ''}`;
+  };
+
   return (
     <div className={styles.tableContainer}>
       <Table striped bordered hover responsive size="sm">
@@ -49,7 +68,7 @@ const ResultTable: React.FC<ResultTableProps> = ({ columns, data, sortConfig, on
                     {col}
                     <span className={styles.sortIcon}>{getSortIcon(col)}</span>
                   </div>
-                  <div onClick={() => onFilter(col)} className={styles.filterIcon} title={`${col}でフィルタ`}>
+                  <div onClick={() => onFilter(col)} className={getFilterIconClass(col)} title={`${col}でフィルタ`}>
                     <i className="fas fa-filter"></i>
                   </div>
                 </th>

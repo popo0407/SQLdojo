@@ -52,5 +52,9 @@
 }
 
 .filterIcon:hover {
-  color: #0d6efd;
+  color: #218838;
+}
+
+.filterIcon.active {
+  color: #dc3545; /* アクティブなフィルタがある場合は赤色 */
 } 

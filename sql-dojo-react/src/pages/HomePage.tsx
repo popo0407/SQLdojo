@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'; // useMemo をインポート
 import SQLEditor from '../features/editor/SQLEditor';
 import ResultsViewer from '../features/results/ResultsViewer';
+import FilterModal from '../features/results/FilterModal';
 import { useExecuteSql } from '../hooks/useExecuteSql';
 import type { SqlExecutionResult } from '../types/api'; // 型をインポート
 
@@ -10,13 +11,24 @@ type SortConfig = {
   direction: 'asc' | 'desc';
 };
 
+// フィルタ設定の型を定義
+type FilterConfig = {
+  [columnName: string]: string[];
+};
+
 const HomePage: React.FC = () => {
   const [sql, setSql] = useState<string>('SELECT * FROM ');
   const { mutate, data: result, isPending, isError, error } = useExecuteSql();
 
   // ソートとフィルタの状態を追加
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
-  const [filters, setFilters] = useState<Record<string, string[]>>({});
+  const [filters, setFilters] = useState<FilterConfig>({});
+  
+  // フィルタモーダルの状態
+  const [filterModal, setFilterModal] = useState<{
+    show: boolean;
+    columnName: string;
+  }>({ show: false, columnName: '' });
 
   const handleExecute = () => {
     // 実行時にソートとフィルタをリセット
@@ -39,18 +51,45 @@ const HomePage: React.FC = () => {
     setSortConfig({ key, direction });
   };
   
-  // フィルタハンドラ（次のステップで実装）
+  // フィルタハンドラ
   const handleFilter = (key: string) => {
-    alert(`「${key}」のフィルタ機能は次のステップで実装します。`);
+    setFilterModal({ show: true, columnName: key });
+  };
+
+  // フィルタを適用する関数
+  const applyFilters = (data: any[]) => {
+    if (Object.keys(filters).length === 0) return data;
+
+    return data.filter(row => {
+      return Object.entries(filters).every(([column, values]) => {
+        if (values.length === 0) return true;
+        const cellValue = String(row[column] ?? '').toLowerCase();
+        return values.some(value => cellValue.includes(value.toLowerCase()));
+      });
+    });
+  };
+
+  // フィルタを適用するハンドラ
+  const handleApplyFilters = (columnName: string, filterValues: string[]) => {
+    if (filterValues.length === 0) {
+      // フィルタが空の場合はその列のフィルタを削除
+      const newFilters = { ...filters };
+      delete newFilters[columnName];
+      setFilters(newFilters);
+    } else {
+      // フィルタを設定
+      setFilters(prev => ({
+        ...prev,
+        [columnName]: filterValues
+      }));
+    }
   };
 
   // ソートとフィルタを適用したデータを計算
   const processedData = useMemo(() => {
     if (!result?.data) return [];
 
-    let filteredData = [...result.data];
-
-    // TODO: フィルタリングロジックをここに追加
+    let filteredData = applyFilters([...result.data]);
 
     if (sortConfig !== null) {
       // 新しい配列を作成してからソート（元の配列を変更しない）
@@ -94,8 +133,22 @@ const HomePage: React.FC = () => {
           sortConfig={sortConfig}
           onSort={handleSort}
           onFilter={handleFilter}
+          filters={filters}
         />
       </div>
+
+      {/* フィルタモーダル */}
+      {result?.data && (
+        <FilterModal
+          show={filterModal.show}
+          onHide={() => setFilterModal({ show: false, columnName: '' })}
+          columnName={filterModal.columnName}
+          data={result.data}
+          filteredData={processedData}
+          currentFilters={filters[filterModal.columnName] || []}
+          onApplyFilters={(filterValues) => handleApplyFilters(filterModal.columnName, filterValues)}
+        />
+      )}
     </div>
   );
 };

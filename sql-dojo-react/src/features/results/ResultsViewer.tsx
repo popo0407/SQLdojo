@@ -10,6 +10,11 @@ type SortConfig = {
   direction: 'asc' | 'desc';
 };
 
+// FilterConfigの型定義を追加
+type FilterConfig = {
+  [columnName: string]: string[];
+};
+
 interface ResultsViewerProps {
   result: SqlExecutionResult | undefined;
   isLoading: boolean;
@@ -19,9 +24,20 @@ interface ResultsViewerProps {
   sortConfig: SortConfig | null;
   onSort: (key: string) => void;
   onFilter: (key: string) => void;
+  // フィルタ情報を追加
+  filters?: FilterConfig;
 }
 
-const ResultsViewer: React.FC<ResultsViewerProps> = ({ result, isLoading, isError, error, sortConfig, onSort, onFilter }) => {
+const ResultsViewer: React.FC<ResultsViewerProps> = ({ 
+  result, 
+  isLoading, 
+  isError, 
+  error, 
+  sortConfig, 
+  onSort, 
+  onFilter,
+  filters = {}
+}) => {
   if (isLoading) {
     return (
       <div className="text-center p-5">
@@ -51,12 +67,19 @@ const ResultsViewer: React.FC<ResultsViewerProps> = ({ result, isLoading, isErro
     ? `${sortConfig.key} (${sortConfig.direction === 'asc' ? '昇順' : '降順'})`
     : '並び替えなし';
 
+  // フィルタ情報を表示
+  const activeFilters = Object.entries(filters).filter(([_, values]) => values.length > 0);
+  const filterInfo = activeFilters.length > 0
+    ? `${activeFilters.length}列でフィルタ適用`
+    : 'フィルタなし';
+
   return (
     <Stack gap={3} className={styles.resultsContainer}>
       <div className={styles.statsBar}>
-        <span><i className="fas fa-list-ol me-1"></i> {result.row_count?.toLocaleString() || 0} 件</span>
+        <span><i className="fas fa-list-ol me-1"></i> {result.data.length.toLocaleString()} 件</span>
         <span><i className="fas fa-clock me-1"></i> {result.execution_time?.toFixed(3) || 0} 秒</span>
         <span><i className="fas fa-sort me-1"></i> {sortInfo}</span>
+        <span><i className="fas fa-filter me-1"></i> {filterInfo}</span>
       </div>
       <ResultTable 
         columns={result.columns} 
@@ -64,6 +87,7 @@ const ResultsViewer: React.FC<ResultsViewerProps> = ({ result, isLoading, isErro
         sortConfig={sortConfig}
         onSort={onSort}
         onFilter={onFilter}
+        filters={filters}
       />
     </Stack>
   );
