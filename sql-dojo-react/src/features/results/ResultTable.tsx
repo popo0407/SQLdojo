@@ -1,0 +1,102 @@
+import React from 'react';
+import { Table } from 'react-bootstrap';
+import styles from './Results.module.css';
+
+// SortConfigの型定義をインポートまたは定義
+type SortConfig = {
+  key: string;
+  direction: 'asc' | 'desc';
+};
+
+type CellValue = string | number | boolean | null;
+
+interface ResultTableProps {
+  // `columns`が文字列または文字列配列の両方を受け付けられるように修正
+  columns: string | string[];
+  // `data`の`any`を、より厳密な`CellValue`に修正
+  data: { [key: string]: CellValue }[];
+  sortConfig: SortConfig | null;
+  onSort: (key: string) => void;
+  onFilter: (key: string) => void;
+}
+
+const ResultTable: React.FC<ResultTableProps> = ({ columns, data, sortConfig, onSort, onFilter }) => {
+  // columnsを安全にstring[]に変換
+  const safeColumns: string[] = Array.isArray(columns)
+    ? columns.flat().filter((c) => typeof c === 'string')
+    : typeof columns === 'string'
+      ? columns.split(',')
+      : [];
+
+  const getSortIcon = (key: string) => {
+    if (!sortConfig || sortConfig.key !== key) {
+      return <i className="fas fa-sort text-muted"></i>;
+    }
+    if (sortConfig.direction === 'asc') {
+      return <i className="fas fa-sort-up"></i>;
+    }
+    return <i className="fas fa-sort-down"></i>;
+  };
+
+  return (
+    <div className={styles.tableContainer}>
+      <Table striped bordered hover responsive size="sm">
+        <thead>
+          <tr>
+            {safeColumns.map((col) => (
+                <th key={col} className={styles.tableHeader}>
+                  <div onClick={() => onSort(col)} className={styles.headerContent}>
+                    {col}
+                    <span className={styles.sortIcon}>{getSortIcon(col)}</span>
+                  </div>
+                  <div onClick={() => onFilter(col)} className={styles.filterIcon} title={`${col}でフィルタ`}>
+                    <i className="fas fa-filter"></i>
+                  </div>
+                </th>
+              ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {safeColumns.map((col) => (
+                <td key={`${rowIndex}-${col}`}>{String(row[col] ?? '')}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </div>
+  );
+};
+
+export default ResultTable;
+
+{/* <div className={styles.tableContainer}>
+<Table striped bordered hover responsive size="sm">
+  <thead>
+    <tr>
+      {safeColumns.map((col) => (
+        <th key={col} className={styles.tableHeader}>
+          <div onClick={() => onSort(col)} className={styles.headerContent}>
+            {col}
+            <span className={styles.sortIcon}>{getSortIcon(col)}</span>
+          </div>
+          <div onClick={() => onFilter(col)} className={styles.filterIcon} title={`${col}でフィルタ`}>
+             <i className="fas fa-filter"></i>
+          </div>
+        </th>
+      ))}
+    </tr>
+  </thead>
+  <tbody>
+    {data.map((row, rowIndex) => (
+      <tr key={rowIndex}>
+        {safeColumns.map((col) => (
+          <td key={`${rowIndex}-${col}`}>{String(row[col] ?? '')}</td>
+        ))}
+      </tr>
+    ))}
+  </tbody>
+</Table>
+</div> */}

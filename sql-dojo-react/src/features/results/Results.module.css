@@ -1,0 +1,56 @@
+.resultsContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.statsBar {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  color: #6c757d;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.tableContainer {
+  flex-grow: 1;
+  overflow: auto; /* テーブルがコンテナを超えた場合にスクロール */
+}
+
+.tableHeader {
+  position: relative;
+  cursor: pointer;
+  padding-right: 2rem; /* アイコンのスペースを確保 */
+}
+
+.headerContent {
+  user-select: none; /* テキスト選択を無効に */
+}
+
+.sortIcon {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.0em; /* アイコンの幅を確保 */
+  font-size: 1.0em; /* アイコンのサイズを大きく */
+  color: #007bff; /* 青色で目立つように */
+}
+
+.filterIcon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #28a745; /* 緑色で目立つように */
+  cursor: pointer;
+  padding: 0.0rem;
+  font-size: 1.0em; /* アイコンのサイズを大きく */
+}
+
+.filterIcon:hover {
+  color: #0d6efd;
+} 

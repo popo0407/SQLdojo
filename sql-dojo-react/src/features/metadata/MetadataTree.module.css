@@ -1,0 +1,37 @@
+.accordionItem {
+  border: none !important;
+  background-color: transparent !important;
+}
+
+.accordionHeader button {
+  padding: 0.4rem 0.5rem !important;
+  font-size: 0.9rem !important;
+  background-color: transparent !important;
+  color: var(--bs-body-color) !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.accordionHeader button::after {
+  /* デフォルトの矢印を非表示 */
+  display: none;
+}
+
+.accordionBody {
+  padding: 0 0 0 1rem !important; /* 左のインデント */
+  border-left: 1px solid #e0e0e0;
+  margin-left: 0.5rem;
+}
+
+.columnItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.85rem;
+  border-radius: 4px;
+}
+
+.columnItem:hover {
+  background-color: #e9ecef;
+} 

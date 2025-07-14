@@ -1,0 +1,23 @@
+.editorContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.editorWrapper {
+  flex-grow: 1; /* 残りの高さをすべて使用 */
+  position: relative;
+} 
