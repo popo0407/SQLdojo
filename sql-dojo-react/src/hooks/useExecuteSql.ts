@@ -1,18 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { apiClient, ApiError } from '../api/apiClient';
-import type { SqlExecutionResult } from '../types/api';
+import type { ExecuteSqlResponse } from '../types/api';
 
-// APIを呼び出す非同期関数
-const executeSql = async (sql: string): Promise<SqlExecutionResult> => {
-  return apiClient.post<SqlExecutionResult, { sql: string; limit: number }>('/sql/execute', {
-    sql,
-    limit: 5000, // 要件に応じて変更
-  });
+const executeSql = async (sql: string): Promise<ExecuteSqlResponse> => {
+  return apiClient.post('/sql/cache/execute', { sql });
 };
 
 export const useExecuteSql = () => {
-  return useMutation<SqlExecutionResult, ApiError, string>({
+  return useMutation<ExecuteSqlResponse, ApiError, string>({
     mutationFn: executeSql,
-    // onSuccess, onErrorなどのコールバックもここに追加可能
   });
 }; 

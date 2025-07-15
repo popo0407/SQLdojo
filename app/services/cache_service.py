@@ -423,3 +423,34 @@ class CacheService:
                     data[row_idx][col_idx] = str(value)
         
         return True, None
+
+    def get_unique_values(self, session_id: str, column_name: str, limit: int = 100) -> dict:
+        """キャッシュテーブルから指定カラムのユニーク値（最大limit件）を取得"""
+        # セッションIDからテーブル名を生成
+        parts = session_id.split('_')
+        if len(parts) >= 3:
+            user_id = parts[0]
+            timestamp = parts[1]
+            dt = datetime.fromtimestamp(int(timestamp))
+            formatted_time = dt.strftime('%Y%m%d%H%M%S')
+            table_name = f"cache_{user_id}_{formatted_time}"
+        else:
+            table_name = f"cache_{session_id.replace('-', '_')}"
+
+        with sqlite3.connect(self.cache_db_path) as conn:
+            cursor = conn.cursor()
+            safe_col = column_name.replace('"', '""')
+            sql = f'SELECT DISTINCT "{safe_col}" FROM {table_name} LIMIT ?'
+            cursor.execute(sql, (limit + 1,))  # +1で上限超過判定
+            values = [row[0] for row in cursor.fetchall()]
+            is_truncated = len(values) > limit
+            values = values[:limit]
+            # 総ユニーク件数も取得
+            count_sql = f'SELECT COUNT(DISTINCT "{safe_col}") FROM {table_name}'
+            cursor.execute(count_sql)
+            total_count = cursor.fetchone()[0]
+            return {
+                'values': values,
+                'total_count': total_count,
+                'is_truncated': is_truncated
+            }

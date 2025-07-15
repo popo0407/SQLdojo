@@ -1,35 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Badge, ListGroup } from 'react-bootstrap';
-import styles from './Results.module.css';
+import { apiClient } from '../../api/apiClient';
 
 interface FilterModalProps {
   show: boolean;
   onHide: () => void;
   columnName: string;
-  data: any[];
+  sessionId: string;
+  filters: { [columnName: string]: string[] };
   currentFilters: string[];
   onApplyFilters: (filters: string[]) => void;
-  // フィルタリング後のデータを追加
-  filteredData?: any[];
 }
 
 const FilterModal: React.FC<FilterModalProps> = ({
   show,
   onHide,
   columnName,
-  data,
+  sessionId,
+  filters,
   currentFilters,
-  onApplyFilters,
-  filteredData
+  onApplyFilters
 }) => {
   const [selectedValues, setSelectedValues] = useState<string[]>(currentFilters);
   const [searchTerm, setSearchTerm] = useState('');
+  const [uniqueValues, setUniqueValues] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
 
-  // フィルタリング後のデータから列のユニークな値を取得
-  const sourceData = filteredData || data;
-  const uniqueValues = Array.from(new Set(
-    sourceData.map(row => String(row[columnName] ?? ''))
-  )).filter(value => value !== '').sort();
+  // ユニーク値をAPI経由で取得
+  useEffect(() => {
+    if (!show) return;
+    setIsLoading(true);
+    setError(null);
+    setUniqueValues([]);
+    setIsTruncated(false);
+    apiClient.post<{ values: string[]; truncated?: boolean }, any>(
+      '/sql/cache/unique-values',
+      { session_id: sessionId, column_name: columnName, filters }
+    )
+      .then(res => {
+        setUniqueValues(res.values || []);
+        setIsTruncated(!!res.truncated);
+      })
+      .catch(e => setError(e.message || 'ユニーク値の取得に失敗しました'))
+      .finally(() => setIsLoading(false));
+  }, [show, sessionId, columnName, JSON.stringify(filters)]);
 
   // 検索フィルタを適用した値
   const filteredValues = uniqueValues.filter(value =>
@@ -101,22 +117,33 @@ const FilterModal: React.FC<FilterModalProps> = ({
         </div>
 
         <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-          <ListGroup>
-            {filteredValues.map((value) => (
-              <ListGroup.Item
-                key={value}
-                action
-                active={selectedValues.includes(value)}
-                onClick={() => handleValueToggle(value)}
-                className="d-flex justify-content-between align-items-center"
-              >
-                <span>{value}</span>
-                {selectedValues.includes(value) && (
-                  <i className="fas fa-check text-primary"></i>
-                )}
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+          {isLoading ? (
+            <div className="text-center text-muted py-3">読み込み中...</div>
+          ) : error ? (
+            <div className="text-danger py-3">{error}</div>
+          ) : (
+            <>
+              <ListGroup>
+                {filteredValues.map((value) => (
+                  <ListGroup.Item
+                    key={value}
+                    action
+                    active={selectedValues.includes(value)}
+                    onClick={() => handleValueToggle(value)}
+                    className="d-flex justify-content-between align-items-center"
+                  >
+                    <span>{value}</span>
+                    {selectedValues.includes(value) && (
+                      <i className="fas fa-check text-primary"></i>
+                    )}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+              {isTruncated && (
+                <div className="text-warning mt-2">※ 候補は最大100件まで表示されます</div>
+              )}
+            </>
+          )}
         </div>
 
         {selectedValues.length > 0 && (

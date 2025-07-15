@@ -401,4 +401,21 @@ class ApiService {
             method: 'DELETE'
         });
     }
+
+    /**
+     * キャッシュテーブルからユニーク値を取得（最大100件）
+     * @param {string} sessionId - セッションID
+     * @param {string} columnName - 対象カラム名
+     * @param {Object|null} filters - 現在のフィルター条件
+     * @returns {Promise<Object>} ユニーク値リストと注記
+     */
+    getUniqueValues(sessionId, columnName, filters = null) {
+        return this._fetch('/sql/cache/unique-values', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_id: sessionId, column_name: columnName, filters })
+        });
+    }
 }
+
+export default ApiService;

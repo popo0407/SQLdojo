@@ -1,6 +1,6 @@
 import React from 'react';
 import Editor from '@monaco-editor/react';
-import { Button, ButtonGroup, Stack } from 'react-bootstrap';
+import { Button, ButtonGroup, Stack, Spinner } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
 
 // このコンポーネントが受け取るPropsの型を定義
@@ -9,9 +9,18 @@ interface SQLEditorProps {
   onSqlChange: (value: string | undefined) => void;
   onExecute: () => void;
   onFormat: () => void;
+  onDownloadCsv?: () => void;
+  isDownloading?: boolean;
 }
 
-const SQLEditor: React.FC<SQLEditorProps> = ({ sql, onSqlChange, onExecute, onFormat }) => {
+const SQLEditor: React.FC<SQLEditorProps> = ({ 
+  sql, 
+  onSqlChange, 
+  onExecute, 
+  onFormat, 
+  onDownloadCsv,
+  isDownloading = false 
+}) => {
   
   const handleClear = () => {
     onSqlChange('');
@@ -28,6 +37,25 @@ const SQLEditor: React.FC<SQLEditorProps> = ({ sql, onSqlChange, onExecute, onFo
           <Button variant="outline-secondary" size="sm" onClick={handleClear}>
             <i className="fas fa-eraser me-1"></i>クリア
           </Button>
+          {onDownloadCsv && (
+            <Button 
+              variant="outline-primary" 
+              size="sm" 
+              onClick={onDownloadCsv}
+              disabled={isDownloading || !sql.trim()}
+            >
+              {isDownloading ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-1" />
+                  ダウンロード中...
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-download me-1"></i>CSV
+                </>
+              )}
+            </Button>
+          )}
         </ButtonGroup>
         {/*
           TODO: テンプレート/パーツ機能は後のフェーズで実装

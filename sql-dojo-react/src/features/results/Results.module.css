@@ -15,9 +15,19 @@
   flex-shrink: 0;
 }
 
+/* スクロールコンテナの設定を削除 */
+/* .scrollContainer {
+  height: 400px;
+  overflow-y: auto;
+  position: relative;
+  border: 1px solid #ccc;
+} */
+
+/* テーブルコンテナの高さ・overflowも削除 */
 .tableContainer {
   flex-grow: 1;
-  overflow: auto; /* テーブルがコンテナを超えた場合にスクロール */
+  /* max-height: calc(100vh - 300px); */
+  /* overflow: auto; */
 }
 
 .tableHeader {

@@ -1,52 +1,42 @@
-import React, { useState } from 'react';
-import type { Schema, Table } from '../../types/metadata';
-import { Accordion } from 'react-bootstrap';
-import styles from './MetadataTree.module.css';
+import React from 'react';
+import { ListGroup } from 'react-bootstrap';
 
 interface TreeNodeProps {
-  item: Schema | Table;
-  type: 'schema' | 'table';
+  item: any;
+  level?: number;
 }
 
-const TreeNode: React.FC<TreeNodeProps> = ({ item, type }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const hasChildren = 'tables' in item && item.tables.length > 0;
-
+const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0 }) => {
   const getIcon = () => {
-    if (type === 'schema') return <i className="fas fa-database me-2 text-secondary"></i>;
-    if (type === 'table') {
-      return item.table_type === 'VIEW' 
-        ? <i className="fas fa-eye me-2 text-secondary"></i>
-        : <i className="fas fa-table me-2 text-secondary"></i>;
+    if ('tables' in item) {
+      return 'fas fa-database';
     }
-    return null;
+    if ('columns' in item) {
+      return 'fas fa-table';
+    }
+    return 'fas fa-columns';
   };
-  
-  const children = 'tables' in item ? item.tables : ('columns' in item ? item.columns : []);
+
+  const getDisplayName = () => {
+    if ('tables' in item) {
+      return item.name;
+    }
+    if ('columns' in item) {
+      return item.name;
+    }
+    return item.name;
+  };
 
   return (
-    <Accordion flush>
-      <Accordion.Item eventKey={item.name} className={styles.accordionItem}>
-        <Accordion.Header as="div" className={styles.accordionHeader}>
-          {getIcon()}
-          <span className="fw-bold">{item.name}</span>
-          {item.comment && <small className="text-muted ms-2">({item.comment})</small>}
-        </Accordion.Header>
-        <Accordion.Body className={styles.accordionBody}>
-          {children.map((child: any) =>
-            'columns' in child ? ( // childがTable型か
-              <TreeNode key={child.name} item={child} type="table" />
-            ) : ( // childがColumn型
-              <div key={child.name} className={`${styles.columnItem} ps-4`}>
-                <span className="text-body-secondary">{child.name}</span>
-                <span className="text-muted small ms-auto">{child.data_type}</span>
-              </div>
-            )
-          )}
-        </Accordion.Body>
-      </Accordion.Item>
-    </Accordion>
+    <ListGroup.Item 
+      style={{ 
+        paddingLeft: `${level * 20 + 10}px`,
+        fontSize: '0.9rem'
+      }}
+    >
+      <i className={`${getIcon()} me-2`}></i>
+      {getDisplayName()}
+    </ListGroup.Item>
   );
 };
 

@@ -27,7 +27,8 @@
 
 .mainContent {
   flex-grow: 1;
-  overflow-y: auto;
+  /* overflow-y: auto; */ /* この行をコメントアウトまたは削除 */
+  overflow: hidden; /* この行を追加 */
   padding: 1rem; /* paddingを調整 */
   display: flex; /* 追加 */
   flex-direction: column; /* 追加 */

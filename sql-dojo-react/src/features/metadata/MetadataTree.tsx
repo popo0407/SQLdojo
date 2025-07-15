@@ -1,6 +1,7 @@
 import React from 'react';
-import type { Schema } from '../../types/metadata';
+import { ListGroup } from 'react-bootstrap';
 import TreeNode from './TreeNode';
+import type { Schema } from '../../types/metadata';
 
 interface MetadataTreeProps {
   schemas: Schema[];
@@ -8,11 +9,11 @@ interface MetadataTreeProps {
 
 const MetadataTree: React.FC<MetadataTreeProps> = ({ schemas }) => {
   return (
-    <div>
+    <ListGroup>
       {schemas.map((schema) => (
-        <TreeNode key={schema.name} item={schema} type="schema" />
+        <TreeNode key={schema.name} item={schema} />
       ))}
-    </div>
+    </ListGroup>
   );
 };
 
