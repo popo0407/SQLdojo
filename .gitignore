@@ -1,26 +1,110 @@
+# =======================
+# Dependencies
+# =======================
+node_modules/
+.pnp
+.pnp.js
+jspm_packages/
+
+# =======================
+# Production Build
+# =======================
+build/
+dist/
+dist-ssr/
+.out/
+.storybook-out/
+storybook-static/
+
+# =======================
 # Python
+# =======================
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Pytest
-.pytest_cache/
-
-# IDE/Editor
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Environment
+# =======================
+# Local Environment
+# =======================
 .env
-*.env
+.env.*
+*.local
 
-# Application Generated Files
+# =======================
+# Logs and Runtime Data
+# =======================
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =======================
+# Application Data
+# =======================
 *.db
 *.db-journal
 sql_execution_logs.json
+
+# =======================
+# Test & Coverage
+# =======================
+.pytest_cache/
+.nyc_output/
+coverage/
+*.lcov
+
+# =======================
+# Tool Caches
+# =======================
+.npm/
+.eslintcache
+.cache/
+.tmp/
+temp/
+*.tsbuildinfo
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# =======================
+# Miscellaneous
+# =======================
+.node_repl_history
+*.tgz
+.yarn-integrity
+
+# =======================
+# IDE & Editor
+# (Share extensions, but ignore other local settings)
+# =======================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# =======================
+# OS Generated Files
+# =======================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini

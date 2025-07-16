@@ -1,24 +1,110 @@
-# Logs
-logs
+# =======================
+# Dependencies
+# =======================
+node_modules/
+.pnp
+.pnp.js
+jspm_packages/
+
+# =======================
+# Production Build
+# =======================
+build/
+dist/
+dist-ssr/
+.out/
+.storybook-out/
+storybook-static/
+
+# =======================
+# Python
+# =======================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# =======================
+# Local Environment
+# =======================
+.env
+.env.*
+*.local
+
+# =======================
+# Logs and Runtime Data
+# =======================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+pids
+*.pid
+*.seed
+*.pid.lock
 
-node_modules
-dist
-dist-ssr
-*.local
+# =======================
+# Application Data
+# =======================
+*.db
+*.db-journal
+sql_execution_logs.json
 
-# Editor directories and files
+# =======================
+# Test & Coverage
+# =======================
+.pytest_cache/
+.nyc_output/
+coverage/
+*.lcov
+
+# =======================
+# Tool Caches
+# =======================
+.npm/
+.eslintcache
+.cache/
+.tmp/
+temp/
+*.tsbuildinfo
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# =======================
+# Miscellaneous
+# =======================
+.node_repl_history
+*.tgz
+.yarn-integrity
+
+# =======================
+# IDE & Editor
+# (Share extensions, but ignore other local settings)
+# =======================
 .vscode/*
+!.vscode/settings.json
 !.vscode/extensions.json
-.idea
-.DS_Store
+!.vscode/launch.json
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# =======================
+# OS Generated Files
+# =======================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
