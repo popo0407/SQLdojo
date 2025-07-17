@@ -1,10 +1,12 @@
 import React from 'react';
 import { useMetadata } from '../../hooks/useMetadata';
 import MetadataTree from '../../features/metadata/MetadataTree';
+import { useSqlPageStore } from '../../stores/useSqlPageStore';
 import styles from '../../styles/Layout.module.css';
 
 const Sidebar: React.FC = () => {
   const { data: schemas, isLoading, isError, error } = useMetadata();
+  const applySelectionToEditor = useSqlPageStore((state) => state.applySelectionToEditor);
 
   const renderContent = () => {
     if (isLoading) {
@@ -37,6 +39,14 @@ const Sidebar: React.FC = () => {
     <aside className={styles.sidebar}>
       <div className="p-2">
         <h5><i className="fas fa-sitemap me-2"></i>DB情報</h5>
+        <div className={styles.sidebarAction}>
+          <button 
+            onClick={applySelectionToEditor} 
+            className={styles.applyButton}
+          >
+            エディタに反映
+          </button>
+        </div>
         <div id="metadata-tree">
           {renderContent()}
         </div>

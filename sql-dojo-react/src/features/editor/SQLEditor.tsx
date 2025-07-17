@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import Editor from '@monaco-editor/react';
 import { Button, ButtonGroup, Stack, Spinner } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
@@ -12,6 +12,11 @@ const SQLEditor: React.FC = () => {
   const downloadCsv = useSqlPageStore((state) => state.downloadCsv);
   const isDownloading = useSqlPageStore((state) => state.isDownloading);
   const setEditor = useSqlPageStore((state) => state.setEditor);
+  const sqlToInsert = useSqlPageStore((state) => state.sqlToInsert);
+  const clearSqlToInsert = useSqlPageStore((state) => state.clearSqlToInsert);
+  
+  // clearSqlToInsertをメモ化して無限ループを防ぐ
+  const memoizedClearSqlToInsert = useCallback(clearSqlToInsert, []);
 
   const handleClear = () => {
     setSql('');
@@ -20,6 +25,33 @@ const SQLEditor: React.FC = () => {
   const handleFormat = () => {
     alert('SQL整形機能は次のフェーズで実装します。');
   };
+
+  // sqlToInsertを監視し、エディタに挿入
+  useEffect(() => {
+    if (sqlToInsert) {
+      const editorInstance = useSqlPageStore.getState().editor;
+      if (editorInstance) {
+        const position = editorInstance.getPosition();
+        if (position) {
+          const range = {
+            startLineNumber: position.lineNumber,
+            startColumn: position.column,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column,
+          };
+          const op = {
+            identifier: { major: 1, minor: 1 },
+            range,
+            text: sqlToInsert,
+            forceMoveMarkers: true,
+          };
+          editorInstance.executeEdits('sidebar-insert', [op]);
+          editorInstance.focus();
+        }
+      }
+      memoizedClearSqlToInsert();
+    }
+  }, [sqlToInsert, memoizedClearSqlToInsert]);
 
   return (
     <Stack gap={2} className={styles.editorContainer}>

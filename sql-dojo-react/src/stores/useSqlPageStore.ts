@@ -30,6 +30,11 @@ interface SqlPageState {
   isDownloading: boolean;
   rawData: TableRow[];
   editor: editor.IStandaloneCodeEditor | null;
+  // サイドバー選択機能用の状態
+  selectedTable: string | null;
+  selectedColumns: string[];
+  columnSelectionOrder: string[];
+  sqlToInsert: string;
   // setters
   setSql: (sql: string) => void;
   setSortConfig: (config: SortConfig | null) => void;
@@ -53,6 +58,12 @@ interface SqlPageState {
   setIsDownloading: (downloading: boolean) => void;
   setEditor: (editor: editor.IStandaloneCodeEditor | null) => void;
   insertText: (text: string) => void;
+  // サイドバー選択機能用のアクション
+  toggleTableSelection: (tableName: string) => void;
+  toggleColumnSelection: (tableName: string, columnName: string) => void;
+  clearSelection: () => void;
+  applySelectionToEditor: () => void;
+  clearSqlToInsert: () => void;
   // 新規アクション
   executeSql: () => Promise<void>;
   downloadCsv: () => Promise<void>;
@@ -85,6 +96,11 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
   isDownloading: false,
   rawData: [],
   editor: null,
+  // サイドバー選択機能用の初期値
+  selectedTable: null,
+  selectedColumns: [],
+  columnSelectionOrder: [],
+  sqlToInsert: '',
   setSql: (sql) => set({ sql }),
   setSortConfig: (sortConfig) => set({ sortConfig }),
   setFilters: (filters) => set({ filters }),
@@ -136,6 +152,77 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
       editor.executeEdits('sidebar-insert', [op]);
     }
     editor.focus();
+  },
+  // サイドバー選択機能用のアクション実装
+  toggleTableSelection: (tableName) => {
+    set((state) => {
+      if (state.selectedTable === tableName) {
+        return {
+          selectedTable: null,
+          selectedColumns: [],
+          columnSelectionOrder: [],
+        };
+      }
+      return {
+        selectedTable: tableName,
+        selectedColumns: [],
+        columnSelectionOrder: [],
+      };
+    });
+  },
+  toggleColumnSelection: (tableName, columnName) => {
+    set((state) => {
+      const selectedColumns = [...state.selectedColumns];
+      const columnSelectionOrder = [...state.columnSelectionOrder];
+      const columnIndex = selectedColumns.indexOf(columnName);
+
+      if (columnIndex > -1) {
+        // カラムの選択を解除
+        selectedColumns.splice(columnIndex, 1);
+        const orderIndex = columnSelectionOrder.indexOf(columnName);
+        if (orderIndex > -1) {
+          columnSelectionOrder.splice(orderIndex, 1);
+        }
+        
+        return { selectedColumns, columnSelectionOrder };
+      } else {
+        // カラムを選択
+        selectedColumns.push(columnName);
+        columnSelectionOrder.push(columnName);
+        
+        return { selectedColumns, columnSelectionOrder };
+      }
+    });
+  },
+  clearSelection: () => {
+    set({
+      selectedTable: null,
+      selectedColumns: [],
+      columnSelectionOrder: [],
+    });
+  },
+  applySelectionToEditor: () => {
+    const { selectedTable, selectedColumns, columnSelectionOrder } = get();
+    let newSql = '';
+
+    if (selectedTable && selectedColumns.length > 0) {
+      // テーブルとカラムが両方選択されている場合
+      const orderedColumns = columnSelectionOrder.join(', ');
+      newSql = `SELECT ${orderedColumns} FROM ${selectedTable}`;
+    } else if (selectedTable) {
+      // テーブルのみ選択されている場合
+      newSql = `SELECT * FROM ${selectedTable}`;
+    } else if (columnSelectionOrder.length > 0) {
+      // カラムのみ選択されている場合
+      newSql = columnSelectionOrder.join(', ');
+    }
+
+    if (newSql) {
+      set({ sqlToInsert: newSql });
+    }
+  },
+  clearSqlToInsert: () => {
+    set({ sqlToInsert: '' });
   },
   // SQL実行アクション
   executeSql: async () => {

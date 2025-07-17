@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # アプリケーションの基本設定をインポート
 from app.config_simplified import get_settings
 from app.api.routes import router
-from app.api.error_handlers import register_error_handlers
+from app.api.error_handlers import register_exception_handlers
 
 settings = get_settings()
 
@@ -39,7 +39,7 @@ app.add_middleware(
 app.include_router(router, prefix="/api/v1")
 
 # エラーハンドラーを登録
-register_error_handlers(app)
+register_exception_handlers(app)
 
 # ヘルスチェックエンドポイント
 @app.get("/health")

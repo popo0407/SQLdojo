@@ -6,11 +6,16 @@ import { useSqlPageStore } from '../../stores/useSqlPageStore';
 interface TreeNodeProps {
   item: Schema | Table | Column;
   level?: number;
+  parentTableName?: string; // カラムの場合の親テーブル名
 }
 
-const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0 }) => {
+const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName }) => {
   const [expanded, setExpanded] = useState(false);
   const insertText = useSqlPageStore((state) => state.insertText);
+  const selectedTable = useSqlPageStore((state) => state.selectedTable);
+  const selectedColumns = useSqlPageStore((state) => state.selectedColumns);
+  const toggleTableSelection = useSqlPageStore((state) => state.toggleTableSelection);
+  const toggleColumnSelection = useSqlPageStore((state) => state.toggleColumnSelection);
 
   // スキーマ
   if ('tables' in item) {
@@ -33,52 +38,87 @@ const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0 }) => {
   }
   // テーブル
   if ('columns' in item) {
+    const isTableSelected = selectedTable === item.name;
+    
     return (
       <>
         <ListGroup.Item
-          style={{ paddingLeft: `${level * 20 + 10}px`, fontSize: '0.93rem', cursor: 'pointer' }}
+          style={{ paddingLeft: `${level * 20 + 10}px`, fontSize: '0.93rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
-          <i
-            className={`fas ${expanded ? 'fa-chevron-down' : 'fa-chevron-right'} me-2`}
-            style={{ cursor: 'pointer' }}
-            onClick={(e) => {
+          <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <i
+              className={`fas ${expanded ? 'fa-chevron-down' : 'fa-chevron-right'} me-2`}
+              style={{ cursor: 'pointer' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((prev) => !prev);
+              }}
+            />
+            <i className={`fas ${item.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} me-2 text-secondary`} />
+            <span
+              className="table-name"
+              title={item.comment || ''}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                insertText(item.name);
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              {item.name}
+            </span>
+            {item.comment && <small className="text-muted ms-2">{item.comment}</small>}
+          </div>
+          <input
+            type="checkbox"
+            checked={isTableSelected}
+            onChange={(e) => {
               e.stopPropagation();
-              setExpanded((prev) => !prev);
+              toggleTableSelection(item.name);
             }}
+            style={{ marginLeft: '8px' }}
           />
-          <i className={`fas ${item.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} me-2 text-secondary`} />
-          <span
-            className="table-name"
-            title={item.comment || ''}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              insertText(item.name);
-            }}
-            style={{ cursor: 'pointer' }}
-          >
-            {item.name}
-          </span>
-          {item.comment && <small className="text-muted ms-2">{item.comment}</small>}
         </ListGroup.Item>
         {expanded && item.columns.map((column) => (
-          <TreeNode key={column.name} item={column} level={level + 1} />
+          <TreeNode key={column.name} item={column} level={level + 1} parentTableName={item.name} />
         ))}
       </>
     );
   }
   // カラム
+  const isColumnSelected = selectedColumns.includes(item.name);
+  
   return (
     <ListGroup.Item
-      style={{ paddingLeft: `${level * 20 + 10}px`, fontSize: '0.91rem', display: 'flex', alignItems: 'center' }}
-      onMouseDown={(e) => {
-        e.preventDefault();
-        insertText(item.name);
-      }}
+      style={{ paddingLeft: `${level * 20 + 10}px`, fontSize: '0.91rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
     >
-      <i className="fas fa-columns me-2 text-secondary" />
-      <span className="column-name" title={item.comment || ''}>{item.name}</span>
-      {item.comment && <small className="text-muted ms-2">{item.comment}</small>}
-      <span className="column-type text-muted small ms-auto">{item.data_type}</span>
+      <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+        <i className="fas fa-columns me-2 text-secondary" />
+        <span 
+          className="column-name" 
+          title={item.comment || ''}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            insertText(item.name);
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          {item.name}
+        </span>
+        {item.comment && <small className="text-muted ms-2">{item.comment}</small>}
+        <span className="column-type text-muted small ms-auto">{item.data_type}</span>
+      </div>
+      <input
+        type="checkbox"
+        checked={isColumnSelected}
+        onChange={(e) => {
+          e.stopPropagation();
+          toggleColumnSelection(parentTableName!, item.name);
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+        style={{ marginLeft: '8px' }}
+      />
     </ListGroup.Item>
   );
 };
