@@ -58,16 +58,6 @@ const ResultsViewer: React.FC<ResultsViewerProps> = ({
   hasMoreData = false,
   isLoadMoreLoading = false
 }) => {
-  // propsの受け渡しをログ出力
-  console.log('🎯 ResultsViewer props:');
-  console.log('  hasMoreData:', hasMoreData);
-  console.log('  sessionId:', sessionId);
-  console.log('  onLoadMore exists:', !!onLoadMore);
-  console.log('  isLoadMoreLoading:', isLoadMoreLoading);
-  console.log('  result exists:', !!result);
-  console.log('  result data length:', result?.data?.length);
-  console.log('  result row_count:', result?.row_count);
-
   // 無限スクロール用の状態管理
   const [infiniteData, setInfiniteData] = useState<InfiniteScrollData | null>(null);
   // メインコンテンツ全体のref

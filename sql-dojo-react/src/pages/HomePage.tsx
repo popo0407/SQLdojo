@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import SQLEditor from '../features/editor/SQLEditor';
 import ResultsViewer from '../features/results/ResultsViewer';
 import FilterModal from '../features/results/FilterModal';
@@ -6,57 +6,33 @@ import { useExecuteSql } from '../hooks/useExecuteSql';
 import { useDownloadCsv } from '../hooks/useDownloadCsv';
 import { useConfigSettings } from '../hooks/useConfigSettings';
 import type { SqlExecutionResult, CacheReadResponse } from '../types/api';
-
-// ソート設定の型を定義
-type SortConfig = {
-  key: string;
-  direction: 'asc' | 'desc';
-};
-
-// フィルタ設定の型を定義
-type FilterConfig = {
-  [columnName: string]: string[];
-};
-
-// テーブルの行データを表す型
-type TableRow = Record<string, string | number | boolean | null>;
-
+import { useSqlPageStore } from '../stores/useSqlPageStore';
+import type { TableRow } from '../stores/useSqlPageStore';
 
 const HomePage: React.FC = () => {
-  const [sql, setSql] = useState<string>('SELECT * FROM ');
+  // Zustandストアから状態とsetterを取得
+  const {
+    sql, setSql,
+    sortConfig, setSortConfig,
+    filters, setFilters,
+    filterModal, setFilterModal,
+    sessionId, setSessionId,
+    currentPage, setCurrentPage,
+    hasMoreData, setHasMoreData,
+    allData, setAllData,
+    columns, setColumns,
+    rowCount, setRowCount,
+    execTime, setExecTime,
+    showLimitDialog, setShowLimitDialog,
+    limitDialogData, setLimitDialogData,
+    isLoadingMore, setIsLoadingMore
+  } = useSqlPageStore();
+
   // execResultの未使用を解消
   const { mutate, isPending, isError, error } = useExecuteSql();
 
   // 設定を取得
   const { data: configSettings } = useConfigSettings();
-
-  // ソートとフィルタの状態を追加
-  const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
-  const [filters, setFilters] = useState<FilterConfig>({});
-  
-  // フィルタモーダルの状態
-  const [filterModal, setFilterModal] = useState<{
-    show: boolean;
-    columnName: string;
-  }>({ show: false, columnName: '' });
-
-  // 無限スクロール用の状態
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [hasMoreData, setHasMoreData] = useState(false);
-  const [allData, setAllData] = useState<TableRow[]>([]);
-  const [columns, setColumns] = useState<string[]>([]);
-  const [rowCount, setRowCount] = useState<number>(0);
-  const [execTime, setExecTime] = useState<number>(0);
-
-  // 表示制限時の状態
-  const [showLimitDialog, setShowLimitDialog] = useState(false);
-  const [limitDialogData, setLimitDialogData] = useState<{
-    totalCount: number;
-    message: string;
-  } | null>(null);
-
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // CSVダウンロード用のフック
   const { downloadCsv, isDownloading } = useDownloadCsv();
@@ -73,7 +49,6 @@ const HomePage: React.FC = () => {
 
   // SQL実行時
   const handleExecute = useCallback(() => {
-    console.log('🚀 SQL実行開始');
     setSortConfig(null);
     setFilters({});
     setCurrentPage(1);
@@ -87,11 +62,7 @@ const HomePage: React.FC = () => {
     setLimitDialogData(null);
     mutate(sql, {
       onSuccess: async (res) => {
-        console.log('✅ SQL実行成功:', res);
-        
-        // 表示制限時の処理
         if (!res.success && res.message && res.total_count) {
-          console.log('📋 表示制限時の処理');
           setSessionId(res.session_id || null);
           setShowLimitDialog(true);
           setLimitDialogData({
@@ -100,34 +71,24 @@ const HomePage: React.FC = () => {
           });
           return;
         }
-
         if (res.success && res.session_id) {
           setSessionId(res.session_id);
-          // ここで /sql/cache/read を呼び出す
           const pageSize = configSettings?.default_page_size || 100;
-          console.log('📡 キャッシュ読み込み開始:', res.session_id, 'pageSize:', pageSize);
-          
           const readRes: CacheReadResponse = await fetch('/api/v1/sql/cache/read', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ session_id: res.session_id, page: 1, page_size: pageSize })
           }).then(r => r.json());
-          
-          console.log('📥 キャッシュ読み込み結果:', readRes);
-          
           if (readRes.success && readRes.data && readRes.columns) {
             const newData = readRes.data.map(rowArr => Object.fromEntries(readRes.columns!.map((col, i) => [col, rowArr[i]])));
-            console.log('📊 データ変換結果:', newData.length, '件');
-            
             resetPagingState(newData, readRes.columns, readRes.total_count || newData.length, readRes.execution_time || 0);
           } else {
-            console.log('❌ キャッシュ読み込み失敗');
             resetPagingState([], [], 0, 0);
           }
         }
       }
     });
-  }, [sql, mutate, configSettings]);
+  }, [sql, mutate, configSettings, setSortConfig, setFilters, setCurrentPage, setAllData, setColumns, setRowCount, setExecTime, setHasMoreData, setSessionId, setShowLimitDialog, setLimitDialogData]);
 
   // 表示制限時のCSVダウンロードハンドラ
   const handleLimitDialogDownload = useCallback(() => {
@@ -136,7 +97,7 @@ const HomePage: React.FC = () => {
       setShowLimitDialog(false);
       setLimitDialogData(null);
     }
-  }, [sessionId, downloadCsv]);
+  }, [sessionId, downloadCsv, setShowLimitDialog, setLimitDialogData]);
 
   // CSVダウンロードハンドラ（session_idベース）
   const handleDownloadCsv = useCallback(() => {
@@ -144,7 +105,6 @@ const HomePage: React.FC = () => {
       alert('SQLを実行してからCSVダウンロードしてください。');
       return;
     }
-    // CSVダウンロード制限チェック
     if (configSettings?.max_records_for_csv_download && rowCount > configSettings.max_records_for_csv_download) {
       alert(`CSVダウンロード制限を超過しています（${rowCount.toLocaleString()}件）。クエリを制限してから再実行してください。`);
       return;
@@ -155,16 +115,12 @@ const HomePage: React.FC = () => {
   // ソートハンドラ（API経由）
   const handleSort = useCallback(async (key: string) => {
     if (!sessionId) return;
-
     let direction: 'asc' | 'desc' = 'asc';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     }
-    
     const newSortConfig = { key, direction };
     setSortConfig(newSortConfig);
-
-    // API経由でソートされたデータを取得
     try {
       const pageSize = configSettings?.default_page_size || 100;
       const readRes: CacheReadResponse = await fetch('/api/v1/sql/cache/read', {
@@ -179,7 +135,6 @@ const HomePage: React.FC = () => {
           filters,
         })
       }).then(r => r.json());
-
       if (readRes.success && readRes.data && readRes.columns) {
         const newData = readRes.data.map(rowArr => Object.fromEntries(readRes.columns!.map((col, i) => [col, rowArr[i]])));
         resetPagingState(newData, readRes.columns, readRes.total_count || newData.length, readRes.execution_time || 0);
@@ -189,8 +144,8 @@ const HomePage: React.FC = () => {
     } catch (err) {
       console.error('ソートエラー:', err);
     }
-  }, [sessionId, sortConfig, configSettings, filters]);
-  
+  }, [sessionId, sortConfig, configSettings, filters, setSortConfig, setAllData, setColumns, setRowCount, setExecTime, setCurrentPage, setHasMoreData]);
+
   // フィルタハンドラ
   const handleFilter = (key: string) => {
     setFilterModal({ show: true, columnName: key });
@@ -199,7 +154,6 @@ const HomePage: React.FC = () => {
   // フィルタを適用するハンドラ（API経由）
   const handleApplyFilters = useCallback(async (columnName: string, filterValues: string[]) => {
     if (!sessionId) return;
-
     const newFilters = { ...filters };
     if (filterValues.length === 0) {
       delete newFilters[columnName];
@@ -207,8 +161,6 @@ const HomePage: React.FC = () => {
       newFilters[columnName] = filterValues;
     }
     setFilters(newFilters);
-
-    // API経由でフィルタされたデータを取得
     try {
       const pageSize = configSettings?.default_page_size || 100;
       const readRes: CacheReadResponse = await fetch('/api/v1/sql/cache/read', {
@@ -223,7 +175,6 @@ const HomePage: React.FC = () => {
           sort_order: sortConfig?.direction?.toUpperCase() || 'ASC'
         })
       }).then(r => r.json());
-
       if (readRes.success && readRes.data && readRes.columns) {
         const newData = readRes.data.map(rowArr => Object.fromEntries(readRes.columns!.map((col, i) => [col, rowArr[i]])));
         resetPagingState(newData, readRes.columns, readRes.total_count || newData.length, readRes.execution_time || 0);
@@ -233,23 +184,17 @@ const HomePage: React.FC = () => {
     } catch (err) {
       console.error('フィルタエラー:', err);
     }
-  }, [sessionId, filters, sortConfig, configSettings]);
+  }, [sessionId, filters, sortConfig, configSettings, setFilters, setAllData, setColumns, setRowCount, setExecTime, setCurrentPage, setHasMoreData]);
 
   // 無限スクロール用のデータ読み込みハンドラ
   const handleLoadMore = useCallback(async () => {
-    console.log('🔄 handleLoadMore 呼び出し');
-    
     if (!sessionId || isLoadingMore || !(allData.length < rowCount)) {
-      console.log('❌ handleLoadMore をスキップ');
       return;
     }
-
     setIsLoadingMore(true);
-
     try {
       const nextPage = currentPage + 1;
       const pageSize = configSettings?.default_page_size || 100;
-      
       const readRes: CacheReadResponse = await fetch('/api/v1/sql/cache/read', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -262,13 +207,11 @@ const HomePage: React.FC = () => {
           sort_order: sortConfig?.direction?.toUpperCase() || 'ASC'
         })
       }).then(r => r.json());
-
       if (readRes.success && readRes.data && readRes.columns) {
         const newData = (readRes.data || []).map(rowArr => 
           Object.fromEntries((readRes.columns || []).map((col, i) => [col, rowArr[i]]))
         );
-        
-        setAllData(prev => [...prev, ...newData]);
+        setAllData(allData.concat(newData));
         setCurrentPage(nextPage);
         setHasMoreData(allData.length + newData.length < (readRes.total_count || 0));
         setRowCount(readRes.total_count || 0);
@@ -279,9 +222,8 @@ const HomePage: React.FC = () => {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [sessionId, isLoadingMore, allData, rowCount, currentPage, filters, sortConfig, configSettings]);
-  
-  // processedDataを適用した新しいresultオブジェクトを作成
+  }, [sessionId, isLoadingMore, allData, rowCount, currentPage, filters, sortConfig, configSettings, setAllData, setCurrentPage, setHasMoreData, setRowCount, setExecTime, setIsLoadingMore]);
+
   const processedResult: SqlExecutionResult | undefined = (columns.length > 0)
     ? {
         success: true,
@@ -289,7 +231,7 @@ const HomePage: React.FC = () => {
         columns,
         row_count: rowCount,
         execution_time: execTime,
-        sql: sql, // sqlプロパティを必ず付与
+        sql: sql,
         session_id: sessionId || undefined
       }
     : undefined;
@@ -307,7 +249,6 @@ const HomePage: React.FC = () => {
           isDownloading={isDownloading}
         />
       </div>
-      
       <div style={{ flexGrow: 1, marginTop: '1rem', display: 'flex', overflow: 'hidden' }}>
         <ResultsViewer
           result={processedResult}
@@ -324,7 +265,6 @@ const HomePage: React.FC = () => {
           isLoadMoreLoading={isLoadingMore}
         />
       </div>
-
       {/* フィルタモーダル */}
       {allData && allData.length > 0 && (
         <FilterModal
@@ -337,7 +277,6 @@ const HomePage: React.FC = () => {
           onApplyFilters={(filterValues) => handleApplyFilters(filterModal.columnName, filterValues)}
         />
       )}
-
       {/* 表示制限ダイアログ */}
       {showLimitDialog && limitDialogData && (
         <div style={{
