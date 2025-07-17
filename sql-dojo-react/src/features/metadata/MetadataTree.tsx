@@ -8,6 +8,9 @@ interface MetadataTreeProps {
 }
 
 const MetadataTree: React.FC<MetadataTreeProps> = ({ schemas }) => {
+  if (!schemas || schemas.length === 0) {
+    return null; // 何も描画しない
+  }
   return (
     <ListGroup>
       {schemas.map((schema) => (

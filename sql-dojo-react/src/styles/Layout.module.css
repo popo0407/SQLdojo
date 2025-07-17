@@ -33,3 +33,22 @@
   display: flex; /* 追加 */
   flex-direction: column; /* 追加 */
 } 
+
+.homeContainer {
+  display: flex;
+  flex-direction: column;
+  /* 画面の高さいっぱいに広がるように指定を追加 */
+  height: 100vh;
+}
+
+.resizeHandle {
+  background-color: #e0e0e0;
+  width: 2px;
+  cursor: col-resize;
+}
+
+/* vertical方向のresizeHandleのスタイルを追加 */
+.resizeHandle[data-panel-group-direction='vertical'] {
+  height: 2px;
+  cursor: row-resize;
+}

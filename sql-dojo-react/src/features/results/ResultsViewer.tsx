@@ -3,6 +3,7 @@ import ResultTable from './ResultTable';
 import { Alert, Spinner, Stack } from 'react-bootstrap';
 import styles from './Results.module.css';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
+import FilterModal from './FilterModal';
 
 // 無限スクロール用の型定義
 type TableRow = Record<string, string | number | boolean | null>;
@@ -18,10 +19,8 @@ type InfiniteScrollData = {
 const ResultsViewer: React.FC = () => {
   const {
     allData, columns, rowCount, execTime, sortConfig, filters, sessionId, hasMoreData, isLoadingMore,
-    isPending, isError, error, applySort, setFilterModal, loadMoreData
+    isPending, isError, error, applySort, setFilterModal, filterModal, loadMoreData
   } = useSqlPageStore();
-  // onSort, onFilter, onLoadMore もストアのアクションを直接呼ぶ形に（仮でコメントアウト）
-  // const { onSort, onFilter, onLoadMore } = useSqlPageStore();
   // 無限スクロール用の状態管理
   const [infiniteData, setInfiniteData] = useState<InfiniteScrollData | null>(null);
   // メインコンテンツ全体のref
@@ -125,6 +124,14 @@ const ResultsViewer: React.FC = () => {
     ? `${activeFilters.length}列でフィルタ適用`
     : 'フィルタなし';
 
+  // フィルターモーダルの表示状態・対象列
+  const isFilterModalOpen = filterModal.show;
+
+  // フィルターアイコンクリック時のハンドラ
+  const handleFilterClick = (col: string) => {
+    setFilterModal({ show: true, columnName: col });
+  };
+
   return (
     <div ref={mainContentRef} style={{ width: '100%', height: '100%', overflowY: 'auto', flex: 1 }}>
       <Stack gap={3} className={styles.resultsContainer}>
@@ -140,10 +147,14 @@ const ResultsViewer: React.FC = () => {
           data={displayData.data} 
           sortConfig={sortConfig}
           onSort={applySort}
-          onFilter={(col) => setFilterModal({ show: true, columnName: col })}
+          onFilter={handleFilterClick}
           filters={filters}
         />
-        {hasMoreData && isLoadingMore && ( // isLoadMoreLoadingはストアから
+        {/* フィルターモーダルの表示 */}
+        {isFilterModalOpen && (
+          <FilterModal />
+        )}
+        {hasMoreData && isLoadingMore && (
           <div className="text-center p-3">
             <Spinner animation="border" size="sm">
               <span className="visually-hidden">読み込み中...</span>
