@@ -18,7 +18,7 @@ type InfiniteScrollData = {
 const ResultsViewer: React.FC = () => {
   const {
     allData, columns, rowCount, execTime, sortConfig, filters, sessionId, hasMoreData, isLoadingMore,
-    isPending, isError, error, applySort, setFilterModal
+    isPending, isError, error, applySort, setFilterModal, loadMoreData
   } = useSqlPageStore();
   // onSort, onFilter, onLoadMore もストアのアクションを直接呼ぶ形に（仮でコメントアウト）
   // const { onSort, onFilter, onLoadMore } = useSqlPageStore();
@@ -42,17 +42,15 @@ const ResultsViewer: React.FC = () => {
 
   // スクロール監視用のコールバック（2/3以上で発火）
   const handleScroll = useCallback(() => {
-    // if (!hasMoreData || isLoadMoreLoading || !onLoadMore || !mainContentRef.current) return; // onLoadMoreはストアから
     if (!hasMoreData || isLoadingMore || !mainContentRef.current) return;
     const container = mainContentRef.current;
     const scrollTop = container.scrollTop;
     const scrollHeight = container.scrollHeight;
     const clientHeight = container.clientHeight;
-    // 2/3以上スクロールしたら
     if (scrollTop + clientHeight >= scrollHeight * 2 / 3) {
-      // onLoadMore(); // onLoadMoreはストアから
+      loadMoreData();
     }
-  }, [hasMoreData, isLoadingMore]);
+  }, [hasMoreData, isLoadingMore, loadMoreData]);
 
   // スクロールイベントリスナーの設定（メインコンテンツ全体）
   useEffect(() => {
@@ -142,7 +140,7 @@ const ResultsViewer: React.FC = () => {
           data={displayData.data} 
           sortConfig={sortConfig}
           onSort={applySort}
-          onFilter={(col) => setFilterModal({ show: true, columnName: col, currentFilters: filters[col] || [] })}
+          onFilter={(col) => setFilterModal({ show: true, columnName: col })}
           filters={filters}
         />
         {hasMoreData && isLoadingMore && ( // isLoadMoreLoadingはストアから

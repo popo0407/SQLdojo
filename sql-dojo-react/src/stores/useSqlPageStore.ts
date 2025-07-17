@@ -10,7 +10,7 @@ interface SqlPageState {
   sql: string;
   sortConfig: SortConfig | null;
   filters: FilterConfig;
-  filterModal: { show: boolean; columnName: string; currentFilters: string[] };
+  filterModal: { show: boolean; columnName: string; currentFilters?: string[] };
   sessionId: string | null;
   currentPage: number;
   hasMoreData: boolean;
@@ -32,7 +32,7 @@ interface SqlPageState {
   setSql: (sql: string) => void;
   setSortConfig: (config: SortConfig | null) => void;
   setFilters: (filters: FilterConfig) => void;
-  setFilterModal: (modal: { show: boolean; columnName: string }) => void;
+  setFilterModal: (modal: { show: boolean; columnName: string; currentFilters?: string[] }) => void;
   setSessionId: (id: string | null) => void;
   setCurrentPage: (page: number) => void;
   setHasMoreData: (hasMore: boolean) => void;
@@ -55,6 +55,7 @@ interface SqlPageState {
   applySort: (key: string) => Promise<void>;
   applyFilter: (columnName: string, filterValues: string[]) => Promise<void>;
   downloadCsvLocal: () => void;
+  loadMoreData: () => Promise<void>;
 }
 
 export const useSqlPageStore = create<SqlPageState>((set, get) => ({
@@ -82,7 +83,12 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
   setSql: (sql) => set({ sql }),
   setSortConfig: (sortConfig) => set({ sortConfig }),
   setFilters: (filters) => set({ filters }),
-  setFilterModal: (filterModal) => set({ filterModal }),
+  setFilterModal: (modal) => {
+    // currentFiltersが未指定ならfiltersから自動セット
+    const filters = get().filters;
+    const col = modal.columnName;
+    set({ filterModal: { ...modal, currentFilters: modal.currentFilters ?? (filters[col] || []) } });
+  },
   setSessionId: (sessionId) => set({ sessionId }),
   setCurrentPage: (currentPage) => set({ currentPage }),
   setHasMoreData: (hasMoreData) => set({ hasMoreData }),
@@ -102,70 +108,6 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
   // SQL実行アクション
   executeSql: async () => {
     const state = get();
-    // --- 旧実装: /sql/execute を直接呼ぶ（不要・削除予定） ---
-    /*
-    try {
-      const res = await fetch('/api/v1/sql/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sql: state.sql })
-      }).then(r => r.json());
-      if (!res.success && res.message && res.total_count) {
-        set({
-          sessionId: res.session_id || null,
-          showLimitDialog: true,
-          limitDialogData: {
-            totalCount: res.total_count,
-            message: res.message
-          }
-        });
-        set({ isPending: false });
-        return;
-      }
-      // 追加: session_idがなくてもdata/columnsがあれば直接セット
-      if (res.success && res.data && res.columns) {
-        set({
-          allData: res.data,
-          rawData: res.data,
-          columns: res.columns,
-          rowCount: res.row_count || res.data.length,
-          execTime: res.execution_time || 0,
-          currentPage: 1,
-          hasMoreData: false,
-          sessionId: res.session_id || null
-        });
-        set({ isPending: false });
-        return;
-      }
-      if (res.success && res.session_id) {
-        set({ sessionId: res.session_id });
-        const pageSize = state.configSettings?.default_page_size || 100;
-        const readRes = await fetch('/api/v1/sql/cache/read', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ session_id: res.session_id, page: 1, page_size: pageSize })
-        }).then(r => r.json());
-        if (readRes.success && readRes.data && readRes.columns) {
-          const newData = readRes.data.map((rowArr: any[], idx: number) => Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]])));
-          set({
-            allData: newData,
-            rawData: newData,
-            columns: readRes.columns,
-            rowCount: readRes.total_count || newData.length,
-            execTime: readRes.execution_time || 0,
-            currentPage: 1,
-            hasMoreData: newData.length < (readRes.total_count || newData.length)
-          });
-        } else {
-          set({ allData: [], rawData: [], columns: [], rowCount: 0, execTime: 0 });
-        }
-      }
-      set({ isPending: false });
-    } catch (err: any) {
-      set({ isPending: false, isError: true, error: err });
-    }
-    */
-    // --- 新実装: /sql/cache/execute を必ず使う ---
     try {
       set({ isPending: true, isError: false, error: null });
       const res = await fetch('/api/v1/sql/cache/execute', {
@@ -175,7 +117,6 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
       }).then(r => r.json());
       if (!res.success || !res.session_id) {
         set({ isPending: false, isError: true, error: new Error(res.message || 'session_idが返されませんでした') });
-        alert(res.message || 'SQL実行に失敗しました（session_idがありません）');
         return;
       }
       set({ sessionId: res.session_id });
@@ -185,24 +126,25 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ session_id: res.session_id, page: 1, page_size: pageSize })
       }).then(r => r.json());
-      if (readRes.success && readRes.data && readRes.columns) {
-        const newData = readRes.data.map((rowArr: any[], idx: number) => Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]])));
-        set({
-          allData: newData,
-          rawData: newData,
-          columns: readRes.columns,
-          rowCount: readRes.total_count || newData.length,
-          execTime: readRes.execution_time || 0,
-          currentPage: 1,
-          hasMoreData: newData.length < (readRes.total_count || newData.length)
-        });
-      } else {
-        set({ allData: [], rawData: [], columns: [], rowCount: 0, execTime: 0 });
+      if (!readRes.success || !readRes.data || !readRes.columns) {
+        set({ isPending: false, isError: true, error: new Error(readRes.message || 'データ取得に失敗しました') });
+        return;
       }
-      set({ isPending: false });
+      const newData = readRes.data.map((rowArr: any[], idx: number) => Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]])));
+      set({
+        allData: newData,
+        rawData: newData,
+        columns: readRes.columns,
+        rowCount: readRes.total_count || newData.length,
+        execTime: readRes.execution_time || 0,
+        currentPage: 1,
+        hasMoreData: newData.length < (readRes.total_count || newData.length),
+        isPending: false,
+        isError: false,
+        error: null
+      });
     } catch (err: any) {
       set({ isPending: false, isError: true, error: err });
-      alert(err.message || 'SQL実行時にエラーが発生しました');
     }
   },
   // CSVダウンロードアクション
@@ -211,7 +153,22 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
     if (state.sessionId) {
       set({ isDownloading: true });
       try {
-        const res = await fetch(`/api/v1/sql/cache/download?session_id=${state.sessionId}`);
+        // POSTでbodyにsession_id, filters, sort_by, sort_orderを含める
+        const res = await fetch('/api/v1/sql/cache/download/csv', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: state.sessionId,
+            filters: state.filters,
+            sort_by: state.sortConfig?.key,
+            sort_order: state.sortConfig?.direction?.toUpperCase() || 'ASC'
+          })
+        });
+        if (!res.ok) {
+          const errText = await res.text();
+          alert('CSVダウンロードに失敗しました: ' + errText);
+          return;
+        }
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -345,4 +302,69 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
     a.remove();
     window.URL.revokeObjectURL(url);
   },
-})); 
+  loadMoreData: async () => {
+    const state = get();
+    if (!state.sessionId || state.isLoadingMore || !state.hasMoreData) return;
+    set({ isLoadingMore: true });
+    try {
+      const nextPage = state.currentPage + 1;
+      const pageSize = state.configSettings?.default_page_size || 100;
+      const readRes = await fetch('/api/v1/sql/cache/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: state.sessionId,
+          page: nextPage,
+          page_size: pageSize,
+          filters: state.filters,
+          sort_by: state.sortConfig?.key,
+          sort_order: state.sortConfig?.direction?.toUpperCase() || 'ASC'
+        })
+      }).then(r => r.json());
+      if (readRes.success && readRes.data && readRes.columns) {
+        const newData = readRes.data.map((rowArr: any[], idx: number) => Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]])));
+        set({
+          allData: [...state.allData, ...newData],
+          rawData: [...state.rawData, ...newData],
+          currentPage: nextPage,
+          hasMoreData: (state.allData.length + newData.length) < (readRes.total_count || 0),
+          isLoadingMore: false
+        });
+      } else {
+        set({ isLoadingMore: false });
+      }
+    } catch (err: any) {
+      set({ isLoadingMore: false, isError: true, error: err });
+    }
+  },
+}));
+
+// Zustandストアのselector（派生状態）をまとめてエクスポート
+// filteredData: 現在のfiltersを適用したデータ
+// sortedData: filteredDataにsortConfigを適用したデータ
+// pagedData: sortedDataからページネーションを適用したデータ
+export const selectFilteredData = (state: SqlPageState): TableRow[] => {
+  let filtered = state.rawData;
+  Object.entries(state.filters).forEach(([col, vals]) => {
+    filtered = filtered.filter(row => vals.includes(String(row[col])));
+  });
+  return filtered;
+};
+
+export const selectSortedData = (state: SqlPageState): TableRow[] => {
+  const filtered = selectFilteredData(state);
+  if (!state.sortConfig) return filtered;
+  const { key, direction } = state.sortConfig;
+  return [...filtered].sort((a, b) => {
+    if (a[key] === b[key]) return 0;
+    if (direction === 'asc') return a[key] > b[key] ? 1 : -1;
+    return a[key] < b[key] ? 1 : -1;
+  });
+};
+
+export const selectPagedData = (state: SqlPageState): TableRow[] => {
+  const sorted = selectSortedData(state);
+  const pageSize = state.configSettings?.default_page_size || 100;
+  const start = (state.currentPage - 1) * pageSize;
+  return sorted.slice(start, start + pageSize);
+}; 
