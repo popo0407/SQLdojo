@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import { Button, ButtonGroup, Stack, Spinner } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
+import { editor } from 'monaco-editor';
 
 const SQLEditor: React.FC = () => {
   const { sql, setSql } = useSqlPageStore();
@@ -10,6 +11,7 @@ const SQLEditor: React.FC = () => {
   const executeSql = useSqlPageStore((state) => state.executeSql);
   const downloadCsv = useSqlPageStore((state) => state.downloadCsv);
   const isDownloading = useSqlPageStore((state) => state.isDownloading);
+  const setEditor = useSqlPageStore((state) => state.setEditor);
 
   const handleClear = () => {
     setSql('');
@@ -63,6 +65,7 @@ const SQLEditor: React.FC = () => {
           theme="vs-light" // vs-dark or vs-light
           value={sql}
           onChange={(value) => setSql(value || '')}
+          onMount={(editorInstance: editor.IStandaloneCodeEditor) => setEditor(editorInstance)}
           options={{
             fontSize: 14,
             fontFamily: 'Fira Code, JetBrains Mono, Courier New, monospace',

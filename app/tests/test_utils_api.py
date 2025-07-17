@@ -12,7 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
 from app.dependencies import (
-    get_sql_service, get_performance_service, get_completion_service
+    get_sql_service_di, get_performance_service_di, get_completion_service_di
 )
 
 
@@ -38,8 +38,8 @@ class TestHealthCheckAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_sql_service
-        app.dependency_overrides[get_performance_service] = lambda: mock_performance_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        app.dependency_overrides[get_performance_service_di] = lambda: mock_performance_service
         
         try:
             response = client.get("/api/v1/health")
@@ -71,8 +71,8 @@ class TestHealthCheckAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_sql_service
-        app.dependency_overrides[get_performance_service] = lambda: mock_performance_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        app.dependency_overrides[get_performance_service_di] = lambda: mock_performance_service
         
         try:
             response = client.get("/api/v1/health")
@@ -119,7 +119,7 @@ class TestConnectionStatusAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_service
         
         try:
             response = client.get("/api/v1/connection/status")
@@ -142,7 +142,7 @@ class TestConnectionStatusAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_service
         
         try:
             response = client.get("/api/v1/connection/status")
@@ -173,7 +173,7 @@ class TestPerformanceMetricsAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_performance_service] = lambda: mock_service
+        app.dependency_overrides[get_performance_service_di] = lambda: mock_service
         
         try:
             response = client.get("/api/v1/performance/metrics")
@@ -194,7 +194,7 @@ class TestPerformanceMetricsAPI:
         mock_service.get_metrics.side_effect = Exception("メトリクス取得エラー")
         
         app = client.app
-        app.dependency_overrides[get_performance_service] = lambda: mock_service
+        app.dependency_overrides[get_performance_service_di] = lambda: mock_service
         
         try:
             response = client.get("/api/v1/performance/metrics")
@@ -233,7 +233,7 @@ class TestSQLSuggestAPI:
         )
         
         app = client.app
-        app.dependency_overrides[get_completion_service] = lambda: mock_service
+        app.dependency_overrides[get_completion_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -277,7 +277,7 @@ class TestSQLSuggestAPI:
         mock_service.get_completions.side_effect = Exception("補完エラー")
         
         app = client.app
-        app.dependency_overrides[get_completion_service] = lambda: mock_service
+        app.dependency_overrides[get_completion_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -318,7 +318,7 @@ class TestSQLSuggestAPI:
         )
         
         app = client.app
-        app.dependency_overrides[get_completion_service] = lambda: mock_service
+        app.dependency_overrides[get_completion_service_di] = lambda: mock_service
         
         try:
             response = client.post(

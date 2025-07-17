@@ -11,8 +11,8 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 from app.dependencies import (
-    get_user_service, get_admin_service, get_session_service,
-    get_hybrid_sql_service, get_streaming_state_service
+    get_user_service_di, get_admin_service_di, get_session_service_di,
+    get_hybrid_sql_service_di, get_streaming_state_service_di
 )
 
 
@@ -29,7 +29,7 @@ class TestUserLoginAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_user_service] = lambda: mock_service
+        app.dependency_overrides[get_user_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -54,7 +54,7 @@ class TestUserLoginAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_user_service] = lambda: mock_service
+        app.dependency_overrides[get_user_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -74,7 +74,7 @@ class TestUserLoginAPI:
         mock_service.authenticate_user.side_effect = Exception("認証システムエラー")
         
         app = client.app
-        app.dependency_overrides[get_user_service] = lambda: mock_service
+        app.dependency_overrides[get_user_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -99,9 +99,9 @@ class TestUserLogoutAPI:
         mock_streaming_service = Mock()
         
         app = client.app
-        app.dependency_overrides[get_session_service] = lambda: mock_session_service
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_hybrid_service
-        app.dependency_overrides[get_streaming_state_service] = lambda: mock_streaming_service
+        app.dependency_overrides[get_session_service_di] = lambda: mock_session_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_service
+        app.dependency_overrides[get_streaming_state_service_di] = lambda: mock_streaming_service
         
         try:
             # セッションを設定してからログアウト
@@ -122,9 +122,9 @@ class TestUserLogoutAPI:
     def test_logout_without_session(self, client: TestClient):
         """セッションなしでのログアウトのテスト"""
         app = client.app
-        app.dependency_overrides[get_session_service] = lambda: Mock()
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: Mock()
-        app.dependency_overrides[get_streaming_state_service] = lambda: Mock()
+        app.dependency_overrides[get_session_service_di] = lambda: Mock()
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: Mock()
+        app.dependency_overrides[get_streaming_state_service_di] = lambda: Mock()
         
         try:
             response = client.post("/api/v1/logout")
@@ -150,7 +150,7 @@ class TestUserRefreshAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_user_service] = lambda: mock_service
+        app.dependency_overrides[get_user_service_di] = lambda: mock_service
         
         try:
             # セッションを設定
@@ -192,7 +192,7 @@ class TestAdminLoginAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_admin_service] = lambda: mock_service
+        app.dependency_overrides[get_admin_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -218,7 +218,7 @@ class TestAdminLoginAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_admin_service] = lambda: mock_service
+        app.dependency_overrides[get_admin_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -238,7 +238,7 @@ class TestAdminLoginAPI:
         mock_service.authenticate_admin.side_effect = Exception("管理者認証システムエラー")
         
         app = client.app
-        app.dependency_overrides[get_admin_service] = lambda: mock_service
+        app.dependency_overrides[get_admin_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -268,7 +268,7 @@ class TestUserInfoAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_user_service] = lambda: mock_service
+        app.dependency_overrides[get_user_service_di] = lambda: mock_service
         
         try:
             # 認証を設定
@@ -319,7 +319,7 @@ class TestUserHistoryAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         
         try:
             # 認証を設定

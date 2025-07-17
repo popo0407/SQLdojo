@@ -12,7 +12,7 @@ import os
 import sqlite3
 from datetime import datetime
 
-from app.main import app
+from app.tests.test_main import app
 from app.api.models import UserInfo
 from app.dependencies import (
     get_sql_service_di, get_metadata_service_di, get_performance_service_di,

@@ -10,8 +10,8 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, MagicMock
 from app.dependencies import (
-    get_export_service, get_connection_manager, get_current_user,
-    get_hybrid_sql_service
+    get_export_service_di, get_connection_manager_di, get_current_user,
+    get_hybrid_sql_service_di
 )
 
 
@@ -25,7 +25,7 @@ class TestExportAPI:
         mock_service.export_to_csv_stream.return_value = mock_stream
         
         app = client.app
-        app.dependency_overrides[get_export_service] = lambda: mock_service
+        app.dependency_overrides[get_export_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -61,7 +61,7 @@ class TestExportAPI:
         mock_service.export_to_csv_stream.side_effect = Exception("データベース接続エラー")
         
         app = client.app
-        app.dependency_overrides[get_export_service] = lambda: mock_service
+        app.dependency_overrides[get_export_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -99,7 +99,7 @@ class TestSQLDownloadCSVAPI:
         mock_connection_manager.get_connection.return_value = ("conn_1", mock_connection)
         
         app = client.app
-        app.dependency_overrides[get_connection_manager] = lambda: mock_connection_manager
+        app.dependency_overrides[get_connection_manager_di] = lambda: mock_connection_manager
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -132,7 +132,7 @@ class TestSQLDownloadCSVAPI:
         mock_connection_manager.get_connection.return_value = ("conn_1", mock_connection)
         
         app = client.app
-        app.dependency_overrides[get_connection_manager] = lambda: mock_connection_manager
+        app.dependency_overrides[get_connection_manager_di] = lambda: mock_connection_manager
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -176,7 +176,7 @@ class TestSQLDownloadCSVAPI:
         mock_connection_manager.get_connection.return_value = ("conn_1", mock_connection)
         
         app = client.app
-        app.dependency_overrides[get_connection_manager] = lambda: mock_connection_manager
+        app.dependency_overrides[get_connection_manager_di] = lambda: mock_connection_manager
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -206,7 +206,7 @@ class TestCacheDownloadCSVAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -237,7 +237,7 @@ class TestCacheDownloadCSVAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -257,7 +257,7 @@ class TestCacheDownloadCSVAPI:
         mock_service.get_cached_data.side_effect = Exception("キャッシュエラー")
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -282,7 +282,7 @@ class TestCacheDownloadCSVAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(

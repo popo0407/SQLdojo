@@ -11,8 +11,8 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 from app.dependencies import (
-    get_hybrid_sql_service, get_current_user, get_sql_log_service,
-    get_streaming_state_service, get_session_service
+    get_hybrid_sql_service_di, get_current_user, get_sql_log_service_di,
+    get_streaming_state_service_di, get_session_service_di
 )
 
 
@@ -22,9 +22,9 @@ class TestCacheSQLExecuteAPI:
     def test_cache_execute_sql_success(self, client: TestClient, mock_hybrid_sql_service, mock_user):
         """正常なキャッシュSQL実行のテスト"""
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_hybrid_sql_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_sql_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: Mock()
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
         
         try:
             response = client.post(
@@ -52,9 +52,9 @@ class TestCacheSQLExecuteAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: Mock()
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
         
         try:
             response = client.post(
@@ -77,9 +77,9 @@ class TestCacheSQLExecuteAPI:
         mock_service.execute_sql_with_cache.side_effect = Exception("データベース接続エラー")
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: Mock()
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
         
         try:
             response = client.post(
@@ -100,7 +100,7 @@ class TestCacheReadAPI:
     def test_cache_read_success(self, client: TestClient, mock_hybrid_sql_service):
         """正常なキャッシュデータ読み出しのテスト"""
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_hybrid_sql_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_sql_service
         
         try:
             response = client.post(
@@ -139,7 +139,7 @@ class TestCacheReadAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -174,7 +174,7 @@ class TestCacheReadAPI:
         mock_service.get_cached_data.side_effect = Exception("キャッシュが見つかりません")
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -207,7 +207,7 @@ class TestCacheDownloadCSVAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -238,7 +238,7 @@ class TestCacheDownloadCSVAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -266,7 +266,7 @@ class TestCacheUniqueValuesAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -291,7 +291,7 @@ class TestCacheUniqueValuesAPI:
         mock_service.get_unique_values.side_effect = Exception("カラムが見つかりません")
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
         
         try:
             response = client.post(
@@ -323,7 +323,7 @@ class TestSessionStatusAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_streaming_state_service] = lambda: mock_service
+        app.dependency_overrides[get_streaming_state_service_di] = lambda: mock_service
         
         try:
             response = client.get("/api/v1/sql/cache/status/test_session_123")
@@ -349,8 +349,8 @@ class TestCancelStreamingAPI:
         mock_hybrid_service.cleanup_session.return_value = True
         
         app = client.app
-        app.dependency_overrides[get_streaming_state_service] = lambda: mock_streaming_service
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_hybrid_service
+        app.dependency_overrides[get_streaming_state_service_di] = lambda: mock_streaming_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_service
         
         try:
             response = client.post(

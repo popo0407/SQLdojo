@@ -9,8 +9,8 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 import json
 from app.dependencies import (
-    get_sql_service, get_hybrid_sql_service, get_current_user,
-    get_sql_log_service, get_metadata_service, get_export_service
+    get_sql_service_di, get_hybrid_sql_service_di, get_current_user,
+    get_sql_log_service_di, get_metadata_service_di, get_export_service_di
 )
 
 
@@ -64,11 +64,11 @@ class TestSQLExecutionWorkflow:
         ])
         
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_sql_service
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_hybrid_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_log_service
-        app.dependency_overrides[get_export_service] = lambda: mock_export_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_log_service
+        app.dependency_overrides[get_export_service_di] = lambda: mock_export_service
         
         try:
             sql_query = "SELECT * FROM test_table"
@@ -130,10 +130,10 @@ class TestSQLExecutionWorkflow:
         mock_hybrid_service.execute_sql_with_cache.side_effect = Exception("テーブルが見つかりません")
         
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_sql_service
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_hybrid_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: Mock()
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
         
         try:
             invalid_sql = "SELECT *"
@@ -188,12 +188,12 @@ class TestMetadataWorkflow:
         ]
         
         app = client.app
-        app.dependency_overrides[get_metadata_service] = lambda: mock_metadata_service
+        app.dependency_overrides[get_metadata_service_di] = lambda: mock_metadata_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         # 他の必要な依存関係もモック
-        from app.dependencies import get_visibility_control_service, get_user_preference_service
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        from app.dependencies import get_user_preference_service_di
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             # 1. スキーマ一覧取得
@@ -266,9 +266,9 @@ class TestCacheWorkflow:
         mock_hybrid_service.get_cached_data.side_effect = mock_get_cached_data
         
         app = client.app
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_hybrid_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: Mock()
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
         
         try:
             # 1. SQL実行してキャッシュ作成
@@ -363,10 +363,10 @@ class TestUserSessionWorkflow:
         }
         
         app = client.app
-        from app.dependencies import get_user_service
-        app.dependency_overrides[get_user_service] = lambda: mock_user_service
-        app.dependency_overrides[get_hybrid_sql_service] = lambda: mock_hybrid_service
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_log_service
+        from app.dependencies import get_user_service_di
+        app.dependency_overrides[get_user_service_di] = lambda: mock_user_service
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_log_service
         
         try:
             # 1. ユーザーログイン
@@ -420,9 +420,9 @@ class TestErrorRecoveryWorkflow:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_sql_service
-        from app.dependencies import get_performance_service
-        app.dependency_overrides[get_performance_service] = lambda: Mock(get_metrics=Mock(return_value={}))
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        from app.dependencies import get_performance_service_di
+        app.dependency_overrides[get_performance_service_di] = lambda: Mock(get_metrics=Mock(return_value={}))
         
         try:
             # 1. ヘルスチェック（接続エラー状態）

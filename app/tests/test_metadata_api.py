@@ -12,8 +12,8 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock
 from datetime import datetime
 from app.dependencies import (
-    get_metadata_service, get_current_user, get_current_admin,
-    get_visibility_control_service, get_user_preference_service
+    get_metadata_service_di, get_current_user, get_current_admin,
+    get_visibility_control_service_di, get_user_preference_service_di
 )
 
 
@@ -23,10 +23,10 @@ class TestMetadataSchemaAPI:
     def test_get_schemas_success(self, client: TestClient, mock_metadata_service, mock_user):
         """正常なスキーマ取得のテスト"""
         app = client.app
-        app.dependency_overrides[get_metadata_service] = lambda: mock_metadata_service
+        app.dependency_overrides[get_metadata_service_di] = lambda: mock_metadata_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/metadata/schemas")
@@ -46,10 +46,10 @@ class TestMetadataSchemaAPI:
         mock_service.get_schemas.side_effect = Exception("メタデータ接続エラー")
         
         app = client.app
-        app.dependency_overrides[get_metadata_service] = lambda: mock_service
+        app.dependency_overrides[get_metadata_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/metadata/schemas")
@@ -67,10 +67,10 @@ class TestMetadataTableAPI:
     def test_get_tables_success(self, client: TestClient, mock_metadata_service, mock_user):
         """正常なテーブル取得のテスト"""
         app = client.app
-        app.dependency_overrides[get_metadata_service] = lambda: mock_metadata_service
+        app.dependency_overrides[get_metadata_service_di] = lambda: mock_metadata_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/metadata/tables?schema_name=PUBLIC")
@@ -107,10 +107,10 @@ class TestMetadataTableAPI:
         ]
         
         app = client.app
-        app.dependency_overrides[get_metadata_service] = lambda: mock_service
+        app.dependency_overrides[get_metadata_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/metadata/tables?schema_name=PUBLIC&limit=5&offset=0")
@@ -129,10 +129,10 @@ class TestMetadataColumnAPI:
     def test_get_columns_success(self, client: TestClient, mock_metadata_service, mock_user):
         """正常なカラム取得のテスト"""
         app = client.app
-        app.dependency_overrides[get_metadata_service] = lambda: mock_metadata_service
+        app.dependency_overrides[get_metadata_service_di] = lambda: mock_metadata_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/metadata/columns?schema_name=PUBLIC&table_name=test_table")
@@ -168,10 +168,10 @@ class TestMetadataColumnAPI:
         mock_service.get_columns.side_effect = Exception("テーブルが見つかりません")
         
         app = client.app
-        app.dependency_overrides[get_metadata_service] = lambda: mock_service
+        app.dependency_overrides[get_metadata_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/metadata/columns?schema_name=PUBLIC&table_name=non_existent")
@@ -209,7 +209,7 @@ class TestAdminMetadataAPI:
         ]
         
         app = client.app
-        app.dependency_overrides[get_metadata_service] = lambda: mock_service
+        app.dependency_overrides[get_metadata_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_admin] = lambda: {"user_id": mock_admin.user_id, "user_name": mock_admin.user_name}
         
         try:
@@ -251,7 +251,7 @@ class TestVisibilitySettingsAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_visibility_control_service] = lambda: mock_service
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_admin] = lambda: {"user_id": mock_admin.user_id, "user_name": mock_admin.user_name}
         
         try:
@@ -271,7 +271,7 @@ class TestVisibilitySettingsAPI:
         mock_service.save_visibility_settings.return_value = True
         
         app = client.app
-        app.dependency_overrides[get_visibility_control_service] = lambda: mock_service
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_admin] = lambda: {"user_id": mock_admin.user_id, "user_name": mock_admin.user_name}
         
         try:

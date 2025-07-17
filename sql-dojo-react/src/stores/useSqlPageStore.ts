@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { editor, Selection } from 'monaco-editor';
 
 // 型定義
 export type SortConfig = { key: string; direction: 'asc' | 'desc' };
@@ -28,6 +29,7 @@ interface SqlPageState {
   isConfigLoading: boolean;
   isDownloading: boolean;
   rawData: TableRow[];
+  editor: editor.IStandaloneCodeEditor | null;
   // setters
   setSql: (sql: string) => void;
   setSortConfig: (config: SortConfig | null) => void;
@@ -49,6 +51,8 @@ interface SqlPageState {
   setConfigSettings: (settings: ConfigSettings | null) => void;
   setIsConfigLoading: (loading: boolean) => void;
   setIsDownloading: (downloading: boolean) => void;
+  setEditor: (editor: editor.IStandaloneCodeEditor | null) => void;
+  insertText: (text: string) => void;
   // 新規アクション
   executeSql: () => Promise<void>;
   downloadCsv: () => Promise<void>;
@@ -80,6 +84,7 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
   isConfigLoading: true,
   isDownloading: false,
   rawData: [],
+  editor: null,
   setSql: (sql) => set({ sql }),
   setSortConfig: (sortConfig) => set({ sortConfig }),
   setFilters: (filters) => set({ filters }),
@@ -105,6 +110,33 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
   setConfigSettings: (configSettings) => set({ configSettings }),
   setIsConfigLoading: (isConfigLoading) => set({ isConfigLoading }),
   setIsDownloading: (isDownloading) => set({ isDownloading }),
+  setEditor: (editor) => set({ editor }),
+  insertText: (text) => {
+    const { editor } = get();
+    if (!editor) return;
+    let selection = editor.getSelection();
+    if (!selection) {
+      const position = editor.getPosition();
+      if (position) {
+        selection = new Selection(
+          position.lineNumber,
+          position.column,
+          position.lineNumber,
+          position.column,
+        );
+      }
+    }
+    if (selection) {
+      const op = {
+        identifier: { major: 1, minor: 1 },
+        range: selection,
+        text: text,
+        forceMoveMarkers: true,
+      };
+      editor.executeEdits('sidebar-insert', [op]);
+    }
+    editor.focus();
+  },
   // SQL実行アクション
   executeSql: async () => {
     const state = get();

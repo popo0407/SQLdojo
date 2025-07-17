@@ -12,8 +12,8 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock
 from datetime import datetime
 from app.dependencies import (
-    get_template_service, get_part_service, get_current_user,
-    get_user_preference_service, get_visibility_control_service
+    get_template_service_di, get_part_service_di, get_current_user,
+    get_user_preference_service_di, get_visibility_control_service_di
 )
 
 
@@ -33,7 +33,7 @@ class TestTemplateAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_template_service] = lambda: mock_service
+        app.dependency_overrides[get_template_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -77,10 +77,10 @@ class TestTemplateAPI:
         ]
         
         app = client.app
-        app.dependency_overrides[get_template_service] = lambda: mock_service
+        app.dependency_overrides[get_template_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/templates")
@@ -107,7 +107,7 @@ class TestTemplateAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_template_service] = lambda: mock_service
+        app.dependency_overrides[get_template_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -134,7 +134,7 @@ class TestTemplateAPI:
         mock_service.delete_template.return_value = True
         
         app = client.app
-        app.dependency_overrides[get_template_service] = lambda: mock_service
+        app.dependency_overrides[get_template_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -165,7 +165,7 @@ class TestPartAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_part_service] = lambda: mock_service
+        app.dependency_overrides[get_part_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -209,10 +209,10 @@ class TestPartAPI:
         ]
         
         app = client.app
-        app.dependency_overrides[get_part_service] = lambda: mock_service
+        app.dependency_overrides[get_part_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/parts?category=condition")
@@ -250,10 +250,10 @@ class TestPartAPI:
         ]
         
         app = client.app
-        app.dependency_overrides[get_part_service] = lambda: mock_service
+        app.dependency_overrides[get_part_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_visibility_control_service] = lambda: Mock()
-        app.dependency_overrides[get_user_preference_service] = lambda: Mock()
+        app.dependency_overrides[get_visibility_control_service_di] = lambda: Mock()
+        app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
             response = client.get("/api/v1/parts")
@@ -284,7 +284,7 @@ class TestUserTemplatePreferencesAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_user_preference_service] = lambda: mock_service
+        app.dependency_overrides[get_user_preference_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -305,7 +305,7 @@ class TestUserTemplatePreferencesAPI:
         mock_service.update_user_template_preferences.return_value = True
         
         app = client.app
-        app.dependency_overrides[get_user_preference_service] = lambda: mock_service
+        app.dependency_overrides[get_user_preference_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -340,7 +340,7 @@ class TestUserPartPreferencesAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_user_preference_service] = lambda: mock_service
+        app.dependency_overrides[get_user_preference_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -362,7 +362,7 @@ class TestUserPartPreferencesAPI:
         mock_service.update_user_part_preferences.return_value = True
         
         app = client.app
-        app.dependency_overrides[get_user_preference_service] = lambda: mock_service
+        app.dependency_overrides[get_user_preference_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -400,8 +400,8 @@ class TestTemplateDropdownAPI:
         ]
         
         app = client.app
-        app.dependency_overrides[get_template_service] = lambda: mock_template_service
-        app.dependency_overrides[get_user_preference_service] = lambda: mock_user_pref_service
+        app.dependency_overrides[get_template_service_di] = lambda: mock_template_service
+        app.dependency_overrides[get_user_preference_service_di] = lambda: mock_user_pref_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -433,8 +433,8 @@ class TestPartDropdownAPI:
         ]
         
         app = client.app
-        app.dependency_overrides[get_part_service] = lambda: mock_part_service
-        app.dependency_overrides[get_user_preference_service] = lambda: mock_user_pref_service
+        app.dependency_overrides[get_part_service_di] = lambda: mock_part_service
+        app.dependency_overrides[get_user_preference_service_di] = lambda: mock_user_pref_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:

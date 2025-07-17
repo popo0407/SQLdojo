@@ -24,9 +24,9 @@ class TestSQLExecuteAPI:
         """正常なSQL実行のテスト"""
         # 依存関係をオーバーライド
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_sql_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: Mock()
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
         
         try:
             response = client.post(
@@ -47,9 +47,9 @@ class TestSQLExecuteAPI:
     def test_execute_sql_empty_query(self, client: TestClient, mock_sql_service, mock_user):
         """空のSQLクエリのテスト"""
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_sql_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: Mock()
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
         
         try:
             response = client.post(
@@ -77,9 +77,9 @@ class TestSQLExecuteAPI:
         )
         
         app = client.app
-        app.dependency_overrides[get_sql_service] = lambda: mock_sql_service
+        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
-        app.dependency_overrides[get_sql_log_service] = lambda: Mock()
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
         
         try:
             response = client.post(
@@ -108,7 +108,7 @@ class TestSQLValidateAPI:
         )
         
         app = client.app
-        app.dependency_overrides[get_sql_validator] = lambda: mock_validator
+        app.dependency_overrides[get_sql_validator_di] = lambda: mock_validator
         
         try:
             response = client.post(
@@ -136,7 +136,7 @@ class TestSQLValidateAPI:
         )
         
         app = client.app
-        app.dependency_overrides[get_sql_validator] = lambda: mock_validator
+        app.dependency_overrides[get_sql_validator_di] = lambda: mock_validator
         
         try:
             response = client.post(
@@ -174,7 +174,7 @@ class TestSQLFormatAPI:
         mock_validator.format_sql.return_value = "SELECT *\nFROM test_table\nWHERE id = 1"
         
         app = client.app
-        app.dependency_overrides[get_sql_validator] = lambda: mock_validator
+        app.dependency_overrides[get_sql_validator_di] = lambda: mock_validator
         
         try:
             response = client.post(
@@ -197,7 +197,7 @@ class TestSQLFormatAPI:
         mock_validator.format_sql.side_effect = Exception("フォーマットエラー")
         
         app = client.app
-        app.dependency_overrides[get_sql_validator] = lambda: mock_validator
+        app.dependency_overrides[get_sql_validator_di] = lambda: mock_validator
         
         try:
             response = client.post(

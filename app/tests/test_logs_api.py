@@ -11,7 +11,7 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
 from datetime import datetime
-from app.dependencies import get_sql_log_service, get_current_user, get_current_admin
+from app.dependencies import get_sql_log_service_di, get_current_user, get_current_admin
 
 
 class TestSQLLogsAPI:
@@ -47,7 +47,7 @@ class TestSQLLogsAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -84,7 +84,7 @@ class TestSQLLogsAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -108,7 +108,7 @@ class TestSQLLogsAPI:
         mock_service.get_logs.side_effect = Exception("ログデータベースエラー")
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -152,7 +152,7 @@ class TestAdminSQLLogsAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_admin] = lambda: {"user_id": mock_admin.user_id, "user_name": mock_admin.user_name}
         
         try:
@@ -192,7 +192,7 @@ class TestClearSQLLogsAPI:
         mock_service.clear_logs.return_value = True
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -213,7 +213,7 @@ class TestClearSQLLogsAPI:
         mock_service.clear_logs.side_effect = Exception("ログクリアエラー")
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -229,7 +229,7 @@ class TestClearSQLLogsAPI:
         mock_service.clear_logs.return_value = True
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_admin] = lambda: {"user_id": mock_admin.user_id, "user_name": mock_admin.user_name}
         
         try:
@@ -278,7 +278,7 @@ class TestLogAnalyticsAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
@@ -303,7 +303,7 @@ class TestLogExportAPI:
         mock_service.export_logs_to_csv.return_value = "log_id,user_id,sql,execution_time,timestamp\n1,test_user,SELECT * FROM table1,0.5,2025-01-17T09:00:00\n"
         
         app = client.app
-        app.dependency_overrides[get_sql_log_service] = lambda: mock_service
+        app.dependency_overrides[get_sql_log_service_di] = lambda: mock_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
