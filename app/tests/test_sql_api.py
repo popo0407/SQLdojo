@@ -9,7 +9,12 @@
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
-from app.dependencies import get_sql_service, get_sql_validator, get_current_user, get_sql_log_service
+from app.dependencies import (
+    get_sql_service_di,
+    get_sql_validator_di,
+    get_current_user,
+    get_sql_log_service_di
+)
 
 
 class TestSQLExecuteAPI:

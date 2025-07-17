@@ -1,27 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Badge, ListGroup } from 'react-bootstrap';
 import { apiClient } from '../../api/apiClient';
+import { useSqlPageStore } from '../../stores/useSqlPageStore';
 
-interface FilterModalProps {
-  show: boolean;
-  onHide: () => void;
-  columnName: string;
-  sessionId: string;
-  filters: { [columnName: string]: string[] };
-  currentFilters: string[];
-  onApplyFilters: (filters: string[]) => void;
-}
-
-const FilterModal: React.FC<FilterModalProps> = ({
-  show,
-  onHide,
-  columnName,
-  sessionId,
-  filters,
-  currentFilters,
-  onApplyFilters
-}) => {
-  const [selectedValues, setSelectedValues] = useState<string[]>(currentFilters);
+const FilterModal: React.FC = () => {
+  const { filterModal, setFilterModal, sessionId, filters, applyFilter } = useSqlPageStore();
+  const [selectedValues, setSelectedValues] = useState<string[]>(filterModal.currentFilters);
   const [searchTerm, setSearchTerm] = useState('');
   const [uniqueValues, setUniqueValues] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,14 +14,20 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
   // ユニーク値をAPI経由で取得
   useEffect(() => {
-    if (!show) return;
+    if (!filterModal.show) return;
+    if (!sessionId) {
+      setUniqueValues([]);
+      setIsLoading(false);
+      setError('セッションIDがありません。');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     setUniqueValues([]);
     setIsTruncated(false);
     apiClient.post<{ values: string[]; truncated?: boolean }, any>(
       '/sql/cache/unique-values',
-      { session_id: sessionId, column_name: columnName, filters }
+      { session_id: sessionId, column_name: filterModal.columnName, filters }
     )
       .then(res => {
         setUniqueValues(res.values || []);
@@ -45,7 +35,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
       })
       .catch(e => setError(e.message || 'ユニーク値の取得に失敗しました'))
       .finally(() => setIsLoading(false));
-  }, [show, sessionId, columnName, JSON.stringify(filters)]);
+  }, [filterModal.show, sessionId, filterModal.columnName, JSON.stringify(filters)]);
 
   // 検索フィルタを適用した値
   const filteredValues = uniqueValues.filter(value =>
@@ -61,8 +51,9 @@ const FilterModal: React.FC<FilterModalProps> = ({
   };
 
   const handleApply = () => {
-    onApplyFilters(selectedValues);
-    onHide();
+    applyFilter(filterModal.columnName, selectedValues);
+    setFilterModal({ ...filterModal, currentFilters: selectedValues });
+    setFilterModal({ ...filterModal, show: false });
   };
 
   const handleClear = () => {
@@ -79,17 +70,17 @@ const FilterModal: React.FC<FilterModalProps> = ({
 
   // モーダルが開くたびに現在のフィルタを設定
   useEffect(() => {
-    if (show) {
-      setSelectedValues(currentFilters);
+    if (filterModal.show) {
+      setSelectedValues(filterModal.currentFilters);
     }
-  }, [show, currentFilters]);
+  }, [filterModal.show, filterModal.currentFilters]);
 
   return (
-    <Modal show={show} onHide={onHide} size="lg">
+    <Modal show={filterModal.show} onHide={() => setFilterModal({ ...filterModal, show: false })} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
           <i className="fas fa-filter me-2"></i>
-          {columnName} のフィルタ
+          {filterModal.columnName} のフィルタ
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -169,7 +160,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
         <Button variant="secondary" onClick={handleClear}>
           クリア
         </Button>
-        <Button variant="secondary" onClick={onHide}>
+        <Button variant="secondary" onClick={() => setFilterModal({ ...filterModal, show: false })}>
           キャンセル
         </Button>
         <Button variant="primary" onClick={handleApply}>

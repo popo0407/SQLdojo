@@ -1,19 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import type { SqlExecutionResult } from '../../types/api';
 import ResultTable from './ResultTable';
 import { Alert, Spinner, Stack } from 'react-bootstrap';
 import styles from './Results.module.css';
-
-// SortConfigの型定義をインポートまたは定義
-type SortConfig = {
-  key: string;
-  direction: 'asc' | 'desc';
-};
-
-// FilterConfigの型定義を追加
-type FilterConfig = {
-  [columnName: string]: string[];
-};
+import { useSqlPageStore } from '../../stores/useSqlPageStore';
 
 // 無限スクロール用の型定義
 type TableRow = Record<string, string | number | boolean | null>;
@@ -26,38 +15,13 @@ type InfiniteScrollData = {
   isLoading: boolean;
 };
 
-interface ResultsViewerProps {
-  result: SqlExecutionResult | undefined;
-  isLoading: boolean;
-  isError: boolean;
-  error: Error | null;
-  // 以下を追記
-  sortConfig: SortConfig | null;
-  onSort: (key: string) => void;
-  onFilter: (key: string) => void;
-  // フィルタ情報を追加
-  filters?: FilterConfig;
-  // 無限スクロール用のプロパティを追加
-  sessionId?: string;
-  onLoadMore?: () => void;
-  hasMoreData?: boolean;
-  isLoadMoreLoading?: boolean;
-}
-
-const ResultsViewer: React.FC<ResultsViewerProps> = ({ 
-  result, 
-  isLoading, 
-  isError, 
-  error, 
-  sortConfig, 
-  onSort, 
-  onFilter,
-  filters = {},
-  sessionId,
-  onLoadMore,
-  hasMoreData = false,
-  isLoadMoreLoading = false
-}) => {
+const ResultsViewer: React.FC = () => {
+  const {
+    allData, columns, rowCount, execTime, sortConfig, filters, sessionId, hasMoreData, isLoadingMore,
+    isPending, isError, error, applySort, setFilterModal
+  } = useSqlPageStore();
+  // onSort, onFilter, onLoadMore もストアのアクションを直接呼ぶ形に（仮でコメントアウト）
+  // const { onSort, onFilter, onLoadMore } = useSqlPageStore();
   // 無限スクロール用の状態管理
   const [infiniteData, setInfiniteData] = useState<InfiniteScrollData | null>(null);
   // メインコンテンツ全体のref
@@ -65,38 +29,40 @@ const ResultsViewer: React.FC<ResultsViewerProps> = ({
 
   // 無限スクロールデータの初期化
   useEffect(() => {
-    if (result && result.success && result.data && result.columns) {
+    if (allData && columns) {
       setInfiniteData({
-        data: result.data,
-        columns: result.columns,
-        totalCount: result.row_count || result.data.length,
+        data: allData,
+        columns: columns,
+        totalCount: rowCount || allData.length,
         hasMore: hasMoreData,
         isLoading: false
       });
     }
-  }, [result, hasMoreData]);
+  }, [allData, columns, rowCount, hasMoreData]);
 
   // スクロール監視用のコールバック（2/3以上で発火）
   const handleScroll = useCallback(() => {
-    if (!hasMoreData || isLoadMoreLoading || !onLoadMore || !mainContentRef.current) return;
+    // if (!hasMoreData || isLoadMoreLoading || !onLoadMore || !mainContentRef.current) return; // onLoadMoreはストアから
+    if (!hasMoreData || isLoadingMore || !mainContentRef.current) return;
     const container = mainContentRef.current;
     const scrollTop = container.scrollTop;
     const scrollHeight = container.scrollHeight;
     const clientHeight = container.clientHeight;
     // 2/3以上スクロールしたら
     if (scrollTop + clientHeight >= scrollHeight * 2 / 3) {
-      onLoadMore();
+      // onLoadMore(); // onLoadMoreはストアから
     }
-  }, [hasMoreData, isLoadMoreLoading, onLoadMore]);
+  }, [hasMoreData, isLoadingMore]);
 
   // スクロールイベントリスナーの設定（メインコンテンツ全体）
   useEffect(() => {
     const container = mainContentRef.current;
-    if (hasMoreData && onLoadMore && container) {
+    // if (hasMoreData && onLoadMore && container) { // onLoadMoreはストアから
+    if (hasMoreData && container) {
       container.addEventListener('scroll', handleScroll);
       return () => container.removeEventListener('scroll', handleScroll);
     }
-  }, [handleScroll, hasMoreData, onLoadMore]);
+  }, [handleScroll, hasMoreData]);
 
   // コンテナの高さとスクロール設定を確認
   useEffect(() => {
@@ -109,9 +75,9 @@ const ResultsViewer: React.FC<ResultsViewerProps> = ({
       console.log('  overflow:', window.getComputedStyle(container).overflow);
       console.log('  overflowY:', window.getComputedStyle(container).overflowY);
     }
-  }, [result]);
+  }, [allData]); // allDataが変更されたらコンテナ情報も再確認
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="text-center p-5">
         <Spinner animation="border" role="status">
@@ -121,45 +87,26 @@ const ResultsViewer: React.FC<ResultsViewerProps> = ({
       </div>
     );
   }
-
   if (isError) {
     return <Alert variant="danger">エラー: {error?.message}</Alert>;
   }
-  
-  // 表示制限時の処理
-  if (result && !result.success && result.message && result.total_count) {
-    return (
-      <div className="text-center p-5">
-        <Alert variant="warning">
-          <h5>データが大きすぎます</h5>
-          <p>{result.message}</p>
-          <p>総件数: {result.total_count.toLocaleString()}件</p>
-          <p>CSVダウンロードをご利用ください。</p>
-        </Alert>
-      </div>
-    );
-  }
-  
-  // 実行成功したが、バックエンドでエラーが返ってきた場合
-  if (result && !result.success) {
-    return <Alert variant="warning">実行エラー: {result.error_message}</Alert>;
-  }
 
-  if (!result || !result.data || !result.columns) {
+  // 不要なAPIエラー分岐を削除し、データ配列の有無のみで分岐
+  if (!allData || !columns || columns.length === 0) {
     return <div className="text-center text-muted p-5">実行ボタンを押してSQLを実行してください。</div>;
   }
 
   // 表示用データの決定（無限スクロールデータがある場合はそちらを使用）
   const displayData = infiniteData || {
-    data: result.data,
-    columns: result.columns,
-    totalCount: result.row_count || result.data.length,
+    data: allData,
+    columns: columns,
+    totalCount: rowCount || allData.length,
     hasMore: hasMoreData,
     isLoading: false
   };
 
   // フィルタ後の実際の総件数（APIレスポンスのtotal_countを使用）
-  const actualTotalCount = result.row_count || displayData.totalCount;
+  const actualTotalCount = rowCount || displayData.totalCount;
 
   // デバッグ用：データ量の確認
   console.log('📊 表示データ情報:');
@@ -185,7 +132,7 @@ const ResultsViewer: React.FC<ResultsViewerProps> = ({
       <Stack gap={3} className={styles.resultsContainer}>
         <div className={styles.statsBar}>
           <span><i className="fas fa-list-ol me-1"></i> {actualTotalCount.toLocaleString()} 件</span>
-          <span><i className="fas fa-clock me-1"></i> {result.execution_time?.toFixed(3) || 0} 秒</span>
+          <span><i className="fas fa-clock me-1"></i> {execTime?.toFixed(3) || 0} 秒</span>
           <span><i className="fas fa-sort me-1"></i> {sortInfo}</span>
           <span><i className="fas fa-filter me-1"></i> {filterInfo}</span>
           {sessionId && <span><i className="fas fa-database me-1"></i> セッション: {sessionId}</span>}
@@ -194,11 +141,11 @@ const ResultsViewer: React.FC<ResultsViewerProps> = ({
           columns={displayData.columns} 
           data={displayData.data} 
           sortConfig={sortConfig}
-          onSort={onSort}
-          onFilter={onFilter}
+          onSort={applySort}
+          onFilter={(col) => setFilterModal({ show: true, columnName: col, currentFilters: filters[col] || [] })}
           filters={filters}
         />
-        {hasMoreData && isLoadMoreLoading && (
+        {hasMoreData && isLoadingMore && ( // isLoadMoreLoadingはストアから
           <div className="text-center p-3">
             <Spinner animation="border" size="sm">
               <span className="visually-hidden">読み込み中...</span>

@@ -1,3 +1,6 @@
+// このファイルはZustandストアのexecuteSqlアクションへの統一により不要となりました。
+// 今後削除予定です。
+/*
 import { useMutation } from '@tanstack/react-query';
 import { apiClient, ApiError } from '../api/apiClient';
 import type { ExecuteSqlResponse } from '../types/api';
@@ -11,3 +14,4 @@ export const useExecuteSql = () => {
     mutationFn: executeSql,
   });
 }; 
+*/ 

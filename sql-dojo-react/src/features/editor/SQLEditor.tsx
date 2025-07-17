@@ -2,28 +2,21 @@ import React from 'react';
 import Editor from '@monaco-editor/react';
 import { Button, ButtonGroup, Stack, Spinner } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
+import { useSqlPageStore } from '../../stores/useSqlPageStore';
 
-// このコンポーネントが受け取るPropsの型を定義
-interface SQLEditorProps {
-  sql: string;
-  onSqlChange: (value: string | undefined) => void;
-  onExecute: () => void;
-  onFormat: () => void;
-  onDownloadCsv?: () => void;
-  isDownloading?: boolean;
-}
+const SQLEditor: React.FC = () => {
+  const { sql, setSql } = useSqlPageStore();
+  // zustandストアにexecuteSql, downloadCsv, isDownloading等のアクションがある前提で呼び出す
+  const executeSql = useSqlPageStore((state) => state.executeSql);
+  const downloadCsv = useSqlPageStore((state) => state.downloadCsv);
+  const isDownloading = useSqlPageStore((state) => state.isDownloading);
 
-const SQLEditor: React.FC<SQLEditorProps> = ({ 
-  sql, 
-  onSqlChange, 
-  onExecute, 
-  onFormat, 
-  onDownloadCsv,
-  isDownloading = false 
-}) => {
-  
   const handleClear = () => {
-    onSqlChange('');
+    setSql('');
+  };
+
+  const handleFormat = () => {
+    alert('SQL整形機能は次のフェーズで実装します。');
   };
 
   return (
@@ -31,40 +24,37 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
       {/* ツールバー */}
       <div className={styles.toolbar}>
         <ButtonGroup>
-          <Button variant="outline-secondary" size="sm" onClick={onFormat}>
+          <Button variant="outline-secondary" size="sm" onClick={handleFormat}>
             <i className="fas fa-magic me-1"></i>整形
           </Button>
           <Button variant="outline-secondary" size="sm" onClick={handleClear}>
             <i className="fas fa-eraser me-1"></i>クリア
           </Button>
-          {onDownloadCsv && (
-            <Button 
-              variant="outline-primary" 
-              size="sm" 
-              onClick={onDownloadCsv}
-              disabled={isDownloading || !sql.trim()}
-            >
-              {isDownloading ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-1" />
-                  ダウンロード中...
-                </>
-              ) : (
-                <>
-                  <i className="fas fa-download me-1"></i>CSV
-                </>
-              )}
-            </Button>
-          )}
+          <Button 
+            variant="outline-primary" 
+            size="sm" 
+            onClick={downloadCsv}
+            disabled={isDownloading || !sql.trim()}
+          >
+            {isDownloading ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-1" />
+                ダウンロード中...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-download me-1"></i>CSV
+              </>
+            )}
+          </Button>
         </ButtonGroup>
         {/*
           TODO: テンプレート/パーツ機能は後のフェーズで実装
         */}
-        <Button variant="success" size="sm" onClick={onExecute}>
+        <Button variant="success" size="sm" onClick={executeSql}>
           <i className="fas fa-play me-1"></i>実行 (Ctrl+Enter)
         </Button>
       </div>
-
       {/* Monaco Editor 本体 */}
       <div className={styles.editorWrapper}>
         <Editor
@@ -72,7 +62,7 @@ const SQLEditor: React.FC<SQLEditorProps> = ({
           language="sql"
           theme="vs-light" // vs-dark or vs-light
           value={sql}
-          onChange={onSqlChange}
+          onChange={(value) => setSql(value || '')}
           options={{
             fontSize: 14,
             fontFamily: 'Fira Code, JetBrains Mono, Courier New, monospace',
