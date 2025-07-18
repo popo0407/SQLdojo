@@ -22,12 +22,18 @@ const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName })
     return (
       <>
         <ListGroup.Item
-          style={{ paddingLeft: `${level * 20 + 10}px`, fontSize: '0.95rem', cursor: 'pointer' }}
+          style={{ 
+            paddingLeft: `${level * 20 + 10}px`, 
+            fontSize: '0.95rem', 
+            cursor: 'pointer',
+            backgroundColor: '#fff3cd',
+            borderColor: '#ffeaa7'
+          }}
           onClick={() => setExpanded((prev) => !prev)}
         >
           <i className={`fas ${expanded ? 'fa-chevron-down' : 'fa-chevron-right'} me-2`} />
-          <i className="fas fa-database me-2 text-secondary" />
-          <span className="fw-bold" title={item.comment || ''}>{item.name}</span>
+          <i className="fas fa-database me-2" style={{ color: '#e67e22' }} />
+          <span className="fw-bold" title={item.comment || ''} style={{ color: '#d68910' }}>{item.name}</span>
           {item.comment && <small className="text-muted ms-2">{item.comment}</small>}
         </ListGroup.Item>
         {expanded && item.tables.map((table) => (
@@ -43,7 +49,16 @@ const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName })
     return (
       <>
         <ListGroup.Item
-          style={{ paddingLeft: `${level * 20 + 10}px`, fontSize: '0.93rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          style={{ 
+            paddingLeft: `${level * 20 + 10}px`, 
+            fontSize: '0.93rem', 
+            cursor: 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            backgroundColor: '#e3f2fd',
+            borderColor: '#bbdefb'
+          }}
         >
           <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
             <i
@@ -54,7 +69,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName })
                 setExpanded((prev) => !prev);
               }}
             />
-            <i className={`fas ${item.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} me-2 text-secondary`} />
+            <i className={`fas ${item.table_type === 'VIEW' ? 'fa-eye' : 'fa-table'} me-2`} style={{ color: '#1976d2' }} />
             <span
               className="table-name"
               title={item.comment || ''}
@@ -62,7 +77,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName })
                 e.preventDefault();
                 insertText(item.name);
               }}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', color: '#1565c0' }}
             >
               {item.name}
             </span>
@@ -89,7 +104,15 @@ const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName })
   
   return (
     <ListGroup.Item
-      style={{ paddingLeft: `${level * 20 + 10}px`, fontSize: '0.91rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      style={{ 
+        paddingLeft: `${level * 20 + 10}px`, 
+        fontSize: '0.91rem', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        backgroundColor: '#fafafa',
+        borderColor: '#e0e0e0'
+      }}
     >
       <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
         <i className="fas fa-columns me-2 text-secondary" />
