@@ -1,6 +1,6 @@
-# SQLDojoテストフレームワーク
+# SQLDojo テストフレームワーク
 
-このディレクトリには、SQLDojoプロジェクト全体のテストが含まれています。テストは機能別・API別に適度なサイズで分割されており、機能追加やリファクタリング時に編集しやすい構成になっています。
+このディレクトリには、SQLDojo プロジェクト全体のテストが含まれています。テストは機能別・API 別に適度なサイズで分割されており、機能追加やリファクタリング時に編集しやすい構成になっています。
 
 ## ディレクトリ構成
 
@@ -24,21 +24,21 @@ app/tests/
 
 ## テストファイル別の責務
 
-### API層テスト
+### API 層テスト
 
 - **test_sql_api.py**: `/sql/execute`, `/sql/validate`, `/sql/format`
-- **test_cache_api.py**: `/sql/cache/*` - キャッシュ機能のすべてのAPI
+- **test_cache_api.py**: `/sql/cache/*` - キャッシュ機能のすべての API
 - **test_metadata_api.py**: `/metadata/*` - スキーマ、テーブル、カラム情報
 - **test_auth_api.py**: `/login`, `/logout`, `/refresh`, 認証関連
 - **test_export_api.py**: `/export`, `/sql/download/csv` - データエクスポート
-- **test_logs_api.py**: `/logs/*` - SQL実行ログ、履歴管理
+- **test_logs_api.py**: `/logs/*` - SQL 実行ログ、履歴管理
 - **test_utils_api.py**: `/health`, `/config/*`, `/performance/*` - システム情報
 - **test_template_api.py**: `/templates/*`, `/parts/*` - テンプレート・パーツ管理
 
 ### サービス層・統合テスト
 
 - **test_services.py**: ビジネスロジック層のユニットテスト
-- **test_integration.py**: 複数APIを組み合わせたエンドツーエンドテスト
+- **test_integration.py**: 複数 API を組み合わせたエンドツーエンドテスト
 
 ## テストの実行方法
 
@@ -107,7 +107,7 @@ python app/tests/run_tests.py --parallel
 
 ## テストの追加・編集方法
 
-### 新しいAPIテストの追加
+### 新しい API テストの追加
 
 1. 適切なテストファイル（例：`test_sql_api.py`）を選択
 2. 新しいテストクラスまたはメソッドを追加
@@ -116,7 +116,7 @@ python app/tests/run_tests.py --parallel
 ```python
 class TestNewAPI:
     """新しいAPIのテスト"""
-    
+
     def test_new_api_success(self, client: TestClient, mock_user):
         """正常なAPIリクエストのテスト"""
         # テスト実装
@@ -130,7 +130,7 @@ class TestNewAPI:
 ```python
 class TestNewService:
     """新しいサービスのテスト"""
-    
+
     def test_service_method_success(self):
         """サービスメソッドの正常テスト"""
         # テスト実装
@@ -144,7 +144,7 @@ class TestNewService:
 ```python
 class TestNewWorkflow:
     """新しいワークフローの統合テスト"""
-    
+
     def test_complete_new_workflow(self, client: TestClient):
         """完全な新ワークフローテスト"""
         # テスト実装
@@ -157,7 +157,7 @@ class TestNewWorkflow:
 
 - 外部依存関係（データベース、ファイルシステム）はモックを使用
 - `conftest.py`で共通モックを定義
-- テスト内で`app.dependency_overrides`を使用してDIをオーバーライド
+- テスト内で`app.dependency_overrides`を使用して DI をオーバーライド
 
 ### 2. テストデータ
 
@@ -167,7 +167,7 @@ class TestNewWorkflow:
 ### 3. エラーテストの重要性
 
 - 正常系だけでなく、エラー系のテストも必須
-- 各APIで想定されるエラーパターンをテスト
+- 各 API で想定されるエラーパターンをテスト
 
 ### 4. テストの独立性
 
@@ -207,7 +207,7 @@ pip install pytest-xdist  # 並列実行用（オプション）
 
 1. **依存関係の問題**: モックが正しく設定されているか確認
 2. **設定の問題**: `conftest.py`のフィクスチャが正しく動作しているか確認
-3. **環境の問題**: Pythonパスや環境変数が正しく設定されているか確認
+3. **環境の問題**: Python パスや環境変数が正しく設定されているか確認
 
 ### カバレッジが低い場合
 
@@ -221,9 +221,9 @@ pip install pytest-xdist  # 並列実行用（オプション）
 2. モックを使用して外部依存を削除
 3. 並列実行を使用
 
-## CI/CD統合
+## CI/CD 統合
 
-このテストフレームワークはCI/CDパイプラインに統合可能：
+このテストフレームワークは CI/CD パイプラインに統合可能：
 
 ```bash
 # CI用のテスト実行

@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
 # アプリケーションの基本設定をインポート
 from app.config_simplified import get_settings
@@ -24,6 +25,12 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
+)
+
+# SessionMiddleware設定（テスト用）
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="test-secret-key-for-testing-only"
 )
 
 # CORS設定

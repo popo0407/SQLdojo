@@ -133,21 +133,24 @@ def temp_db() -> Generator[str, None, None]:
 def mock_sql_service():
     """SQLサービスのモック"""
     service = Mock()
-    service.execute_sql.return_value = Mock(
-        success=True,
-        data=[{"column1": "value1", "column2": "value2"}],
-        columns=["column1", "column2"],
-        row_count=1,
-        execution_time=0.1,
-        error_message=None,
-        sql="SELECT * FROM test_table"
-    )
-    service.validate_sql.return_value = Mock(
-        is_valid=True,
-        errors=[],
-        warnings=[],
-        suggestions=[]
-    )
+    service.execute_sql.return_value = {
+        "success": True,
+        "data": [["value1", "value2"]],
+        "columns": ["column1", "column2"],
+        "total_count": 1,
+        "execution_time": 0.1,
+        "error_message": None
+    }
+    service.validate_sql.return_value = {
+        "is_valid": True,
+        "errors": [],
+        "warnings": [],
+        "suggestions": []
+    }
+    service.format_sql.return_value = {
+        "formatted_sql": "SELECT\n    column1,\n    column2\nFROM\n    table1"
+    }
+    return service
     service.format_sql.return_value = Mock(
         formatted_sql="SELECT *\nFROM test_table",
         success=True,

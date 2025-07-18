@@ -148,12 +148,20 @@ class CompletionService:
                 table_name = table_data.get("name", "")
                 if table_name and table_name.upper().startswith(current_word):
                     comment = table_data.get("comment")
-                    default_detail = f"{table_data.get('table_type', 'TABLE')} in {schema_data.get('name')}"
+                    table_type = table_data.get("table_type", "TABLE")
+                    schema_name = schema_data.get("name", "")
+                    
+                    # コメントがある場合はコメントを優先、なければデフォルト形式
+                    if comment:
+                        detail = comment
+                    else:
+                        detail = f"{table_type} in {schema_name}"
+                    
                     suggestions.append(SQLCompletionItem(
                         label=table_name,
-                        kind="table" if table_data.get("table_type") == "TABLE" else "view",
-                        detail=comment or default_detail,
-                        documentation=comment,
+                        kind="table" if table_type == "TABLE" else "view",
+                        detail=detail,
+                        documentation=comment,  # ドキュメントにもコメントを設定
                         insert_text=table_name,
                         sort_text=f"1_{table_name}"
                     ))
@@ -179,10 +187,21 @@ class CompletionService:
         """カラム候補のアイテムを作成する"""
         column_name = column_data.get("name", "")
         comment = column_data.get("comment")
-        default_detail = f"{column_data.get('data_type', '')} in {table_name}"
+        data_type = column_data.get("data_type", "")
+        
+        # コメントがある場合はコメントを優先、なければデフォルト形式
+        if comment:
+            detail = comment
+        else:
+            detail = f"{data_type} in {table_name}"
+        
         return SQLCompletionItem(
-            label=column_name, kind="column", detail=comment or default_detail,
-            documentation=comment, insert_text=column_name, sort_text=f"0_{column_name}"
+            label=column_name, 
+            kind="column", 
+            detail=detail,
+            documentation=comment,  # ドキュメントにもコメントを設定
+            insert_text=column_name, 
+            sort_text=f"0_{column_name}"
         )
 
     def _extract_table_names_from_sql(self, sql: str) -> List[str]:
