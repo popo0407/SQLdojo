@@ -133,34 +133,36 @@ def temp_db() -> Generator[str, None, None]:
 def mock_sql_service():
     """SQLサービスのモック"""
     service = Mock()
-    service.execute_sql.return_value = {
-        "success": True,
-        "data": [["value1", "value2"]],
-        "columns": ["column1", "column2"],
-        "total_count": 1,
-        "execution_time": 0.1,
-        "error_message": None
-    }
-    service.validate_sql.return_value = {
-        "is_valid": True,
-        "errors": [],
-        "warnings": [],
-        "suggestions": []
-    }
-    service.format_sql.return_value = {
-        "formatted_sql": "SELECT\n    column1,\n    column2\nFROM\n    table1"
-    }
-    return service
-    service.format_sql.return_value = Mock(
-        formatted_sql="SELECT *\nFROM test_table",
-        success=True,
-        error_message=None
-    )
-    service.get_connection_status.return_value = {
-        "is_connected": True,
-        "connection_type": "test",
-        "database": "test_db"
-    }
+    
+    # Mock result object with attributes
+    mock_result = Mock()
+    mock_result.success = True
+    mock_result.data = [["value1", "value2"]]
+    mock_result.columns = ["column1", "column2"]
+    mock_result.row_count = 1
+    mock_result.execution_time = 0.1
+    mock_result.error_message = None
+    mock_result.sql = "SELECT * FROM test_table"
+    
+    service.execute_sql.return_value = mock_result
+    
+    # Validate SQL mock
+    mock_validate_result = Mock()
+    mock_validate_result.is_valid = True
+    mock_validate_result.errors = []
+    mock_validate_result.warnings = []
+    mock_validate_result.suggestions = []
+    
+    service.validate_sql.return_value = mock_validate_result
+    
+    # Format SQL mock
+    mock_format_result = Mock()
+    mock_format_result.formatted_sql = "SELECT\n    column1,\n    column2\nFROM\n    table1"
+    mock_format_result.success = True
+    mock_format_result.error_message = None
+    
+    service.format_sql.return_value = mock_format_result
+    
     return service
 
 
@@ -168,16 +170,21 @@ def mock_sql_service():
 def mock_metadata_service():
     """メタデータサービスのモック"""
     service = Mock()
-    service.get_schemas.return_value = [
-        {"name": "PUBLIC", "created_on": datetime.now(), "is_default": True}
-    ]
-    service.get_tables.return_value = [
-        {"name": "test_table", "schema_name": "PUBLIC", "table_type": "BASE TABLE"}
-    ]
-    service.get_columns.return_value = [
-        {"name": "column1", "data_type": "VARCHAR", "is_nullable": True},
-        {"name": "column2", "data_type": "INTEGER", "is_nullable": False}
-    ]
+    service.get_schemas.return_value = {
+        "schemas": ["PUBLIC", "SCHEMA1"]
+    }
+    service.get_tables.return_value = {
+        "tables": [
+            {"table_name": "test_table", "schema_name": "PUBLIC", "table_type": "BASE TABLE"}
+        ],
+        "total_count": 1
+    }
+    service.get_columns.return_value = {
+        "columns": [
+            {"column_name": "column1", "data_type": "VARCHAR", "is_nullable": True},
+            {"column_name": "column2", "data_type": "INTEGER", "is_nullable": False}
+        ]
+    }
     return service
 
 
@@ -203,6 +210,47 @@ def mock_hybrid_sql_service():
         "total_pages": 1,
         "session_info": {"session_id": "test_session_123"},
         "execution_time": 0.1
+    }
+    return service
+
+
+@pytest.fixture
+def mock_export_service():
+    """ExportServiceのモック"""
+    service = Mock()
+    # CSVデータのモック
+    csv_data = "column1,column2\nvalue1,value2\nvalue3,value4"
+    service.export_to_csv_stream.return_value = csv_data
+    return service
+
+
+@pytest.fixture  
+def mock_streaming_state_service():
+    """StreamingStateServiceのモック"""
+    service = Mock()
+    service.get_session_status.return_value = {
+        "session_id": "test_session_123",
+        "status": "completed",
+        "progress": 100,
+        "message": "処理が完了しました"
+    }
+    service.cancel_session.return_value = True
+    return service
+
+
+@pytest.fixture
+def mock_user_service():
+    """UserServiceのモック"""
+    service = Mock()
+    service.authenticate_user.return_value = {
+        "success": True,
+        "user_id": "test_user",
+        "user_name": "Test User"
+    }
+    service.get_user_info.return_value = {
+        "user_id": "test_user", 
+        "user_name": "Test User",
+        "last_login": "2025-07-19T00:00:00"
     }
     return service
 

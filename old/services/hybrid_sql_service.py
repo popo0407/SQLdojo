@@ -241,7 +241,3 @@ class HybridSQLService:
     def get_session_status(self, session_id: str) -> Optional[Dict[str, Any]]:
         """セッションの状態を取得"""
         return self.cache_service.get_session_info(session_id)
-    
-    def get_unique_values(self, session_id: str, column_name: str, limit: int = 100, filters: Optional[Dict] = None) -> dict:
-        """キャッシュテーブルから指定カラムのユニーク値（最大limit件）を取得（連鎖フィルター対応）"""
-        return self.cache_service.get_unique_values(session_id, column_name, limit, filters)

@@ -20,7 +20,7 @@
 
 * **ローカルとGitHubを紐付ける (プロジェクトごと)**:
     ```bash
-    git remote add origin <GitHubリポジトリのURL>
+    git remote add origin https://github.com/popo0407/SQLdojo
     ```
     → ローカルリポジトリとGitHub上のリモートリポジトリを接続する。
 

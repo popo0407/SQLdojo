@@ -440,15 +440,3 @@ class CancelResponse(BaseModel):
     success: bool = Field(..., description="キャンセル成功フラグ")
     message: Optional[str] = Field(default=None, description="メッセージ")
     error_message: Optional[str] = Field(default=None, description="エラーメッセージ")
-
-
-class CacheUniqueValuesRequest(BaseModel):
-    session_id: str = Field(..., description="セッションID")
-    column_name: str = Field(..., description="ユニーク値を取得するカラム名")
-    limit: int = Field(default=100, description="最大取得件数")
-    filters: Optional[Dict[str, List[str]]] = Field(default=None, description="連鎖フィルター用のフィルタ条件")
-
-class CacheUniqueValuesResponse(BaseModel):
-    values: list = Field(..., description="ユニーク値リスト")
-    total_count: int = Field(..., description="ユニーク値の総件数")
-    is_truncated: bool = Field(..., description="上限超過で一部のみ返却か")

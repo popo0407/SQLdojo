@@ -32,7 +32,7 @@ from app.api.models import (
     UpdateTemplatePreferencesRequest, UpdatePartPreferencesRequest, UpdateTemplateRequest,
     TemplateDropdownResponse, PartDropdownResponse,
     CacheSQLRequest, CacheSQLResponse, CacheReadRequest, CacheReadResponse,
-    SessionStatusResponse, CancelRequest, CancelResponse, CacheUniqueValuesRequest, CacheUniqueValuesResponse
+    SessionStatusResponse, CancelRequest, CancelResponse
 )
 from app.sql_validator import validate_sql, format_sql
 from app.logger import get_logger, log_execution_time, get_performance_metrics
@@ -1236,80 +1236,3 @@ async def download_csv_endpoint(
     except Exception as e:
         logger.error(f"CSVダウンロードエラー: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"CSVダウンロードに失敗しました: {str(e)}")
-
-@router.post("/sql/cache/download/csv")
-@log_execution_time("cache_download_csv")
-async def download_cached_csv_endpoint(
-    request: CacheReadRequest,
-    hybrid_sql_service: HybridSQLServiceDep
-):
-    """キャッシュされたデータをCSVでダウンロード"""
-    logger.info(f"キャッシュCSVダウンロード要求, session_id={request.session_id}")
-
-    if not request.session_id:
-        raise HTTPException(status_code=400, detail="session_idが必要です")
-
-    try:
-        # 全件取得（フィルタ・ソート条件付き）
-        result = hybrid_sql_service.get_cached_data(
-            request.session_id,
-            page=1,
-            page_size=1000000,  # 大きな値で全件取得
-            filters=request.filters,
-            sort_by=request.sort_by,
-            sort_order=request.sort_order
-        )
-        
-        if not result['success'] or not result['data'] or not result['columns']:
-            raise HTTPException(status_code=404, detail="データが見つかりません")
-
-        # CSVデータを生成
-        output = io.StringIO()
-        writer = csv.writer(output)
-        
-        # ヘッダー行
-        writer.writerow(result['columns'])
-        
-        # データ行
-        for row in result['data']:
-            writer.writerow(row)
-        
-        csv_content = output.getvalue()
-        output.close()
-        
-        # ファイル名を生成
-        filename = f"query_result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        
-        return StreamingResponse(
-            io.StringIO(csv_content),
-            media_type="text/csv; charset=utf-8",
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
-        )
-        
-    except Exception as e:
-        logger.error(f"キャッシュCSVダウンロードエラー: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"CSVダウンロードに失敗しました: {str(e)}")
-
-@router.post("/sql/cache/unique-values", response_model=CacheUniqueValuesResponse)
-async def get_cache_unique_values(
-    request: CacheUniqueValuesRequest,
-    hybrid_sql_service: HybridSQLServiceDep
-):
-    """キャッシュテーブルから指定カラムのユニーク値を取得（連鎖フィルター対応）"""
-    logger.info(f"キャッシュユニーク値取得要求, session_id={request.session_id}, column={request.column_name}, limit={request.limit}, filters={request.filters}")
-    
-    try:
-        result = hybrid_sql_service.get_unique_values(
-            request.session_id,
-            request.column_name,
-            request.limit,
-            request.filters
-        )
-        return CacheUniqueValuesResponse(
-            values=result['values'],
-            total_count=result['total_count'],
-            is_truncated=result['is_truncated']
-        )
-    except Exception as e:
-        logger.error(f"キャッシュユニーク値取得エラー: {e}")
-        raise HTTPException(status_code=500, detail=f"ユニーク値の取得に失敗しました: {str(e)}")

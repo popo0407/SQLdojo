@@ -6,8 +6,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse
-# from fastapi.staticfiles import StaticFiles
-# from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 import time
 import os
 
@@ -85,33 +85,45 @@ async def add_process_time_header(request: Request, call_next):
 
 # --- ルーターと静的ファイルの設定 ---
 app.include_router(router, prefix="/api/v1")
-# 静的ファイルとテンプレートはReactに移行済みのため、コメントアウト
-# app.mount("/static", StaticFiles(directory="app/static"), name="static")
-# templates = Jinja2Templates(directory="app/templates")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+templates = Jinja2Templates(directory="app/templates")
 
 
 # --- ルート定義 (エンドポイント) ---
 
-# HTMLテンプレートはReactに移行済みのため、APIエンドポイントのみ提供
-@app.get("/login")
-async def login_page():
-    return {"message": "Reactアプリケーションに移行済みです"}
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
 
-@app.get("/")
-async def root():
-    return {"message": "Reactアプリケーションに移行済みです"}
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    user = request.session.get("user")
+    if not user:
+        return RedirectResponse(url="/login")
+    
+    # public_server_url を渡す必要はありません
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/admin")
-async def admin_page():
-    return {"message": "Reactアプリケーションに移行済みです"}
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page(request: Request):
+    is_admin = request.session.get("is_admin", False)
+    return templates.TemplateResponse("admin.html", {"request": request, "is_admin": is_admin})
 
-@app.get("/user")
-async def user_page():
-    return {"message": "Reactアプリケーションに移行済みです"}
+@app.get("/user", response_class=HTMLResponse)
+async def user_page(request: Request):
+    user = request.session.get("user")
+    if not user:
+        return RedirectResponse(url="/login")
+    
+    return templates.TemplateResponse("user.html", {"request": request})
 
-@app.get("/manage-templates")
-async def template_management_page():
-    return {"message": "Reactアプリケーションに移行済みです"}
+@app.get("/manage-templates", response_class=HTMLResponse)
+async def template_management_page(request: Request):
+    user = request.session.get("user")
+    if not user:
+        return RedirectResponse(url="/login")
+    
+    return templates.TemplateResponse("template-management.html", {"request": request})
 
 @app.get("/api/health")
 async def health_check():
