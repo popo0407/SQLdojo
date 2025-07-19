@@ -1,152 +1,60 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React from 'react';
 import ResultTable from './ResultTable';
-import { Alert, Spinner, Stack } from 'react-bootstrap';
+import { Stack } from 'react-bootstrap';
 import styles from './Results.module.css';
 import { useResultsStore } from '../../stores/useResultsStore';
 import { useUIStore } from '../../stores/useUIStore';
 import FilterModal from './FilterModal';
-
-// 無限スクロール用の型定義
-type TableRow = Record<string, string | number | boolean | null>;
-
-type InfiniteScrollData = {
-  data: TableRow[];
-  columns: string[];
-  totalCount: number;
-  hasMore: boolean;
-  isLoading: boolean;
-};
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
+import { useResultsDisplay } from '../../hooks/useResultsDisplay';
+import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { ErrorAlert } from '../../components/common/ErrorAlert';
+import { EmptyState } from '../../components/common/EmptyState';
+import { ResultsStats } from '../../components/results/ResultsStats';
 
 const ResultsViewer: React.FC = () => {
   // 結果ストアから状態とアクションを取得
   const {
-    allData, columns, rowCount, execTime, sortConfig, filters, sessionId, hasMoreData,
-    applySort, loadMoreData
+    execTime, sortConfig, filters, sessionId, applySort
   } = useResultsStore();
   
   // UIストアから状態を取得
   const { isPending, isError, error, isLoadingMore, filterModal, setFilterModal } = useUIStore();
   
-  // 無限スクロール用の状態管理
-  const [infiniteData, setInfiniteData] = useState<InfiniteScrollData | null>(null);
-  // メインコンテンツ全体のref
-  const mainContentRef = useRef<HTMLDivElement>(null);
-
-  // 無限スクロールデータの初期化
-  useEffect(() => {
-    if (allData && columns) {
-      setInfiniteData({
-        data: allData,
-        columns: columns,
-        totalCount: rowCount || allData.length,
-        hasMore: hasMoreData,
-        isLoading: false
-      });
-    }
-  }, [allData, columns, rowCount, hasMoreData]);
-
-  // スクロール監視用のコールバック（2/3以上で発火）
-  const handleScroll = useCallback(() => {
-    if (!hasMoreData || isLoadingMore || !mainContentRef.current) return;
-    const container = mainContentRef.current;
-    const scrollTop = container.scrollTop;
-    const scrollHeight = container.scrollHeight;
-    const clientHeight = container.clientHeight;
-    if (scrollTop + clientHeight >= scrollHeight * 2 / 3) {
-      loadMoreData();
-    }
-  }, [hasMoreData, isLoadingMore, loadMoreData]);
-
-  // スクロールイベントリスナーの設定（メインコンテンツ全体）
-  useEffect(() => {
-    const container = mainContentRef.current;
-    if (hasMoreData && container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
-  }, [handleScroll, hasMoreData]);
-
-  // コンテナの高さとスクロール設定を確認
-  useEffect(() => {
-    if (mainContentRef.current) {
-      const container = mainContentRef.current;
-      console.log('📏 コンテナ情報:');
-      console.log('  offsetHeight:', container.offsetHeight);
-      console.log('  clientHeight:', container.clientHeight);
-      console.log('  scrollHeight:', container.scrollHeight);
-      console.log('  overflow:', window.getComputedStyle(container).overflow);
-      console.log('  overflowY:', window.getComputedStyle(container).overflowY);
-    }
-  }, [allData]); // allDataが変更されたらコンテナ情報も再確認
-
-  if (isPending) {
-    return (
-      <div className="text-center p-5">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">実行中...</span>
-        </Spinner>
-        <p className="mt-2">SQLを実行中...</p>
-      </div>
-    );
-  }
-  if (isError) {
-    return <Alert variant="danger">エラー: {error?.message}</Alert>;
-  }
-
-  // 不要なAPIエラー分岐を削除し、データ配列の有無のみで分岐
-  if (!allData || !columns || columns.length === 0) {
-    return <div className="text-center text-muted p-5">実行ボタンを押してSQLを実行してください。</div>;
-  }
-
-  // 表示用データの決定（無限スクロールデータがある場合はそちらを使用）
-  const displayData = infiniteData || {
-    data: allData,
-    columns: columns,
-    totalCount: rowCount || allData.length,
-    hasMore: hasMoreData,
-    isLoading: false
-  };
-
-  // フィルタ後の実際の総件数（APIレスポンスのtotal_countを使用）
-  const actualTotalCount = rowCount || displayData.totalCount;
-
-  // デバッグ用：データ量の確認
-  console.log('📊 表示データ情報:');
-  console.log('  displayData.data.length:', displayData.data.length);
-  console.log('  displayData.columns.length:', displayData.columns.length);
-  console.log('  actualTotalCount:', actualTotalCount);
-  console.log('  hasMoreData:', hasMoreData);
-  console.log('  sessionId:', sessionId);
-
-  // 現在のソート情報を表示
-  const sortInfo = sortConfig 
-    ? `${sortConfig.key} (${sortConfig.direction === 'asc' ? '昇順' : '降順'})`
-    : '並び替えなし';
-
-  // フィルタ情報を表示
-  const activeFilters = Object.values(filters).filter((values) => values.length > 0);
-  const filterInfo = activeFilters.length > 0
-    ? `${activeFilters.length}列でフィルタ適用`
-    : 'フィルタなし';
-
-  // フィルターモーダルの表示状態・対象列
-  const isFilterModalOpen = filterModal.show;
+  // カスタムフックを使用
+  const { containerRef, hasMoreData } = useInfiniteScroll();
+  const { displayData, actualTotalCount, hasData } = useResultsDisplay();
 
   // フィルターアイコンクリック時のハンドラ
   const handleFilterClick = (col: string) => {
     setFilterModal({ show: true, columnName: col });
   };
 
+  // ローディング状態
+  if (isPending) {
+    return <LoadingSpinner message="SQLを実行中..." />;
+  }
+
+  // エラー状態
+  if (isError) {
+    return <ErrorAlert error={error} />;
+  }
+
+  // データなし状態
+  if (!hasData) {
+    return <EmptyState />;
+  }
+
   return (
-    <div ref={mainContentRef} style={{ width: '100%', height: '100%', overflowY: 'auto', flex: 1 }}>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', overflowY: 'auto', flex: 1 }}>
       <Stack gap={3} className={styles.resultsContainer}>
-        <div className={styles.statsBar}>
-          <span><i className="fas fa-list-ol me-1"></i> {actualTotalCount.toLocaleString()} 件</span>
-          <span><i className="fas fa-clock me-1"></i> {execTime?.toFixed(3) || 0} 秒</span>
-          <span><i className="fas fa-sort me-1"></i> {sortInfo}</span>
-          <span><i className="fas fa-filter me-1"></i> {filterInfo}</span>
-          {sessionId && <span><i className="fas fa-database me-1"></i> セッション: {sessionId}</span>}
-        </div>
+        <ResultsStats
+          totalCount={actualTotalCount}
+          execTime={execTime}
+          sortConfig={sortConfig}
+          filters={filters}
+          sessionId={sessionId || undefined}
+        />
         <ResultTable 
           columns={displayData.columns} 
           data={displayData.data} 
@@ -156,15 +64,11 @@ const ResultsViewer: React.FC = () => {
           filters={filters}
         />
         {/* フィルターモーダルの表示 */}
-        {isFilterModalOpen && (
+        {filterModal.show && (
           <FilterModal />
         )}
         {hasMoreData && isLoadingMore && (
-          <div className="text-center p-3">
-            <Spinner animation="border" size="sm">
-              <span className="visually-hidden">読み込み中...</span>
-            </Spinner>
-          </div>
+          <LoadingSpinner message="読み込み中..." size="sm" />
         )}
       </Stack>
     </div>
