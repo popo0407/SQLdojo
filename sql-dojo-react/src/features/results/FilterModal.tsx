@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Badge, ListGroup } from 'react-bootstrap';
-import { apiClient } from '../../api/apiClient';
+import { getUniqueValues } from '../../api/metadataService';
 import { useResultsStore } from '../../stores/useResultsStore';
 import { useUIStore } from '../../stores/useUIStore';
 
@@ -27,15 +27,16 @@ const FilterModal: React.FC = () => {
     setError(null);
     setUniqueValues([]);
     setIsTruncated(false);
-    apiClient.post<{ values: string[]; truncated?: boolean }>(
-      '/sql/cache/unique-values',
-      { session_id: sessionId, column_name: filterModal.columnName, filters }
-    )
+    getUniqueValues({
+      session_id: sessionId,
+      column_name: filterModal.columnName,
+      filters
+    })
       .then(res => {
         setUniqueValues(res.values || []);
         setIsTruncated(!!res.truncated);
       })
-      .catch(e => setError(e.message || 'ユニーク値の取得に失敗しました'))
+      .catch((e: Error) => setError(e.message || 'ユニーク値の取得に失敗しました'))
       .finally(() => setIsLoading(false));
   }, [filterModal.show, sessionId, filterModal.columnName, JSON.stringify(filters)]);
 

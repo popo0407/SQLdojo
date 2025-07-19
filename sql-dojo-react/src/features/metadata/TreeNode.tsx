@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
-import type { Schema, Table, Column } from '../../types/metadata';
+import type { Schema, Table, Column } from '../../types/api';
 import { useEditorStore } from '../../stores/useEditorStore';
 import { useSidebarStore } from '../../stores/useSidebarStore';
 

@@ -76,10 +76,27 @@ export interface MetadataColumn {
   comment?: string;
 }
 
+// カラム型定義
+export interface Column {
+  name: string;
+  data_type: string;
+  comment: string | null;
+}
+
+// テーブル型定義
+export interface Table {
+  name: string;
+  schema_name: string;
+  table_type: 'TABLE' | 'VIEW';
+  comment: string | null;
+  columns: Column[];
+}
+
 // スキーマ型定義
 export interface Schema {
   name: string;
-  columns: string[];
+  comment: string | null;
+  tables: Table[];
 }
 
 // フィルター設定型定義
