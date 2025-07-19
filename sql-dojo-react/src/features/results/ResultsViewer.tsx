@@ -3,6 +3,8 @@ import ResultTable from './ResultTable';
 import { Alert, Spinner, Stack } from 'react-bootstrap';
 import styles from './Results.module.css';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
+import { useResultsStore } from '../../stores/useResultsStore';
+import { useUIStore } from '../../stores/useUIStore';
 import FilterModal from './FilterModal';
 
 // 無限スクロール用の型定義
@@ -18,9 +20,16 @@ type InfiniteScrollData = {
 
 const ResultsViewer: React.FC = () => {
   const {
-    allData, columns, rowCount, execTime, sortConfig, filters, sessionId, hasMoreData, isLoadingMore,
-    isPending, isError, error, applySort, setFilterModal, filterModal, loadMoreData
+    applySort, setFilterModal, filterModal, loadMoreData
   } = useSqlPageStore();
+  
+  // 結果ストアから状態を取得
+  const {
+    allData, columns, rowCount, execTime, sortConfig, filters, sessionId, hasMoreData
+  } = useResultsStore();
+  
+  // UIストアから状態を取得
+  const { isPending, isError, error, isLoadingMore } = useUIStore();
   // 無限スクロール用の状態管理
   const [infiniteData, setInfiniteData] = useState<InfiniteScrollData | null>(null);
   // メインコンテンツ全体のref

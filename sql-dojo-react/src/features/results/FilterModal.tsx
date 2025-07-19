@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Badge, ListGroup } from 'react-bootstrap';
 import { apiClient } from '../../api/apiClient';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
+import { useResultsStore } from '../../stores/useResultsStore';
 
 const FilterModal: React.FC = () => {
-  const { filterModal, setFilterModal, sessionId, filters, applyFilter } = useSqlPageStore();
-  const [selectedValues, setSelectedValues] = useState<string[]>(filterModal.currentFilters);
+  const { filterModal, setFilterModal } = useSqlPageStore();
+  const { sessionId, filters, applyFilter } = useResultsStore();
+  const [selectedValues, setSelectedValues] = useState<string[]>(filterModal.currentFilters || []);
   const [searchTerm, setSearchTerm] = useState('');
   const [uniqueValues, setUniqueValues] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -71,7 +73,7 @@ const FilterModal: React.FC = () => {
   // モーダルが開くたびに現在のフィルタを設定
   useEffect(() => {
     if (filterModal.show) {
-      setSelectedValues(filterModal.currentFilters);
+      setSelectedValues(filterModal.currentFilters || []);
     }
   }, [filterModal.show, filterModal.currentFilters]);
 

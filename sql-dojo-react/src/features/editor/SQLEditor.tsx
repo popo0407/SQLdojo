@@ -4,6 +4,8 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Button, ButtonGroup, Stack, Spinner } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
+import { useResultsStore } from '../../stores/useResultsStore';
+import { useUIStore } from '../../stores/useUIStore';
 
 // Monaco Editorの補完アイテム種別を取得する関数
 const getMonacoCompletionItemKind = (kind: string, monacoInstance: typeof monaco) => {
@@ -23,12 +25,14 @@ const SQLEditor: React.FC = () => {
   const { sql, setSql } = useSqlPageStore();
   const executeSql = useSqlPageStore((state) => state.executeSql);
   const downloadCsv = useSqlPageStore((state) => state.downloadCsv);
-  const isDownloading = useSqlPageStore((state) => state.isDownloading);
   const setEditor = useSqlPageStore((state) => state.setEditor);
   const sqlToInsert = useSqlPageStore((state) => state.sqlToInsert);
   const clearSqlToInsert = useSqlPageStore((state) => state.clearSqlToInsert);
   const formatSql = useSqlPageStore((state) => state.formatSql);
-  const isPending = useSqlPageStore((state) => state.isPending);
+  
+  // UIストアから状態を取得
+  const isDownloading = useUIStore((state) => state.isDownloading);
+  const isPending = useUIStore((state) => state.isPending);
   
   // 補完機能の登録情報を保持するためのuseRef
   const completionProviderRef = useRef<monaco.IDisposable | null>(null);

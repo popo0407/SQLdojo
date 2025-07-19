@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { editor, Selection } from 'monaco-editor';
 import { apiClient } from '../api/apiClient';
+import { useUIStore } from './useUIStore';
+import { useResultsStore } from './useResultsStore';
 
 // 型定義
 export type SortConfig = { key: string; direction: 'asc' | 'desc' };
@@ -229,178 +231,29 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
   // SQL実行アクション
   executeSql: async () => {
     const state = get();
-    try {
-      set({ isPending: true, isError: false, error: null });
-      const res = await fetch('/api/v1/sql/cache/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sql: state.sql })
-      }).then(r => r.json());
-      if (!res.success || !res.session_id) {
-        set({ isPending: false, isError: true, error: new Error(res.message || 'session_idが返されませんでした') });
-        return;
-      }
-      set({ sessionId: res.session_id });
-      const pageSize = state.configSettings?.default_page_size || 100;
-      const readRes = await fetch('/api/v1/sql/cache/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: res.session_id, page: 1, page_size: pageSize })
-      }).then(r => r.json());
-      if (!readRes.success || !readRes.data || !readRes.columns) {
-        set({ isPending: false, isError: true, error: new Error(readRes.message || 'データ取得に失敗しました') });
-        return;
-      }
-      const newData = readRes.data.map((rowArr: any[], idx: number) => Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]])));
-      set({
-        allData: newData,
-        rawData: newData,
-        columns: readRes.columns,
-        rowCount: readRes.total_count || newData.length,
-        execTime: readRes.execution_time || 0,
-        currentPage: 1,
-        hasMoreData: newData.length < (readRes.total_count || newData.length),
-        isPending: false,
-        isError: false,
-        error: null
-      });
-    } catch (err: any) {
-      set({ isPending: false, isError: true, error: err });
-    }
+    const resultsStore = useResultsStore.getState();
+    
+    // 結果ストアを使用してSQL実行
+    await resultsStore.executeSql(state.sql);
   },
   // CSVダウンロードアクション
   downloadCsv: async () => {
-    const state = get();
-    if (state.sessionId) {
-      set({ isDownloading: true });
-      try {
-        // POSTでbodyにsession_id, filters, sort_by, sort_orderを含める
-        const res = await fetch('/api/v1/sql/cache/download/csv', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: state.sessionId,
-            filters: state.filters,
-            sort_by: state.sortConfig?.key,
-            sort_order: state.sortConfig?.direction?.toUpperCase() || 'ASC'
-          })
-        });
-        if (!res.ok) {
-          const errText = await res.text();
-          alert('CSVダウンロードに失敗しました: ' + errText);
-          return;
-        }
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'result.csv';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-      } finally {
-        set({ isDownloading: false });
-      }
-    } else {
-      get().downloadCsvLocal();
-    }
+    const resultsStore = useResultsStore.getState();
+    
+    // 結果ストアを使用してCSVダウンロード
+    await resultsStore.downloadCsv();
   },
   applySort: async (key: string) => {
-    const state = get();
-    if (!state.columns.length) return;
-    let direction: 'asc' | 'desc' = 'asc';
-    if (state.sortConfig && state.sortConfig.key === key && state.sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    const newSortConfig = { key, direction };
-    set({ sortConfig: newSortConfig });
-    if (state.sessionId) {
-      const pageSize = state.configSettings?.default_page_size || 100;
-      const readRes = await fetch('/api/v1/sql/cache/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: state.sessionId,
-          page: 1,
-          page_size: pageSize,
-          sort_by: key,
-          sort_order: direction.toUpperCase(),
-          filters: state.filters,
-        })
-      }).then(r => r.json());
-      if (readRes.success && readRes.data && readRes.columns) {
-        const newData = readRes.data.map((rowArr: any[], idx: number) => Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]])));
-        set({
-          allData: newData,
-          columns: readRes.columns,
-          rowCount: readRes.total_count || newData.length,
-          execTime: readRes.execution_time || 0,
-          currentPage: 1,
-          hasMoreData: newData.length < (readRes.total_count || newData.length)
-        });
-      } else {
-        set({ allData: [], columns: [], rowCount: 0, execTime: 0 });
-      }
-    } else {
-      // フロント側でソート（rawDataを元に）
-      let filtered = state.rawData;
-      // 既存のfiltersを適用
-      Object.entries(state.filters).forEach(([col, vals]) => {
-        filtered = filtered.filter(row => vals.includes(String(row[col])));
-      });
-      const sorted = [...filtered].sort((a, b) => {
-        if (a[key] === b[key]) return 0;
-        if (direction === 'asc') return a[key] > b[key] ? 1 : -1;
-        return a[key] < b[key] ? 1 : -1;
-      });
-      set({ allData: sorted });
-    }
+    const resultsStore = useResultsStore.getState();
+    
+    // 結果ストアを使用してソート
+    await resultsStore.applySort(key);
   },
   applyFilter: async (columnName: string, filterValues: string[]) => {
-    const state = get();
-    const newFilters = { ...state.filters };
-    if (filterValues.length === 0) {
-      delete newFilters[columnName];
-    } else {
-      newFilters[columnName] = filterValues;
-    }
-    set({ filters: newFilters });
-    if (state.sessionId) {
-      const pageSize = state.configSettings?.default_page_size || 100;
-      const readRes = await fetch('/api/v1/sql/cache/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: state.sessionId,
-          page: 1,
-          page_size: pageSize,
-          filters: newFilters,
-          sort_by: state.sortConfig?.key,
-          sort_order: state.sortConfig?.direction?.toUpperCase() || 'ASC'
-        })
-      }).then(r => r.json());
-      if (readRes.success && readRes.data && readRes.columns) {
-        const newData = readRes.data.map((rowArr: any[], idx: number) => Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]])));
-        set({
-          allData: newData,
-          columns: readRes.columns,
-          rowCount: readRes.total_count || newData.length,
-          execTime: readRes.execution_time || 0,
-          currentPage: 1,
-          hasMoreData: newData.length < (readRes.total_count || newData.length)
-        });
-      } else {
-        set({ allData: [], columns: [], rowCount: 0, execTime: 0 });
-      }
-    } else {
-      // フロント側でフィルタ（rawDataを元に）
-      let filtered = state.rawData;
-      Object.entries(newFilters).forEach(([col, vals]) => {
-        filtered = filtered.filter(row => vals.includes(String(row[col])));
-      });
-      set({ allData: filtered });
-    }
+    const resultsStore = useResultsStore.getState();
+    
+    // 結果ストアを使用してフィルタ
+    await resultsStore.applyFilter(columnName, filterValues);
   },
   downloadCsvLocal: () => {
     const state = get();
@@ -424,42 +277,14 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
     window.URL.revokeObjectURL(url);
   },
   loadMoreData: async () => {
-    const state = get();
-    if (!state.sessionId || state.isLoadingMore || !state.hasMoreData) return;
-    set({ isLoadingMore: true });
-    try {
-      const nextPage = state.currentPage + 1;
-      const pageSize = state.configSettings?.default_page_size || 100;
-      const readRes = await fetch('/api/v1/sql/cache/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: state.sessionId,
-          page: nextPage,
-          page_size: pageSize,
-          filters: state.filters,
-          sort_by: state.sortConfig?.key,
-          sort_order: state.sortConfig?.direction?.toUpperCase() || 'ASC'
-        })
-      }).then(r => r.json());
-      if (readRes.success && readRes.data && readRes.columns) {
-        const newData = readRes.data.map((rowArr: any[], idx: number) => Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]])));
-        set({
-          allData: [...state.allData, ...newData],
-          rawData: [...state.rawData, ...newData],
-          currentPage: nextPage,
-          hasMoreData: (state.allData.length + newData.length) < (readRes.total_count || 0),
-          isLoadingMore: false
-        });
-      } else {
-        set({ isLoadingMore: false });
-      }
-    } catch (err: any) {
-      set({ isLoadingMore: false, isError: true, error: err });
-    }
+    const resultsStore = useResultsStore.getState();
+    
+    // 結果ストアを使用してデータ読み込み
+    await resultsStore.loadMoreData();
   },
   formatSql: async () => {
     const { sql, editor } = get();
+    const uiStore = useUIStore.getState();
     
     if (!sql.trim()) {
       alert('SQLが空です');
@@ -467,7 +292,7 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
     }
     
     try {
-      set({ isPending: true, isError: false, error: null });
+      uiStore.startLoading();
       
       const result = await apiClient.formatSQL(sql);
       
@@ -481,14 +306,12 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
         throw new Error(result.error_message || 'SQL整形に失敗しました');
       }
     } catch (error) {
-      set({ 
-        isPending: false, 
-        isError: true, 
-        error: error instanceof Error ? error : new Error('SQL整形に失敗しました') 
-      });
+      const errorObj = error instanceof Error ? error : new Error('SQL整形に失敗しました');
+      uiStore.setError(errorObj);
+      uiStore.setIsError(true);
       throw error;
     } finally {
-      set({ isPending: false });
+      uiStore.stopLoading();
     }
   },
 }));
