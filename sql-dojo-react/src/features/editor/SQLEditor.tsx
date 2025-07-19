@@ -4,7 +4,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Button, ButtonGroup, Stack, Spinner } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
-import { useResultsStore } from '../../stores/useResultsStore';
+import { useEditorStore } from '../../stores/useEditorStore';
 import { useUIStore } from '../../stores/useUIStore';
 
 // Monaco Editorの補完アイテム種別を取得する関数
@@ -22,13 +22,15 @@ const getMonacoCompletionItemKind = (kind: string, monacoInstance: typeof monaco
 };
 
 const SQLEditor: React.FC = () => {
-  const { sql, setSql } = useSqlPageStore();
   const executeSql = useSqlPageStore((state) => state.executeSql);
   const downloadCsv = useSqlPageStore((state) => state.downloadCsv);
-  const setEditor = useSqlPageStore((state) => state.setEditor);
-  const sqlToInsert = useSqlPageStore((state) => state.sqlToInsert);
-  const clearSqlToInsert = useSqlPageStore((state) => state.clearSqlToInsert);
-  const formatSql = useSqlPageStore((state) => state.formatSql);
+  
+  // エディタストアから状態を取得
+  const { sql, setSql } = useEditorStore();
+  const setEditor = useEditorStore((state) => state.setEditor);
+  const sqlToInsert = useEditorStore((state) => state.sqlToInsert);
+  const clearSqlToInsert = useEditorStore((state) => state.clearSqlToInsert);
+  const formatSql = useEditorStore((state) => state.formatSql);
   
   // UIストアから状態を取得
   const isDownloading = useUIStore((state) => state.isDownloading);
@@ -42,33 +44,23 @@ const SQLEditor: React.FC = () => {
     editor: monaco.editor.IStandaloneCodeEditor,
     monacoInstance: typeof monaco
   ) => {
-    console.log('SQLEditor: Editor mounted with monaco instance');
     setEditor(editor);
     
     // 古い補完機能がもしあれば、念の為に破棄する
     if (completionProviderRef.current) {
-      console.log('SQLEditor: Disposing existing completion provider');
       completionProviderRef.current.dispose();
     }
 
     // ★★★ ここで、準備完了した monacoInstance を使って補完機能を登録する ★★★
-    console.log('SQLEditor: Registering completion provider with monaco instance');
     completionProviderRef.current = monacoInstance.languages.registerCompletionItemProvider('sql', {
       // 補完候補を出すトリガーとなる文字
       triggerCharacters: [' ', '.'],
 
       // 補完候補を提供する関数
       provideCompletionItems: async (model, position) => {
-        console.log('SQLEditor: provideCompletionItems called');
-        console.log('SQLEditor: model language:', model.getLanguageId());
-        console.log('SQLEditor: position:', position);
-        
         const fullSql = model.getValue();
         const offset = model.getOffsetAt(position);
         
-        console.log('SQLEditor: full SQL:', fullSql);
-        console.log('SQLEditor: cursor offset:', offset);
-
         try {
           // バックエンドAPIから補完候補を取得
           const response = await fetch('/api/v1/sql/suggest', {
@@ -88,7 +80,6 @@ const SQLEditor: React.FC = () => {
           }
 
           const result = await response.json();
-          console.log('SQLEditor: API response:', result);
           
           // バックエンドの候補をMonaco Editorの形式に変換
           const suggestions = result.suggestions.map((item: { 
@@ -138,12 +129,9 @@ const SQLEditor: React.FC = () => {
             };
           });
 
-          console.log('SQLEditor: Converted suggestions:', suggestions);
           return { suggestions };
           
-        } catch (error) {
-          console.error('SQLEditor: API error:', error);
-          
+        } catch {
           // エラー時はデフォルトのキーワード補完を返す
           const word = model.getWordAtPosition(position);
           const wordStart = word ? {
@@ -239,9 +227,8 @@ const SQLEditor: React.FC = () => {
         }
       }
     });
-
+    
     // 補完機能の登録完了を確認
-    console.log('SQLEditor: Completion provider registered successfully');
     
     // キーボードショートカットを追加
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, () => {
@@ -250,7 +237,6 @@ const SQLEditor: React.FC = () => {
     
     // テスト用：1秒後に手動で補完をトリガー
     setTimeout(() => {
-      console.log('SQLEditor: Testing completion trigger...');
       editor.trigger('keyboard', 'editor.action.triggerSuggest', {});
     }, 1000);
   };
@@ -259,7 +245,6 @@ const SQLEditor: React.FC = () => {
   useEffect(() => {
     return () => {
       if (completionProviderRef.current) {
-        console.log('SQLEditor: Cleaning up completion provider');
         completionProviderRef.current.dispose();
       }
     };
@@ -268,7 +253,7 @@ const SQLEditor: React.FC = () => {
   // sqlToInsertを監視し、エディタに挿入
   useEffect(() => {
     if (sqlToInsert) {
-      const editorInstance = useSqlPageStore.getState().editor;
+      const editorInstance = useEditorStore.getState().editor;
       if (editorInstance) {
         const position = editorInstance.getPosition();
         if (position) {

@@ -143,8 +143,12 @@ sql-dojo-react/
 │   │   ├── useLoadMoreData.ts        # データ読み込みフック
 │   │   ├── useDownloadCsv.ts         # CSVダウンロードフック
 │   │   └── useConfigSettings.ts      # 設定管理フック
-│   ├── stores/           # 状態管理
-│   │   └── useSqlPageStore.ts        # SQLページ状態管理（Zustand）
+│   ├── stores/           # 状態管理（Zustand）
+│   │   ├── useSqlPageStore.ts        # メインSQLページ状態管理
+│   │   ├── useUIStore.ts             # UI状態管理（ローディング、エラー、モーダル）
+│   │   ├── useResultsStore.ts        # 結果表示管理（データ、ソート、フィルタ、CSV）
+│   │   ├── useEditorStore.ts         # エディタ管理（SQLテキスト、エディタインスタンス、整形）
+│   │   └── useSidebarStore.ts        # サイドバー管理（テーブル・カラム選択）
 │   ├── api/              # API通信
 │   │   └── apiClient.ts              # APIクライアント
 │   ├── types/            # 型定義
@@ -182,7 +186,12 @@ sql-dojo-react/
 
 ### フロントエンド処理
 
-- **状態管理**: Zustand を使用した SQL ページ状態の一元管理
+- **状態管理**: Zustand を使用した関心事分離による状態管理
+  - `useUIStore`: UI 状態管理（ローディング、エラー、モーダル）
+  - `useResultsStore`: 結果表示管理（データ、ソート、フィルタ、CSV）
+  - `useEditorStore`: エディタ管理（SQL テキスト、エディタインスタンス、整形）
+  - `useSidebarStore`: サイドバー管理（テーブル・カラム選択）
+  - `useSqlPageStore`: メイン SQL ページ状態管理（他ストアとの連携）
 - **SQL エディタ**: Monaco Editor によるシンタックスハイライトと補完
 - **結果表示**: ページネーション対応の結果テーブル表示
 - **フィルタリング**: カラム別の動的フィルター機能
@@ -220,29 +229,70 @@ sql-dojo-react/
 
 ## 更新履歴
 
+### 2025-07-19: Zustandストアの関心事分離リファクタリング
+
+#### リファクタリング内容
+
+- **巨大なGod Storeの分割**: 単一の`useSqlPageStore`を4つの専門ストアに分割
+  - `useUIStore`: UI状態管理（ローディング、エラー、モーダル）
+  - `useResultsStore`: 結果表示管理（データ、ソート、フィルタ、CSV）
+  - `useEditorStore`: エディタ管理（SQLテキスト、エディタインスタンス、整形）
+  - `useSidebarStore`: サイドバー管理（テーブル・カラム選択）
+
+#### 技術的詳細
+
+- **問題**: 単一の巨大なストア（God Store）による保守性の低下
+- **解決**: 関心事分離による段階的リファクタリング
+- **アプローチ**: 既存機能を保護しながら、段階的にストアを分離
+- **連携**: 単方向コマンドパターンによるストア間通信
+
+#### 修正ファイル
+
+- `src/stores/useUIStore.ts`: UI状態管理ストア（新規作成）
+- `src/stores/useResultsStore.ts`: 結果表示管理ストア（新規作成）
+- `src/stores/useEditorStore.ts`: エディタ管理ストア（新規作成）
+- `src/stores/useSidebarStore.ts`: サイドバー管理ストア（新規作成）
+- `src/stores/useSqlPageStore.ts`: メインストア（他ストアとの連携に変更）
+- `src/features/editor/SQLEditor.tsx`: エディタストアの使用に変更
+- `src/features/results/ResultsViewer.tsx`: 結果ストアの使用に変更
+- `src/features/results/FilterModal.tsx`: 結果ストアの使用に変更
+- `src/features/metadata/TreeNode.tsx`: サイドバーストアの使用に変更
+- `src/components/layout/Sidebar.tsx`: エディタストアの使用に変更
+
+#### 動作確認
+
+- 既存機能の完全な保護（回帰テストなし）
+- 各ストアの独立した状態管理
+- ストア間の適切な連携
+- サイドバー選択からエディタへの反映機能
+
 ### 2025-07-19: 連鎖フィルター機能の修正
 
 #### 修正内容
-- **APIモデルの修正**: `CacheUniqueValuesRequest`に`filters`フィールドを追加
-- **APIエンドポイントの修正**: `/api/v1/sql/cache/unique-values`でフィルター条件を正しく受け渡し
+
+- **API モデルの修正**: `CacheUniqueValuesRequest`に`filters`フィールドを追加
+- **API エンドポイントの修正**: `/api/v1/sql/cache/unique-values`でフィルター条件を正しく受け渡し
 - **サービス層の修正**: `HybridSQLService.get_unique_values`メソッドに`filters`パラメータを追加
-- **キャッシュサービスの修正**: `CacheService.get_unique_values`で動的WHERE句生成を実装
+- **キャッシュサービスの修正**: `CacheService.get_unique_values`で動的 WHERE 句生成を実装
 
 #### 技術的詳細
+
 - **問題**: 連鎖フィルターで後続カラムの候補が前のフィルター条件に基づいて更新されない
-- **原因**: バックエンドでフィルター条件が正しく受け取られず、WHERE句が生成されない
-- **解決**: APIリクエストからサービス層まで一貫してフィルター条件を渡すように修正
+- **原因**: バックエンドでフィルター条件が正しく受け取られず、WHERE 句が生成されない
+- **解決**: API リクエストからサービス層まで一貫してフィルター条件を渡すように修正
 
 #### 修正ファイル
+
 - `app/api/models.py`: `CacheUniqueValuesRequest`に`filters`フィールド追加
-- `app/api/routes.py`: APIエンドポイントでフィルター条件をデバッグログ出力
+- `app/api/routes.py`: API エンドポイントでフィルター条件をデバッグログ出力
 - `app/services/hybrid_sql_service.py`: `get_unique_values`メソッドに`filters`パラメータ追加
-- `app/services/cache_service.py`: 動的WHERE句生成による連鎖フィルター実装
+- `app/services/cache_service.py`: 動的 WHERE 句生成による連鎖フィルター実装
 
 #### 動作確認
-- フロントエンドからフィルター条件付きでAPIリクエスト送信
+
+- フロントエンドからフィルター条件付きで API リクエスト送信
 - バックエンドでフィルター条件を正しく受け取り
-- 動的SQLクエリ生成により、フィルター条件に合致するユニーク値のみを返却
+- 動的 SQL クエリ生成により、フィルター条件に合致するユニーク値のみを返却
 - 連鎖フィルターで後続カラムの候補が前の選択に基づいて動的に更新
 
 ## ライセンス

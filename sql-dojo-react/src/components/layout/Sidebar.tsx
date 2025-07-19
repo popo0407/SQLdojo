@@ -1,12 +1,16 @@
 import React from 'react';
 import { useMetadata } from '../../hooks/useMetadata';
 import MetadataTree from '../../features/metadata/MetadataTree';
-import { useSqlPageStore } from '../../stores/useSqlPageStore';
+import { useEditorStore } from '../../stores/useEditorStore';
 import styles from '../../styles/Layout.module.css';
 
 const Sidebar: React.FC = () => {
   const { data: schemas, isLoading, isError, error } = useMetadata();
-  const applySelectionToEditor = useSqlPageStore((state) => state.applySelectionToEditor);
+  const applySelectionToEditor = useEditorStore((state) => state.applySelectionToEditor);
+
+  const handleApplySelection = () => {
+    applySelectionToEditor();
+  };
 
   const renderContent = () => {
     if (isLoading) {
@@ -41,7 +45,7 @@ const Sidebar: React.FC = () => {
         <h5><i className="fas fa-sitemap me-2"></i>DB情報</h5>
         <div className={styles.sidebarAction}>
           <button 
-            onClick={applySelectionToEditor} 
+            onClick={handleApplySelection} 
             className={styles.applyButton}
           >
             エディタに反映

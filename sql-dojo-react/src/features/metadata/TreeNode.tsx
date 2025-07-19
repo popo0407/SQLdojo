@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import type { Schema, Table, Column } from '../../types/metadata';
-import { useSqlPageStore } from '../../stores/useSqlPageStore';
+import { useEditorStore } from '../../stores/useEditorStore';
+import { useSidebarStore } from '../../stores/useSidebarStore';
 
 interface TreeNodeProps {
   item: Schema | Table | Column;
@@ -11,11 +12,11 @@ interface TreeNodeProps {
 
 const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName }) => {
   const [expanded, setExpanded] = useState(false);
-  const insertText = useSqlPageStore((state) => state.insertText);
-  const selectedTable = useSqlPageStore((state) => state.selectedTable);
-  const selectedColumns = useSqlPageStore((state) => state.selectedColumns);
-  const toggleTableSelection = useSqlPageStore((state) => state.toggleTableSelection);
-  const toggleColumnSelection = useSqlPageStore((state) => state.toggleColumnSelection);
+  const insertText = useEditorStore((state) => state.insertText);
+  const selectedTable = useSidebarStore((state) => state.selectedTable);
+  const selectedColumns = useSidebarStore((state) => state.selectedColumns);
+  const toggleTableSelection = useSidebarStore((state) => state.toggleTableSelection);
+  const toggleColumnSelection = useSidebarStore((state) => state.toggleColumnSelection);
 
   // スキーマ
   if ('tables' in item) {
