@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Badge, ListGroup } from 'react-bootstrap';
 import { apiClient } from '../../api/apiClient';
-import { useSqlPageStore } from '../../stores/useSqlPageStore';
 import { useResultsStore } from '../../stores/useResultsStore';
+import { useUIStore } from '../../stores/useUIStore';
 
 const FilterModal: React.FC = () => {
-  const { filterModal, setFilterModal } = useSqlPageStore();
+  const { filterModal, setFilterModal } = useUIStore();
   const { sessionId, filters, applyFilter } = useResultsStore();
   const [selectedValues, setSelectedValues] = useState<string[]>(filterModal.currentFilters || []);
   const [searchTerm, setSearchTerm] = useState('');

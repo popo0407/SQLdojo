@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ResultTable from './ResultTable';
 import { Alert, Spinner, Stack } from 'react-bootstrap';
 import styles from './Results.module.css';
-import { useSqlPageStore } from '../../stores/useSqlPageStore';
 import { useResultsStore } from '../../stores/useResultsStore';
 import { useUIStore } from '../../stores/useUIStore';
 import FilterModal from './FilterModal';
@@ -19,17 +18,15 @@ type InfiniteScrollData = {
 };
 
 const ResultsViewer: React.FC = () => {
+  // 結果ストアから状態とアクションを取得
   const {
-    applySort, setFilterModal, filterModal, loadMoreData
-  } = useSqlPageStore();
-  
-  // 結果ストアから状態を取得
-  const {
-    allData, columns, rowCount, execTime, sortConfig, filters, sessionId, hasMoreData
+    allData, columns, rowCount, execTime, sortConfig, filters, sessionId, hasMoreData,
+    applySort, loadMoreData
   } = useResultsStore();
   
   // UIストアから状態を取得
-  const { isPending, isError, error, isLoadingMore } = useUIStore();
+  const { isPending, isError, error, isLoadingMore, filterModal, setFilterModal } = useUIStore();
+  
   // 無限スクロール用の状態管理
   const [infiniteData, setInfiniteData] = useState<InfiniteScrollData | null>(null);
   // メインコンテンツ全体のref
@@ -63,7 +60,6 @@ const ResultsViewer: React.FC = () => {
   // スクロールイベントリスナーの設定（メインコンテンツ全体）
   useEffect(() => {
     const container = mainContentRef.current;
-    // if (hasMoreData && onLoadMore && container) { // onLoadMoreはストアから
     if (hasMoreData && container) {
       container.addEventListener('scroll', handleScroll);
       return () => container.removeEventListener('scroll', handleScroll);

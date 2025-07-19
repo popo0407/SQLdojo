@@ -3,9 +3,9 @@ import Editor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Button, ButtonGroup, Stack, Spinner } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
-import { useSqlPageStore } from '../../stores/useSqlPageStore';
 import { useEditorStore } from '../../stores/useEditorStore';
 import { useUIStore } from '../../stores/useUIStore';
+import { useSqlPageStore } from '../../stores/useSqlPageStore';
 
 // Monaco Editorの補完アイテム種別を取得する関数
 const getMonacoCompletionItemKind = (kind: string, monacoInstance: typeof monaco) => {
@@ -22,19 +22,14 @@ const getMonacoCompletionItemKind = (kind: string, monacoInstance: typeof monaco
 };
 
 const SQLEditor: React.FC = () => {
-  const executeSql = useSqlPageStore((state) => state.executeSql);
-  const downloadCsv = useSqlPageStore((state) => state.downloadCsv);
-  
-  // エディタストアから状態を取得
-  const { sql, setSql } = useEditorStore();
-  const setEditor = useEditorStore((state) => state.setEditor);
-  const sqlToInsert = useEditorStore((state) => state.sqlToInsert);
-  const clearSqlToInsert = useEditorStore((state) => state.clearSqlToInsert);
-  const formatSql = useEditorStore((state) => state.formatSql);
+  // エディタストアから状態とアクションを取得
+  const { sql, setSql, setEditor, sqlToInsert, clearSqlToInsert, formatSql } = useEditorStore();
   
   // UIストアから状態を取得
-  const isDownloading = useUIStore((state) => state.isDownloading);
-  const isPending = useUIStore((state) => state.isPending);
+  const { isDownloading, isPending } = useUIStore();
+  
+  // SQLページストアからアクションを取得
+  const { executeSql, downloadCsv } = useSqlPageStore();
   
   // 補完機能の登録情報を保持するためのuseRef
   const completionProviderRef = useRef<monaco.IDisposable | null>(null);
@@ -227,9 +222,7 @@ const SQLEditor: React.FC = () => {
         }
       }
     });
-    
-    // 補完機能の登録完了を確認
-    
+
     // キーボードショートカットを追加
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, () => {
       handleFormat();

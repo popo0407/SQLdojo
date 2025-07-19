@@ -1,63 +1,15 @@
 import { create } from 'zustand';
-import { editor, Selection } from 'monaco-editor';
 import { useResultsStore } from './useResultsStore';
 import { useEditorStore } from './useEditorStore';
 
-// 型定義
+// 型定義（他のストアでも使用される共通型）
 export type SortConfig = { key: string; direction: 'asc' | 'desc' };
 export type FilterConfig = { [columnName: string]: string[] };
 export type TableRow = Record<string, string | number | boolean | null>;
 export type ConfigSettings = { default_page_size?: number; max_records_for_csv_download?: number };
 
 interface SqlPageState {
-  sql: string;
-  sortConfig: SortConfig | null;
-  filters: FilterConfig;
-  filterModal: { show: boolean; columnName: string; currentFilters?: string[] };
-  sessionId: string | null;
-  currentPage: number;
-  hasMoreData: boolean;
-  allData: TableRow[];
-  columns: string[];
-  rowCount: number;
-  execTime: number;
-  showLimitDialog: boolean;
-  limitDialogData: { totalCount: number; message: string } | null;
-  isLoadingMore: boolean;
-  isPending: boolean;
-  isError: boolean;
-  error: Error | null;
-  configSettings: ConfigSettings | null;
-  isConfigLoading: boolean;
-  isDownloading: boolean;
-  rawData: TableRow[];
-  editor: editor.IStandaloneCodeEditor | null;
-  sqlToInsert: string;
-  // setters
-  setSql: (sql: string) => void;
-  setSortConfig: (config: SortConfig | null) => void;
-  setFilters: (filters: FilterConfig) => void;
-  setFilterModal: (modal: { show: boolean; columnName: string; currentFilters?: string[] }) => void;
-  setSessionId: (id: string | null) => void;
-  setCurrentPage: (page: number) => void;
-  setHasMoreData: (hasMore: boolean) => void;
-  setAllData: (data: TableRow[]) => void;
-  setColumns: (cols: string[]) => void;
-  setRowCount: (count: number) => void;
-  setExecTime: (time: number) => void;
-  setShowLimitDialog: (show: boolean) => void;
-  setLimitDialogData: (data: { totalCount: number; message: string } | null) => void;
-  setIsLoadingMore: (loading: boolean) => void;
-  setIsPending: (pending: boolean) => void;
-  setIsError: (error: boolean) => void;
-  setError: (error: Error | null) => void;
-  setConfigSettings: (settings: ConfigSettings | null) => void;
-  setIsConfigLoading: (loading: boolean) => void;
-  setIsDownloading: (downloading: boolean) => void;
-  setEditor: (editor: editor.IStandaloneCodeEditor | null) => void;
-  insertText: (text: string) => void;
-  clearSqlToInsert: () => void;
-  // 新規アクション
+  // 他ストアとの連携アクション
   executeSql: () => Promise<void>;
   downloadCsv: () => Promise<void>;
   applySort: (key: string) => Promise<void>;
@@ -66,152 +18,64 @@ interface SqlPageState {
   formatSql: () => Promise<void>;
 }
 
-export const useSqlPageStore = create<SqlPageState>((set, get) => ({
-  sql: 'SELECT * FROM ',
-  sortConfig: null,
-  filters: {},
-  filterModal: { show: false, columnName: '', currentFilters: [] },
-  sessionId: null,
-  currentPage: 1,
-  hasMoreData: false,
-  allData: [],
-  columns: [],
-  rowCount: 0,
-  execTime: 0,
-  showLimitDialog: false,
-  limitDialogData: null,
-  isLoadingMore: false,
-  isPending: false,
-  isError: false,
-  error: null,
-  configSettings: null,
-  isConfigLoading: true,
-  isDownloading: false,
-  rawData: [],
-  editor: null,
-  sqlToInsert: '',
-  setSql: (sql) => set({ sql }),
-  setSortConfig: (sortConfig) => set({ sortConfig }),
-  setFilters: (filters) => set({ filters }),
-  setFilterModal: (modal) => {
-    // currentFiltersが未指定ならfiltersから自動セット
-    const filters = get().filters;
-    const col = modal.columnName;
-    set({ filterModal: { ...modal, currentFilters: modal.currentFilters ?? (filters[col] || []) } });
-  },
-  setSessionId: (sessionId) => set({ sessionId }),
-  setCurrentPage: (currentPage) => set({ currentPage }),
-  setHasMoreData: (hasMoreData) => set({ hasMoreData }),
-  setAllData: (allData) => set({ allData }),
-  setColumns: (columns) => set({ columns }),
-  setRowCount: (rowCount) => set({ rowCount }),
-  setExecTime: (execTime) => set({ execTime }),
-  setShowLimitDialog: (showLimitDialog) => set({ showLimitDialog }),
-  setLimitDialogData: (limitDialogData) => set({ limitDialogData }),
-  setIsLoadingMore: (isLoadingMore) => set({ isLoadingMore }),
-  setIsPending: (isPending) => set({ isPending }),
-  setIsError: (isError) => set({ isError }),
-  setError: (error) => set({ error }),
-  setConfigSettings: (configSettings) => set({ configSettings }),
-  setIsConfigLoading: (isConfigLoading) => set({ isConfigLoading }),
-  setIsDownloading: (isDownloading) => set({ isDownloading }),
-  setEditor: (editor) => set({ editor }),
-  insertText: (text) => {
-    const { editor } = get();
-    if (!editor) return;
-    let selection = editor.getSelection();
-    if (!selection) {
-      const position = editor.getPosition();
-      if (position) {
-        selection = new Selection(
-          position.lineNumber,
-          position.column,
-          position.lineNumber,
-          position.column,
-        );
-      }
-    }
-    if (selection) {
-      const op = {
-        identifier: { major: 1, minor: 1 },
-        range: selection,
-        text: text,
-        forceMoveMarkers: true,
-      };
-      editor.executeEdits('sidebar-insert', [op]);
-    }
-    editor.focus();
-  },
-  clearSqlToInsert: () => {
-    set({ sqlToInsert: '' });
-  },
-  // SQL実行アクション
+export const useSqlPageStore = create<SqlPageState>(() => ({
+  // 他ストアとの連携アクション
   executeSql: async () => {
-    const state = get();
+    const editorStore = useEditorStore.getState();
     const resultsStore = useResultsStore.getState();
     
+    // エディタストアから現在のSQLを取得
+    const currentSql = editorStore.sql;
+    
+    // SQLバリデーション
+    const trimmedSql = currentSql.trim();
+    if (!trimmedSql) {
+      alert('SQLを入力してください。');
+      return;
+    }
+    
+    // 基本的な構文チェック
+    if (trimmedSql.endsWith('FROM') || trimmedSql.endsWith('WHERE') || trimmedSql.endsWith('AND') || trimmedSql.endsWith('OR')) {
+      alert('SQLが不完全です。FROM句の後にテーブル名を指定してください。');
+      return;
+    }
+    
     // 結果ストアを使用してSQL実行
-    await resultsStore.executeSql(state.sql);
+    await resultsStore.executeSql(trimmedSql);
   },
-  // CSVダウンロードアクション
+  
   downloadCsv: async () => {
     const resultsStore = useResultsStore.getState();
     
     // 結果ストアを使用してCSVダウンロード
     await resultsStore.downloadCsv();
   },
+  
   applySort: async (key: string) => {
     const resultsStore = useResultsStore.getState();
     
     // 結果ストアを使用してソート
     await resultsStore.applySort(key);
   },
+  
   applyFilter: async (columnName: string, filterValues: string[]) => {
     const resultsStore = useResultsStore.getState();
     
     // 結果ストアを使用してフィルタ
     await resultsStore.applyFilter(columnName, filterValues);
   },
+  
   loadMoreData: async () => {
     const resultsStore = useResultsStore.getState();
     
     // 結果ストアを使用してデータ読み込み
     await resultsStore.loadMoreData();
   },
+  
   formatSql: async () => {
     const editorStore = useEditorStore.getState();
     
     // エディタストアを使用してSQL整形
     await editorStore.formatSql();
   },
-}));
-
-// Zustandストアのselector（派生状態）をまとめてエクスポート
-// filteredData: 現在のfiltersを適用したデータ
-// sortedData: filteredDataにsortConfigを適用したデータ
-// pagedData: sortedDataからページネーションを適用したデータ
-export const selectFilteredData = (state: SqlPageState): TableRow[] => {
-  let filtered = state.rawData;
-  Object.entries(state.filters).forEach(([col, vals]) => {
-    filtered = filtered.filter(row => vals.includes(String(row[col])));
-  });
-  return filtered;
-};
-
-export const selectSortedData = (state: SqlPageState): TableRow[] => {
-  const filtered = selectFilteredData(state);
-  if (!state.sortConfig) return filtered;
-  const { key, direction } = state.sortConfig;
-  return [...filtered].sort((a, b) => {
-    if (a[key] === b[key]) return 0;
-    if (direction === 'asc') return a[key] > b[key] ? 1 : -1;
-    return a[key] < b[key] ? 1 : -1;
-  });
-};
-
-export const selectPagedData = (state: SqlPageState): TableRow[] => {
-  const sorted = selectSortedData(state);
-  const pageSize = state.configSettings?.default_page_size || 100;
-  const start = (state.currentPage - 1) * pageSize;
-  return sorted.slice(start, start + pageSize);
-}; 
+})); 
