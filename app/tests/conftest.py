@@ -137,7 +137,7 @@ def mock_sql_service():
     # Mock result object with attributes
     mock_result = Mock()
     mock_result.success = True
-    mock_result.data = [["value1", "value2"]]
+    mock_result.data = [{"column1": "value1", "column2": "value2"}]  # 辞書のリスト形式
     mock_result.columns = ["column1", "column2"]
     mock_result.row_count = 1
     mock_result.execution_time = 0.1

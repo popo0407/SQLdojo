@@ -76,6 +76,17 @@ export interface MetadataColumn {
   comment?: string;
 }
 
+// スキーマ型定義
+export interface Schema {
+  name: string;
+  columns: string[];
+}
+
+// フィルター設定型定義
+export interface FilterConfig {
+  [columnName: string]: string[];
+}
+
 // キャッシュ機能用の型定義
 export interface CacheSQLResponse {
   success: boolean;
@@ -103,4 +114,5 @@ export interface CacheReadResponse {
   session_info?: Record<string, any>;
   execution_time?: number;
   error_message?: string;
+  message?: string;
 } 

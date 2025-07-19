@@ -46,7 +46,7 @@ export const apiClient = {
     return response.json() as Promise<T>;
   },
 
-  post: async <T, U>(endpoint: string, body: U): Promise<T> => {
+  post: async <T>(endpoint: string, body: any): Promise<T> => {
     const response = await fetch(`/api/v1${endpoint}`, {
       method: 'POST',
       headers: {
@@ -115,16 +115,26 @@ export const apiClient = {
   },
 
   // CSVダウンロード（session_idベースに変更）
-  downloadCsv: async (sessionId: string) => {
+  downloadCsv: async (sessionId: string, filters?: FilterConfig, sortBy?: string, sortOrder?: string): Promise<Blob> => {
     const response = await fetch(`/api/v1/sql/cache/download/csv`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        session_id: sessionId
+        session_id: sessionId,
+        filters,
+        sort_by: sortBy,
+        sort_order: sortOrder
       }),
     });
-    return response;
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.message || errorData.detail || 'CSVダウンロードに失敗しました';
+      throw new ApiError({ message: errorMessage, detail: errorData });
+    }
+
+    return response.blob();
   },
 }; 

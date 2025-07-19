@@ -2,8 +2,28 @@
 """
 基本SQL実行APIのテスト
 
-/sql/execute
-/sql/validate
+/sql/e        try:
+            response = cl        try:
+            response = client.post(
+                "/api/v1/sql/execute", 
+                json={"sql": "SELECT * FROM non_existent_table", "limit": 1000}
+            )
+            
+            assert response.status_code == 200  # SQLサービスの結果に基づく
+            data = response.json()
+            assert data["success"] is False
+            assert "テーブルが見つかりません" in data["error_message"]
+        finally:
+            app.dependency_overrides.clear()
+                "/api/v1/sql/execute", 
+                json={"sql": "", "limit": 1000}
+            )
+            
+            assert response.status_code == 400
+            data = response.json()
+            assert "SQLクエリが無効です" in data["message"]
+        finally:
+            app.dependency_overrides.clear()l/validate
 /sql/format
 """
 import pytest
@@ -37,8 +57,9 @@ class TestSQLExecuteAPI:
             assert response.status_code == 200
             data = response.json()
             assert data["success"] is True
-            assert "data" in data
-            assert "columns" in data
+            assert data["data"] == [{"column1": "value1", "column2": "value2"}]
+            assert data["columns"] == ["column1", "column2"]
+            assert data["row_count"] == 1
             assert "execution_time" in data
             assert data["sql"] == "SELECT * FROM test_table"
         finally:
@@ -59,7 +80,7 @@ class TestSQLExecuteAPI:
             
             assert response.status_code == 400
             data = response.json()
-            assert "SQLクエリが無効です" in data["detail"]
+            assert "SQLクエリが無効です" in data["message"]
         finally:
             app.dependency_overrides.clear()
     
@@ -87,9 +108,9 @@ class TestSQLExecuteAPI:
                 json={"sql": "SELECT * FROM non_existent_table", "limit": 1000}
             )
             
-            assert response.status_code == 400
+            assert response.status_code == 400  # SQLExecutionErrorによる400エラー
             data = response.json()
-            assert "テーブルが見つかりません" in data["detail"]
+            assert "テーブルが見つかりません" in data["message"]
         finally:
             app.dependency_overrides.clear()
 
@@ -159,10 +180,10 @@ class TestSQLValidateAPI:
             "/api/v1/sql/validate",
             json={"sql": ""}
         )
-        
+    
         assert response.status_code == 400
         data = response.json()
-        assert "SQLクエリが無効です" in data["detail"]
+        assert "SQLクエリが無効です" in data["message"]
 
 
 class TestSQLFormatAPI:
@@ -205,9 +226,9 @@ class TestSQLFormatAPI:
                 json={"sql": "INVALID SQL;;;"}
             )
             
-            assert response.status_code == 400
+            assert response.status_code == 500  # 予期しない例外は500エラー
             data = response.json()
-            assert "フォーマットエラー" in data["detail"]
+            assert "内部サーバーエラー" in data["message"]
         finally:
             app.dependency_overrides.clear()
     
@@ -220,4 +241,4 @@ class TestSQLFormatAPI:
         
         assert response.status_code == 400
         data = response.json()
-        assert "SQLクエリが無効です" in data["detail"]
+        assert "SQLクエリが無効です" in data["message"]

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { editor, Selection } from 'monaco-editor';
-import { apiClient } from '../api/apiClient';
+import { formatSql } from '../api/sqlService';
 import { useUIStore } from './useUIStore';
 import { useSidebarStore } from './useSidebarStore';
 
@@ -85,16 +85,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     try {
       uiStore.startLoading();
       
-      const result = await apiClient.formatSQL(sql);
+      const formattedSql = await formatSql({ sql });
       
-      if (result.success && result.formatted_sql) {
-        set({ sql: result.formatted_sql });
-        if (editor) {
-          editor.setValue(result.formatted_sql);
-          editor.focus();
-        }
-      } else {
-        throw new Error(result.error_message || 'SQL整形に失敗しました');
+      set({ sql: formattedSql });
+      if (editor) {
+        editor.setValue(formattedSql);
+        editor.focus();
       }
     } catch (error) {
       const errorObj = error instanceof Error ? error : new Error('SQL整形に失敗しました');

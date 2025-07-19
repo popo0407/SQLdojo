@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { useUIStore } from './useUIStore';
+import { downloadCsvFromCache, executeSqlOnCache, readSqlCache } from '../api/sqlService';
 
 // 型定義
 export type SortConfig = { key: string; direction: 'asc' | 'desc' };
@@ -101,11 +102,7 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
     try {
       uiStore.startLoading();
       
-      const res = await fetch('/api/v1/sql/cache/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sql })
-      }).then(r => r.json());
+      const res = await executeSqlOnCache({ sql });
       
       if (!res.success || !res.session_id) {
         uiStore.setError(new Error(res.message || 'session_idが返されませんでした'));
@@ -116,11 +113,11 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
       
       set({ sessionId: res.session_id });
       const pageSize = get().configSettings?.default_page_size || 100;
-      const readRes = await fetch('/api/v1/sql/cache/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: res.session_id, page: 1, page_size: pageSize })
-      }).then(r => r.json());
+      const readRes = await readSqlCache({
+        session_id: res.session_id,
+        page: 1,
+        page_size: pageSize
+      });
       
       if (!readRes.success || !readRes.data || !readRes.columns) {
         uiStore.setError(new Error(readRes.message || 'データ取得に失敗しました'));
@@ -130,8 +127,8 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
       }
       
       const newData = readRes.data.map((rowArr: unknown[], _idx: number) => 
-        Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]]))
-      );
+        Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
+      ) as TableRow[];
       
       set({
         allData: newData,
@@ -164,22 +161,13 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
     if (state.sessionId) {
       uiStore.setIsDownloading(true);
       try {
-        const res = await fetch('/api/v1/sql/cache/download/csv', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: state.sessionId,
-            filters: state.filters,
-            sort_by: state.sortConfig?.key,
-            sort_order: state.sortConfig?.direction?.toUpperCase() || 'ASC'
-          })
+        const blob = await downloadCsvFromCache({
+          session_id: state.sessionId,
+          filters: state.filters,
+          sort_by: state.sortConfig?.key,
+          sort_order: (state.sortConfig?.direction?.toUpperCase() || 'ASC') as 'ASC' | 'DESC'
         });
-        if (!res.ok) {
-          const errText = await res.text();
-          alert('CSVダウンロードに失敗しました: ' + errText);
-          return;
-        }
-        const blob = await res.blob();
+        
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -188,6 +176,9 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'CSVダウンロードに失敗しました';
+        alert('CSVダウンロードに失敗しました: ' + errorMessage);
       } finally {
         uiStore.setIsDownloading(false);
       }
@@ -220,7 +211,6 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
   
   applySort: async (key: string) => {
     const state = get();
-    const uiStore = useUIStore.getState();
     
     if (!state.columns.length) return;
     
@@ -234,23 +224,19 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
     
     if (state.sessionId) {
       const pageSize = state.configSettings?.default_page_size || 100;
-      const readRes = await fetch('/api/v1/sql/cache/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: state.sessionId,
-          page: 1,
-          page_size: pageSize,
-          sort_by: key,
-          sort_order: direction.toUpperCase(),
-          filters: state.filters,
-        })
-      }).then(r => r.json());
+      const readRes = await readSqlCache({
+        session_id: state.sessionId,
+        page: 1,
+        page_size: pageSize,
+        sort_by: key,
+        sort_order: direction.toUpperCase() as 'ASC' | 'DESC',
+        filters: state.filters,
+      });
       
       if (readRes.success && readRes.data && readRes.columns) {
         const newData = readRes.data.map((rowArr: unknown[], _idx: number) => 
-          Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]]))
-        );
+          Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
+        ) as TableRow[];
         set({
           allData: newData,
           columns: readRes.columns,
@@ -270,8 +256,8 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
       });
       const sorted = [...filtered].sort((a, b) => {
         if (a[key] === b[key]) return 0;
-        if (direction === 'asc') return a[key] > b[key] ? 1 : -1;
-        return a[key] < b[key] ? 1 : -1;
+        if (direction === 'asc') return (a[key] ?? '') > (b[key] ?? '') ? 1 : -1;
+        return (a[key] ?? '') < (b[key] ?? '') ? 1 : -1;
       });
       set({ allData: sorted });
     }
@@ -291,23 +277,19 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
     
     if (state.sessionId) {
       const pageSize = state.configSettings?.default_page_size || 100;
-      const readRes = await fetch('/api/v1/sql/cache/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: state.sessionId,
-          page: 1,
-          page_size: pageSize,
-          filters: newFilters,
-          sort_by: state.sortConfig?.key,
-          sort_order: state.sortConfig?.direction?.toUpperCase() || 'ASC'
-        })
-      }).then(r => r.json());
+      const readRes = await readSqlCache({
+        session_id: state.sessionId,
+        page: 1,
+        page_size: pageSize,
+        filters: newFilters,
+        sort_by: state.sortConfig?.key,
+        sort_order: (state.sortConfig?.direction?.toUpperCase() || 'ASC') as 'ASC' | 'DESC'
+      });
       
       if (readRes.success && readRes.data && readRes.columns) {
         const newData = readRes.data.map((rowArr: unknown[], _idx: number) => 
-          Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]]))
-        );
+          Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
+        ) as TableRow[];
         set({
           allData: newData,
           columns: readRes.columns,
@@ -339,23 +321,19 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
     try {
       const nextPage = state.currentPage + 1;
       const pageSize = state.configSettings?.default_page_size || 100;
-      const readRes = await fetch('/api/v1/sql/cache/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: state.sessionId,
-          page: nextPage,
-          page_size: pageSize,
-          filters: state.filters,
-          sort_by: state.sortConfig?.key,
-          sort_order: state.sortConfig?.direction?.toUpperCase() || 'ASC'
-        })
-      }).then(r => r.json());
+      const readRes = await readSqlCache({
+        session_id: state.sessionId,
+        page: nextPage,
+        page_size: pageSize,
+        filters: state.filters,
+        sort_by: state.sortConfig?.key,
+        sort_order: (state.sortConfig?.direction?.toUpperCase() || 'ASC') as 'ASC' | 'DESC'
+      });
       
       if (readRes.success && readRes.data && readRes.columns) {
         const newData = readRes.data.map((rowArr: unknown[], _idx: number) => 
-          Object.fromEntries(readRes.columns.map((col: string, i: number) => [col, rowArr[i]]))
-        );
+          Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
+        ) as TableRow[];
         set({
           allData: [...state.allData, ...newData],
           rawData: [...state.rawData, ...newData],

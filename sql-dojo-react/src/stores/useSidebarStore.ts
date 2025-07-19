@@ -53,7 +53,7 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
   },
   
   // カラム選択の切り替え
-  toggleColumnSelection: (tableName, columnName) => {
+  toggleColumnSelection: (_tableName, columnName) => {
     set((state) => {
       const selectedColumns = [...state.selectedColumns];
       const columnSelectionOrder = [...state.columnSelectionOrder];

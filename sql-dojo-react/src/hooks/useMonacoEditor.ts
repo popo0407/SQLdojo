@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { useEditorStore } from '../stores/useEditorStore';
+import { getSqlSuggestions } from '../api/sqlService';
 import type { MonacoEditor, MonacoInstance, CompletionItem } from '../types/editor';
 
 /**
@@ -48,23 +49,11 @@ export const useMonacoEditor = () => {
         
         try {
           // バックエンドAPIから補完候補を取得
-          const response = await fetch('/api/v1/sql/suggest', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              sql: fullSql,
-              position: offset,
-              context: null
-            })
+          const result = await getSqlSuggestions({
+            sql: fullSql,
+            position: offset,
+            context: null
           });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          const result = await response.json();
           
           // バックエンドの候補をMonaco Editorの形式に変換
           const suggestions = result.suggestions.map((item: CompletionItem) => {

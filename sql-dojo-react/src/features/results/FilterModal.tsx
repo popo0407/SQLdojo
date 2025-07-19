@@ -27,7 +27,7 @@ const FilterModal: React.FC = () => {
     setError(null);
     setUniqueValues([]);
     setIsTruncated(false);
-    apiClient.post<{ values: string[]; truncated?: boolean }, any>(
+    apiClient.post<{ values: string[]; truncated?: boolean }>(
       '/sql/cache/unique-values',
       { session_id: sessionId, column_name: filterModal.columnName, filters }
     )
