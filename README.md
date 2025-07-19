@@ -229,14 +229,67 @@ sql-dojo-react/
 
 ## 更新履歴
 
-### 2025-07-19: Zustandストアの関心事分離リファクタリング
+### 2025-07-19: コンポーネント内ロジックの分離リファクタリング
 
 #### リファクタリング内容
 
-- **巨大なGod Storeの分割**: 単一の`useSqlPageStore`を4つの専門ストアに分割
-  - `useUIStore`: UI状態管理（ローディング、エラー、モーダル）
+- **ResultsViewer.tsx のリファクタリング**: 174 行 → 78 行に削減（55%削減）
+
+  - `useInfiniteScroll.ts`: 無限スクロールロジックの分離
+  - `useResultsDisplay.ts`: 表示データ管理ロジックの分離
+  - `LoadingSpinner.tsx`: ローディング表示コンポーネントの分離
+  - `ErrorAlert.tsx`: エラー表示コンポーネントの分離
+  - `EmptyState.tsx`: 空データ表示コンポーネントの分離
+  - `ResultsStats.tsx`: 統計情報表示コンポーネントの分離
+
+- **SQLEditor.tsx のリファクタリング**: 368 行 → 51 行に削減（86%削減）
+  - `useMonacoEditor.ts`: Monaco Editor 初期化と補完機能管理の分離
+  - `useEditorOperations.ts`: エディタ操作ロジックの分離
+  - `EditorToolbar.tsx`: ツールバー表示コンポーネントの分離
+  - `editorConfig.ts`: Monaco Editor 設定の分離
+
+#### 技術的詳細
+
+- **問題**: 巨大なコンポーネントによる保守性の低下と責務の混在
+- **解決**: カスタムフックと専用コンポーネントによる関心事分離
+- **アプローチ**: 既存機能を保護しながら、段階的にロジックを分離
+- **型安全性**: TypeScript 型定義の分離による型安全性の向上
+
+#### 作成ファイル
+
+**ResultsViewer.tsx 関連**
+
+- `src/hooks/useInfiniteScroll.ts`: 無限スクロールロジック
+- `src/hooks/useResultsDisplay.ts`: 表示データ管理ロジック
+- `src/components/common/LoadingSpinner.tsx`: ローディング表示
+- `src/components/common/ErrorAlert.tsx`: エラー表示
+- `src/components/common/EmptyState.tsx`: 空データ表示
+- `src/components/results/ResultsStats.tsx`: 統計情報表示
+- `src/types/results.ts`: 結果表示関連の型定義
+
+**SQLEditor.tsx 関連**
+
+- `src/hooks/useMonacoEditor.ts`: Monaco Editor 管理ロジック
+- `src/hooks/useEditorOperations.ts`: エディタ操作ロジック
+- `src/components/editor/EditorToolbar.tsx`: ツールバー表示
+- `src/config/editorConfig.ts`: Monaco Editor 設定
+- `src/types/editor.ts`: エディタ関連の型定義
+
+#### 動作確認
+
+- 既存機能の完全な保護（回帰テストなし）
+- 各カスタムフックの独立したロジック管理
+- 再利用可能なコンポーネントの作成
+- 型安全性の向上
+
+### 2025-07-19: Zustand ストアの関心事分離リファクタリング
+
+#### リファクタリング内容
+
+- **巨大な God Store の分割**: 単一の`useSqlPageStore`を 4 つの専門ストアに分割
+  - `useUIStore`: UI 状態管理（ローディング、エラー、モーダル）
   - `useResultsStore`: 結果表示管理（データ、ソート、フィルタ、CSV）
-  - `useEditorStore`: エディタ管理（SQLテキスト、エディタインスタンス、整形）
+  - `useEditorStore`: エディタ管理（SQL テキスト、エディタインスタンス、整形）
   - `useSidebarStore`: サイドバー管理（テーブル・カラム選択）
 
 #### 技術的詳細
@@ -248,7 +301,7 @@ sql-dojo-react/
 
 #### 修正ファイル
 
-- `src/stores/useUIStore.ts`: UI状態管理ストア（新規作成）
+- `src/stores/useUIStore.ts`: UI 状態管理ストア（新規作成）
 - `src/stores/useResultsStore.ts`: 結果表示管理ストア（新規作成）
 - `src/stores/useEditorStore.ts`: エディタ管理ストア（新規作成）
 - `src/stores/useSidebarStore.ts`: サイドバー管理ストア（新規作成）
