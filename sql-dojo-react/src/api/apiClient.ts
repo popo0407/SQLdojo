@@ -25,6 +25,13 @@ type FilterConfig = {
   [columnName: string]: string[];
 };
 
+// SQL整形レスポンスの型
+interface SQLFormatResponse {
+  formatted_sql: string;
+  success: boolean;
+  error_message?: string;
+}
+
 // 汎用的なAPIクライアント
 export const apiClient = {
   get: async <T>(endpoint: string): Promise<T> => {
@@ -55,6 +62,25 @@ export const apiClient = {
     }
     
     return response.json() as Promise<T>;
+  },
+
+  // SQL整形API
+  formatSQL: async (sql: string): Promise<SQLFormatResponse> => {
+    const response = await fetch('/api/v1/sql/format', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ sql }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage = errorData.message || errorData.detail || 'SQL整形に失敗しました';
+      throw new ApiError({ message: errorMessage, detail: errorData });
+    }
+
+    return response.json() as Promise<SQLFormatResponse>;
   },
 
   // 無限スクロール用のデータ読み込み

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { editor, Selection } from 'monaco-editor';
+import { apiClient } from '../api/apiClient';
 
 // 型定義
 export type SortConfig = { key: string; direction: 'asc' | 'desc' };
@@ -71,6 +72,7 @@ interface SqlPageState {
   applyFilter: (columnName: string, filterValues: string[]) => Promise<void>;
   downloadCsvLocal: () => void;
   loadMoreData: () => Promise<void>;
+  formatSql: () => Promise<void>;
 }
 
 export const useSqlPageStore = create<SqlPageState>((set, get) => ({
@@ -454,6 +456,39 @@ export const useSqlPageStore = create<SqlPageState>((set, get) => ({
       }
     } catch (err: any) {
       set({ isLoadingMore: false, isError: true, error: err });
+    }
+  },
+  formatSql: async () => {
+    const { sql, editor } = get();
+    
+    if (!sql.trim()) {
+      alert('SQLが空です');
+      return;
+    }
+    
+    try {
+      set({ isPending: true, isError: false, error: null });
+      
+      const result = await apiClient.formatSQL(sql);
+      
+      if (result.success && result.formatted_sql) {
+        set({ sql: result.formatted_sql });
+        if (editor) {
+          editor.setValue(result.formatted_sql);
+          editor.focus();
+        }
+      } else {
+        throw new Error(result.error_message || 'SQL整形に失敗しました');
+      }
+    } catch (error) {
+      set({ 
+        isPending: false, 
+        isError: true, 
+        error: error instanceof Error ? error : new Error('SQL整形に失敗しました') 
+      });
+      throw error;
+    } finally {
+      set({ isPending: false });
     }
   },
 }));

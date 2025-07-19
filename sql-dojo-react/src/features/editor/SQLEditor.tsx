@@ -27,6 +27,8 @@ const SQLEditor: React.FC = () => {
   const setEditor = useSqlPageStore((state) => state.setEditor);
   const sqlToInsert = useSqlPageStore((state) => state.sqlToInsert);
   const clearSqlToInsert = useSqlPageStore((state) => state.clearSqlToInsert);
+  const formatSql = useSqlPageStore((state) => state.formatSql);
+  const isPending = useSqlPageStore((state) => state.isPending);
   
   // 補完機能の登録情報を保持するためのuseRef
   const completionProviderRef = useRef<monaco.IDisposable | null>(null);
@@ -92,21 +94,45 @@ const SQLEditor: React.FC = () => {
             documentation?: string; 
             insert_text?: string; 
             sort_text?: string; 
-          }) => ({
-            label: item.label,
-            kind: getMonacoCompletionItemKind(item.kind, monacoInstance),
-            detail: item.detail || item.documentation, // detailを優先、なければdocumentationを使用
-            documentation: item.documentation,
-            insertText: item.insert_text || item.label,
-            insertTextRules: monacoInstance.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-            sortText: item.sort_text || item.label,
-            range: {
-              startLineNumber: position.lineNumber,
-              startColumn: position.column,
-              endLineNumber: position.lineNumber,
-              endColumn: position.column,
+          }) => {
+            // キーワードや関数の場合は末尾にスペースを追加
+            let insertText = item.insert_text || item.label;
+            
+            // snippet以外はすべてスペースを追加
+            if (item.kind !== 'snippet') {
+              if (!insertText.endsWith(' ')) {
+                insertText += ' ';
+              }
             }
-          }));
+            // その他の場合（snippet等）は既存のinsert_textをそのまま使用
+            
+            // 現在の単語の範囲を計算
+            const word = model.getWordAtPosition(position);
+            const wordStart = word ? {
+              lineNumber: position.lineNumber,
+              column: word.startColumn
+            } : position;
+            const wordEnd = word ? {
+              lineNumber: position.lineNumber,
+              column: word.endColumn
+            } : position;
+            
+            return {
+              label: item.label,
+              kind: getMonacoCompletionItemKind(item.kind, monacoInstance),
+              detail: item.detail || item.documentation, // detailを優先、なければdocumentationを使用
+              documentation: item.documentation,
+              insertText: insertText,
+              insertTextRules: monacoInstance.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+              sortText: item.sort_text || item.label,
+              range: {
+                startLineNumber: wordStart.lineNumber,
+                startColumn: wordStart.column,
+                endLineNumber: wordEnd.lineNumber,
+                endColumn: wordEnd.column,
+              }
+            };
+          });
 
           console.log('SQLEditor: Converted suggestions:', suggestions);
           return { suggestions };
@@ -115,6 +141,16 @@ const SQLEditor: React.FC = () => {
           console.error('SQLEditor: API error:', error);
           
           // エラー時はデフォルトのキーワード補完を返す
+          const word = model.getWordAtPosition(position);
+          const wordStart = word ? {
+            lineNumber: position.lineNumber,
+            column: word.startColumn
+          } : position;
+          const wordEnd = word ? {
+            lineNumber: position.lineNumber,
+            column: word.endColumn
+          } : position;
+          
           return {
             suggestions: [
               {
@@ -122,10 +158,10 @@ const SQLEditor: React.FC = () => {
                 kind: monacoInstance.languages.CompletionItemKind.Keyword,
                 insertText: 'SELECT ',
                 range: {
-                  startLineNumber: position.lineNumber,
-                  startColumn: position.column,
-                  endLineNumber: position.lineNumber,
-                  endColumn: position.column,
+                  startLineNumber: wordStart.lineNumber,
+                  startColumn: wordStart.column,
+                  endLineNumber: wordEnd.lineNumber,
+                  endColumn: wordEnd.column,
                 }
               },
               {
@@ -133,10 +169,10 @@ const SQLEditor: React.FC = () => {
                 kind: monacoInstance.languages.CompletionItemKind.Keyword,
                 insertText: 'FROM ',
                 range: {
-                  startLineNumber: position.lineNumber,
-                  startColumn: position.column,
-                  endLineNumber: position.lineNumber,
-                  endColumn: position.column,
+                  startLineNumber: wordStart.lineNumber,
+                  startColumn: wordStart.column,
+                  endLineNumber: wordEnd.lineNumber,
+                  endColumn: wordEnd.column,
                 }
               },
               {
@@ -144,10 +180,54 @@ const SQLEditor: React.FC = () => {
                 kind: monacoInstance.languages.CompletionItemKind.Keyword,
                 insertText: 'WHERE ',
                 range: {
-                  startLineNumber: position.lineNumber,
-                  startColumn: position.column,
-                  endLineNumber: position.lineNumber,
-                  endColumn: position.column,
+                  startLineNumber: wordStart.lineNumber,
+                  startColumn: wordStart.column,
+                  endLineNumber: wordEnd.lineNumber,
+                  endColumn: wordEnd.column,
+                }
+              },
+              {
+                label: 'ORDER BY',
+                kind: monacoInstance.languages.CompletionItemKind.Keyword,
+                insertText: 'ORDER BY ',
+                range: {
+                  startLineNumber: wordStart.lineNumber,
+                  startColumn: wordStart.column,
+                  endLineNumber: wordEnd.lineNumber,
+                  endColumn: wordEnd.column,
+                }
+              },
+              {
+                label: 'GROUP BY',
+                kind: monacoInstance.languages.CompletionItemKind.Keyword,
+                insertText: 'GROUP BY ',
+                range: {
+                  startLineNumber: wordStart.lineNumber,
+                  startColumn: wordStart.column,
+                  endLineNumber: wordEnd.lineNumber,
+                  endColumn: wordEnd.column,
+                }
+              },
+              {
+                label: 'HAVING',
+                kind: monacoInstance.languages.CompletionItemKind.Keyword,
+                insertText: 'HAVING ',
+                range: {
+                  startLineNumber: wordStart.lineNumber,
+                  startColumn: wordStart.column,
+                  endLineNumber: wordEnd.lineNumber,
+                  endColumn: wordEnd.column,
+                }
+              },
+              {
+                label: 'LIMIT',
+                kind: monacoInstance.languages.CompletionItemKind.Keyword,
+                insertText: 'LIMIT ',
+                range: {
+                  startLineNumber: wordStart.lineNumber,
+                  startColumn: wordStart.column,
+                  endLineNumber: wordEnd.lineNumber,
+                  endColumn: wordEnd.column,
                 }
               }
             ]
@@ -158,6 +238,11 @@ const SQLEditor: React.FC = () => {
 
     // 補完機能の登録完了を確認
     console.log('SQLEditor: Completion provider registered successfully');
+    
+    // キーボードショートカットを追加
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, () => {
+      handleFormat();
+    });
     
     // テスト用：1秒後に手動で補完をトリガー
     setTimeout(() => {
@@ -207,8 +292,15 @@ const SQLEditor: React.FC = () => {
     setSql('');
   };
 
-  const handleFormat = () => {
-    alert('SQL整形機能は次のフェーズで実装します。');
+  const handleFormat = async () => {
+    try {
+      await formatSql();
+      // 成功時はメッセージ非表示（ユーザーが見た目で判断可能）
+    } catch (error) {
+      // エラーメッセージを表示
+      const errorMessage = error instanceof Error ? error.message : 'SQL整形に失敗しました';
+      alert(errorMessage);
+    }
   };
 
   return (
@@ -216,8 +308,22 @@ const SQLEditor: React.FC = () => {
       {/* ツールバー */}
       <div className={styles.toolbar}>
         <ButtonGroup>
-          <Button variant="outline-secondary" size="sm" onClick={handleFormat}>
-            <i className="fas fa-magic me-1"></i>整形
+          <Button 
+            variant="outline-secondary" 
+            size="sm" 
+            onClick={handleFormat}
+            disabled={isPending || !sql.trim()}
+          >
+            {isPending ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-1" />
+                整形中...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-magic me-1"></i>整形
+              </>
+            )}
           </Button>
           <Button variant="outline-secondary" size="sm" onClick={handleClear}>
             <i className="fas fa-eraser me-1"></i>クリア
