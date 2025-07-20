@@ -7,15 +7,16 @@ import { useSqlPageStore } from '../../stores/useSqlPageStore';
 import { useMonacoEditor } from '../../hooks/useMonacoEditor';
 import { useEditorOperations } from '../../hooks/useEditorOperations';
 import { useEditorStore } from '../../stores/useEditorStore';
+import { useLayoutControl } from '../../hooks/useLayoutControl';
 import { EditorToolbar } from '../../components/editor/EditorToolbar';
 import { getEditorOptions } from '../../config/editorConfig';
 
 const SQLEditor: React.FC = () => {
   // UIストアから状態を取得
-  const { isDownloading, isPending } = useUIStore();
+  const { isDownloading } = useUIStore();
   
-  // SQLページストアからアクションを取得
-  const { executeSql, downloadCsv } = useSqlPageStore();
+  // SQLページストアからアクションと状態を取得
+  const { executeSql, downloadCsv, isPending } = useSqlPageStore();
   
   // エディタストアから選択状態を取得
   const hasSelection = useEditorStore((state) => state.hasSelection());
@@ -23,6 +24,9 @@ const SQLEditor: React.FC = () => {
   // カスタムフックを使用
   const { handleEditorDidMount } = useMonacoEditor();
   const { sql, setSql, handleClear, handleFormat } = useEditorOperations();
+  
+  // レイアウト制御フックを使用
+  useLayoutControl();
 
   return (
     <Stack gap={2} className={styles.editorContainer}>

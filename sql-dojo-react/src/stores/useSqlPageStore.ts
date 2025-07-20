@@ -11,6 +11,9 @@ export type TableRow = Record<string, string | number | boolean | null>;
 export type ConfigSettings = { default_page_size?: number; max_records_for_csv_download?: number };
 
 interface SqlPageState {
+  // 状態
+  isPending: boolean;
+  
   // SQLページ全体の統合アクション
   executeSql: () => Promise<void>;
   downloadCsv: () => Promise<void>;
@@ -24,7 +27,10 @@ interface SqlPageState {
  * SQLページ全体の状態管理ストア
  * エディタと結果表示の連携を管理
  */
-export const useSqlPageStore = create<SqlPageState>(() => ({
+export const useSqlPageStore = create<SqlPageState>((set) => ({
+  // 初期状態
+  isPending: false,
+  
   // SQL実行アクション
   executeSql: async () => {
     const editorStore = useEditorStore.getState();
@@ -70,8 +76,16 @@ export const useSqlPageStore = create<SqlPageState>(() => ({
     // パラメータ置換を実行
     const replacedSql = parameterStore.getReplacedSql(trimmedSql);
     
-    // 結果ストアを使用してSQL実行
-    await resultsStore.executeSql(replacedSql);
+    // 実行状態を設定
+    set({ isPending: true });
+    
+    try {
+      // 結果ストアを使用してSQL実行
+      await resultsStore.executeSql(replacedSql);
+    } finally {
+      // 実行状態をリセット
+      set({ isPending: false });
+    }
   },
   
   // CSVダウンロードアクション

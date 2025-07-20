@@ -10,26 +10,9 @@
   overflow: hidden; /* コンテナ外へのスクロールを禁止 */
 }
 
-.sidebar {
-  width: 300px;
-  flex-shrink: 0;
-  background-color: #f8f9fa;
-  border-right: 1px solid #dee2e6;
-  overflow-y: auto;
-}
-
-.resizer {
-  width: 5px;
-  flex-shrink: 0;
-  background-color: #dee2e6;
-  cursor: col-resize;
-}
-
 .mainContent {
   flex-grow: 1;
-  /* overflow-y: auto; */ /* この行をコメントアウトまたは削除 */
   overflow: hidden; /* この行を追加 */
-  padding: 1rem; /* paddingを調整 */
   display: flex; /* 追加 */
   flex-direction: column; /* 追加 */
 } 
@@ -79,4 +62,14 @@
 
 .applyButton:active {
   background-color: #004085;
+}
+
+/* リサイズハンドルのホバー効果 */
+.resizeHandle:hover {
+  background-color: #adb5bd;
+}
+
+/* リサイズハンドルのアクティブ状態 */
+.resizeHandle[data-resize-handle-active] {
+  background-color: #007bff;
 }

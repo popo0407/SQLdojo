@@ -1,6 +1,16 @@
 import React from 'react';
-import { Button, ButtonGroup, Spinner } from 'react-bootstrap';
-import styles from '../../features/editor/SQLEditor.module.css';
+import { Button, ButtonGroup } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faPlay, 
+  faDownload, 
+  faMagic, 
+  faTrash,
+  faExpand,
+  faCompress
+} from '@fortawesome/free-solid-svg-icons';
+import { useLayoutStore } from '../../stores/useLayoutStore';
+import styles from './EditorToolbar.module.css';
 
 interface EditorToolbarProps {
   onFormat: () => void;
@@ -10,12 +20,9 @@ interface EditorToolbarProps {
   isPending: boolean;
   isDownloading: boolean;
   hasSql: boolean;
-  hasSelection?: boolean;
+  hasSelection: boolean;
 }
 
-/**
- * エディタのツールバーコンポーネント
- */
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onFormat,
   onClear,
@@ -24,53 +31,71 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   isPending,
   isDownloading,
   hasSql,
-  hasSelection = false
+  hasSelection
 }) => {
+  const { isEditorMaximized, toggleEditorMaximized } = useLayoutStore();
+
   return (
     <div className={styles.toolbar}>
-      <ButtonGroup>
-        <Button 
-          variant="outline-secondary" 
-          size="sm" 
-          onClick={onFormat}
-          disabled={isPending || !hasSql}
-        >
-          {isPending ? (
-            <>
-              <Spinner animation="border" size="sm" className="me-1" />
-              整形中...
-            </>
-          ) : (
-            <>
-              <i className="fas fa-magic me-1"></i>整形
-            </>
-          )}
-        </Button>
-        <Button variant="outline-secondary" size="sm" onClick={onClear}>
-          <i className="fas fa-eraser me-1"></i>クリア
-        </Button>
-        <Button 
-          variant="outline-primary" 
-          size="sm" 
-          onClick={onDownloadCsv}
-          disabled={isDownloading || !hasSql}
-        >
-          {isDownloading ? (
-            <>
-              <Spinner animation="border" size="sm" className="me-1" />
-              ダウンロード中...
-            </>
-          ) : (
-            <>
-              <i className="fas fa-download me-1"></i>CSV
-            </>
-          )}
-        </Button>
-      </ButtonGroup>
-      <Button variant="success" size="sm" onClick={onExecute}>
-        <i className="fas fa-play me-1"></i>
-        {hasSelection ? '選択範囲実行' : '実行'} (Ctrl+Enter)
-      </Button>
+      <div className={styles.leftSection}>
+        <ButtonGroup size="sm">
+          <Button
+            variant="primary"
+            onClick={onExecute}
+            disabled={!hasSql || isPending}
+            title={hasSelection ? "選択範囲のSQLを実行" : "SQLを実行"}
+          >
+            <FontAwesomeIcon icon={faPlay} className="me-1" />
+            {isPending ? "実行中..." : "実行"}
+          </Button>
+          
+          <Button
+            variant="outline-secondary"
+            onClick={onFormat}
+            disabled={!hasSql}
+            title="SQLをフォーマット"
+          >
+            <FontAwesomeIcon icon={faMagic} className="me-1" />
+            フォーマット
+          </Button>
+          
+          <Button
+            variant="outline-secondary"
+            onClick={onClear}
+            disabled={!hasSql}
+            title="SQLをクリア"
+          >
+            <FontAwesomeIcon icon={faTrash} className="me-1" />
+            クリア
+          </Button>
+        </ButtonGroup>
+      </div>
+      
+      <div className={styles.rightSection}>
+        <ButtonGroup size="sm">
+          <Button
+            variant="outline-primary"
+            onClick={onDownloadCsv}
+            disabled={isDownloading}
+            title="CSVダウンロード"
+          >
+            <FontAwesomeIcon icon={faDownload} className="me-1" />
+            {isDownloading ? "ダウンロード中..." : "CSV"}
+          </Button>
+          
+          <Button
+            variant="outline-secondary"
+            onClick={toggleEditorMaximized}
+            title={isEditorMaximized ? "エディタを最小化" : "エディタを最大化"}
+          >
+            <FontAwesomeIcon 
+              icon={isEditorMaximized ? faCompress : faExpand} 
+              className="me-1" 
+            />
+            {isEditorMaximized ? "最小化" : "最大化"}
+          </Button>
+        </ButtonGroup>
+      </div>
     </div>
   );
 }; 

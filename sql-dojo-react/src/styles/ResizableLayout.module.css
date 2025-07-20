@@ -1,0 +1,108 @@
+.layoutContainer {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.horizontalGroup {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.verticalGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebarPanel {
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  overflow-y: auto;
+}
+
+.mainPanel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorPanel {
+  background-color: #ffffff;
+  border-bottom: 1px solid #dee2e6;
+  overflow: hidden;
+}
+
+.editorMaximized {
+  /* 最大化時の特別なスタイル */
+  z-index: 10;
+}
+
+.resultsPanel {
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.verticalResizeHandle {
+  width: 5px;
+  background-color: #dee2e6;
+  cursor: col-resize;
+  transition: background-color 0.2s;
+}
+
+.verticalResizeHandle:hover {
+  background-color: #adb5bd;
+}
+
+.horizontalResizeHandle {
+  height: 5px;
+  background-color: #dee2e6;
+  cursor: row-resize;
+  transition: background-color 0.2s;
+}
+
+.horizontalResizeHandle:hover {
+  background-color: #adb5bd;
+}
+
+/* 非表示クラス */
+.hidden {
+  display: none !important;
+}
+
+/* リサイズハンドルのドラッグ中のスタイル */
+.verticalResizeHandle[data-resize-handle-active],
+.horizontalResizeHandle[data-resize-handle-active] {
+  background-color: #007bff;
+}
+
+/* パネルの最小サイズ制限 */
+.sidebarPanel[data-panel-size="15"] {
+  min-width: 200px;
+}
+
+.editorPanel[data-panel-size="20"] {
+  min-height: 120px;
+}
+
+/* レスポンシブ対応（モバイルではリサイズを無効化） */
+@media (max-width: 768px) {
+  .verticalResizeHandle,
+  .horizontalResizeHandle {
+    display: none;
+  }
+  
+  .sidebarPanel {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  .editorPanel {
+    height: 50% !important;
+    max-height: none !important;
+  }
+} 
