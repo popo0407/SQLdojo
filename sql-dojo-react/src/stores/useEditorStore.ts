@@ -25,6 +25,10 @@ interface EditorState {
   formatSql: () => Promise<void>;
   applySelectionToEditor: () => void;
   
+  // 部分実行機能
+  getSelectedSQL: () => string;
+  hasSelection: () => boolean;
+  
   // 便利なアクション
   clearSql: () => void;
   focusEditor: () => void;
@@ -108,6 +112,32 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     
     // サイドバーストアを使用して選択をエディタに反映
     sidebarStore.applySelectionToEditor();
+  },
+  
+  // 部分実行機能
+  getSelectedSQL: () => {
+    const { editor } = get();
+    if (!editor) return '';
+
+    const selection = editor.getSelection();
+    if (!selection || selection.isEmpty()) {
+      // 選択範囲がない場合は全SQLを返す
+      return editor.getValue();
+    }
+
+    const model = editor.getModel();
+    if (!model) return '';
+
+    const text = model.getValueInRange(selection);
+    return text;
+  },
+
+  hasSelection: () => {
+    const { editor } = get();
+    if (!editor) return false;
+
+    const selection = editor.getSelection();
+    return selection ? !selection.isEmpty() : false;
   },
   
   // 便利なアクション

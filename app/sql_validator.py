@@ -97,9 +97,7 @@ class SQLValidator:
             # WHERE句必須チェック
             sql_upper = sql.upper()
             if 'SELECT' in sql_upper and 'WHERE' not in sql_upper:
-                system_tables = ['INFORMATION_SCHEMA', 'SNOWFLAKE_SAMPLE_DATA', 'SYS']
-                if not any(table in sql_upper for table in system_tables):
-                    suggestions.append("WHERE句を追加するとパフォーマンスが向上します")
+                suggestions.append("WHERE句を追加するとパフォーマンスが向上します")
             if not self._check_where_clause_required(sql, errors):
                 return ValidationResult(False, errors, warnings, suggestions)
             
@@ -213,11 +211,54 @@ class SQLValidator:
             
             # SELECT文でWHERE句がない場合
             if 'SELECT' in sql_upper and 'WHERE' not in sql_upper:
-                # システムテーブルやビューの場合は例外
-                system_tables = ['INFORMATION_SCHEMA', 'SNOWFLAKE_SAMPLE_DATA', 'SYS']
-                if not any(table in sql_upper for table in system_tables):
-                    errors.append("WHERE句が必要です。大量データの取得を防ぐため、条件を指定してください。例: WHERE column_name = 'value'")
-                    return False
+                errors.append("WHERE句が必要です。大量データの取得を防ぐため、条件を指定してください。例: WHERE column_name = 'value'")
+                return False
+            
+            # WHERE句の内容が20文字以下の場合のチェック
+            if 'WHERE' in sql_upper:
+                # WHERE句全体を抽出（より簡単な方法）
+                where_pattern = r'WHERE\s+(.*)'
+                where_match = re.search(where_pattern, sql, re.IGNORECASE | re.DOTALL)
+                
+                if where_match:
+                    where_content = where_match.group(1).strip()
+                    self.logger.debug(f"WHERE句抽出: {where_content}")
+                    
+                    # ANDで分割して個別の条件をチェック
+                    conditions = re.split(r'\s+AND\s+', where_content, flags=re.IGNORECASE)
+                    self.logger.debug(f"AND分割結果: {conditions}")
+                    
+                    all_conditions_valid = False
+                    where_clauses_checked = []
+                    
+                    for condition in conditions:
+                        condition = condition.strip()
+                        # 括弧やクォートを除いた実際の内容の長さをチェック
+                        clean_content = re.sub(r'[()"\']', '', condition)
+                        # スペースも除去して実際の文字数だけをカウント
+                        clean_content = re.sub(r'\s+', '', clean_content)
+                        
+                        # デバッグログ
+                        self.logger.debug(f"WHERE句条件チェック: 元の内容='{condition}', クリーン内容='{clean_content}', 文字数={len(clean_content)}")
+                        
+                        where_clauses_checked.append({
+                            'original': condition,
+                            'clean': clean_content,
+                            'length': len(clean_content)
+                        })
+                        
+                        # 1つでも20文字を超えていればOK
+                        if len(clean_content) > 20:
+                            all_conditions_valid = True
+                            self.logger.debug(f"20文字を超える条件を発見: {clean_content}")
+                            break
+                    
+                    # 全ての条件が20文字以下の場合のみエラー
+                    if where_clauses_checked and not all_conditions_valid:
+                        self.logger.debug(f"全てのWHERE句条件が20文字以下: {where_clauses_checked}")
+                        errors.append("WHERE句の内容が短すぎます。より具体的な条件を指定してください。")
+                        return False
+            
             return True
         except Exception as e:
             errors.append(f"WHERE句チェックエラー: {str(e)}")

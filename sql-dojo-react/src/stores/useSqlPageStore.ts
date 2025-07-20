@@ -31,8 +31,11 @@ export const useSqlPageStore = create<SqlPageState>(() => ({
     const resultsStore = useResultsStore.getState();
     const parameterStore = useParameterStore.getState();
     
-    // エディタストアから現在のSQLを取得
-    const currentSql = editorStore.sql;
+    // 選択範囲があるかチェック
+    const hasSelection = editorStore.hasSelection();
+    
+    // 選択範囲がある場合は選択されたSQLを取得、ない場合は全SQLを取得
+    const currentSql = hasSelection ? editorStore.getSelectedSQL() : editorStore.sql;
     
     // SQLバリデーション
     const trimmedSql = currentSql.trim();
@@ -45,6 +48,12 @@ export const useSqlPageStore = create<SqlPageState>(() => ({
     if (trimmedSql.endsWith('FROM') || trimmedSql.endsWith('WHERE') || trimmedSql.endsWith('AND') || trimmedSql.endsWith('OR')) {
       alert('SQLが不完全です。FROM句の後にテーブル名を指定してください。');
       return;
+    }
+    
+    // 選択範囲がある場合はユーザーに通知
+    if (hasSelection) {
+      console.log('選択範囲のSQLを実行します');
+      // 必要に応じてユーザーに確認を求めることも可能
     }
     
     // パラメータ検証

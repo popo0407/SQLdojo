@@ -154,9 +154,6 @@ async def execute_sql_endpoint(
         error_message=result.error_message
     )
     
-    if not result.success:
-        raise SQLExecutionError(result.error_message)
-    
     return response
 
 
@@ -909,7 +906,17 @@ async def execute_sql_with_cache_endpoint(
         )
         
         if not result['success']:
-            raise SQLExecutionError(result.get('error_message', 'SQL実行に失敗しました'))
+            # エラーレスポンスを返す（例外を発生させない）
+            error_response = CacheSQLResponse(
+                success=False,
+                session_id=None,
+                total_count=0,
+                processed_rows=0,
+                execution_time=result.get('execution_time', 0),
+                message=None,
+                error_message=result.get('error_message', 'SQL実行に失敗しました')
+            )
+            return error_response
         
         return response
         

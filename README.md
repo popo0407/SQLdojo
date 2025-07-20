@@ -12,6 +12,8 @@ SQLdojo は、SQL クエリの実行と結果の分析を支援する Web アプ
 - テンプレート機能
 - ユーザー管理
 - **パラメータ化 SQL 実行機能**
+- **WHERE 句バリデーション機能**（大量データ取得防止）
+- **部分 SQL 実行機能**（選択範囲の SQL 実行）
 - 包括的テストスイート（120+ テストケース）
 
 ## 技術スタック
@@ -89,8 +91,13 @@ npm run dev
    - `{パラメータ名[選択肢1,選択肢2]}`: 選択式
    - `{パラメータ名[]}`: 複数項目入力
    - `{パラメータ名['']}`: 複数項目入力（クォート付き）
-5. 実行ボタンでクエリを実行
-6. 結果をフィルタリング・ソート・エクスポート
+5. **WHERE 句バリデーション**:
+   - WHERE 句なしの SQL は実行不可（大量データ取得防止）
+   - WHERE 句の内容が 20 文字以下の場合はエラー
+6. **部分 SQL 実行**:
+   - エディタでテキストを選択して部分実行可能
+7. 実行ボタンでクエリを実行
+8. 結果をフィルタリング・ソート・エクスポート
 
 ## プロジェクト構成
 
@@ -104,9 +111,11 @@ app/
 │   └── error_handlers.py  # エラーハンドラー
 ├── services/              # ビジネスロジック
 │   ├── sql_service.py     # SQL実行サービス
+│   ├── hybrid_sql_service.py # ハイブリッドSQL実行（キャッシュ機能付き）
 │   ├── cache_service.py   # キャッシュ管理
 │   ├── metadata_service.py # メタデータ取得
 │   └── user_service.py    # ユーザー管理
+├── sql_validator.py       # SQLバリデーション（WHERE句チェック等）
 ├── main.py               # アプリケーションエントリーポイント
 └── config_simplified.py  # 設定管理
 ```
@@ -203,6 +212,8 @@ sql-dojo-react/
 ### バックエンド処理
 
 - **SQL 実行**: `sql_service.py`で SQL クエリを実行し、結果をキャッシュ
+- **ハイブリッド SQL 実行**: `hybrid_sql_service.py`でキャッシュ機能付き SQL 実行
+- **SQL バリデーション**: `sql_validator.py`で WHERE 句必須チェックと内容検証
 - **キャッシュ管理**: `cache_service.py`で大量データの段階的取得とキャッシュ
 - **メタデータ取得**: `metadata_service.py`でテーブル・カラム情報を取得
 - **フィルタリング**: 既存フィルター条件を考慮したユニーク値取得
@@ -231,6 +242,7 @@ sql-dojo-react/
 - **メタデータ**: ツリー形式でのテーブル・カラム表示
 - **パラメータ化 SQL**: 動的フォーム生成によるパラメータ入力機能
 - **認証**: React Context による認証状態管理
+- **部分 SQL 実行**: Monaco Editor の選択範囲を活用した部分実行機能
 
 ### データフロー
 
@@ -249,14 +261,28 @@ sql-dojo-react/
    - 連鎖フィルターで前の条件を考慮した候補を動的更新
    - `useResultsStore`がフィルター条件を管理し、結果を再取得
 
-3. **無限スクロールフロー**
+3. **SQL バリデーションフロー**
+
+   - ユーザーが SQL を入力・実行
+   - `sql_validator.py`で WHERE 句の存在と内容をチェック
+   - バリデーションエラー時は適切なエラーメッセージを表示
+   - フロントエンドでエラーハンドリングとユーザー通知
+
+4. **部分 SQL 実行フロー**
+
+   - ユーザーがエディタでテキストを選択
+   - `useEditorStore`で選択範囲の SQL を取得
+   - 選択範囲がある場合は部分実行、ない場合は全 SQL 実行
+   - 実行結果を通常通り表示
+
+5. **無限スクロールフロー**
 
    - ユーザーがスクロールでページ下部に到達
    - `useInfiniteScroll.ts`が`sqlService.ts`で追加データを取得
    - `useResultsStore`が既存データに追加データを結合
    - `ResultsViewer.tsx`が更新されたデータを表示
 
-4. **CSV エクスポートフロー**
+6. **CSV エクスポートフロー**
    - ユーザーがエクスポートボタンをクリック
    - `useResultsStore`が`sqlService.ts`で CSV ダウンロード API を呼び出し
    - ブラウザがファイルダウンロードを実行
@@ -428,6 +454,43 @@ python -m pytest app/tests/test_sql_api.py::TestSQLExecuteAPI::test_execute_sql_
 - 型安全性による実行時エラーの事前防止
 
 ## 更新履歴
+
+### 2025-07-20: WHERE 句バリデーション機能と部分 SQL 実行機能の実装
+
+#### 実装内容
+
+- **WHERE 句バリデーション機能**:
+  - WHERE 句なしの SQL 実行を防止（大量データ取得防止）
+  - WHERE 句の内容が 20 文字以下の場合のエラー表示
+  - `HybridSQLService`へのバリデーション統合
+  - フロントエンドのエラーハンドリング改善
+- **部分 SQL 実行機能**:
+  - Monaco Editor の選択範囲を活用した部分実行
+  - `useEditorStore`での選択範囲管理
+  - エディタツールバーでの部分実行表示
+
+#### 技術的詳細
+
+- **SQL バリデーション**: `sql_validator.py`での WHERE 句必須チェックと内容検証
+- **エラーハンドリング**: API エンドポイントとフロントエンドでの適切なエラー処理
+- **部分実行**: Monaco Editor の選択 API を活用した部分 SQL 実行
+- **レスポンス形式**: バリデーションエラー時の統一されたレスポンス形式
+
+#### 修正ファイル
+
+- `app/services/hybrid_sql_service.py`: SQL バリデーションの統合
+- `app/api/routes.py`: エラーレスポンス形式の修正
+- `sql-dojo-react/src/stores/useResultsStore.ts`: エラーハンドリングの改善
+- `sql-dojo-react/src/stores/useEditorStore.ts`: 部分実行機能の追加
+- `sql-dojo-react/src/stores/useSqlPageStore.ts`: 部分実行ロジックの統合
+- `sql-dojo-react/src/components/editor/EditorToolbar.tsx`: 部分実行表示の追加
+
+#### 動作確認
+
+- WHERE 句なしの SQL でバリデーションエラーが表示される
+- WHERE 句の内容が短すぎる場合のエラー表示
+- エディタでテキスト選択時の部分実行機能
+- 適切なエラーメッセージの表示
 
 ### 2025-07-20: パラメータ化 SQL 実行機能の実装
 

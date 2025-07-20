@@ -12,6 +12,7 @@ from app.services.streaming_state_service import StreamingStateService
 from app.logger import get_logger
 from app.exceptions import SQLExecutionError, DatabaseError
 from app.config_simplified import settings
+from app.sql_validator import get_validator
 
 logger = get_logger("HybridSQLService")
 
@@ -23,6 +24,7 @@ class HybridSQLService:
         self.connection_manager = connection_manager
         self.streaming_state_service = streaming_state_service
         self.chunk_size = settings.cursor_chunk_size  # 一度に取得する行数
+        self.validator = get_validator()  # SQLバリデーター
     
     async def execute_sql_with_cache(self, sql: str, user_id: str, limit: Optional[int] = None) -> Dict[str, Any]:
         """SQLを実行し、結果をキャッシュに保存"""
@@ -30,6 +32,20 @@ class HybridSQLService:
         session_id = None  # finallyブロックで参照できるよう、tryの外で初期化
 
         try:
+            # SQLバリデーション
+            validation_result = self.validator.validate_sql(sql)
+            if not validation_result.is_valid:
+                error_message = "; ".join(validation_result.errors)
+                return {
+                    'success': False,
+                    'error_message': error_message,
+                    'message': error_message,  # APIエンドポイントで期待されるフィールド
+                    'session_id': None,
+                    'total_count': 0,
+                    'processed_rows': 0,
+                    'execution_time': 0
+                }
+            
             # セッションIDを生成
             session_id = self.cache_service.generate_session_id(user_id)
             

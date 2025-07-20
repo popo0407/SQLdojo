@@ -104,8 +104,17 @@ export const useResultsStore = create<ResultsState>((set, get) => ({
       
       const res = await executeSqlOnCache({ sql });
       
-      if (!res.success || !res.session_id) {
-        uiStore.setError(new Error(res.message || 'session_idが返されませんでした'));
+      if (!res.success) {
+        // エラーメッセージを適切に処理
+        const errorMessage = res.error_message || res.message || 'SQL実行に失敗しました';
+        uiStore.setError(new Error(errorMessage));
+        uiStore.setIsError(true);
+        uiStore.stopLoading();
+        return;
+      }
+      
+      if (!res.session_id) {
+        uiStore.setError(new Error('session_idが返されませんでした'));
         uiStore.setIsError(true);
         uiStore.stopLoading();
         return;

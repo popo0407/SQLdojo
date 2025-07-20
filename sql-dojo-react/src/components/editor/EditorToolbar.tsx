@@ -10,6 +10,7 @@ interface EditorToolbarProps {
   isPending: boolean;
   isDownloading: boolean;
   hasSql: boolean;
+  hasSelection?: boolean;
 }
 
 /**
@@ -22,7 +23,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onExecute,
   isPending,
   isDownloading,
-  hasSql
+  hasSql,
+  hasSelection = false
 }) => {
   return (
     <div className={styles.toolbar}>
@@ -66,7 +68,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         </Button>
       </ButtonGroup>
       <Button variant="success" size="sm" onClick={onExecute}>
-        <i className="fas fa-play me-1"></i>実行 (Ctrl+Enter)
+        <i className="fas fa-play me-1"></i>
+        {hasSelection ? '選択範囲実行' : '実行'} (Ctrl+Enter)
       </Button>
     </div>
   );
