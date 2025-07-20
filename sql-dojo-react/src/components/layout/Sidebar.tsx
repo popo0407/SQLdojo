@@ -2,6 +2,7 @@ import React from 'react';
 import { useMetadata } from '../../hooks/useMetadata';
 import MetadataTree from '../../features/metadata/MetadataTree';
 import { useEditorStore } from '../../stores/useEditorStore';
+import { ParameterContainer } from '../../features/parameters/ParameterContainer';
 import styles from '../../styles/Layout.module.css';
 
 const Sidebar: React.FC = () => {
@@ -42,6 +43,9 @@ const Sidebar: React.FC = () => {
   return (
     <aside className={styles.sidebar}>
       <div className="p-2">
+        {/* パラメータ入力フォーム */}
+        <ParameterContainer />
+        
         <h5><i className="fas fa-sitemap me-2"></i>DB情報</h5>
         <div className={styles.sidebarAction}>
           <button 

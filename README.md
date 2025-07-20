@@ -11,6 +11,8 @@ SQLdojo は、SQL クエリの実行と結果の分析を支援する Web アプ
 - メタデータの表示
 - テンプレート機能
 - ユーザー管理
+- **パラメータ化 SQL 実行機能**
+- 包括的テストスイート（120+ テストケース）
 
 ## 技術スタック
 
@@ -82,8 +84,13 @@ npm run dev
 1. ブラウザで `http://localhost:5173` にアクセス
 2. ログイン画面でユーザー認証
 3. SQL エディタでクエリを記述
-4. 実行ボタンでクエリを実行
-5. 結果をフィルタリング・ソート・エクスポート
+4. **パラメータ化 SQL の使用**:
+   - `{パラメータ名}`: 自由入力
+   - `{パラメータ名[選択肢1,選択肢2]}`: 選択式
+   - `{パラメータ名[]}`: 複数項目入力
+   - `{パラメータ名['']}`: 複数項目入力（クォート付き）
+5. 実行ボタンでクエリを実行
+6. 結果をフィルタリング・ソート・エクスポート
 
 ## プロジェクト構成
 
@@ -133,10 +140,14 @@ sql-dojo-react/
 │   │   │   ├── ResultsViewer.tsx     # 結果ビューアー
 │   │   │   ├── ResultTable.tsx       # 結果テーブル
 │   │   │   └── Results.module.css    # 結果表示スタイル
-│   │   └── metadata/     # メタデータ機能
-│   │       ├── MetadataTree.tsx      # メタデータツリー
-│   │       ├── TreeNode.tsx          # ツリーノード
-│   │       └── MetadataTree.module.css # メタデータスタイル
+│   │   ├── metadata/     # メタデータ機能
+│   │   │   ├── MetadataTree.tsx      # メタデータツリー
+│   │   │   ├── TreeNode.tsx          # ツリーノード
+│   │   │   └── MetadataTree.module.css # メタデータスタイル
+│   │   └── parameters/   # パラメータ機能
+│   │       ├── ParameterParser.ts     # パラメータ解析
+│   │       ├── ParameterForm.tsx      # パラメータ入力フォーム
+│   │       └── ParameterContainer.tsx # パラメータコンテナ
 │   ├── pages/            # ページコンポーネント
 │   │   ├── HomePage.tsx              # ホームページ
 │   │   ├── LoginPage.tsx             # ログインページ
@@ -155,7 +166,8 @@ sql-dojo-react/
 │   │   ├── useUIStore.ts             # UI状態管理（ローディング、エラー、モーダル）
 │   │   ├── useResultsStore.ts        # 結果表示管理（データ、ソート、フィルタ、CSV）
 │   │   ├── useEditorStore.ts         # エディタ管理（SQLテキスト、エディタインスタンス、整形）
-│   │   └── useSidebarStore.ts        # サイドバー管理（テーブル・カラム選択）
+│   │   ├── useSidebarStore.ts        # サイドバー管理（テーブル・カラム選択）
+│   │   └── useParameterStore.ts      # パラメータ管理（プレースホルダー解析、値管理、検証）
 │   ├── api/              # API通信層
 │   │   ├── apiClient.ts              # 汎用APIクライアント
 │   │   ├── sqlService.ts             # SQL関連APIサービス
@@ -164,7 +176,8 @@ sql-dojo-react/
 │   │   ├── api.ts                    # API型定義
 │   │   ├── metadata.ts               # メタデータ型定義
 │   │   ├── editor.ts                 # エディタ型定義
-│   │   └── results.ts                # 結果表示型定義
+│   │   ├── results.ts                # 結果表示型定義
+│   │   └── parameters.ts             # パラメータ型定義
 │   ├── contexts/         # Reactコンテキスト
 │   │   └── AuthContext.tsx           # 認証コンテキスト
 │   ├── config/           # 設定ファイル
@@ -216,6 +229,7 @@ sql-dojo-react/
 - **結果表示**: ページネーション対応の結果テーブル表示
 - **フィルタリング**: カラム別の動的フィルター機能（連鎖フィルター対応）
 - **メタデータ**: ツリー形式でのテーブル・カラム表示
+- **パラメータ化 SQL**: 動的フォーム生成によるパラメータ入力機能
 - **認証**: React Context による認証状態管理
 
 ### データフロー
@@ -247,6 +261,147 @@ sql-dojo-react/
    - `useResultsStore`が`sqlService.ts`で CSV ダウンロード API を呼び出し
    - ブラウザがファイルダウンロードを実行
 
+## テストスイート
+
+### 概要
+
+SQLdojo では包括的なテストスイートを提供しており、API エンドポイント、サービス層、統合テストを含む 120+ のテストケースでアプリケーションの品質を保証しています。
+
+### テスト構成
+
+```
+app/tests/
+├── conftest.py              # テスト設定とフィクスチャー
+├── pytest.ini              # pytest 設定
+├── README.md               # テスト実行ガイド
+├── TEST_ANALYSIS.md        # テスト分析と改善計画
+├── run_tests.py            # テスト実行スクリプト
+├── fix_imports.py          # インポート修正ユーティリティ
+├── test_main.py            # メインアプリケーションテスト
+├── test_sql_api.py         # SQL実行APIテスト
+├── test_cache_api.py       # キャッシュ機能APIテスト
+├── test_metadata_api.py    # メタデータAPIテスト
+├── test_auth_api.py        # 認証APIテスト
+├── test_export_api.py      # エクスポート機能APIテスト
+├── test_template_api.py    # テンプレート管理APIテスト
+├── test_logs_api.py        # ログAPIテスト
+├── test_utils_api.py       # ユーティリティAPIテスト
+├── test_services.py        # サービス層テスト
+└── test_integration.py     # 統合テスト
+```
+
+### テスト実行
+
+#### 全テスト実行
+
+```bash
+# プロジェクトルートから
+python -m pytest app/tests/ -v
+
+# または
+cd app/tests
+python run_tests.py
+```
+
+#### 特定のテスト実行
+
+```bash
+# SQL API テストのみ
+python -m pytest app/tests/test_sql_api.py -v
+
+# キャッシュ API テストのみ
+python -m pytest app/tests/test_cache_api.py -v
+
+# 特定のテストクラス
+python -m pytest app/tests/test_metadata_api.py::TestMetadataSchemaAPI -v
+
+# 特定のテストメソッド
+python -m pytest app/tests/test_auth_api.py::TestAuthAPI::test_login_success -v
+```
+
+#### マーカーによるテスト実行
+
+```bash
+# API テストのみ
+python -m pytest -m api -v
+
+# 統合テストのみ
+python -m pytest -m integration -v
+
+# 遅いテストを除外
+python -m pytest -m "not slow" -v
+```
+
+### テストカバレッジ
+
+#### 主要なテスト領域
+
+- **SQL 実行 API**: クエリ実行、バリデーション、フォーマット
+- **キャッシュ機能**: データキャッシュ、読み出し、CSV ダウンロード
+- **メタデータ API**: スキーマ、テーブル、カラム情報取得
+- **認証機能**: ログイン、権限チェック、セッション管理
+- **エクスポート機能**: CSV、Excel ダウンロード
+- **テンプレート管理**: SQL テンプレートの CRUD 操作
+- **ログ機能**: SQL 実行ログの記録と取得
+- **サービス層**: ビジネスロジックのユニットテスト
+- **統合テスト**: エンドツーエンドのワークフロー
+
+#### テストの特徴
+
+- **モックとフィクスチャー**: 実データベース接続なしでのテスト
+- **エラーハンドリング**: 異常系シナリオの包括的テスト
+- **レスポンス検証**: API レスポンス形式とデータ整合性チェック
+- **認証テスト**: 権限レベル別のアクセス制御テスト
+- **パフォーマンステスト**: 大容量データ処理の確認
+
+### テスト設定
+
+#### 環境設定
+
+```python
+# conftest.py でのテスト用設定
+@pytest.fixture
+def client():
+    """テスト用 FastAPI クライアント"""
+    return TestClient(app)
+
+@pytest.fixture
+def mock_user():
+    """テスト用ユーザー"""
+    return UserInfo(user_id="test_user", user_name="Test User")
+
+@pytest.fixture
+def mock_admin():
+    """テスト用管理者"""
+    return UserInfo(user_id="admin_user", user_name="Admin User")
+```
+
+#### 依存性注入のオーバーライド
+
+```python
+# テスト内でのモック設定例
+app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+app.dependency_overrides[get_current_user] = lambda: test_user
+```
+
+### トラブルシューティング
+
+#### よくある問題
+
+1. **インポートエラー**: `python app/tests/fix_imports.py` を実行
+2. **設定エラー**: `pytest.ini` の設定確認
+3. **依存関係エラー**: 必要なパッケージのインストール確認
+
+#### デバッグ実行
+
+```bash
+# 詳細なエラー情報表示
+python -m pytest app/tests/ -v --tb=long
+
+# 特定のテストをデバッグ
+python -m pytest app/tests/test_sql_api.py::TestSQLExecuteAPI::test_execute_sql_success -v -s
+```
+
 ## 開発ガイドライン
 
 ### コード規約
@@ -273,6 +428,50 @@ sql-dojo-react/
 - 型安全性による実行時エラーの事前防止
 
 ## 更新履歴
+
+### 2025-07-20: パラメータ化 SQL 実行機能の実装
+
+#### 実装内容
+
+- **パラメータ化 SQL 機能**: SQL テキスト内のプレースホルダーを動的フォームに変換
+- **4 種類のプレースホルダー対応**:
+  - `{名前}`: 自由入力テキスト
+  - `{ステータス[有効,無効]}`: 選択式ドロップダウン
+  - `{ID[]}`: 複数項目入力（カンマ区切り）
+  - `{ID['']}`: 複数項目入力（シングルクォート付き）
+- **Excel 対応**: Excel からのコピペで複数項目を一括入力
+- **入力検証**: 未入力や不正な値での SQL 実行を防止
+- **エラー表示**: SQL 失敗時と同じ場所にパラメータエラーを表示
+
+#### 技術的詳細
+
+- **プレースホルダー解析**: 正規表現による動的パラメータ検出
+- **フォーム生成**: プレースホルダー型に応じた動的 UI 生成
+- **状態管理**: Zustand によるパラメータ値の一元管理
+- **Excel 処理**: 改行文字除去とタブ区切りデータの解析
+- **検証機能**: 未入力、空項目、選択肢チェック
+
+#### 作成ファイル
+
+- `src/features/parameters/ParameterParser.ts`: プレースホルダー解析・置換
+- `src/features/parameters/ParameterForm.tsx`: 動的フォーム生成
+- `src/features/parameters/ParameterContainer.tsx`: パラメータコンテナ
+- `src/stores/useParameterStore.ts`: パラメータ状態管理
+- `src/types/parameters.ts`: パラメータ型定義
+- `src/features/parameters/test-samples.md`: テスト用 SQL 例
+- `src/features/parameters/test-validation.md`: 検証機能テスト例
+
+#### 修正ファイル
+
+- `src/stores/useSqlPageStore.ts`: SQL 実行時のパラメータ検証追加
+- `src/components/layout/Sidebar.tsx`: パラメータフォーム表示追加
+
+#### 動作確認
+
+- プレースホルダー検出と動的フォーム生成
+- Excel からのコピペによる複数項目入力
+- 未入力時のエラー表示と SQL 実行防止
+- パラメータ置換による SQL 実行
 
 ### 2025-07-19: API 通信ロジックの一元化リファクタリング
 
@@ -454,6 +653,44 @@ sql-dojo-react/
 - バックエンドでフィルター条件を正しく受け取り
 - 動的 SQL クエリ生成により、フィルター条件に合致するユニーク値のみを返却
 - 連鎖フィルターで後続カラムの候補が前の選択に基づいて動的に更新
+
+### 2025-07-20: 包括的テストスイートの実装
+
+#### 実装内容
+
+- **テストファイル作成**: 120+ テストケースを含む包括的テストスイート
+- **テスト構造化**: 機能別、API 別に論理的にグループ化
+- **モック・フィクスチャー**: 実データベース接続なしでのテスト環境構築
+- **エラーハンドリング**: 正常系・異常系両方の包括的テスト
+
+#### テストファイル
+
+- `test_sql_api.py`: SQL 実行、バリデーション、フォーマット API
+- `test_cache_api.py`: キャッシュ機能、ストリーミング処理 API
+- `test_metadata_api.py`: スキーマ、テーブル、カラム情報 API
+- `test_auth_api.py`: 認証、権限管理 API
+- `test_export_api.py`: CSV、Excel エクスポート API
+- `test_template_api.py`: SQL テンプレート CRUD API
+- `test_logs_api.py`: SQL 実行ログ API
+- `test_utils_api.py`: ユーティリティ API
+- `test_services.py`: サービス層ユニットテスト
+- `test_integration.py`: エンドツーエンド統合テスト
+- `test_main.py`: メインアプリケーションテスト
+
+#### 技術的特徴
+
+- **pytest フレームワーク**: 高度なテスト機能とレポート
+- **依存性注入**: FastAPI の dependency override によるモック
+- **フィクスチャー**: 再利用可能なテストデータとセットアップ
+- **マーカー**: テスト分類による選択的実行
+- **設定管理**: pytest.ini による統一されたテスト設定
+
+#### 品質保証
+
+- **カバレッジ**: 全主要 API エンドポイントと機能をテスト
+- **保守性**: モジュラー構造による拡張しやすいテスト
+- **信頼性**: モックによる一貫したテスト環境
+- **効率性**: 高速実行とデバッグ支援機能
 
 ## ライセンス
 
