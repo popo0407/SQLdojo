@@ -14,17 +14,6 @@ export class ApiError extends Error {
   }
 }
 
-// ソート設定の型
-type SortConfig = {
-  key: string;
-  direction: 'asc' | 'desc';
-};
-
-// フィルタ設定の型
-type FilterConfig = {
-  [columnName: string]: string[];
-};
-
 // SQL整形レスポンスの型
 interface SQLFormatResponse {
   formatted_sql: string;
@@ -87,8 +76,8 @@ export const apiClient = {
   loadMoreData: async (
     sessionId: string,
     page: number,
-    filters?: FilterConfig,
-    sortConfig?: SortConfig | null
+    filters?: import('../types/results').FilterConfig,
+    sortConfig?: import('../types/results').SortConfig | null
   ) => {
     const response = await fetch(`/api/v1/sql/cache/read`, {
       method: 'POST',
@@ -115,7 +104,7 @@ export const apiClient = {
   },
 
   // CSVダウンロード（session_idベースに変更）
-  downloadCsv: async (sessionId: string, filters?: FilterConfig, sortBy?: string, sortOrder?: string): Promise<Blob> => {
+  downloadCsv: async (sessionId: string, filters?: import('../types/results').FilterConfig, sortBy?: string, sortOrder?: string): Promise<Blob> => {
     const response = await fetch(`/api/v1/sql/cache/download/csv`, {
       method: 'POST',
       headers: {

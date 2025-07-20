@@ -1,5 +1,6 @@
+import type { Schema } from '../types/api';
+import type { FilterConfig } from '../types/results';
 import { apiClient } from './apiClient';
-import type { Schema, FilterConfig } from '../types/api';
 
 export interface UniqueValuesParams {
   session_id: string;
@@ -29,6 +30,19 @@ export const getConfigSettings = async (): Promise<any> => {
 /**
  * カラム内のユニークな値を取得する
  */
-export const getUniqueValues = async (params: UniqueValuesParams): Promise<UniqueValuesResponse> => {
-  return apiClient.post<UniqueValuesResponse>('/sql/cache/unique-values', params);
+export const getUniqueValues = async ({ 
+  session_id, 
+  column_name, 
+  filters 
+}: { 
+  session_id: string; 
+  column_name: string; 
+  filters: FilterConfig;
+}): Promise<{ values: string[]; truncated: boolean }> => {
+  const response = await fetch('/api/v1/sql/cache/unique-values', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id, column_name, filters }),
+  });
+  return response.json();
 }; 

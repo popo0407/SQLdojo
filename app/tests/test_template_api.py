@@ -38,7 +38,7 @@ class TestTemplateAPI:
         
         try:
             response = client.post(
-                "/api/v1/templates",
+                "/api/v1/users/templates",
                 json={
                     "name": "テストテンプレート",
                     "sql_template": "SELECT * FROM {table_name} WHERE {condition}",
@@ -83,7 +83,7 @@ class TestTemplateAPI:
         app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
-            response = client.get("/api/v1/templates")
+            response = client.get("/api/v1/users/templates")
             
             assert response.status_code == 200
             data = response.json()
@@ -112,7 +112,7 @@ class TestTemplateAPI:
         
         try:
             response = client.put(
-                "/api/v1/templates/1",
+                "/api/v1/users/templates/1",
                 json={
                     "name": "更新されたテンプレート",
                     "sql_template": "SELECT {columns} FROM {table_name} WHERE {condition}",
@@ -138,7 +138,7 @@ class TestTemplateAPI:
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
-            response = client.delete("/api/v1/templates/1")
+            response = client.delete("/api/v1/users/templates/1")
             
             assert response.status_code == 200
             data = response.json()
@@ -170,7 +170,7 @@ class TestPartAPI:
         
         try:
             response = client.post(
-                "/api/v1/parts",
+                "/api/v1/users/parts",
                 json={
                     "name": "基本WHERE条件",
                     "sql_part": "WHERE status = 'active'",
@@ -215,7 +215,7 @@ class TestPartAPI:
         app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
-            response = client.get("/api/v1/parts?category=condition")
+            response = client.get("/api/v1/users/parts?category=condition")
             
             assert response.status_code == 200
             data = response.json()
@@ -256,7 +256,7 @@ class TestPartAPI:
         app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
-            response = client.get("/api/v1/parts")
+            response = client.get("/api/v1/users/parts")
             
             assert response.status_code == 200
             data = response.json()
@@ -405,7 +405,7 @@ class TestTemplateDropdownAPI:
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
-            response = client.get("/api/v1/templates/dropdown")
+            response = client.get("/api/v1/users/templates-for-dropdown")
             
             assert response.status_code == 200
             data = response.json()
@@ -438,7 +438,7 @@ class TestPartDropdownAPI:
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         
         try:
-            response = client.get("/api/v1/parts/dropdown")
+            response = client.get("/api/v1/users/parts-for-dropdown")
             
             assert response.status_code == 200
             data = response.json()

@@ -99,11 +99,6 @@ export interface Schema {
   tables: Table[];
 }
 
-// フィルター設定型定義
-export interface FilterConfig {
-  [columnName: string]: string[];
-}
-
 // キャッシュ機能用の型定義
 export interface CacheSQLResponse {
   success: boolean;

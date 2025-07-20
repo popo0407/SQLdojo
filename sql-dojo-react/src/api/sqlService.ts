@@ -1,68 +1,79 @@
+import type { ExecuteSqlResponse, CacheReadResponse } from '../types/api';
+import type { FilterConfig } from '../types/results';
 import { apiClient } from './apiClient';
-import type { ExecuteSqlResponse, CacheReadResponse, FilterConfig } from '../types/api';
 
-export interface SqlExecutionParams {
-  sql: string;
-}
+// SQL実行API
+export const executeSqlOnCache = async ({ sql }: { sql: string }): Promise<ExecuteSqlResponse> => {
+  const response = await fetch('/api/v1/sql/cache/execute', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sql }),
+  });
+  return response.json();
+};
 
-export interface CacheReadParams {
-  session_id: string;
-  page: number;
-  page_size: number;
+// SQLキャッシュ読み込みAPI
+export const readSqlCache = async ({ 
+  session_id, 
+  page, 
+  page_size, 
+  filters, 
+  sort_by, 
+  sort_order 
+}: { 
+  session_id: string; 
+  page: number; 
+  page_size: number; 
   filters?: FilterConfig;
   sort_by?: string;
   sort_order?: 'ASC' | 'DESC';
-}
+}): Promise<CacheReadResponse> => {
+  const response = await fetch('/api/v1/sql/cache/read', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id, page, page_size, filters, sort_by, sort_order }),
+  });
+  return response.json();
+};
 
-export interface CsvDownloadParams {
-  session_id: string;
+// CSVダウンロードAPI
+export const downloadCsvFromCache = async ({ 
+  session_id, 
+  filters, 
+  sort_by, 
+  sort_order 
+}: { 
+  session_id: string; 
   filters?: FilterConfig;
   sort_by?: string;
   sort_order?: string;
-}
-
-export interface SqlFormatParams {
-  sql: string;
-}
-
-export interface SqlSuggestParams {
-  sql: string;
-  position: number;
-  context: any;
-}
-
-/**
- * SQL実行をキャッシュサーバーに依頼する
- */
-export const executeSqlOnCache = async (params: SqlExecutionParams): Promise<ExecuteSqlResponse> => {
-  return apiClient.post<ExecuteSqlResponse>('/sql/cache/execute', params);
+}): Promise<Blob> => {
+  const response = await fetch('/api/v1/sql/cache/download/csv', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id, filters, sort_by, sort_order }),
+  });
+  return response.blob();
 };
 
-/**
- * キャッシュから結果を読み出す
- */
-export const readSqlCache = async (params: CacheReadParams): Promise<CacheReadResponse> => {
-  return apiClient.post<CacheReadResponse>('/sql/cache/read', params);
-};
-
-/**
- * CSVファイルをダウンロードする
- */
-export const downloadCsvFromCache = async (params: CsvDownloadParams): Promise<Blob> => {
-  return apiClient.downloadCsv(params.session_id, params.filters, params.sort_by, params.sort_order);
-};
-
-/**
- * SQLを整形する
- */
-export const formatSql = async (params: SqlFormatParams): Promise<string> => {
-  const result = await apiClient.formatSQL(params.sql);
+// SQL整形API
+export const formatSql = async ({ sql }: { sql: string }): Promise<string> => {
+  const response = await fetch('/api/v1/sql/format', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sql }),
+  });
+  const result = await response.json();
   return result.formatted_sql;
 };
 
 /**
  * SQL補完候補を取得する
  */
-export const getSqlSuggestions = async (params: SqlSuggestParams): Promise<any> => {
-  return apiClient.post('/sql/suggest', params);
+export const getSqlSuggestions = async ({ sql, position, context }: { 
+  sql: string; 
+  position: number; 
+  context: any; 
+}): Promise<any> => {
+  return apiClient.post('/sql/suggest', { sql, position, context });
 }; 

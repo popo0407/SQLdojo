@@ -36,6 +36,31 @@ SQLdojo は、SQL クエリの実行と結果の分析を支援する Web アプ
 - Monaco Editor (SQL エディタ)
 - **react-resizable-panels** (リサイズ可能パネル)
 
+## 最新の改善点（2024 年 12 月）
+
+### リファクタリング完了
+
+- **useResultsStore.ts** の大規模リファクタリングを完了
+  - 384 行の巨大なストアを 6 つの専用ストアに分割
+  - 単一責任の原則（SRP）に準拠した設計
+  - ファサードパターンによる統一インターフェース
+  - 型安全性の向上と重複コードの削除
+
+### 分割されたストア構成
+
+- `useResultsDataStore.ts` - データ管理（配列、カラム、行数、実行時間）
+- `useResultsFilterStore.ts` - フィルタリング・ソート管理
+- `useResultsPaginationStore.ts` - ページネーション管理
+- `useResultsExportStore.ts` - CSV エクスポート管理
+- `useResultsSessionStore.ts` - セッション管理
+- `useResultsExecutionStore.ts` - SQL 実行管理
+
+### 型定義の統一
+
+- 重複する型定義を削除し、`types/results.ts`に統一
+- API 層での型の整合性を確保
+- 開発憲章に準拠した品質向上
+
 ## セットアップ
 
 ### 前提条件
@@ -188,20 +213,27 @@ sql-dojo-react/
 │   ├── stores/           # 状態管理（Zustand）
 │   │   ├── useSqlPageStore.ts        # メインSQLページ状態管理
 │   │   ├── useUIStore.ts             # UI状態管理（ローディング、エラー、モーダル）
-│   │   ├── useResultsStore.ts        # 結果表示管理（データ、ソート、フィルタ、CSV）
+│   │   ├── useResultsStore.ts        # 結果表示管理（ファサードパターン）
+│   │   ├── useResultsDataStore.ts    # データ管理（配列、カラム、行数、実行時間）
+│   │   ├── useResultsFilterStore.ts  # フィルタリング・ソート管理
+│   │   ├── useResultsPaginationStore.ts # ページネーション管理
+│   │   ├── useResultsExportStore.ts  # CSVエクスポート管理
+│   │   ├── useResultsSessionStore.ts # セッション管理
+│   │   ├── useResultsExecutionStore.ts # SQL実行管理
 │   │   ├── useEditorStore.ts         # エディタ管理（SQLテキスト、エディタインスタンス、整形）
 │   │   ├── useSidebarStore.ts        # サイドバー管理（テーブル・カラム選択）
 │   │   ├── useParameterStore.ts      # パラメータ管理（プレースホルダー解析、値管理、検証）
 │   │   └── useLayoutStore.ts         # レイアウト状態管理（エディタ最大化、パネルサイズ）
 │   ├── api/              # API通信層
 │   │   ├── apiClient.ts              # 汎用APIクライアント
+│   │   ├── authService.ts            # 認証関連APIサービス
 │   │   ├── sqlService.ts             # SQL関連APIサービス
 │   │   └── metadataService.ts        # メタデータ関連APIサービス
 │   ├── types/            # 型定義
 │   │   ├── api.ts                    # API型定義
 │   │   ├── metadata.ts               # メタデータ型定義
 │   │   ├── editor.ts                 # エディタ型定義
-│   │   ├── results.ts                # 結果表示型定義
+│   │   ├── results.ts                # 結果表示型定義（統一型定義）
 │   │   └── parameters.ts             # パラメータ型定義
 │   ├── contexts/         # Reactコンテキスト
 │   │   └── AuthContext.tsx           # 認証コンテキスト
@@ -213,20 +245,6 @@ sql-dojo-react/
 │   │   ├── LoginForm.module.css      # ログインフォームスタイル
 │   │   ├── AdminLoginModal.module.css # 管理者ログインモーダルスタイル
 │   │   └── LogoutButton.module.css   # ログアウトボタンスタイル
-│   ├── api/              # API通信層
-│   │   ├── apiClient.ts              # 汎用APIクライアント
-│   │   ├── authService.ts            # 認証関連APIサービス
-│   │   ├── sqlService.ts             # SQL関連APIサービス
-│   │   └── metadataService.ts        # メタデータ関連APIサービス
-│   ├── hooks/            # カスタムフック
-│   │   ├── useAuth.ts                # 認証関連フック
-│   │   ├── useMetadata.ts            # メタデータ取得フック
-│   │   ├── useConfigSettings.ts      # 設定管理フック
-│   │   ├── useMonacoEditor.ts        # Monaco Editor管理フック
-│   │   ├── useEditorOperations.ts    # エディタ操作フック
-│   │   ├── useInfiniteScroll.ts      # 無限スクロールフック
-│   │   ├── useResultsDisplay.ts      # 結果表示管理フック
-│   │   └── useLayoutControl.ts       # レイアウト制御フック（SQL実行時の自動最小化）
 │   ├── config/           # 設定ファイル
 │   │   └── editorConfig.ts           # Monaco Editor設定
 │   ├── styles/           # グローバルスタイル

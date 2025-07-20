@@ -4,12 +4,6 @@ import { useEditorStore } from './useEditorStore';
 import { useParameterStore } from './useParameterStore';
 import { useUIStore } from './useUIStore';
 
-// 型定義（他のストアでも使用される共通型）
-export type SortConfig = { key: string; direction: 'asc' | 'desc' };
-export type FilterConfig = { [columnName: string]: string[] };
-export type TableRow = Record<string, string | number | boolean | null>;
-export type ConfigSettings = { default_page_size?: number; max_records_for_csv_download?: number };
-
 interface SqlPageState {
   // 状態
   isPending: boolean;
