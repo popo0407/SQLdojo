@@ -46,9 +46,9 @@ export const apiClient = {
     return response.json() as Promise<T>;
   },
 
-  post: async <T>(endpoint: string, body: any): Promise<T> => {
+  post: async <T>(endpoint: string, body: any, method: string = 'POST'): Promise<T> => {
     const response = await fetch(`/api/v1${endpoint}`, {
-      method: 'POST',
+      method,
       headers: {
         'Content-Type': 'application/json',
       },

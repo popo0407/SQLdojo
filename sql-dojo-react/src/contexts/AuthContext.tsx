@@ -1,23 +1,119 @@
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { authService, type User } from '../api/authService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  // user: User | null; // 将来的にユーザー情報も管理
-  login: () => void;
-  logout: () => void;
+  user: User | null;
+  isAdmin: boolean;
+  isLoading: boolean;
+  login: (userId: string) => Promise<void>;
+  adminLogin: (password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  checkAuthStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // 仮の認証状態
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = () => setIsAuthenticated(true);
-  const logout = () => setIsAuthenticated(false);
+  // 認証状態をチェック
+  const checkAuthStatus = async () => {
+    try {
+      const currentUser = await authService.getCurrentUser();
+      setUser(currentUser);
+      setIsAuthenticated(true);
+      
+      // セッションストレージから管理者フラグを復元
+      const isAdminFromStorage = sessionStorage.getItem('isAdmin') === 'true';
+      setIsAdmin(isAdminFromStorage);
+    } catch (error) {
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ユーザーログイン
+  const login = async (userId: string) => {
+    try {
+      const response = await authService.login(userId);
+      setUser(response.user);
+      setIsAuthenticated(true);
+      setIsAdmin(false);
+      
+      // セッションストレージにユーザー情報を保存
+      sessionStorage.setItem('user', JSON.stringify(response.user));
+      sessionStorage.setItem('isAuthenticated', 'true');
+    } catch (error) {
+      console.error('ログインエラー:', error);
+      throw error;
+    }
+  };
+
+  // 管理者ログイン
+  const adminLogin = async (password: string) => {
+    try {
+      console.log('管理者ログイン開始:', password);
+      const response = await authService.adminLogin(password);
+      console.log('管理者ログイン成功:', response);
+      setIsAdmin(true);
+      
+      // セッションストレージに管理者フラグを保存
+      sessionStorage.setItem('isAdmin', 'true');
+      console.log('管理者フラグをセッションストレージに保存');
+    } catch (error) {
+      console.error('管理者ログインエラー:', error);
+      throw error;
+    }
+  };
+
+  // ログアウト
+  const logout = async () => {
+    try {
+      // サーバーサイドのキャッシュをクリア
+      await authService.cleanupCurrentUserCache();
+      
+      // ログアウトAPIを呼び出し
+      await authService.logout();
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+      // エラーが発生してもローカルクリアは実行
+    } finally {
+      // ローカルストレージをクリア
+      sessionStorage.clear();
+      localStorage.removeItem('sqlHistoryCache');
+      localStorage.removeItem('userPreferences');
+      localStorage.removeItem('sqlToCopy');
+      
+      // 状態をリセット
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+    }
+  };
+
+  // 初期化時に認証状態をチェック
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ 
+      isAuthenticated, 
+      user, 
+      isAdmin, 
+      isLoading,
+      login, 
+      adminLogin,
+      logout, 
+      checkAuthStatus 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,43 +1,60 @@
-import React from 'react';
-import { Navbar, Container, Nav, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Navbar, Container, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-// import { useAuth } from '../../contexts/AuthContext'; // 将来的に使用
+import { useAuth } from '../../contexts/AuthContext';
+import LogoutButton from '../auth/LogoutButton';
+import AdminLoginModal from '../auth/AdminLoginModal';
 
 const AppHeader: React.FC = () => {
-  // const { user, logout } = useAuth(); // 将来的にAuthContextから取得
+  const { user, isAdmin } = useAuth();
+  const [showAdminModal, setShowAdminModal] = useState(false);
 
-  // 仮のデータ
-  const user = { user_name: 'テストユーザー', user_id: 'testuser' };
-  const logout = () => console.log('logout');
+  const handleAdminLogin = () => {
+    setShowAdminModal(true);
+  };
 
   return (
-    <Navbar bg="light" expand="lg" className="border-bottom">
-      <Container fluid>
-        <Navbar.Brand as={Link} to="/">
-          <img
-            src="/src/assets/hint.png" // Viteではこのように直接インポート or publicフォルダに配置します
-            width="64"
-            height="32"
-            className="d-inline-block align-top"
-            alt="SQL Dojo Logo"
-          />
-          <span className="ms-2 fw-bold">SQL道場 Webアプリ</span>
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ms-auto align-items-center">
-            <Nav.Item className="me-3">
-              <Navbar.Text>
-                {user.user_name} ({user.user_id})
-              </Navbar.Text>
-            </Nav.Item>
-            <Nav.Link as={Link} to="/user">ユーザーページ</Nav.Link>
-            <Nav.Link as={Link} to="/admin">管理者ページ</Nav.Link>
-            <Button variant="outline-secondary" size="sm" onClick={logout}>ログアウト</Button>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+    <>
+      <Navbar bg="light" expand="lg" className="border-bottom">
+        <Container fluid>
+          <Navbar.Brand as={Link} to="/">
+            <img
+              src="/src/assets/hint.png"
+              width="64"
+              height="32"
+              className="d-inline-block align-top"
+              alt="SQL Dojo Logo"
+            />
+            <span className="ms-2 fw-bold">SQL道場 Webアプリ</span>
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto align-items-center">
+              <Nav.Item className="me-3">
+                <Navbar.Text>
+                  {user?.user_name} ({user?.user_id})
+                </Navbar.Text>
+              </Nav.Item>
+              <Nav.Link as={Link} to="/user">ユーザーページ</Nav.Link>
+              {!isAdmin && (
+                <Nav.Link as="button" onClick={handleAdminLogin} style={{ border: 'none', background: 'none' }}>
+                  管理者ログイン
+                </Nav.Link>
+              )}
+              {isAdmin && (
+                <Nav.Link as={Link} to="/admin">管理者ページ</Nav.Link>
+              )}
+              <LogoutButton />
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+      
+      <AdminLoginModal 
+        isOpen={showAdminModal} 
+        onClose={() => setShowAdminModal(false)} 
+      />
+    </>
   );
 };
 
