@@ -17,7 +17,14 @@ export interface UniqueValuesResponse {
  * DBのメタデータ（スキーマ情報）を取得する
  */
 export const getAllMetadata = async (): Promise<Schema[]> => {
-  return apiClient.get<Schema[]>('/metadata/all');
+  try {
+    const response = await apiClient.get<Schema[]>('/metadata/all');
+    console.log('メタデータAPIレスポンス:', response);
+    return response;
+  } catch (error) {
+    console.error('メタデータ取得エラー:', error);
+    throw error;
+  }
 };
 
 /**

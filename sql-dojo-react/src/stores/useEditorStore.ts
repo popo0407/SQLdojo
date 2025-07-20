@@ -3,6 +3,7 @@ import { editor, Selection } from 'monaco-editor';
 import { formatSql } from '../api/sqlService';
 import { useUIStore } from './useUIStore';
 import { useSidebarStore } from './useSidebarStore';
+import { useParameterStore } from './useParameterStore';
 
 interface EditorState {
   // SQLテキスト
@@ -41,39 +42,63 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   sqlToInsert: '',
   
   // セッター
-  setSql: (sql) => set({ sql }),
-  setEditor: (editor) => set({ editor }),
+  setSql: (sql) => {
+    set({ sql });
+    // SQL変更時にプレースホルダー解析を実行
+    const parameterStore = useParameterStore.getState();
+    parameterStore.updatePlaceholders(sql);
+  },
+  setEditor: (editor) => {
+    set({ editor });
+    // エディタ初期化時にプレースホルダー解析を実行
+    if (editor) {
+      const { sql } = get();
+      const parameterStore = useParameterStore.getState();
+      parameterStore.updatePlaceholders(sql);
+    }
+  },
   setSqlToInsert: (sqlToInsert) => set({ sqlToInsert }),
   clearSqlToInsert: () => set({ sqlToInsert: '' }),
   
-  // テキスト挿入アクション
+  // 統一されたテキスト挿入アクション
   insertText: (text) => {
     const { editor } = get();
-    if (!editor) return;
+    if (!editor) {
+      console.warn('Editor instance is not available');
+      return;
+    }
     
-    let selection = editor.getSelection();
-    if (!selection) {
-      const position = editor.getPosition();
-      if (position) {
-        selection = new Selection(
-          position.lineNumber,
-          position.column,
-          position.lineNumber,
-          position.column,
-        );
+    try {
+      let selection = editor.getSelection();
+      if (!selection) {
+        const position = editor.getPosition();
+        if (position) {
+          selection = new Selection(
+            position.lineNumber,
+            position.column,
+            position.lineNumber,
+            position.column,
+          );
+        }
       }
+      
+      if (selection) {
+        const op = {
+          identifier: { major: 1, minor: 1 },
+          range: selection,
+          text: text,
+          forceMoveMarkers: true,
+        };
+        editor.executeEdits('sidebar-insert', [op]);
+        editor.focus();
+      } else {
+        console.warn('No valid selection or position found');
+      }
+    } catch (error) {
+      console.error('Error inserting text:', error);
+      const errorMessage = error instanceof Error ? error.message : 'テキスト挿入に失敗しました';
+      alert(errorMessage);
     }
-    
-    if (selection) {
-      const op = {
-        identifier: { major: 1, minor: 1 },
-        range: selection,
-        text: text,
-        forceMoveMarkers: true,
-      };
-      editor.executeEdits('sidebar-insert', [op]);
-    }
-    editor.focus();
   },
   
   // SQL整形アクション

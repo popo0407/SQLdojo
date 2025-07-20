@@ -6,34 +6,15 @@ import { useEditorStore } from '../stores/useEditorStore';
  * テキスト挿入、クリア、フォーマット機能を管理
  */
 export const useEditorOperations = () => {
-  const { sql, setSql, sqlToInsert, clearSqlToInsert, formatSql } = useEditorStore();
+  const { sql, setSql, sqlToInsert, clearSqlToInsert, formatSql, insertText } = useEditorStore();
 
-  // sqlToInsertを監視し、エディタに挿入
+  // sqlToInsertを監視し、統一されたinsertTextを使用
   useEffect(() => {
     if (sqlToInsert) {
-      const editorInstance = useEditorStore.getState().editor;
-      if (editorInstance) {
-        const position = editorInstance.getPosition();
-        if (position) {
-          const range = {
-            startLineNumber: position.lineNumber,
-            startColumn: position.column,
-            endLineNumber: position.lineNumber,
-            endColumn: position.column,
-          };
-          const op = {
-            identifier: { major: 1, minor: 1 },
-            range,
-            text: sqlToInsert,
-            forceMoveMarkers: true,
-          };
-          editorInstance.executeEdits('sidebar-insert', [op]);
-          editorInstance.focus();
-        }
-      }
+      insertText(sqlToInsert);
       clearSqlToInsert();
     }
-  }, [sqlToInsert, clearSqlToInsert]);
+  }, [sqlToInsert, clearSqlToInsert, insertText]);
 
   const handleClear = () => {
     setSql('');

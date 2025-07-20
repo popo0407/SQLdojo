@@ -1,7 +1,9 @@
 // API型定義
+import type { TableRow } from './results';
+
 export interface SqlExecutionResult {
   success: boolean;
-  data?: any[];
+  data?: TableRow[];
   columns?: string[];
   row_count?: number;
   execution_time?: number;
@@ -20,7 +22,7 @@ export interface ExecuteSqlResponse {
   message?: string;
   error_message?: string;
   total_count?: number;
-  data?: any[];
+  data?: TableRow[];
   columns?: string[];
   row_count?: number;
   execution_time?: number;
@@ -109,13 +111,13 @@ export interface CacheSQLResponse {
   message?: string;
   error_message?: string;
   // 表示制限時はdataとcolumnsが含まれない
-  data?: any[];
+  data?: TableRow[];
   columns?: string[];
 }
 
 export interface CacheReadResponse {
   success: boolean;
-  data?: any[][];
+  data?: TableRow[];
   columns?: string[];
   total_count?: number;
   page?: number;

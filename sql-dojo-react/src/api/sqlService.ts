@@ -1,4 +1,4 @@
-import type { ExecuteSqlResponse, CacheReadResponse } from '../types/api';
+import type { ExecuteSqlResponse, CacheReadResponse, SqlCompletionResult } from '../types/api';
 import type { FilterConfig } from '../types/results';
 import { apiClient } from './apiClient';
 
@@ -74,6 +74,6 @@ export const getSqlSuggestions = async ({ sql, position, context }: {
   sql: string; 
   position: number; 
   context: any; 
-}): Promise<any> => {
-  return apiClient.post('/sql/suggest', { sql, position, context });
+}): Promise<SqlCompletionResult> => {
+  return apiClient.post<SqlCompletionResult>('/sql/suggest', { sql, position, context });
 }; 
