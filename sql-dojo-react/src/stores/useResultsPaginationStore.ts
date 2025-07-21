@@ -4,11 +4,7 @@ import { useResultsDataStore } from './useResultsDataStore';
 import { useResultsFilterStore } from './useResultsFilterStore';
 import { useResultsSessionStore } from './useResultsSessionStore';
 import { useUIStore } from './useUIStore';
-import type { 
-  ResultsPaginationState, 
-  ResultsPaginationActions,
-  TableRow 
-} from '../types/results';
+import type { TableRow } from '../types/common';
 
 interface PaginationStoreState extends ResultsPaginationState, ResultsPaginationActions {}
 

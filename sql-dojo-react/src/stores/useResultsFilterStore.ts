@@ -4,9 +4,9 @@ import { useResultsDataStore } from './useResultsDataStore';
 import { useResultsSessionStore } from './useResultsSessionStore';
 import type { 
   ResultsFilterState, 
-  ResultsFilterActions,
-  TableRow 
+  ResultsFilterActions
 } from '../types/results';
+import type { TableRow } from '../types/common';
 
 interface FilterStoreState extends ResultsFilterState, ResultsFilterActions {}
 

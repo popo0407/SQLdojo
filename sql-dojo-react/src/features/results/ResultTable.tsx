@@ -1,19 +1,7 @@
 import React from 'react';
 import { Table } from 'react-bootstrap';
 import styles from './Results.module.css';
-
-// SortConfigの型定義をインポートまたは定義
-type SortConfig = {
-  key: string;
-  direction: 'asc' | 'desc';
-};
-
-type CellValue = string | number | boolean | null;
-
-// FilterConfigの型定義を追加
-type FilterConfig = {
-  [columnName: string]: string[];
-};
+import type { SortConfig, FilterConfig, CellValue } from '../../types/common';
 
 interface ResultTableProps {
   // `columns`が文字列または文字列配列の両方を受け付けられるように修正

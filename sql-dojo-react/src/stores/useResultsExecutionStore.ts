@@ -5,10 +5,7 @@ import { useResultsFilterStore } from './useResultsFilterStore';
 import { useResultsPaginationStore } from './useResultsPaginationStore';
 import { useResultsSessionStore } from './useResultsSessionStore';
 import { useUIStore } from './useUIStore';
-import type { 
-  ResultsExecutionActions,
-  TableRow 
-} from '../types/results';
+import type { TableRow } from '../types/common';
 
 export const useResultsExecutionStore = create<ResultsExecutionActions>(() => ({
   // SQL実行アクション

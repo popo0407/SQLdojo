@@ -1,5 +1,5 @@
 // API型定義
-import type { TableRow } from './results';
+import type { TableRow } from './common';
 
 export interface SqlExecutionResult {
   success: boolean;

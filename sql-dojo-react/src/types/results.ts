@@ -1,12 +1,8 @@
-// 共通の型定義
-export type TableRow = Record<string, string | number | boolean | null>;
-export type SortConfig = { key: string; direction: 'asc' | 'desc' };
-export type FilterConfig = { [columnName: string]: string[] };
-export type FilterModalState = { 
-  show: boolean; 
-  columnName: string; 
-  currentFilters?: string[] 
-};
+// 結果表示専用の型定義
+import type { TableRow, SortConfig, FilterConfig, FilterModalState } from './common';
+
+// 後方互換性のためのエイリアス（段階的移行期間中のみ）
+export type { TableRow, SortConfig, FilterConfig, FilterModalState };
 
 // データ管理ストアの型定義
 export interface ResultsDataState {

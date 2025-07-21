@@ -1,3 +1,5 @@
+import type { FilterConfig } from '../types/common';
+
 // エラーレスポンスの型を定義
 interface ApiErrorDetail {
   message: string;
@@ -76,7 +78,7 @@ export const apiClient = {
   loadMoreData: async (
     sessionId: string,
     page: number,
-    filters?: import('../types/results').FilterConfig,
+    filters?: FilterConfig,
     sortConfig?: import('../types/results').SortConfig | null
   ) => {
     const response = await fetch(`/api/v1/sql/cache/read`, {
@@ -104,7 +106,7 @@ export const apiClient = {
   },
 
   // CSVダウンロード（session_idベースに変更）
-  downloadCsv: async (sessionId: string, filters?: import('../types/results').FilterConfig, sortBy?: string, sortOrder?: string): Promise<Blob> => {
+  downloadCsv: async (sessionId: string, filters?: FilterConfig, sortBy?: string, sortOrder?: string): Promise<Blob> => {
     const response = await fetch(`/api/v1/sql/cache/download/csv`, {
       method: 'POST',
       headers: {

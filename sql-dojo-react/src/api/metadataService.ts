@@ -1,5 +1,5 @@
 import type { Schema } from '../types/api';
-import type { FilterConfig } from '../types/results';
+import type { FilterConfig } from '../types/common';
 import { apiClient } from './apiClient';
 
 export interface UniqueValuesParams {
