@@ -19,7 +19,7 @@ export interface UniqueValuesResponse {
 export const getAllMetadata = async (): Promise<Schema[]> => {
   try {
     const response = await apiClient.get<Schema[]>('/metadata/all');
-    console.log('メタデータAPIレスポンス:', response);
+    // メタデータAPIレスポンス
     return response;
   } catch (error) {
     console.error('メタデータ取得エラー:', error);

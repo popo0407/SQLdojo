@@ -23,4 +23,7 @@ export default {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
+  // メモリ使用量の最適化
+  maxWorkers: 1,
+  workerIdleMemoryLimit: '512MB',
 }; 

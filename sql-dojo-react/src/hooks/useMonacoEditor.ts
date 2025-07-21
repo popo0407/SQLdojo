@@ -11,7 +11,7 @@ export const useMonacoEditor = () => {
   const { setEditor } = useEditorStore();
 
   const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
-    console.log('Monaco Editor初期化開始');
+    // Monaco Editor初期化開始
     
     // エディタインスタンスをストアに保存
     setEditor(editor);
@@ -19,13 +19,13 @@ export const useMonacoEditor = () => {
     // SQL補完機能を設定
     const completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: async (model: any, position: any) => {
-        console.log('補完リクエスト開始:', { position, model: model.getValue() });
+        // 補完リクエスト開始
         
         try {
           const sql = model.getValue();
           const offset = model.getOffsetAt(position);
           
-          console.log('SQL補完API呼び出し:', { sql, position: offset });
+                      // SQL補完API呼び出し
           
           // バックエンドから補完候補を取得
           const response = await getSqlSuggestions({
@@ -34,7 +34,7 @@ export const useMonacoEditor = () => {
             context: {}
           });
           
-          console.log('SQL補完APIレスポンス:', response);
+                      // SQL補完APIレスポンス
           
           // Monaco Editorの補完アイテム形式に変換
           const suggestions = response.suggestions.map((item: SqlCompletionItem) => {
@@ -74,7 +74,7 @@ export const useMonacoEditor = () => {
             };
           });
           
-          console.log('Monaco Editor補完アイテム:', suggestions);
+                      // Monaco Editor補完アイテム
           
           return {
             suggestions: suggestions
@@ -96,7 +96,7 @@ export const useMonacoEditor = () => {
     // エディタにフォーカス
     editor.focus();
     
-    console.log('Monaco Editor初期化完了');
+          // Monaco Editor初期化完了
   }, [setEditor]);
 
   return {

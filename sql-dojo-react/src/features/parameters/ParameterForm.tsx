@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import type { ParameterFormProps } from '../../types/parameters';
+import { parsePastedData } from '../../utils/dataParser';
 
 /**
  * パラメータ入力フォームコンポーネント
@@ -65,8 +66,8 @@ export const ParameterForm: React.FC<ParameterFormProps> = ({ placeholder, value
     event.preventDefault();
     const pastedText = event.clipboardData.getData('text');
     
-    // Excelデータを適切に分割
-    const newValues = parseExcelData(pastedText);
+    // データを適切に分割
+    const newValues = parsePastedData(pastedText);
 
     if (newValues.length > 0) {
       // 通常モード: 選択中のインデックス以降に追加
@@ -78,28 +79,7 @@ export const ParameterForm: React.FC<ParameterFormProps> = ({ placeholder, value
       
       setLocalValues(updatedValues);
       notifyChange(updatedValues);
-      
-      console.log(`Excelから${newValues.length}件のデータを${insertIndex}番目以降に追加しました:`, newValues);
     }
-  };
-
-  // Excelデータを解析して適切に分割
-  const parseExcelData = (excelText: string): string[] => {
-    // 改行文字を統一してから改行で行に分割
-    const normalizedText = excelText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    const lines = normalizedText.split('\n').filter(line => line.trim() !== '');
-    
-    if (lines.length === 0) return [];
-    
-    // 各行をタブで分割してセルを取得
-    const allCells: string[] = [];
-    
-    lines.forEach(line => {
-      const cells = line.split('\t').filter(cell => cell.trim() !== '');
-      allCells.push(...cells);
-    });
-    
-    return allCells;
   };
 
   // 隠しテキストエリアにフォーカス（ペースト用）
@@ -115,8 +95,8 @@ export const ParameterForm: React.FC<ParameterFormProps> = ({ placeholder, value
     event.preventDefault();
     const pastedText = event.clipboardData.getData('text');
     
-    // Excelデータを適切に分割
-    const newValues = parseExcelData(pastedText);
+    // データを適切に分割
+    const newValues = parsePastedData(pastedText);
 
     if (newValues.length > 0) {
       // 通常モード: 選択中のインデックス以降に追加
@@ -128,8 +108,6 @@ export const ParameterForm: React.FC<ParameterFormProps> = ({ placeholder, value
       
       setLocalValues(updatedValues);
       notifyChange(updatedValues);
-      
-      console.log(`Excelから${newValues.length}件のデータを${insertIndex}番目以降に追加しました:`, newValues);
     }
   };
 

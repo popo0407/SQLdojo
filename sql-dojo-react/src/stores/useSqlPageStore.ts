@@ -52,7 +52,7 @@ export const useSqlPageStore = create<SqlPageState>((set) => ({
     
     // 選択範囲がある場合はユーザーに通知
     if (hasSelection) {
-      console.log('選択範囲のSQLを実行します');
+      // 選択範囲のSQLを実行
       // 必要に応じてユーザーに確認を求めることも可能
     }
     

@@ -73,7 +73,7 @@ export function parsePlaceholders(sql: string): Placeholder[] {
     }
   }
 
-  console.log('プレースホルダー解析結果:', placeholders);
+      // プレースホルダー解析結果
   return placeholders;
 }
 

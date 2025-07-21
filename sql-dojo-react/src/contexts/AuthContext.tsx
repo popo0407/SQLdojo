@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { authService, type User } from '../api/authService';
+import { storageService } from '../services/StorageService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -27,8 +28,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setUser(currentUser);
       setIsAuthenticated(true);
       
-      // セッションストレージから管理者フラグを復元
-      const isAdminFromStorage = sessionStorage.getItem('isAdmin') === 'true';
+      // ストレージから管理者フラグを復元
+      const isAdminFromStorage = storageService.isAdmin();
       setIsAdmin(isAdminFromStorage);
     } catch (error) {
       setUser(null);
@@ -47,9 +48,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAuthenticated(true);
       setIsAdmin(false);
       
-      // セッションストレージにユーザー情報を保存
-      sessionStorage.setItem('user', JSON.stringify(response.user));
-      sessionStorage.setItem('isAuthenticated', 'true');
+      // ストレージにユーザー情報を保存
+      storageService.setUser(response.user);
     } catch (error) {
       console.error('ログインエラー:', error);
       throw error;
@@ -59,14 +59,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // 管理者ログイン
   const adminLogin = async (password: string) => {
     try {
-      console.log('管理者ログイン開始:', password);
-      const response = await authService.adminLogin(password);
-      console.log('管理者ログイン成功:', response);
+      await authService.adminLogin(password);
       setIsAdmin(true);
       
-      // セッションストレージに管理者フラグを保存
-      sessionStorage.setItem('isAdmin', 'true');
-      console.log('管理者フラグをセッションストレージに保存');
+      // ストレージに管理者フラグを保存
+      storageService.setAdmin(true);
     } catch (error) {
       console.error('管理者ログインエラー:', error);
       throw error;
@@ -85,11 +82,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('ログアウトエラー:', error);
       // エラーが発生してもローカルクリアは実行
     } finally {
-      // ローカルストレージをクリア
-      sessionStorage.clear();
-      localStorage.removeItem('sqlHistoryCache');
-      localStorage.removeItem('userPreferences');
-      localStorage.removeItem('sqlToCopy');
+      // ストレージをクリア
+      storageService.clearAll();
       
       // 状態をリセット
       setUser(null);

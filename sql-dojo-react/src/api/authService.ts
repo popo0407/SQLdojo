@@ -46,7 +46,7 @@ export const authService = {
    * @returns ログアウト結果
    */
   logout: async (): Promise<LogoutResponse> => {
-    const response = await apiClient.post<LogoutResponse>('/logout');
+    const response = await apiClient.post<LogoutResponse>('/logout', {});
     return response;
   },
 
