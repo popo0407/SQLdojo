@@ -1,7 +1,7 @@
 import React from 'react';
-import ResultTable from './ResultTable';
+import ResultTable from '../../components/common/ResultTable';
 import { Stack } from 'react-bootstrap';
-import styles from './Results.module.css';
+import styles from '../../components/common/ResultTable.module.css';
 import { useResultsStore } from '../../stores/useResultsStore';
 import { useUIStore } from '../../stores/useUIStore';
 import FilterModal from './FilterModal';

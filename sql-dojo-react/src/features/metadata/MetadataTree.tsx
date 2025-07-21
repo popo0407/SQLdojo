@@ -1,6 +1,6 @@
 import React from 'react';
 import { ListGroup } from 'react-bootstrap';
-import TreeNode from './TreeNode';
+import TreeNode from '../../components/common/TreeNode';
 import type { Schema } from '../../types/api';
 
 interface MetadataTreeProps {

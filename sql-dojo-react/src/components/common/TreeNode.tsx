@@ -7,7 +7,7 @@ import { useSidebarStore } from '../../stores/useSidebarStore';
 interface TreeNodeProps {
   item: Schema | Table | Column;
   level?: number;
-  parentTableName?: string; // カラムの場合の親テーブル名
+  parentTableName?: string;
 }
 
 const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName }) => {

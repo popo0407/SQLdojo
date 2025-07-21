@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../features/results/Results.module.css';
+import styles from '../common/ResultTable.module.css';
 
 interface ResultsStatsProps {
   totalCount: number;
