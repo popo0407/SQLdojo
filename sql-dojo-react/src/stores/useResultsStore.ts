@@ -11,7 +11,7 @@ import type { ResultsState } from '../types/results';
  * Facadeパターンによる統合ストア
  * 既存のコンポーネントとの互換性を維持しながら、分割されたストアを統合
  */
-export const useResultsStore = create<ResultsState>((set, get) => {
+export const useResultsStore = create<ResultsState>((set, _get) => {
   // 各ストアの状態を取得する関数
   const getDataState = () => useResultsDataStore.getState();
   const getFilterState = () => useResultsFilterStore.getState();

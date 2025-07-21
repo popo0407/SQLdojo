@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import type { 
   ResultsDataState, 
-  ResultsDataActions, 
-  TableRow 
+  ResultsDataActions
 } from '../types/results';
 
 interface DataStoreState extends ResultsDataState, ResultsDataActions {}

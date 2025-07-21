@@ -4,10 +4,7 @@ import { useResultsDataStore } from './useResultsDataStore';
 import { useResultsSessionStore } from './useResultsSessionStore';
 import type { 
   ResultsFilterState, 
-  ResultsFilterActions, 
-  SortConfig, 
-  FilterConfig, 
-  FilterModalState,
+  ResultsFilterActions,
   TableRow 
 } from '../types/results';
 
@@ -56,7 +53,7 @@ export const useResultsFilterStore = create<FilterStoreState>((set, get) => ({
       });
       
       if (readRes.success && readRes.data && readRes.columns) {
-        const newData = readRes.data.map((rowArr: unknown[], _idx: number) => 
+        const newData = (readRes.data as unknown as unknown[][]).map((rowArr: unknown[], _idx: number) => 
           Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
         ) as TableRow[];
         
@@ -113,7 +110,7 @@ export const useResultsFilterStore = create<FilterStoreState>((set, get) => ({
       });
       
       if (readRes.success && readRes.data && readRes.columns) {
-        const newData = readRes.data.map((rowArr: unknown[], _idx: number) => 
+        const newData = (readRes.data as unknown as unknown[][]).map((rowArr: unknown[], _idx: number) => 
           Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
         ) as TableRow[];
         
@@ -123,7 +120,6 @@ export const useResultsFilterStore = create<FilterStoreState>((set, get) => ({
         dataStore.setExecTime(readRes.execution_time || 0);
       } else {
         dataStore.setAllData([]);
-        dataStore.setColumns([]);
         dataStore.setRowCount(0);
         dataStore.setExecTime(0);
       }

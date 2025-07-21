@@ -55,9 +55,9 @@ export const useResultsExecutionStore = create<ResultsExecutionActions>(() => ({
         return;
       }
       
-      const newData = readRes.data.map((rowArr: unknown[], _idx: number) => 
-        Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
-      ) as TableRow[];
+                      const newData = (readRes.data as unknown as unknown[][]).map((rowArr: unknown[], _idx: number) => 
+          Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
+        ) as TableRow[];
       
       dataStore.setAllData(newData);
       dataStore.setRawData(newData);

@@ -9,7 +9,6 @@ import type { ResultsExportActions } from '../types/results';
 export const useResultsExportStore = create<ResultsExportActions>(() => ({
   // CSVダウンロードアクション
   downloadCsv: async () => {
-    const dataStore = useResultsDataStore.getState();
     const filterStore = useResultsFilterStore.getState();
     const sessionStore = useResultsSessionStore.getState();
     const uiStore = useUIStore.getState();

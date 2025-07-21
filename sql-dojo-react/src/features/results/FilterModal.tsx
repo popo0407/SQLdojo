@@ -1,85 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Modal, Button, Form, Badge, ListGroup } from 'react-bootstrap';
-import { getUniqueValues } from '../../api/metadataService';
-import { useResultsStore } from '../../stores/useResultsStore';
 import { useUIStore } from '../../stores/useUIStore';
+import { useFilterModalState } from './hooks/useFilterModalState';
+import { useFilterModalActions } from './hooks/useFilterModalActions';
 
 const FilterModal: React.FC = () => {
-  const { filterModal, setFilterModal } = useUIStore();
-  const { sessionId, filters, applyFilter } = useResultsStore();
-  const [selectedValues, setSelectedValues] = useState<string[]>(filterModal.currentFilters || []);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [uniqueValues, setUniqueValues] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isTruncated, setIsTruncated] = useState(false);
+  const { filterModal } = useUIStore();
+  
+  // 状態管理
+  const {
+    selectedValues,
+    searchTerm,
+    uniqueValues,
+    isLoading,
+    error,
+    isTruncated,
+    setSelectedValues,
+    setSearchTerm,
+  } = useFilterModalState();
 
-  // ユニーク値をAPI経由で取得
-  useEffect(() => {
-    if (!filterModal.show) return;
-    if (!sessionId) {
-      setUniqueValues([]);
-      setIsLoading(false);
-      setError('セッションIDがありません。');
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    setUniqueValues([]);
-    setIsTruncated(false);
-    getUniqueValues({
-      session_id: sessionId,
-      column_name: filterModal.columnName,
-      filters
-    })
-      .then(res => {
-        setUniqueValues(res.values || []);
-        setIsTruncated(!!res.truncated);
-      })
-      .catch((e: Error) => setError(e.message || 'ユニーク値の取得に失敗しました'))
-      .finally(() => setIsLoading(false));
-  }, [filterModal.show, sessionId, filterModal.columnName, JSON.stringify(filters)]);
-
-  // 検索フィルタを適用した値
-  const filteredValues = uniqueValues.filter(value =>
-    value.toLowerCase().includes(searchTerm.toLowerCase())
+  // アクション処理
+  const {
+    filteredValues,
+    handleValueToggle,
+    handleApply,
+    handleClear,
+    handleSelectAll,
+    handleDeselectAll,
+    handleClose,
+    handleSearchChange,
+  } = useFilterModalActions(
+    { selectedValues, searchTerm, uniqueValues, isLoading, error, isTruncated },
+    setSelectedValues,
+    setSearchTerm
   );
 
-  const handleValueToggle = (value: string) => {
-    setSelectedValues(prev => 
-      prev.includes(value)
-        ? prev.filter(v => v !== value)
-        : [...prev, value]
-    );
-  };
-
-  const handleApply = () => {
-    applyFilter(filterModal.columnName, selectedValues);
-    setFilterModal({ ...filterModal, currentFilters: selectedValues });
-    setFilterModal({ ...filterModal, show: false });
-  };
-
-  const handleClear = () => {
-    setSelectedValues([]);
-  };
-
-  const handleSelectAll = () => {
-    setSelectedValues(filteredValues);
-  };
-
-  const handleDeselectAll = () => {
-    setSelectedValues([]);
-  };
-
-  // モーダルが開くたびに現在のフィルタを設定
-  useEffect(() => {
-    if (filterModal.show) {
-      setSelectedValues(filterModal.currentFilters || []);
-    }
-  }, [filterModal.show, filterModal.currentFilters]);
-
   return (
-    <Modal show={filterModal.show} onHide={() => setFilterModal({ ...filterModal, show: false })} size="lg">
+    <Modal show={filterModal.show} onHide={handleClose} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
           <i className="fas fa-filter me-2"></i>
@@ -92,7 +49,7 @@ const FilterModal: React.FC = () => {
             type="text"
             placeholder="値を検索..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
 
@@ -163,7 +120,7 @@ const FilterModal: React.FC = () => {
         <Button variant="secondary" onClick={handleClear}>
           クリア
         </Button>
-        <Button variant="secondary" onClick={() => setFilterModal({ ...filterModal, show: false })}>
+        <Button variant="secondary" onClick={handleClose}>
           キャンセル
         </Button>
         <Button variant="primary" onClick={handleApply}>

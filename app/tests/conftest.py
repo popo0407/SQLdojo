@@ -170,21 +170,56 @@ def mock_sql_service():
 def mock_metadata_service():
     """メタデータサービスのモック"""
     service = Mock()
-    service.get_schemas.return_value = {
-        "schemas": ["PUBLIC", "SCHEMA1"]
-    }
-    service.get_tables.return_value = {
-        "tables": [
-            {"table_name": "test_table", "schema_name": "PUBLIC", "table_type": "BASE TABLE"}
-        ],
-        "total_count": 1
-    }
-    service.get_columns.return_value = {
-        "columns": [
-            {"column_name": "column1", "data_type": "VARCHAR", "is_nullable": True},
-            {"column_name": "column2", "data_type": "INTEGER", "is_nullable": False}
-        ]
-    }
+    # 実際のサービスはリストを直接返す（辞書でラップしない）
+    service.get_schemas.return_value = [
+        {"name": "PUBLIC", "created_on": "2024-01-01", "owner": "ROOT", "is_default": True},
+        {"name": "SCHEMA1", "created_on": "2024-01-02", "owner": "USER1", "is_default": False}
+    ]
+    service.get_tables.return_value = [
+        {
+            "name": "test_table", 
+            "schema_name": "PUBLIC", 
+            "table_type": "BASE TABLE",
+            "row_count": 100,
+            "created_on": "2024-01-01",
+            "last_altered": "2024-01-01"
+        }
+    ]
+    service.get_columns.return_value = [
+        {
+            "name": "column1", 
+            "data_type": "VARCHAR", 
+            "is_nullable": True,
+            "ordinal_position": 1,
+            "is_primary_key": False
+        },
+        {
+            "name": "column2", 
+            "data_type": "INTEGER", 
+            "is_nullable": False,
+            "ordinal_position": 2,
+            "is_primary_key": True
+        }
+    ]
+    # 管理者用のモック
+    service.get_all_metadata_raw.return_value = [
+        {
+            "schema_name": "PUBLIC",
+            "table_name": "test_table",
+            "column_name": "column1",
+            "data_type": "VARCHAR",
+            "is_nullable": True,
+            "is_visible": True
+        },
+        {
+            "schema_name": "PUBLIC",
+            "table_name": "test_table",
+            "column_name": "column2",
+            "data_type": "INTEGER",
+            "is_nullable": False,
+            "is_visible": True
+        }
+    ]
     return service
 
 
