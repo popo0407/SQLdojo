@@ -6,7 +6,7 @@ import type {
 
 interface DataStoreState extends ResultsDataState, ResultsDataActions {}
 
-export const useResultsDataStore = create<DataStoreState>((set) => ({
+export const createResultsDataStore = () => create<DataStoreState>((set) => ({
   // 初期状態
   allData: [],
   rawData: [],
@@ -31,4 +31,6 @@ export const useResultsDataStore = create<DataStoreState>((set) => ({
       execTime: 0,
     });
   },
-})); 
+}));
+
+export const useResultsDataStore = createResultsDataStore(); 

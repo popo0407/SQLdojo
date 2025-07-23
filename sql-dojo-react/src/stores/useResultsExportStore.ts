@@ -6,7 +6,7 @@ import { useResultsSessionStore } from './useResultsSessionStore';
 import { useUIStore } from './useUIStore';
 import type { ResultsExportActions } from '../types/results';
 
-export const useResultsExportStore = create<ResultsExportActions>(() => ({
+export const createResultsExportStore = () => create<ResultsExportActions>(() => ({
   // CSVダウンロードアクション
   downloadCsv: async () => {
     const filterStore = useResultsFilterStore.getState();
@@ -65,4 +65,6 @@ export const useResultsExportStore = create<ResultsExportActions>(() => ({
     a.remove();
     window.URL.revokeObjectURL(url);
   },
-})); 
+}));
+
+export const useResultsExportStore = createResultsExportStore(); 

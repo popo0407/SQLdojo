@@ -1,19 +1,20 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
 import TreeNode from './TreeNode';
 
 // useSidebarStoreをモック
-jest.mock('../../stores/useSidebarStore', () => ({
-  useSidebarStore: jest.fn((selector) => selector({
+vi.mock('../../stores/useSidebarStore', () => ({
+  useSidebarStore: vi.fn((selector) => selector({
     selectedTable: '',
     selectedColumns: [],
-    toggleTableSelection: jest.fn(),
-    toggleColumnSelection: jest.fn(),
+    toggleTableSelection: vi.fn(),
+    toggleColumnSelection: vi.fn(),
   })),
 }));
 
 // useEditorStoreも最低限モック
-jest.mock('../../stores/useEditorStore', () => ({
-  useEditorStore: jest.fn(() => ({ insertText: jest.fn() })),
+vi.mock('../../stores/useEditorStore', () => ({
+  useEditorStore: vi.fn(() => ({ insertText: vi.fn() })),
 }));
 
 describe('TreeNode', () => {

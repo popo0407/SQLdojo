@@ -1,5 +1,5 @@
 import { useUIStore } from '../../../stores/useUIStore';
-import { useResultsStore } from '../../../stores/useResultsStore';
+import { useResultsFilterStore } from '../../../stores/useResultsFilterStore';
 import type { FilterModalState } from '../types/filterModal';
 
 export const useFilterModalActions = (
@@ -8,7 +8,7 @@ export const useFilterModalActions = (
   setSearchTerm: (term: string) => void
 ) => {
   const { filterModal, setFilterModal } = useUIStore();
-  const { applyFilter } = useResultsStore();
+  const applyFilter = useResultsFilterStore(state => state.applyFilter);
 
   // 検索フィルタを適用した値
   const filteredValues = state.uniqueValues.filter(value =>

@@ -1,5 +1,9 @@
 import { create } from 'zustand';
-import { useResultsStore } from './useResultsStore';
+import { useResultsExecutionStore } from './useResultsExecutionStore';
+import { useResultsExportStore } from './useResultsExportStore';
+import { useResultsFilterStore } from './useResultsFilterStore';
+import { useResultsPaginationStore } from './useResultsPaginationStore';
+import type { PaginationStoreState } from '../types/results';
 import { useEditorStore } from './useEditorStore';
 import { useParameterStore } from './useParameterStore';
 import { useUIStore } from './useUIStore';
@@ -28,7 +32,7 @@ export const useSqlPageStore = create<SqlPageState>((set) => ({
   // SQL実行アクション
   executeSql: async () => {
     const editorStore = useEditorStore.getState();
-    const resultsStore = useResultsStore.getState();
+    const resultsExecutionStore = useResultsExecutionStore.getState();
     const parameterStore = useParameterStore.getState();
     
     // 選択範囲があるかチェック
@@ -75,7 +79,7 @@ export const useSqlPageStore = create<SqlPageState>((set) => ({
     
     try {
       // 結果ストアを使用してSQL実行
-      await resultsStore.executeSql(replacedSql);
+      await resultsExecutionStore.executeSql(replacedSql);
     } finally {
       // 実行状態をリセット
       set({ isPending: false });
@@ -84,34 +88,34 @@ export const useSqlPageStore = create<SqlPageState>((set) => ({
   
   // CSVダウンロードアクション
   downloadCsv: async () => {
-    const resultsStore = useResultsStore.getState();
+    const resultsExportStore = useResultsExportStore.getState();
     
     // 結果ストアを使用してCSVダウンロード
-    await resultsStore.downloadCsv();
+    await resultsExportStore.downloadCsv();
   },
   
   // ソート適用アクション
   applySort: async (key: string) => {
-    const resultsStore = useResultsStore.getState();
+    const resultsFilterStore = useResultsFilterStore.getState();
     
     // 結果ストアを使用してソート
-    await resultsStore.applySort(key);
+    await resultsFilterStore.applySort(key);
   },
   
   // フィルタ適用アクション
   applyFilter: async (columnName: string, filterValues: string[]) => {
-    const resultsStore = useResultsStore.getState();
+    const resultsFilterStore = useResultsFilterStore.getState();
     
     // 結果ストアを使用してフィルタ
-    await resultsStore.applyFilter(columnName, filterValues);
+    await resultsFilterStore.applyFilter(columnName, filterValues);
   },
   
   // 追加データ読み込みアクション
   loadMoreData: async () => {
-    const resultsStore = useResultsStore.getState();
+    const resultsPaginationStore = useResultsPaginationStore.getState() as PaginationStoreState;
     
     // 結果ストアを使用してデータ読み込み
-    await resultsStore.loadMoreData();
+    await resultsPaginationStore.loadMoreData();
   },
   
   // SQL整形アクション

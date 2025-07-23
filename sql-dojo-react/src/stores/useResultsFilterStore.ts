@@ -10,7 +10,7 @@ import type { TableRow } from '../types/common';
 
 interface FilterStoreState extends ResultsFilterState, ResultsFilterActions {}
 
-export const useResultsFilterStore = create<FilterStoreState>((set, get) => ({
+export const createResultsFilterStore = () => create<FilterStoreState>((set, get) => ({
   // 初期状態
   sortConfig: null,
   filters: {},
@@ -132,4 +132,6 @@ export const useResultsFilterStore = create<FilterStoreState>((set, get) => ({
       dataStore.setAllData(filtered);
     }
   },
-})); 
+}));
+
+export const useResultsFilterStore = createResultsFilterStore(); 

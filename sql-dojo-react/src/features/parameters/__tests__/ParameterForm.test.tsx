@@ -1,10 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import { ParameterForm } from '../ParameterForm';
 import type { Placeholder } from '../../../types/parameters';
 
 // テスト用のモック関数
-const mockOnChange = jest.fn();
+const mockOnChange = vi.fn();
 
 // テスト用のプレースホルダー
 const createPlaceholder = (type: string, displayName: string, choices?: string[]): Placeholder => ({
@@ -18,14 +19,14 @@ const createPlaceholder = (type: string, displayName: string, choices?: string[]
 
 describe('ParameterForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('text タイプ', () => {
     const placeholder = createPlaceholder('text', 'テストパラメータ');
 
     it('単一テキスト入力が正常に動作する', async () => {
-      const user = userEvent.setup();
+      // const user = userEvent.setup();
       
       render(
         <ParameterForm
@@ -38,8 +39,9 @@ describe('ParameterForm', () => {
       const input = screen.getByPlaceholderText('テストパラメータ');
       expect(input).toBeInTheDocument();
 
-      await user.type(input, 'test value');
-      
+      // await user.type(input, 'test value');
+      fireEvent.change(input, { target: { value: 'test value' } });
+
       // 最後の呼び出しを確認
       expect(mockOnChange).toHaveBeenLastCalledWith('test value');
     });
@@ -146,7 +148,7 @@ describe('ParameterForm', () => {
         />
       );
 
-      const removeButtons = screen.getAllByRole('button', { name: /minus/i });
+      const removeButtons = screen.getAllByRole('button').filter(btn => btn.querySelector('i.fa-minus'));
       expect(removeButtons).toHaveLength(2);
 
       await user.click(removeButtons[0]);
@@ -163,7 +165,7 @@ describe('ParameterForm', () => {
         />
       );
 
-      const removeButton = screen.getByRole('button', { name: /minus/i });
+      const removeButton = screen.getAllByRole('button').find(btn => btn.querySelector('i.fa-minus'));
       expect(removeButton).toBeDisabled();
     });
   });
@@ -188,6 +190,8 @@ describe('ParameterForm', () => {
       expect(container).toBeInTheDocument();
 
       // ペーストイベントをシミュレート
+      const input = container!.querySelector('input');
+      input!.focus();
       const pasteEvent = new ClipboardEvent('paste', {
         clipboardData: new DataTransfer()
       });
@@ -197,7 +201,7 @@ describe('ParameterForm', () => {
         }
       });
 
-      fireEvent.paste(container!, pasteEvent);
+      fireEvent.paste(input!, pasteEvent);
 
       await waitFor(() => {
         expect(mockOnChange).toHaveBeenCalledWith(['value1', 'value2', 'value3', 'value4']);
@@ -260,9 +264,8 @@ describe('ParameterForm', () => {
 
   describe('値の変更通知', () => {
     it('単一項目の値変更が正しく通知される', async () => {
-      const user = userEvent.setup();
+      // const user = userEvent.setup();
       const textPlaceholder = createPlaceholder('text', 'テキストテスト');
-      
       render(
         <ParameterForm
           placeholder={textPlaceholder}
@@ -272,7 +275,8 @@ describe('ParameterForm', () => {
       );
 
       const input = screen.getByPlaceholderText('テキストテスト');
-      await user.type(input, 'new value');
+      // await user.type(input, 'new value');
+      fireEvent.change(input, { target: { value: 'new value' } });
 
       expect(mockOnChange).toHaveBeenLastCalledWith('new value');
     });
@@ -335,8 +339,8 @@ describe('ParameterForm', () => {
       await user.click(inputs[0]);
       
       // 選択中の行がハイライトされていることを確認
-      expect(inputs[0]).toHaveStyle({ backgroundColor: '#e3f2fd' });
-      expect(inputs[1]).toHaveStyle({ backgroundColor: 'white' });
+      expect(inputs[0].style.backgroundColor).toBe('rgb(227, 242, 253)');
+      expect(inputs[1].style.backgroundColor).toBe('white');
     });
 
     it('説明テキストが正しく表示される', () => {

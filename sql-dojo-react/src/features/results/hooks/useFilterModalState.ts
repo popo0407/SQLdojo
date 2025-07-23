@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { getUniqueValues } from '../../../api/metadataService';
 import { useUIStore } from '../../../stores/useUIStore';
-import { useResultsStore } from '../../../stores/useResultsStore';
+import { useResultsSessionStore } from '../../../stores/useResultsSessionStore';
+import { useResultsFilterStore } from '../../../stores/useResultsFilterStore';
 import type { FilterModalState, FilterModalActions } from '../types/filterModal';
 
 export const useFilterModalState = (): FilterModalState & FilterModalActions => {
   const { filterModal } = useUIStore();
-  const { sessionId, filters } = useResultsStore();
+  const sessionId = useResultsSessionStore(state => state.sessionId);
+  const filters = useResultsFilterStore(state => state.filters);
   
   const [selectedValues, setSelectedValues] = useState<string[]>(filterModal.currentFilters || []);
   const [searchTerm, setSearchTerm] = useState('');

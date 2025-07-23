@@ -3,11 +3,12 @@ import { executeSqlOnCache, readSqlCache } from '../api/sqlService';
 import { useResultsDataStore } from './useResultsDataStore';
 import { useResultsFilterStore } from './useResultsFilterStore';
 import { useResultsPaginationStore } from './useResultsPaginationStore';
+import type { ResultsExecutionActions } from '../types/results';
 import { useResultsSessionStore } from './useResultsSessionStore';
 import { useUIStore } from './useUIStore';
 import type { TableRow } from '../types/common';
 
-export const useResultsExecutionStore = create<ResultsExecutionActions>(() => ({
+export const createResultsExecutionStore = () => create<ResultsExecutionActions>(() => ({
   // SQL実行アクション
   executeSql: async (sql: string) => {
     const dataStore = useResultsDataStore.getState();
@@ -78,4 +79,6 @@ export const useResultsExecutionStore = create<ResultsExecutionActions>(() => ({
       uiStore.stopLoading();
     }
   },
-})); 
+}));
+
+export const useResultsExecutionStore = createResultsExecutionStore(); 

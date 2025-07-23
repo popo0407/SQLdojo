@@ -50,6 +50,8 @@ export interface ResultsPaginationActions {
   resetPagination: () => void;
 }
 
+export type PaginationStoreState = ResultsPaginationState & ResultsPaginationActions;
+
 // エクスポートストアの型定義
 export interface ResultsExportActions {
   downloadCsv: () => Promise<void>;

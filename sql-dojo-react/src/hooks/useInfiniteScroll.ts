@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useResultsStore } from '../stores/useResultsStore';
+import { useResultsPaginationStore } from '../stores/useResultsPaginationStore';
 import { useUIStore } from '../stores/useUIStore';
 
 /**
@@ -7,7 +7,8 @@ import { useUIStore } from '../stores/useUIStore';
  * スクロール位置を監視し、2/3以上スクロールした際に追加データを読み込む
  */
 export const useInfiniteScroll = () => {
-  const { hasMoreData, loadMoreData } = useResultsStore();
+  const hasMoreData = useResultsPaginationStore(state => state.hasMoreData);
+  const loadMoreData = useResultsPaginationStore(state => state.loadMoreData);
   const { isLoadingMore } = useUIStore();
   const containerRef = useRef<HTMLDivElement>(null);
 

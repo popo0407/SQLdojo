@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useResultsStore } from '../stores/useResultsStore';
+import { useResultsDataStore } from '../stores/useResultsDataStore';
+import { useResultsPaginationStore } from '../stores/useResultsPaginationStore';
 import type { DisplayData } from '../types/results';
 
 /**
@@ -7,7 +8,10 @@ import type { DisplayData } from '../types/results';
  * 無限スクロールデータの初期化と表示用データの決定を行う
  */
 export const useResultsDisplay = () => {
-  const { allData, columns, rowCount, hasMoreData } = useResultsStore();
+  const allData = useResultsDataStore(state => state.allData);
+  const columns = useResultsDataStore(state => state.columns);
+  const rowCount = useResultsDataStore(state => state.rowCount);
+  const hasMoreData = useResultsPaginationStore(state => state.hasMoreData);
   const [infiniteData, setInfiniteData] = useState<DisplayData | null>(null);
 
   // 無限スクロールデータの初期化

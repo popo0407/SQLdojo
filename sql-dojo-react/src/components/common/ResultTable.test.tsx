@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
 import ResultTable from './ResultTable';
 
 describe('ResultTable', () => {
@@ -8,8 +9,8 @@ describe('ResultTable', () => {
     { id: 2, name: 'Bob', age: 25 },
   ];
   const sortConfig = { key: 'name', direction: 'asc' as const };
-  const onSort = jest.fn();
-  const onFilter = jest.fn();
+  const onSort = vi.fn();
+  const onFilter = vi.fn();
   const filters = { name: ['Alice'] };
 
   it('renders table headers and data', () => {
@@ -41,11 +42,9 @@ describe('ResultTable', () => {
         filters={{}}
       />
     );
-    const headerDiv = screen.getAllByRole('columnheader')[0].querySelector('div');
-    if (headerDiv) {
-      fireEvent.click(headerDiv);
-      expect(onSort).toHaveBeenCalledWith('id');
-    }
+    const headerSpan = screen.getByText('id');
+    fireEvent.click(headerSpan);
+    expect(onSort).toHaveBeenCalledWith('id');
   });
 
   it('shows filter icon as active when filter is set', () => {

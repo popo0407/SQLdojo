@@ -6,7 +6,7 @@ import type {
 
 interface SessionStoreState extends ResultsSessionState, ResultsSessionActions {}
 
-export const useResultsSessionStore = create<SessionStoreState>((set) => ({
+export const createResultsSessionStore = () => create<SessionStoreState>((set) => ({
   // 初期状態
   sessionId: null,
   configSettings: null,
@@ -14,4 +14,6 @@ export const useResultsSessionStore = create<SessionStoreState>((set) => ({
   // セッター
   setSessionId: (sessionId) => set({ sessionId }),
   setConfigSettings: (configSettings) => set({ configSettings }),
-})); 
+}));
+
+export const useResultsSessionStore = createResultsSessionStore(); 

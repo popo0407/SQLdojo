@@ -5,10 +5,9 @@ import { useResultsFilterStore } from './useResultsFilterStore';
 import { useResultsSessionStore } from './useResultsSessionStore';
 import { useUIStore } from './useUIStore';
 import type { TableRow } from '../types/common';
+import type { PaginationStoreState } from '../types/results';
 
-interface PaginationStoreState extends ResultsPaginationState, ResultsPaginationActions {}
-
-export const useResultsPaginationStore = create<PaginationStoreState>((set, get) => ({
+export const createResultsPaginationStore = () => create<PaginationStoreState>((set, get) => ({
   // 初期状態
   currentPage: 1,
   hasMoreData: false,
@@ -68,4 +67,6 @@ export const useResultsPaginationStore = create<PaginationStoreState>((set, get)
       hasMoreData: false,
     });
   },
-})); 
+}));
+
+export const useResultsPaginationStore = createResultsPaginationStore(); 

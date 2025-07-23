@@ -49,7 +49,7 @@ interface UIState {
   stopLoading: () => void;
 }
 
-export const useUIStore = create<UIState>((set, _get) => ({
+export const createUIStore = () => create<UIState>((set, _get) => ({
   // 初期状態
   isPending: false,
   isLoadingMore: false,
@@ -78,4 +78,6 @@ export const useUIStore = create<UIState>((set, _get) => ({
   clearError: () => set({ isError: false, error: null }),
   startLoading: () => set({ isPending: true, isError: false, error: null }),
   stopLoading: () => set({ isPending: false }),
-})); 
+}));
+
+export const useUIStore = createUIStore(); 

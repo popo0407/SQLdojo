@@ -1,12 +1,13 @@
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi, Mocked } from 'vitest';
 import { AuthProvider, useAuth } from '../AuthContext';
 import { authService } from '../../api/authService';
 import { storageService } from '../../services/StorageService';
 
 // authServiceのモック
-jest.mock('../../api/authService');
-const mockAuthService = authService as jest.Mocked<typeof authService>;
+vi.mock('../../api/authService');
+const mockAuthService = authService as unknown as Mocked<typeof authService>;
 
 // テスト用コンポーネント
 const TestComponent = () => {
@@ -31,7 +32,7 @@ describe('AuthContext', () => {
     storageService.clearAll();
     
     // モックをリセット
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     
     // デフォルトのモック実装
     mockAuthService.getCurrentUser.mockRejectedValue(new Error('Not authenticated'));

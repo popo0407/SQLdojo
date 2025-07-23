@@ -48,3 +48,33 @@ npm run build
 - `useLoadMoreData.ts`, `useDownloadCsv.ts`, `useExecuteSql.ts` は既に存在せず、機能は適切にストアに実装済み
 - `useSqlPageStore`のコメントを改善し、各アクションの責務を明確化
 - データフローがシンプルで明確な構造に最適化済み
+
+## テスト（Vitest + jsdom）
+
+### 実行方法
+
+```bash
+npm test
+# または
+npx vitest run
+```
+
+### テストファイル命名規則
+
+- `*.test.tsx` / `*.test.ts` で自動検出
+
+### 主要カバレッジ
+
+- FilterModal, ResultTable, ParameterForm, TreeNode, AuthContext など主要機能を網羅
+- Excel ペースト・認証・状態管理・UI 分岐などエッジケースもカバー
+
+### Jest からの移行ポイント
+
+- すべて `jest.fn()` → `vi.fn()`、`jest.mock()` → `vi.mock()` へ移行済み
+- `@testing-library/jest-dom` matcher は `setupTests.ts` で自動有効化
+- jsdom 環境で `ClipboardEvent`/`DataTransfer` などもグローバルモック済み
+
+### 注意
+
+- テストで `act(...)` 警告が出る場合は、`await waitFor` で非同期 UI 更新を待つ
+- 未処理 Promise 例外はテストの品質向上のため、今後も随時抑制・改善予定

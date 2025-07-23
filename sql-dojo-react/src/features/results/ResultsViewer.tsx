@@ -2,7 +2,9 @@ import React from 'react';
 import ResultTable from '../../components/common/ResultTable';
 import { Stack } from 'react-bootstrap';
 import styles from '../../components/common/ResultTable.module.css';
-import { useResultsStore } from '../../stores/useResultsStore';
+import { useResultsDataStore } from '../../stores/useResultsDataStore';
+import { useResultsFilterStore } from '../../stores/useResultsFilterStore';
+import { useResultsSessionStore } from '../../stores/useResultsSessionStore';
 import { useUIStore } from '../../stores/useUIStore';
 import FilterModal from './FilterModal';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
@@ -13,14 +15,14 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { ResultsStats } from '../../components/results/ResultsStats';
 
 const ResultsViewer: React.FC = () => {
-  // 結果ストアから状態とアクションを取得
-  const {
-    execTime, sortConfig, filters, sessionId, applySort
-  } = useResultsStore();
-  
+  // 各ストアから状態とアクションを取得
+  const execTime = useResultsDataStore(state => state.execTime);
+  const { sortConfig, filters, applySort } = useResultsFilterStore();
+  const sessionId = useResultsSessionStore(state => state.sessionId);
+
   // UIストアから状態を取得
   const { isPending, isError, error, isLoadingMore, filterModal, setFilterModal } = useUIStore();
-  
+
   // カスタムフックを使用
   const { containerRef, hasMoreData } = useInfiniteScroll();
   const { displayData, actualTotalCount, hasData } = useResultsDisplay();
@@ -46,7 +48,7 @@ const ResultsViewer: React.FC = () => {
   }
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', overflowY: 'auto', flex: 1 }}>
+    <div ref={containerRef} data-testid="results-viewer-root" style={{ width: '100%', height: '100%', overflowY: 'auto', flex: 1 }}>
       <Stack gap={3} className={styles.resultsContainer}>
         <ResultsStats
           totalCount={actualTotalCount}
