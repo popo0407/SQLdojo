@@ -49,6 +49,13 @@ npm run build
 - `useSqlPageStore`のコメントを改善し、各アクションの責務を明確化
 - データフローがシンプルで明確な構造に最適化済み
 
+## ストア設計のリファクタリング（2025 年 7 月）
+
+- 旧 `useResultsStore.ts`（Facade ストア）を廃止し、各ストア（useResultsDataStore, useResultsFilterStore, useResultsPaginationStore, useResultsExportStore, useResultsSessionStore, useResultsExecutionStore）が単一責務で状態・アクションを管理する構成に移行
+- すべてのコンポーネント・テストは必要なストアを直接 import して利用する形に統一
+- 依存関係の複雑化リスクを排除し、保守性・テスト容易性・拡張性が大幅に向上
+- 全テストパス・後方互換性も担保
+
 ## テスト（Vitest + jsdom）
 
 ### 実行方法
