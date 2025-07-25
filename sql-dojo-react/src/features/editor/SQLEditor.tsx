@@ -10,6 +10,7 @@ import { useEditorStore } from '../../stores/useEditorStore';
 import { useLayoutControl } from '../../hooks/useLayoutControl';
 import { EditorToolbar } from '../../components/editor/EditorToolbar';
 import { getEditorOptions } from '../../config/editorConfig';
+import { MainPageTemplate } from '../templates/components/MainPageTemplate';
 
 const SQLEditor: React.FC = () => {
   // UIストアから状態を取得
@@ -30,6 +31,18 @@ const SQLEditor: React.FC = () => {
 
   return (
     <Stack gap={2} className={styles.editorContainer}>
+      {/* テンプレート機能 */}
+      <MainPageTemplate 
+        onInsertTemplate={(templateSql: string) => setSql(templateSql)}
+        onGetEditorContent={() => sql}
+        onGetSelectedContent={() => {
+          // 選択されたテキストを取得する場合の処理
+          // 現在は全体のSQLを返す
+          return sql;
+        }}
+        hasSelection={hasSelection}
+      />
+      
       {/* ツールバー */}
       <EditorToolbar
         onFormat={handleFormat}

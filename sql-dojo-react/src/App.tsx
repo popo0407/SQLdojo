@@ -7,6 +7,7 @@ import TemplateManagementPage from './pages/TemplateManagementPage';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/auth/PrivateRoute';
 import MainLayout from './components/layout/MainLayout';
+import { TemplateProvider } from './features/templates/stores/TemplateProvider';
 
 function App() {
   const location = useLocation();
@@ -24,15 +25,17 @@ function App() {
 
   return (
     <AuthProvider>
-      {isLoginPage ? (
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
-      ) : (
-        <MainLayout>
-          {AppContent}
-        </MainLayout>
-      )}
+      <TemplateProvider>
+        {isLoginPage ? (
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+          </Routes>
+        ) : (
+          <MainLayout>
+            {AppContent}
+          </MainLayout>
+        )}
+      </TemplateProvider>
     </AuthProvider>
   );
 }

@@ -26,7 +26,9 @@ interface SQLFormatResponse {
 // 汎用的なAPIクライアント
 export const apiClient = {
   get: async <T>(endpoint: string): Promise<T> => {
-    const response = await fetch(`/api/v1${endpoint}`);
+    const response = await fetch(`/api/v1${endpoint}`, {
+      credentials: 'include', // セッションCookieを含める
+    });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -40,6 +42,7 @@ export const apiClient = {
   post: async <T>(endpoint: string, body: any, method: string = 'POST'): Promise<T> => {
     const response = await fetch(`/api/v1${endpoint}`, {
       method,
+      credentials: 'include', // セッションCookieを含める
       headers: {
         'Content-Type': 'application/json',
       },
@@ -59,6 +62,7 @@ export const apiClient = {
   formatSQL: async (sql: string): Promise<SQLFormatResponse> => {
     const response = await fetch('/api/v1/sql/format', {
       method: 'POST',
+      credentials: 'include', // セッションCookieを含める
       headers: {
         'Content-Type': 'application/json',
       },
@@ -83,6 +87,7 @@ export const apiClient = {
   ) => {
     const response = await fetch(`/api/v1/sql/cache/read`, {
       method: 'POST',
+      credentials: 'include', // セッションCookieを含める
       headers: {
         'Content-Type': 'application/json',
       },
