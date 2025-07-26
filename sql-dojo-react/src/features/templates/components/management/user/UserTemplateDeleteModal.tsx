@@ -83,7 +83,7 @@ export const UserTemplateDeleteModal: React.FC<UserTemplateDeleteModalProps> = (
           <div className="mb-2">
             <strong>最終更新:</strong>
             <div className="mt-1 text-muted small">
-              {new Date(template.updated_at).toLocaleString('ja-JP')}
+              {template.updated_at ? new Date(template.updated_at).toLocaleString('ja-JP') : '不明'}
             </div>
           </div>
 

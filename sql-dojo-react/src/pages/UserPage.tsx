@@ -31,9 +31,11 @@ const UserPage: React.FC = () => {
                     個人テンプレートの作成・編集・削除・順序変更ができます。
                     SQLクエリを再利用可能なテンプレートとして保存・管理しましょう。
                   </Card.Text>
-                  <Button as={Link} to="/manage-templates" variant="primary">
-                    テンプレート管理画面へ
-                  </Button>
+                  <Link to="/manage-templates">
+                    <Button variant="primary">
+                      テンプレート管理画面へ
+                    </Button>
+                  </Link>
                 </Card.Body>
               </Card>
             </Col>
@@ -49,9 +51,11 @@ const UserPage: React.FC = () => {
                     これまでに実行したSQLクエリの履歴を確認できます。
                     過去のクエリを参照して効率的にSQL作業を進めましょう。
                   </Card.Text>
-                  <Button as={Link} to="/sql-log" variant="outline-secondary">
-                    SQL実行履歴へ
-                  </Button>
+                  <Link to="/sql-log">
+                    <Button variant="outline-secondary">
+                      SQL実行履歴へ
+                    </Button>
+                  </Link>
                 </Card.Body>
               </Card>
             </Col>

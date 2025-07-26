@@ -64,8 +64,8 @@ export const UserTemplateList: React.FC<UserTemplateListProps> = ({
           break;
         case 'created_at':
         case 'updated_at':
-          aValue = new Date(a[sortField]).getTime();
-          bValue = new Date(b[sortField]).getTime();
+          aValue = a[sortField] ? new Date(a[sortField]).getTime() : 0;
+          bValue = b[sortField] ? new Date(b[sortField]).getTime() : 0;
           break;
         default:
           return 0;
@@ -96,7 +96,8 @@ export const UserTemplateList: React.FC<UserTemplateListProps> = ({
   };
 
   // 日付フォーマット
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return '不明';
     return new Date(dateString).toLocaleString('ja-JP', {
       year: 'numeric',
       month: 'short',

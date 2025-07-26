@@ -142,7 +142,7 @@ export function templateReducer(state: TemplateState, action: TemplateAction): T
 
     case 'MOVE_TEMPLATE_UP': {
       const templates = [...state.templatePreferences];
-      const index = templates.findIndex(t => t.id === action.payload);
+      const index = templates.findIndex(t => t.template_id === action.payload);
       
       if (index > 0) {
         // 現在の表示順を取得
@@ -166,7 +166,7 @@ export function templateReducer(state: TemplateState, action: TemplateAction): T
 
     case 'MOVE_TEMPLATE_DOWN': {
       const templates = [...state.templatePreferences];
-      const index = templates.findIndex(t => t.id === action.payload);
+      const index = templates.findIndex(t => t.template_id === action.payload);
       
       if (index < templates.length - 1) {
         // 現在の表示順を取得
@@ -192,7 +192,7 @@ export function templateReducer(state: TemplateState, action: TemplateAction): T
       return {
         ...state,
         templatePreferences: state.templatePreferences.map(template =>
-          template.id === action.payload.id
+          template.template_id === action.payload.id
             ? { ...template, is_visible: action.payload.isVisible }
             : template
         ),

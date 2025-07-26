@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Card, Table, Button, ButtonGroup, Form, Badge, Spinner } from 'react-bootstrap';
+import { Card, Table, Button, ButtonGroup, Form, Badge, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faEdit, 
@@ -125,9 +125,41 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
       
       <td>
         {template.sql && (
-          <small className="text-muted" style={{ maxWidth: '400px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
-            {template.sql.substring(0, 100)}...
-          </small>
+          <OverlayTrigger
+            placement="top"
+            overlay={
+              <Tooltip id={`sql-tooltip-${template.template_id}`}>
+                <div style={{ 
+                  maxWidth: '500px', 
+                  maxHeight: '300px', 
+                  overflow: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'monospace',
+                  fontSize: '18px'
+                }}>
+                  {template.sql.length > 1000 ? 
+                    `${template.sql.substring(0, 1000)}...` : 
+                    template.sql
+                  }
+                </div>
+              </Tooltip>
+            }
+          >
+            <small 
+              className="text-muted" 
+              style={{ 
+                maxWidth: '400px', 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis', 
+                whiteSpace: 'nowrap', 
+                display: 'block',
+                cursor: 'pointer',
+                padding: '4px 0'
+              }}
+            >
+              {template.sql.substring(0, 100)}...
+            </small>
+          </OverlayTrigger>
         )}
       </td>
       

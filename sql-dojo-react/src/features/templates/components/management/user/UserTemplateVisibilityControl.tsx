@@ -81,6 +81,7 @@ export const UserTemplateVisibilityControl: React.FC<UserTemplateVisibilityContr
       // ExtendedTemplatePreferenceからTemplatePreferenceに変換
       const basicPreferences: TemplatePreference[] = localPreferences.map(pref => ({
         template_id: pref.template_id,
+        template_type: pref.template_type || 'user', // デフォルトは'user'
         display_order: pref.display_order,
         is_visible: pref.is_visible
       }));

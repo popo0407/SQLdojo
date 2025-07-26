@@ -24,6 +24,7 @@ export interface TemplateWithPreferences {
   name: string;
   sql: string;
   created_at: string;
+  updated_at?: string; // 編集時に使用
   type: 'user' | 'admin';
   is_common: boolean;
   display_order: number;
@@ -37,7 +38,7 @@ export interface TemplatePreference {
   template_id: string;
   display_order: number;
   is_visible: boolean;
-  template_type?: 'user' | 'admin'; // APIリクエスト用に追加
+  template_type: 'user' | 'admin'; // 必須フィールドに変更
 }
 
 /**
@@ -164,8 +165,8 @@ export type TemplateAction =
   | { type: 'SET_DROPDOWN_TEMPLATES'; payload: TemplateDropdownItem[] }
   
   // 設定管理操作
-  | { type: 'SET_TEMPLATE_PREFERENCES'; payload: TemplateDropdownItem[] }
-  | { type: 'UPDATE_TEMPLATE_PREFERENCES'; payload: TemplateDropdownItem[] }
+  | { type: 'SET_TEMPLATE_PREFERENCES'; payload: TemplateWithPreferences[] }
+  | { type: 'UPDATE_TEMPLATE_PREFERENCES'; payload: TemplateWithPreferences[] }
   | { type: 'MOVE_TEMPLATE_UP'; payload: string }
   | { type: 'MOVE_TEMPLATE_DOWN'; payload: string }
   | { type: 'TOGGLE_TEMPLATE_VISIBILITY'; payload: { id: string; isVisible: boolean } }

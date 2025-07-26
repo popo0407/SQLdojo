@@ -117,7 +117,13 @@ export const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
       <div className="template-controls d-flex gap-2 align-items-center">
         {/* テンプレート選択ドロップダウン */}
         <TemplateDropdown
-          templates={visibleTemplates}
+          templates={visibleTemplates.map(template => ({
+            id: template.template_id,
+            name: template.name,
+            sql: template.sql,
+            is_common: template.is_common,
+            type: template.type
+          }))}
           onSelectTemplate={handleSelectTemplate}
           isLoading={state.isLoadingDropdown}
           className="flex-grow-1"

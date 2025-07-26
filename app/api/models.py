@@ -374,6 +374,7 @@ class UpdateTemplateRequest(BaseModel):
     """テンプレート更新リクエスト"""
     name: str = Field(..., description="テンプレート名")
     sql: str = Field(..., description="SQL文")
+    display_order: Optional[int] = Field(default=None, description="表示順序（指定時は順序を保持）")
 
 
 # キャッシュ機能用のモデル

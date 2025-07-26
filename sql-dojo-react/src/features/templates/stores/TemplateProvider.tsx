@@ -33,25 +33,33 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
    */
   const fetchWithAuth = useCallback(async (endpoint: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${apiBaseUrl}${endpoint}`, {
-      ...options,
-      credentials: 'include', // セッションCookieを含める
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-        ...options.headers,
-      },
-    });
+    const fullUrl = `${apiBaseUrl}${endpoint}`;
+    
+    try {
+      const response = await fetch(fullUrl, {
+        ...options,
+        credentials: 'include', // セッションCookieを含める
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...options.headers,
+        },
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const errorMessage = errorData.message || errorData.detail || `API Error: ${response.statusText}`;
-      throw new Error(errorMessage);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || errorData.detail || `API Error: ${response.statusText}`;
+        console.error('API Error:', errorMessage, 'URL:', fullUrl, 'Status:', response.status);
+        throw new Error(errorMessage);
+      }
+
+      // レスポンスが空の場合は空オブジェクトを返す
+      const text = await response.text();
+      return text ? JSON.parse(text) : {};
+    } catch (error) {
+      console.error('Network Error:', error, 'URL:', fullUrl);
+      throw error;
     }
-
-    // レスポンスが空の場合は空オブジェクトを返す
-    const text = await response.text();
-    return text ? JSON.parse(text) : {};
   }, [apiBaseUrl]);
 
   /**
@@ -152,12 +160,23 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   /**
    * ユーザーテンプレートを更新
    */
-  const updateUserTemplate = useCallback(async (template: Template) => {
+  const updateUserTemplate = useCallback(async (template: TemplateWithPreferences) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const data = await fetchWithAuth(`/users/templates/${template.id}`, {
+      
+      console.log('Template Update - ID:', template.template_id, 'Name:', template.name);
+      
+      const requestBody = { 
+        name: template.name, 
+        sql: template.sql,
+        display_order: template.display_order
+      };
+      console.log('Update Request Body:', requestBody);
+      
+      // 編集時は現在の表示順序を保持するため、display_orderも送信
+      const data = await fetchWithAuth(`/users/templates/${template.template_id}`, {
         method: 'PUT',
-        body: JSON.stringify({ name: template.name, sql: template.sql }),
+        body: JSON.stringify(requestBody),
       });
       
       if (data.template) {
@@ -167,6 +186,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       // 設定データも更新
       await loadTemplatePreferences();
     } catch (error) {
+      console.error('テンプレート更新エラー:', error);
       const errorMessage = error instanceof Error ? error.message : 'テンプレートの更新に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
@@ -188,9 +208,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       dispatch({ type: 'DELETE_USER_TEMPLATE', payload: templateId });
       
       // テンプレート削除後、template-preferencesを再読み込み
-      console.log('削除後にtemplate-preferencesを再読み込み開始');
       await loadTemplatePreferences();
-      console.log('削除後にtemplate-preferencesを再読み込み完了');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'テンプレートの削除に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -235,6 +253,15 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: false });
     }
   }, [fetchWithAuth, state.templatePreferences]);
+
+  /**
+   * 初期化統一メソッド
+   */
+  const initializeTemplates = useCallback(async () => {
+    if (!state.isInitialized) {
+      await loadTemplatePreferences();
+    }
+  }, [loadTemplatePreferences, state.isInitialized]);
 
   /**
    * 設定をリセット（最後に保存した状態に戻す）
@@ -285,10 +312,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
 
       // display_orderを更新 - template_typeを必須で含める
       const updatedPreferences = reorderedPreferences.map((pref, index) => {
-        // 実際のデータ構造をログで確認
-        console.log('pref object keys:', Object.keys(pref));
-        console.log('pref object:', pref);
-        
         // TemplateWithPreferencesの場合typeフィールドがある
         const templateType = 'type' in pref ? (pref as TemplateWithPreferences).type : 'user';
         
@@ -300,16 +323,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
         };
       });
 
-      console.log('reorderTemplate詳細デバッグ:');
-      console.log('templateId:', templateId);
-      console.log('direction:', direction);
-      console.log('currentPreferences:', currentPreferences);
-      console.log('currentIndex:', currentIndex);
-      console.log('newIndex:', newIndex);
-      console.log('reorderedPreferences:', reorderedPreferences);
-      console.log('updatedPreferences:', updatedPreferences);
-      console.log('送信するJSONデータ:', JSON.stringify({ preferences: updatedPreferences }, null, 2));
-
       // APIで更新
       await fetchWithAuth('/users/template-preferences', {
         method: 'PUT',
@@ -319,8 +332,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       // 成功した場合、ローカルで並び替え済みのデータを使用
       dispatch({ type: 'SET_TEMPLATE_PREFERENCES', payload: reorderedPreferences });
       dispatch({ type: 'SET_INITIALIZED', payload: true });
-      
-      console.log('順序変更完了、新しいテンプレート順序をセット:', reorderedPreferences);
     } catch (error) {
       console.error('テンプレート順序変更エラー:', error);
       const errorMessage = error instanceof Error ? error.message : 'テンプレートの順序変更に失敗しました';
@@ -333,6 +344,9 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
 
   // アクション関数をまとめたオブジェクト
   const actions = useMemo(() => ({
+    // 初期化
+    initializeTemplates,
+    
     // データ読み込み
     loadUserTemplates,
     loadAdminTemplates,
@@ -364,7 +378,9 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     // ユーティリティ
     clearError: () => dispatch({ type: 'SET_ERROR', payload: null }),
     setUnsavedChanges: (hasChanges: boolean) => dispatch({ type: 'SET_UNSAVED_CHANGES', payload: hasChanges }),
+    setTemplatePreferences: (preferences: TemplateWithPreferences[]) => dispatch({ type: 'SET_TEMPLATE_PREFERENCES', payload: preferences }),
   }), [
+    initializeTemplates,
     loadUserTemplates,
     loadAdminTemplates,
     loadDropdownTemplates,

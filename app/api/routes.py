@@ -371,15 +371,15 @@ async def update_user_template(
     template_service: TemplateServiceDep
 ):
     """ユーザーテンプレートを更新（編集機能用）"""
-    # 既存のテンプレートを削除して新しく作成
-    await run_in_threadpool(template_service.delete_user_template, template_id, current_user["user_id"])
     updated_template = await run_in_threadpool(
-        template_service.create_user_template, 
+        template_service.update_user_template, 
+        template_id,
         current_user["user_id"], 
         request.name, 
-        request.sql
+        request.sql,
+        request.display_order  # 順序を保持
     )
-    return updated_template
+    return {"template": updated_template}
 
 
 # ユーザーパーツAPI

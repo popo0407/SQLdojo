@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Tab, Tabs, Alert, Spinner } from 'react-bootstrap';
+import { Container, Row, Col, Card, Alert, Spinner } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faList, faEye, faSort, faTable } from '@fortawesome/free-solid-svg-icons';
+import { faList, faSort } from '@fortawesome/free-solid-svg-icons';
 
 import { useTemplates } from '../../../hooks/useTemplates';
 import { useTemplateContext } from '../../../hooks/useTemplateContext';
-import { UserTemplateList } from './UserTemplateList';
 import { UserTemplateEditModal } from './UserTemplateEditModal';
 import { UserTemplateDeleteModal } from './UserTemplateDeleteModal';
-import { UserTemplateOrderControl } from './UserTemplateOrderControl';
-import { UserTemplateVisibilityControl } from './UserTemplateVisibilityControl';
 import { UserTemplateInlineManagement } from './UserTemplateInlineManagement';
 
 import type { TemplateWithPreferences } from '../../../types/template';
@@ -26,12 +23,6 @@ export const UserTemplateManagementPage: React.FC = () => {
     deleteTemplate,
     // reorderTemplate  // 一時的にコメントアウト
   } = useTemplates();
-
-  // デバッグ: 関数の存在を確認
-  console.log('useTemplates result:', { initializeTemplates, updateTemplate, deleteTemplate });
-  console.log('actions:', actions);
-  console.log('actions.reorderTemplate:', actions.reorderTemplate);
-  console.log('actions.reorderTemplate type:', typeof actions.reorderTemplate);
 
   // 順序変更処理 - actionsから直接使用
   const handleReorderTemplate = async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
@@ -58,7 +49,6 @@ export const UserTemplateManagementPage: React.FC = () => {
   };
 
   // ローカル状態
-  const [activeTab, setActiveTab] = useState<string>('inline');
   const [isInitialized, setIsInitialized] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TemplateWithPreferences | null>(null);
   const [deletingTemplate, setDeletingTemplate] = useState<TemplateWithPreferences | null>(null);
@@ -88,7 +78,7 @@ export const UserTemplateManagementPage: React.FC = () => {
     };
 
     initialize();
-  }, [initializeTemplates, isInitialized, state.isInitialized]);
+  }, [initializeTemplates, isInitialized, state.isInitialized, state.templatePreferences.length]);
 
   // 全テンプレート一覧取得（個人＋管理者）
   console.log('state.templatePreferences:', state.templatePreferences);
@@ -151,20 +141,6 @@ export const UserTemplateManagementPage: React.FC = () => {
       handleCloseDeleteModal();
     }
   };
-
-  // 設定保存処理
-  const handleSavePreferences = async () => {
-    try {
-      await actions.updateTemplatePreferences();
-      setSaveMessage('設定を保存しました');
-      setTimeout(() => setSaveMessage(''), 3000);
-    } catch (error) {
-      console.error('設定保存エラー:', error);
-      setSaveMessage('設定の保存に失敗しました');
-      setTimeout(() => setSaveMessage(''), 3000);
-    }
-  };
-
   // ローディング中の表示
   console.log('ローディング状態チェック:', { 
     isInitialized, 
@@ -233,142 +209,32 @@ export const UserTemplateManagementPage: React.FC = () => {
 
           {/* メインコンテンツ */}
           <Card>
-            <Card.Header>
-              <Tabs 
-                activeKey={activeTab} 
-                onSelect={(key) => setActiveTab(key || 'inline')}
-                className="card-header-tabs"
-              >
-                <Tab 
-                  eventKey="inline" 
-                  title={
-                    <span>
-                      <FontAwesomeIcon icon={faTable} className="me-2" />
-                      統合管理
-                    </span>
-                  } 
-                />
-                <Tab 
-                  eventKey="list" 
-                  title={
-                    <span>
-                      <FontAwesomeIcon icon={faList} className="me-2" />
-                      テンプレート一覧
-                    </span>
-                  } 
-                />
-                <Tab 
-                  eventKey="visibility" 
-                  title={
-                    <span>
-                      <FontAwesomeIcon icon={faEye} className="me-2" />
-                      表示設定
-                    </span>
-                  } 
-                />
-                <Tab 
-                  eventKey="order" 
-                  title={
-                    <span>
-                      <FontAwesomeIcon icon={faSort} className="me-2" />
-                      順序設定
-                    </span>
-                  } 
-                />
-              </Tabs>
-            </Card.Header>
-            
             <Card.Body>
-              {activeTab === 'inline' && (
-                <UserTemplateInlineManagement
-                  templates={allTemplates}
-                  onEdit={handleEditTemplate}
-                  onDelete={handleDeleteTemplate}
-                  onReorder={async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
-                    try {
-                      await handleReorderTemplate(templateId, direction);
-                      setSaveMessage('順序を変更しました');
-                      setTimeout(() => setSaveMessage(''), 3000);
-                    } catch (error) {
-                      console.error('順序変更エラー:', error);
-                    }
-                  }}
-                  onUpdatePreferences={async () => {
-                    try {
-                      // 直接APIを呼び出して設定を更新
-                      await actions.updateTemplatePreferences();
-                      setSaveMessage('表示設定を保存しました');
-                      setTimeout(() => setSaveMessage(''), 3000);
-                    } catch (error) {
-                      console.error('表示設定保存エラー:', error);
-                    }
-                  }}
-                  isLoading={state.isLoading || state.isLoadingPreferences}
-                />
-              )}
-              
-              {activeTab === 'list' && (
-                <UserTemplateList
-                  templates={userTemplates}
-                  onEdit={handleEditTemplate}
-                  onDelete={handleDeleteTemplate}
-                  isLoading={state.isLoading}
-                />
-              )}
-              
-              {activeTab === 'visibility' && (
-                <UserTemplateVisibilityControl
-                  preferences={state.templatePreferences.map(t => ({
-                    template_id: t.id,
-                    display_order: t.display_order || 0,
-                    is_visible: t.display_order !== undefined,
-                    template_name: t.name,
-                    is_admin: t.type === 'admin'
-                  }))}
-                  onUpdatePreferences={async () => {
+              <UserTemplateInlineManagement
+                templates={allTemplates}
+                onEdit={handleEditTemplate}
+                onDelete={handleDeleteTemplate}
+                onReorder={async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
+                  try {
+                    await handleReorderTemplate(templateId, direction);
+                    setSaveMessage('順序を変更しました');
+                    setTimeout(() => setSaveMessage(''), 3000);
+                  } catch (error) {
+                    console.error('順序変更エラー:', error);
+                  }
+                }}
+                onUpdatePreferences={async () => {
+                  try {
+                    // 直接APIを呼び出して設定を更新
                     await actions.updateTemplatePreferences();
-                  }}
-                  isLoading={state.isLoadingPreferences}
-                />
-              )}
-              
-              {activeTab === 'order' && (
-                <div>
-                  <h5 className="mb-4">テンプレート順序変更</h5>
-                  {userTemplates.map((template) => (
-                    <Card key={template.template_id} className="mb-3">
-                      <Card.Body>
-                        <div className="d-flex justify-content-between align-items-center">
-                          <div className="flex-grow-1">
-                            <h6 className="mb-1">{template.name}</h6>
-                            <small className="text-muted">
-                              {template.sql.substring(0, 100)}
-                              {template.sql.length > 100 ? '...' : ''}
-                            </small>
-                          </div>
-                          <UserTemplateOrderControl
-                            template={template}
-                            templates={userTemplates}
-                            onReorder={async (templateId, direction) => {
-                              await handleReorderTemplate(templateId, direction);
-                            }}
-                            isLoading={state.isLoadingPreferences}
-                          />
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  ))}
-                  {state.hasUnsavedChanges && (
-                    <button 
-                      className="btn btn-primary mt-3"
-                      onClick={handleSavePreferences}
-                      disabled={state.isLoading}
-                    >
-                      設定を保存
-                    </button>
-                  )}
-                </div>
-              )}
+                    setSaveMessage('表示設定を保存しました');
+                    setTimeout(() => setSaveMessage(''), 3000);
+                  } catch (error) {
+                    console.error('表示設定保存エラー:', error);
+                  }
+                }}
+                isLoading={state.isLoading || state.isLoadingPreferences}
+              />
             </Card.Body>
           </Card>
         </Col>

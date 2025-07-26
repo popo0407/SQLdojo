@@ -182,3 +182,49 @@ class TemplateService:
                 conn.commit()
         except Exception as e:
             self.logger.error("テンプレート表示設定削除エラー", exception=e)
+
+    def update_user_template(self, template_id: str, user_id: str, name: str, sql: str, display_order: Optional[int] = None) -> Dict[str, Any]:
+        """ユーザーテンプレートを更新（順序を保持）"""
+        try:
+            # 既存のテンプレート情報を取得
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM user_templates WHERE id = ? AND user_id = ?", (template_id, user_id))
+                existing_template = cursor.fetchone()
+                
+                if not existing_template:
+                    raise ValueError(f"テンプレートが見つかりません: {template_id}")
+                
+                # テンプレート情報を更新
+                cursor.execute(
+                    "UPDATE user_templates SET name = ?, sql = ? WHERE id = ? AND user_id = ?",
+                    (name, sql, template_id, user_id)
+                )
+                
+                # display_orderが指定されている場合は、user_template_preferencesも更新
+                if display_order is not None:
+                    cursor.execute("""
+                        UPDATE user_template_preferences 
+                        SET display_order = ? 
+                        WHERE user_id = ? AND template_id = ? AND template_type = 'user'
+                    """, (display_order, user_id, template_id))
+                
+                conn.commit()
+                
+                # 更新されたテンプレートを取得
+                cursor.execute("SELECT * FROM user_templates WHERE id = ? AND user_id = ?", (template_id, user_id))
+                updated_row = cursor.fetchone()
+                
+                if updated_row:
+                    # row_factoryがないのでマニュアルで辞書を作成
+                    columns = [desc[0] for desc in cursor.description]
+                    updated_template = dict(zip(columns, updated_row))
+                    
+                    self.logger.info("ユーザーテンプレートを更新しました", template_id=template_id, user_id=user_id)
+                    return updated_template
+                else:
+                    raise ValueError(f"更新されたテンプレートの取得に失敗しました: {template_id}")
+                    
+        except Exception as e:
+            self.logger.error("ユーザーテンプレート更新エラー", exception=e)
+            raise

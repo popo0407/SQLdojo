@@ -6,6 +6,7 @@ import type {
   Template,
   TemplateDropdownItem,
   TemplatePreference,
+  TemplateWithPreferences,
   CreateTemplateRequest,
   UpdateTemplateRequest,
   UpdateTemplatePreferencesRequest,
@@ -94,7 +95,7 @@ export const templateApi = {
   /**
    * テンプレート設定を取得
    */
-  getTemplatePreferences: async (): Promise<TemplateDropdownItem[]> => {
+  getTemplatePreferences: async (): Promise<TemplateWithPreferences[]> => {
     const response = await request<TemplatePreferencesResponse>('/users/template-preferences');
     return response.templates;
   },
@@ -131,7 +132,7 @@ export const templateApi = {
   /**
    * テンプレート設定を更新
    */
-  updateTemplatePreferences: async (data: UpdateTemplatePreferencesRequest): Promise<TemplateDropdownItem[]> => {
+  updateTemplatePreferences: async (data: UpdateTemplatePreferencesRequest): Promise<TemplateWithPreferences[]> => {
     const response = await request<TemplatePreferencesResponse>('/users/template-preferences', {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -142,12 +143,12 @@ export const templateApi = {
   /**
    * テンプレート順序を変更
    */
-  reorderTemplate: async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom'): Promise<TemplateDropdownItem[]> => {
+  reorderTemplate: async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom'): Promise<TemplateWithPreferences[]> => {
     // 現在の設定を取得
     const currentPreferences = await templateApi.getTemplatePreferences();
     
     // 対象テンプレートのインデックスを取得
-    const currentIndex = currentPreferences.findIndex(t => t.id === templateId);
+    const currentIndex = currentPreferences.findIndex(t => t.template_id === templateId);
     if (currentIndex === -1) {
       throw new Error('テンプレートが見つかりません');
     }
@@ -178,8 +179,9 @@ export const templateApi = {
 
     // display_orderを更新
     const updatedPreferences: TemplatePreference[] = reorderedPreferences.map((pref, index) => ({
-      template_id: pref.id,
-      is_visible: pref.display_order !== undefined ? true : false, // display_orderがあれば表示中
+      template_id: pref.template_id,
+      template_type: pref.type, // typeをtemplate_typeにマッピング
+      is_visible: pref.is_visible,
       display_order: index + 1
     }));
 

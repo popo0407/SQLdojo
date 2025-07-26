@@ -178,6 +178,34 @@ export const useTemplateOrder = () => {
   const { state, actions } = useTemplateContext();
 
   /**
+   * テンプレート初期化
+   */
+  const initializeTemplates = useCallback(async () => {
+    return actions.initializeTemplates();
+  }, [actions]);
+
+  /**
+   * テンプレート保存
+   */
+  const saveTemplate = useCallback(async (name: string, sql: string) => {
+    return actions.saveUserTemplate(name, sql);
+  }, [actions]);
+
+  /**
+   * テンプレート更新
+   */
+  const updateTemplate = useCallback(async (template: TemplateWithPreferences) => {
+    return actions.updateUserTemplate(template);
+  }, [actions]);
+
+  /**
+   * テンプレート削除
+   */
+  const deleteTemplate = useCallback(async (templateId: string) => {
+    return actions.deleteUserTemplate(templateId);
+  }, [actions]);
+
+  /**
    * テンプレート順序を変更
    */
   const reorderTemplate = useCallback(async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom'): Promise<boolean> => {
@@ -195,13 +223,27 @@ export const useTemplateOrder = () => {
    */
   const updatePreferences = useCallback(async (preferences: TemplatePreference[]): Promise<boolean> => {
     try {
-      await actions.updateTemplatePreferences({ preferences });
+      // preferencesをTemplateWithPreferencesにマップして状態に反映
+      const templatesWithPrefs = state.templatePreferences.map(template => {
+        const pref = preferences.find(p => p.template_id === template.template_id);
+        if (pref) {
+          return {
+            ...template,
+            display_order: pref.display_order,
+            is_visible: pref.is_visible,
+          };
+        }
+        return template;
+      });
+      
+      actions.setTemplatePreferences(templatesWithPrefs);
+      await actions.updateTemplatePreferences();
       return true;
     } catch (error) {
       console.error('表示設定更新エラー:', error);
       return false;
     }
-  }, [actions]);
+  }, [actions, state.templatePreferences]);
 
   return {
     // 状態
