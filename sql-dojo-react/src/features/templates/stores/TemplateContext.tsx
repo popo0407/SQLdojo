@@ -104,8 +104,9 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   const loadUserTemplates = useCallback(async () => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const data = await fetchWithAuth('/users/templates');
-      dispatch({ type: 'SET_USER_TEMPLATES', payload: data.templates || [] });
+      const data = await fetchWithAuth('/templates');
+      console.log('loadUserTemplates API response:', data);
+      dispatch({ type: 'SET_USER_TEMPLATES', payload: data || [] });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'ユーザーテンプレートの読み込みに失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -154,13 +155,17 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: true });
       const data = await fetchWithAuth('/users/template-preferences');
       dispatch({ type: 'SET_TEMPLATE_PREFERENCES', payload: data.templates || [] });
+      // 初期化フラグは初回のみ設定
+      if (!state.isInitialized) {
+        dispatch({ type: 'SET_INITIALIZED', payload: true });
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'テンプレート設定の読み込みに失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     } finally {
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: false });
     }
-  }, [fetchWithAuth]);
+  }, [fetchWithAuth, state.isInitialized]);
 
   /**
    * ユーザーテンプレートを保存
@@ -177,8 +182,8 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
         dispatch({ type: 'ADD_USER_TEMPLATE', payload: data.template });
       }
       
-      // ドロップダウンデータも更新
-      await loadDropdownTemplates();
+      // テンプレート保存後、template-preferencesを再読み込み
+      await loadTemplatePreferences();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'テンプレートの保存に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -186,7 +191,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, [fetchWithAuth, loadDropdownTemplates]);
+  }, [fetchWithAuth, loadTemplatePreferences]);
 
   /**
    * ユーザーテンプレートを更新
@@ -226,11 +231,8 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       
       dispatch({ type: 'DELETE_USER_TEMPLATE', payload: templateId });
       
-      // 関連データも更新
-      await Promise.all([
-        loadDropdownTemplates(),
-        loadTemplatePreferences(),
-      ]);
+      // テンプレート削除後、template-preferencesを再読み込み
+      await loadTemplatePreferences();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'テンプレートの削除に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -238,7 +240,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, [fetchWithAuth, loadDropdownTemplates, loadTemplatePreferences]);
+  }, [fetchWithAuth, loadTemplatePreferences]);
 
   /**
    * テンプレート設定を更新
@@ -260,8 +262,8 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       
       dispatch({ type: 'SET_UNSAVED_CHANGES', payload: false });
       
-      // ドロップダウンデータも更新
-      await loadDropdownTemplates();
+      // 設定は既にtemplatePreferencesに反映されているので、再読み込み不要
+      dispatch({ type: 'SET_UNSAVED_CHANGES', payload: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'テンプレート設定の保存に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -269,7 +271,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     } finally {
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: false });
     }
-  }, [fetchWithAuth, state.templatePreferences, loadDropdownTemplates]);
+  }, [fetchWithAuth, state.templatePreferences]);
 
   /**
    * 設定をリセット（最後に保存した状態に戻す）

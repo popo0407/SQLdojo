@@ -1,6 +1,6 @@
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { vi, Mocked } from 'vitest';
+import { vi, type Mocked } from 'vitest';
 import { AuthProvider, useAuth } from '../AuthContext';
 import { authService } from '../../api/authService';
 import { storageService } from '../../services/StorageService';

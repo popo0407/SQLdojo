@@ -23,7 +23,7 @@ export const getEditorOptions = (): EditorOptions => ({
   suggestOnTriggerCharacters: true,
   acceptSuggestionOnEnter: 'on',
   tabCompletion: 'on',
-  wordBasedSuggestions: 'on',
+  wordBasedSuggestions: 'currentDocument',
   // SQL補完のための追加設定
   suggest: {
     showKeywords: true,
@@ -33,7 +33,7 @@ export const getEditorOptions = (): EditorOptions => ({
     showVariables: true,
     showConstants: true,
     showEnums: true,
-    showEnumsMembers: true,
+    showEnumMembers: true,
     showColors: false,
     showFiles: false,
     showReferences: false,

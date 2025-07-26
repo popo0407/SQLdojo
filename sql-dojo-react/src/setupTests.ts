@@ -39,13 +39,15 @@ if (typeof global.ClipboardEvent === 'undefined') {
 }
 
 if (typeof global.DataTransfer === 'undefined') {
+  // @ts-expect-error テスト環境でのDataTransferモック
   global.DataTransfer = class DataTransfer {
     data: Record<string, string> = {};
     setData(format: string, data: string) { this.data[format] = data; }
     getData(format: string) { return this.data[format] || ''; }
     clearData() { this.data = {}; }
-    dropEffect = '';
-    effectAllowed = '';
+    setDragImage(): void { /* テスト用のダミー実装 */ }
+    dropEffect = 'none' as const;
+    effectAllowed = 'uninitialized' as const;
     files = [];
     items = [];
     types = [];

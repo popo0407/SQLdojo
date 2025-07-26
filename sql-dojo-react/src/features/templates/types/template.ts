@@ -16,6 +16,21 @@ export interface Template {
 }
 
 /**
+ * template-preferences APIから返される完全なテンプレート情報
+ * すべてのテンプレート操作でこの型を使用
+ */
+export interface TemplateWithPreferences {
+  template_id: string;
+  name: string;
+  sql: string;
+  created_at: string;
+  type: 'user' | 'admin';
+  is_common: boolean;
+  display_order: number;
+  is_visible: boolean;
+}
+
+/**
  * テンプレート表示設定
  */
 export interface TemplatePreference {
@@ -95,6 +110,9 @@ export interface TemplateState {
   // 設定管理用データ
   templatePreferences: TemplateDropdownItem[];
   
+  // 初期化状態
+  isInitialized: boolean;
+  
   // UI状態
   isLoading: boolean;
   isLoadingDropdown: boolean;
@@ -122,6 +140,7 @@ export type TemplateAction =
   | { type: 'SET_LOADING_DROPDOWN'; payload: boolean }
   | { type: 'SET_LOADING_PREFERENCES'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'SET_INITIALIZED'; payload: boolean }
   
   // テンプレート一覧操作
   | { type: 'SET_USER_TEMPLATES'; payload: Template[] }

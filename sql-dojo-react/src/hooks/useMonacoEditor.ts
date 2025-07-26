@@ -1,7 +1,5 @@
 import { useCallback } from 'react';
 import { useEditorStore } from '../stores/useEditorStore';
-import { getSqlSuggestions } from '../api/sqlService';
-import type { SqlCompletionItem } from '../types/api';
 
 /**
  * Monaco Editorのカスタムフック
@@ -10,13 +8,15 @@ import type { SqlCompletionItem } from '../types/api';
 export const useMonacoEditor = () => {
   const { setEditor } = useEditorStore();
 
-  const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
+  const handleEditorDidMount = useCallback((editor: any) => {
     // Monaco Editor初期化開始
     
     // エディタインスタンスをストアに保存
     setEditor(editor);
     
     // SQL補完機能を設定
+    // TODO: 補完機能の実装時に使用予定
+    /*
     const completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: async (model: any, position: any) => {
         // 補完リクエスト開始
@@ -25,7 +25,7 @@ export const useMonacoEditor = () => {
           const sql = model.getValue();
           const offset = model.getOffsetAt(position);
           
-                      // SQL補完API呼び出し
+          // SQL補完API呼び出し
           
           // バックエンドから補完候補を取得
           const response = await getSqlSuggestions({
@@ -34,7 +34,7 @@ export const useMonacoEditor = () => {
             context: {}
           });
           
-                      // SQL補完APIレスポンス
+          // SQL補完APIレスポンス
           
           // Monaco Editorの補完アイテム形式に変換
           const suggestions = response.suggestions.map((item: SqlCompletionItem) => {
@@ -74,7 +74,7 @@ export const useMonacoEditor = () => {
             };
           });
           
-                      // Monaco Editor補完アイテム
+          // Monaco Editor補完アイテム
           
           return {
             suggestions: suggestions
@@ -86,6 +86,7 @@ export const useMonacoEditor = () => {
       },
       triggerCharacters: [' ', '.', ',', '(', ')', '\n', '\t']
     });
+    */
     
     // 選択状態の変更を監視
     editor.onDidChangeCursorSelection(() => {
@@ -96,7 +97,7 @@ export const useMonacoEditor = () => {
     // エディタにフォーカス
     editor.focus();
     
-          // Monaco Editor初期化完了
+    // Monaco Editor初期化完了
   }, [setEditor]);
 
   return {

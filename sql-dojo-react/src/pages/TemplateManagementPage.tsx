@@ -1,12 +1,12 @@
 import React from 'react';
+import { UserTemplateManagementPage } from '../features/templates/components/management/user/UserTemplateManagementPage';
 
+/**
+ * テンプレート管理ページ
+ * Phase 3a: ユーザーテンプレート管理機能を統合
+ */
 const TemplateManagementPage: React.FC = () => {
-  return (
-    <div>
-      <h1>テンプレート・パーツ統合管理ページ</h1>
-      {/* 今後ここにドラッグ＆ドロップによる並び替えなどの高度な管理機能が配置されます */}
-    </div>
-  );
+  return <UserTemplateManagementPage />;
 };
 
 export default TemplateManagementPage; 

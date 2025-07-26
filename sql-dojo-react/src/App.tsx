@@ -4,6 +4,7 @@ import UserPage from './pages/UserPage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import TemplateManagementPage from './pages/TemplateManagementPage';
+import SqlLogPage from './pages/SqlLogPage';
 import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './components/auth/PrivateRoute';
 import MainLayout from './components/layout/MainLayout';
@@ -18,6 +19,7 @@ function App() {
       <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
       <Route path="/user" element={<PrivateRoute><UserPage /></PrivateRoute>} />
       <Route path="/manage-templates" element={<PrivateRoute><TemplateManagementPage /></PrivateRoute>} />
+      <Route path="/sql-log" element={<PrivateRoute><SqlLogPage /></PrivateRoute>} />
       <Route path="/admin" element={<PrivateRoute requireAdmin><AdminPage /></PrivateRoute>} />
       <Route path="/login" element={<LoginPage />} />
     </Routes>

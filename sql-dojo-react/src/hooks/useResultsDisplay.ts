@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useResultsDataStore } from '../stores/useResultsDataStore';
 import { useResultsPaginationStore } from '../stores/useResultsPaginationStore';
-import type { DisplayData } from '../types/results';
+import type { TableRow } from '../types/results';
+
+// DisplayDataの型定義
+interface DisplayData {
+  data: TableRow[];
+  columns: string[];
+  totalCount: number;
+  hasMore: boolean;
+  isLoading: boolean;
+}
 
 /**
  * 結果表示データの管理を提供するカスタムフック

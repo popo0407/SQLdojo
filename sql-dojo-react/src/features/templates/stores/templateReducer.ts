@@ -14,6 +14,9 @@ export const initialTemplateState: TemplateState = {
   // 設定管理用データ
   templatePreferences: [],
   
+  // 初期化状態
+  isInitialized: false,
+  
   // UI状態
   isLoading: false,
   isLoadingDropdown: false,
@@ -67,6 +70,12 @@ export function templateReducer(state: TemplateState, action: TemplateAction): T
         isLoading: false,
         isLoadingDropdown: false,
         isLoadingPreferences: false,
+      };
+
+    case 'SET_INITIALIZED':
+      return {
+        ...state,
+        isInitialized: action.payload,
       };
 
     // テンプレート一覧操作

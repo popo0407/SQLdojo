@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { TemplateDropdown } from './TemplateDropdown';
 import { TemplateSaveModal } from './TemplateSaveModal';
 import { useTemplates, useTemplateModals } from '../hooks/useTemplates';
@@ -35,6 +35,7 @@ export const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
     state, 
     getVisibleTemplates, 
     saveTemplate, 
+    initializeTemplates,
     actions 
   } = useTemplates();
 
@@ -46,22 +47,29 @@ export const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
 
   // 初期化処理を再有効化
   const [isInitialized, setIsInitialized] = useState(false);
+  const initializingRef = useRef(false);
 
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && !state.isInitialized && !initializingRef.current) {
       setIsInitialized(true);
-      Promise.all([
-        actions.loadDropdownTemplates(),
-        actions.loadTemplatePreferences(),
-      ]).then(() => {
+      initializingRef.current = true;
+      console.log('MainPageTemplate: Starting template initialization...');
+      // initializeTemplatesを使用して統一
+      initializeTemplates().then(() => {
         // 初期化完了
+        console.log('MainPageTemplate: Template initialization completed');
+        initializingRef.current = false;
       }).catch((error) => {
         console.error('テンプレート初期化エラー:', error);
         setIsInitialized(false); // エラー時はリセット
+        initializingRef.current = false;
       });
+    } else if (!isInitialized && state.isInitialized) {
+      // 既にグローバル初期化済みの場合
+      setIsInitialized(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInitialized]);
+  }, [isInitialized, state.isInitialized]);
 
   /**
    * テンプレート選択時の処理
