@@ -5,6 +5,7 @@
 import type {
   Template,
   TemplateDropdownItem,
+  TemplatePreference,
   CreateTemplateRequest,
   UpdateTemplateRequest,
   UpdateTemplatePreferencesRequest,
@@ -136,6 +137,54 @@ export const templateApi = {
       body: JSON.stringify(data),
     });
     return response.templates;
+  },
+
+  /**
+   * テンプレート順序を変更
+   */
+  reorderTemplate: async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom'): Promise<TemplateDropdownItem[]> => {
+    // 現在の設定を取得
+    const currentPreferences = await templateApi.getTemplatePreferences();
+    
+    // 対象テンプレートのインデックスを取得
+    const currentIndex = currentPreferences.findIndex(t => t.id === templateId);
+    if (currentIndex === -1) {
+      throw new Error('テンプレートが見つかりません');
+    }
+
+    // 新しい順序を計算
+    let newIndex: number;
+    switch (direction) {
+      case 'up':
+        newIndex = Math.max(0, currentIndex - 1);
+        break;
+      case 'down':
+        newIndex = Math.min(currentPreferences.length - 1, currentIndex + 1);
+        break;
+      case 'top':
+        newIndex = 0;
+        break;
+      case 'bottom':
+        newIndex = currentPreferences.length - 1;
+        break;
+      default:
+        throw new Error('不正な移動方向です');
+    }
+
+    // 順序変更
+    const reorderedPreferences = [...currentPreferences];
+    const [movedItem] = reorderedPreferences.splice(currentIndex, 1);
+    reorderedPreferences.splice(newIndex, 0, movedItem);
+
+    // display_orderを更新
+    const updatedPreferences: TemplatePreference[] = reorderedPreferences.map((pref, index) => ({
+      template_id: pref.id,
+      is_visible: pref.display_order !== undefined ? true : false, // display_orderがあれば表示中
+      display_order: index + 1
+    }));
+
+    // APIで更新
+    return await templateApi.updateTemplatePreferences({ preferences: updatedPreferences });
   },
 
   /**

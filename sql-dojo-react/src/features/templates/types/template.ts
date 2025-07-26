@@ -37,6 +37,7 @@ export interface TemplatePreference {
   template_id: string;
   display_order: number;
   is_visible: boolean;
+  template_type?: 'user' | 'admin'; // APIリクエスト用に追加
 }
 
 /**
@@ -69,10 +70,20 @@ export interface UpdateTemplateRequest {
 }
 
 /**
+ * APIリクエスト用テンプレート設定項目（バックエンドAPI仕様に準拠）
+ */
+export interface UpdateTemplatePreferenceItem {
+  template_id: string;
+  template_type: 'user' | 'admin';
+  display_order: number;
+  is_visible: boolean;
+}
+
+/**
  * テンプレート設定更新リクエスト
  */
 export interface UpdateTemplatePreferencesRequest {
-  preferences: TemplatePreference[];
+  preferences: UpdateTemplatePreferenceItem[];
 }
 
 /**
@@ -93,7 +104,7 @@ export interface TemplateDropdownResponse {
  * API レスポンス - テンプレート設定
  */
 export interface TemplatePreferencesResponse {
-  templates: TemplateDropdownItem[];
+  templates: TemplateWithPreferences[];
 }
 
 /**
@@ -107,8 +118,8 @@ export interface TemplateState {
   // ドロップダウン用データ（表示順・表示設定反映済み）
   dropdownTemplates: TemplateDropdownItem[];
   
-  // 設定管理用データ
-  templatePreferences: TemplateDropdownItem[];
+  // 設定管理用データ（実際のAPIはTemplateWithPreferences形式）
+  templatePreferences: TemplateWithPreferences[];
   
   // 初期化状態
   isInitialized: boolean;

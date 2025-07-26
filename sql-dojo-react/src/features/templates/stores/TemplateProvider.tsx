@@ -1,6 +1,6 @@
 import React, { useReducer, useCallback, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import type { Template } from '../types/template';
+import type { Template, TemplateWithPreferences } from '../types/template';
 import { templateReducer, initialTemplateState } from './templateReducer';
 import { TemplateContext } from './templateContext';
 import type { TemplateContextValue } from './templateContext';
@@ -49,7 +49,9 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       throw new Error(errorMessage);
     }
 
-    return response.json();
+    // レスポンスが空の場合は空オブジェクトを返す
+    const text = await response.text();
+    return text ? JSON.parse(text) : {};
   }, [apiBaseUrl]);
 
   /**
@@ -205,11 +207,17 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     try {
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: true });
       
-      const preferences = state.templatePreferences.map(template => ({
-        template_id: template.id,
-        display_order: template.display_order,
-        is_visible: template.is_visible,
-      }));
+      const preferences = state.templatePreferences.map(template => {
+        // TemplateWithPreferencesの場合typeフィールドがある
+        const templateType = 'type' in template ? (template as TemplateWithPreferences).type : 'user';
+        
+        return {
+          template_id: template.template_id,
+          template_type: templateType,
+          display_order: template.display_order,
+          is_visible: template.is_visible,
+        };
+      });
 
       await fetchWithAuth('/users/template-preferences', {
         method: 'PUT',
@@ -235,6 +243,94 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     await loadTemplatePreferences();
   }, [loadTemplatePreferences]);
 
+  /**
+   * テンプレート順序を変更
+   */
+  const reorderTemplate = useCallback(async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
+    try {
+      dispatch({ type: 'SET_LOADING_PREFERENCES', payload: true });
+      
+      // 現在の設定を取得
+      const currentPreferences = state.templatePreferences;
+      
+      // 対象テンプレートのインデックスを取得
+      const currentIndex = currentPreferences.findIndex(t => t.template_id === templateId);
+      if (currentIndex === -1) {
+        throw new Error('テンプレートが見つかりません');
+      }
+
+      // 新しい順序を計算
+      let newIndex: number;
+      switch (direction) {
+        case 'up':
+          newIndex = Math.max(0, currentIndex - 1);
+          break;
+        case 'down':
+          newIndex = Math.min(currentPreferences.length - 1, currentIndex + 1);
+          break;
+        case 'top':
+          newIndex = 0;
+          break;
+        case 'bottom':
+          newIndex = currentPreferences.length - 1;
+          break;
+        default:
+          throw new Error('不正な移動方向です');
+      }
+
+      // 順序変更
+      const reorderedPreferences = [...currentPreferences];
+      const [movedItem] = reorderedPreferences.splice(currentIndex, 1);
+      reorderedPreferences.splice(newIndex, 0, movedItem);
+
+      // display_orderを更新 - template_typeを必須で含める
+      const updatedPreferences = reorderedPreferences.map((pref, index) => {
+        // 実際のデータ構造をログで確認
+        console.log('pref object keys:', Object.keys(pref));
+        console.log('pref object:', pref);
+        
+        // TemplateWithPreferencesの場合typeフィールドがある
+        const templateType = 'type' in pref ? (pref as TemplateWithPreferences).type : 'user';
+        
+        return {
+          template_id: pref.template_id,
+          template_type: templateType,
+          is_visible: pref.is_visible !== undefined ? pref.is_visible : true,
+          display_order: index + 1
+        };
+      });
+
+      console.log('reorderTemplate詳細デバッグ:');
+      console.log('templateId:', templateId);
+      console.log('direction:', direction);
+      console.log('currentPreferences:', currentPreferences);
+      console.log('currentIndex:', currentIndex);
+      console.log('newIndex:', newIndex);
+      console.log('reorderedPreferences:', reorderedPreferences);
+      console.log('updatedPreferences:', updatedPreferences);
+      console.log('送信するJSONデータ:', JSON.stringify({ preferences: updatedPreferences }, null, 2));
+
+      // APIで更新
+      await fetchWithAuth('/users/template-preferences', {
+        method: 'PUT',
+        body: JSON.stringify({ preferences: updatedPreferences }),
+      });
+      
+      // 成功した場合、ローカルで並び替え済みのデータを使用
+      dispatch({ type: 'SET_TEMPLATE_PREFERENCES', payload: reorderedPreferences });
+      dispatch({ type: 'SET_INITIALIZED', payload: true });
+      
+      console.log('順序変更完了、新しいテンプレート順序をセット:', reorderedPreferences);
+    } catch (error) {
+      console.error('テンプレート順序変更エラー:', error);
+      const errorMessage = error instanceof Error ? error.message : 'テンプレートの順序変更に失敗しました';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING_PREFERENCES', payload: false });
+    }
+  }, [fetchWithAuth, state.templatePreferences]);
+
   // アクション関数をまとめたオブジェクト
   const actions = useMemo(() => ({
     // データ読み込み
@@ -250,6 +346,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     
     // 設定操作
     updateTemplatePreferences,
+    reorderTemplate,
     moveTemplateUp: (templateId: string) => dispatch({ type: 'MOVE_TEMPLATE_UP', payload: templateId }),
     moveTemplateDown: (templateId: string) => dispatch({ type: 'MOVE_TEMPLATE_DOWN', payload: templateId }),
     toggleTemplateVisibility: (templateId: string, isVisible: boolean) => 
@@ -276,6 +373,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     updateUserTemplate,
     deleteUserTemplate,
     updateTemplatePreferences,
+    reorderTemplate,
     resetPreferences,
     dispatch,
   ]);

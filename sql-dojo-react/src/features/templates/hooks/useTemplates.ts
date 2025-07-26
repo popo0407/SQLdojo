@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { useTemplateContext } from './useTemplateContext';
-import type { TemplateWithPreferences } from '../types/template';
+import type { TemplateWithPreferences, TemplatePreference } from '../types/template';
 
 /**
  * テンプレート操作に特化したカスタムフック
@@ -178,37 +178,45 @@ export const useTemplateOrder = () => {
   const { state, actions } = useTemplateContext();
 
   /**
-   * テンプレートが上に移動可能かチェック
+   * テンプレート順序を変更
    */
-  const canMoveUp = useCallback((templateId: string): boolean => {
-    const index = state.templatePreferences.findIndex(t => t.id === templateId);
-    return index > 0;
-  }, [state.templatePreferences]);
+  const reorderTemplate = useCallback(async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom'): Promise<boolean> => {
+    try {
+      await actions.reorderTemplate(templateId, direction);
+      return true;
+    } catch (error) {
+      console.error('順序変更エラー:', error);
+      return false;
+    }
+  }, [actions]);
 
   /**
-   * テンプレートが下に移動可能かチェック
+   * テンプレート表示設定を更新
    */
-  const canMoveDown = useCallback((templateId: string): boolean => {
-    const index = state.templatePreferences.findIndex(t => t.id === templateId);
-    return index >= 0 && index < state.templatePreferences.length - 1;
-  }, [state.templatePreferences]);
+  const updatePreferences = useCallback(async (preferences: TemplatePreference[]): Promise<boolean> => {
+    try {
+      await actions.updateTemplatePreferences({ preferences });
+      return true;
+    } catch (error) {
+      console.error('表示設定更新エラー:', error);
+      return false;
+    }
+  }, [actions]);
 
   return {
     // 状態
+    ...state,
     templates: state.templatePreferences,
-    hasUnsavedChanges: state.hasUnsavedChanges,
     
-    // チェック関数
-    canMoveUp,
-    canMoveDown,
+    // 基本操作
+    initializeTemplates,
+    saveTemplate,
+    updateTemplate,
+    deleteTemplate,
+    getUserTemplates: actions.loadUserTemplates,
     
-    // 操作関数
-    moveUp: actions.moveTemplateUp,
-    moveDown: actions.moveTemplateDown,
-    toggleVisibility: actions.toggleTemplateVisibility,
-    
-    // 保存・リセット
-    save: actions.updateTemplatePreferences,
-    reset: actions.resetPreferences,
+    // 順序・表示制御
+    reorderTemplate,
+    updatePreferences,
   };
 };
