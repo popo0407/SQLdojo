@@ -1,4 +1,23 @@
-# SQLdojo テンプレート機能 React 化プロジェクト - 引き継ぎ## �📊 プロジェクト全体進捗
+# SQLdojo テ| **Phase 4** | 全体調整 | テスト・最適化・デプロイ | **80%** | 🔄 **部分完了** |
+
+## 🔥 最新更新 (2025-07-27)
+
+### ✅ Phase 3a 完全実装完了
+
+- ✅ **共通テンプレート順序変更**: 個人・管理者テンプレート統合管理
+- ✅ **初期表示順序**: 個人テンプレート → 共通テンプレートの順序で表示
+- ✅ **ESLint エラー完全解決**: 33 個のエラー/警告をすべて修正
+- ✅ **TypeScript ビルド成功**: 型安全性完全確保
+- ✅ **統合管理 UI**: 一画面で CRUD・順序・表示制御を統合実装
+
+### ✅ コード品質改善完了
+
+- ✅ **型安全性**: `any`型を`unknown`、具体的な型に全面修正
+- ✅ **React Hook 最適化**: useEffect 依存関係、useMemo 活用
+- ✅ **未使用コード削除**: 不要な変数、import、削除されたメソッドの整理
+- ✅ **エラーハンドリング**: 統一されたエラー処理パターンプレート機能 React 化プロジェクト - 引き継ぎ資料
+
+## 📊 プロジェクト全体進捗
 
 | Phase         | 対象画面             | 実装項目                             | 進捗     | 状態            |
 | ------------- | -------------------- | ------------------------------------ | -------- | --------------- | ---------------- |
@@ -14,6 +33,7 @@
 - **FastAPI サーバー**: http://0.0.0.0:8001 ✅ 正常稼働中
 - **React 開発サーバー**: Vite + TypeScript ✅ ビルドエラー解決完了
 - **TypeScript コンパイル**: ✅ エラーなし
+- **ESLint**: ✅ エラー 0 件、警告 0 件（33 個の問題を完全解決）
 - **Cookie 認証**: ✅ 正常動作（ログイン状態維持）
 
 ### ✅ API 実装状況
@@ -24,6 +44,7 @@
 - **PUT** `/api/v1/users/templates/{id}` ✅ **実装済み**
 - **DELETE** `/api/v1/users/templates/{id}` ✅ **実装済み**
 - **GET** `/api/v1/users/templates` ✅ **実装済み**
+- **PUT** `/api/v1/users/template-preferences` ✅ **実装済み**（統合順序・表示管理）
 
 ### ✅ UI/UX 技術スタック
 
@@ -56,7 +77,7 @@
 
 ---
 
-## ✅ 完了済み内容 (Phase 1-2.5)
+## ✅ 完了済み内容 (Phase 1-3a)
 
 ### 🏗️ 基盤アーキテクチャ (Phase 1)
 
@@ -148,68 +169,91 @@ const initializeTemplates = useCallback(async () => {
 
 ## ⏳ 実装中・未実装内容 (Phase 3-4)
 
-### 🎯 Phase 3a: ユーザー画面テンプレート管理 (**完了** - 100%完了)
-
-#### **✅ 実装済み**
+#### **実装済み機能**
 
 ```
 src/features/templates/components/management/user/
-├── UserTemplateManagementPage.tsx     ✅ 完了 (基本レイアウト・CRUD統合・タブ機能)
-├── UserTemplateEditModal.tsx          ✅ 完了 (編集機能)
-├── UserTemplateDeleteModal.tsx        ✅ 完了 (削除機能)
-├── UserTemplateOrderControl.tsx       ✅ 完了 (順序変更機能)
-└── UserTemplateVisibilityControl.tsx  ✅ 完了 (表示制御機能)
+├── UserTemplateManagementPage.tsx     ✅ 完了 (基本レイアウト・CRUD統合・ナビゲーション)
+├── UserTemplateInlineManagement.tsx   ✅ 完了 (統合管理UI・順序変更・表示制御)
+├── UserTemplateEditModal.tsx          ✅ 完了 (編集機能・バリデーション)
+├── UserTemplateDeleteModal.tsx        ✅ 完了 (削除機能・確認ダイアログ)
 ```
 
-##### **✅ 実装完了機能**
+#### **✅ 最新実装完了機能**
 
-- ✅ **基本レイアウト**: Bootstrap ベースの管理画面デザイン
-- ✅ **テンプレート一覧表示**: ユーザー個人テンプレートの一覧表示
-- ✅ **CRUD 統合**: useTemplates フックとの完全統合
-- ✅ **ナビゲーション**: `/manage-templates` ルートからアクセス可能
-- ✅ **テンプレート詳細表示**: 名前・SQL 内容・作成日の表示
-- ✅ **API 統合**: template-preferences からのデータ取得
-
-##### **✅ 編集・削除機能**
-
-- ✅ **編集モーダル**: テンプレート名と SQL 内容の編集
-- ✅ **削除確認**: 安全な削除処理（確認ダイアログ付き）
-- ✅ **バリデーション**: 入力内容の検証
-- ✅ **エラーハンドリング**: 適切なエラー表示
-
-##### **✅ 順序変更機能**
-
-- ✅ **上下移動**: 1 つずつの移動機能
-- ✅ **先頭・末尾移動**: ワンクリックで最上位・最下位への移動
-- ✅ **キーボードショートカット**: Ctrl+矢印キーでの操作
-- ✅ **リアルタイム反映**: template-preferences との同期更新
-
-##### **✅ 表示制御機能**
-
-- ✅ **個人・管理者テンプレート**: 個別の表示/非表示切り替え
-- ✅ **一括制御**: 「全て表示」「全て非表示」機能
-- ✅ **視覚的フィードバック**: トグルスイッチとアイコン表示
-- ✅ **統計表示**: 表示中テンプレート数の表示
-- ✅ **変更検知**: 未保存変更の警告表示
+- ✅ **統合管理 UI**: 一画面で CRUD・順序変更・表示制御を統合
+- ✅ **共通テンプレート順序変更**: 個人・管理者テンプレート統合管理
+- ✅ **初期表示順序**: 個人テンプレート → 共通テンプレートの自動ソート
+- ✅ **ローカル状態管理**: 順序・表示設定をローカルで編集 → 一括保存
+- ✅ **SQL 内容ホバー表示**: マウスオーバーで SQL 全文表示（18px フォント、最大 1000 文字）
+- ✅ **編集時順序保持**: テンプレート編集後も順序が維持される
+- ✅ **管理者テンプレート統合表示**: 編集・削除制御付きで安全表示
+- ✅ **変更検知・保存**: hasChanges フラグによる変更検知と一括保存
 
 #### **✅ API 統合完了**
 
 ```typescript
 ✅ PUT /api/v1/users/templates/{id}
-  - テンプレート更新 (名前・SQL)
+  - テンプレート更新 (名前・SQL・順序保持)
 
 ✅ DELETE /api/v1/users/templates/{id}
   - テンプレート削除
 
 ✅ PUT /api/v1/users/template-preferences
-  - 表示設定・順序の一括更新
+  - 表示設定・順序の一括更新（個人・共通テンプレート統合）
 
 ✅ GET /api/v1/users/templates
   - 管理画面用の詳細テンプレート一覧
 
-✅ reorderTemplate() API
-  - テンプレート順序変更専用API
+✅ GET /api/v1/users/template-preferences
+  - 統合テンプレート設定取得（個人・共通テンプレート含む）
 ```
+
+### 🎯 次の推奨実装戦略
+
+### **Phase 3b: 管理画面 (推奨期間: 1.5-2 週間) - 未実装**
+
+#### **Week 1: 基盤構築**
+
+```typescript
+1. AdminTemplateManagementPage.tsx
+   - 🔲 基本レイアウト作成
+   - 🔲 管理者専用ナビゲーション実装
+   - 🔲 全ユーザーテンプレート一覧表示
+   - 🔲 ユーザーフィルタリング機能
+
+2. AdminTemplateList.tsx
+   - 🔲 管理者向けテンプレート表示
+   - 🔲 ユーザー情報付きテンプレート表示
+   - 🔲 一括操作ボタン (削除、非公開など)
+
+3. API統合準備
+   - 🔲 getAllUserTemplates() API定義
+   - 🔲 bulkDeleteTemplates() API定義
+   - 🔲 updateTemplateStatus() API定義
+```
+
+#### **Week 1.5-2: 高度な機能**
+
+```typescript
+1. AdminTemplateSearch.tsx
+   - 🔲 ユーザー名検索
+   - 🔲 テンプレート名検索
+   - 🔲 作成日フィルタ
+
+2. AdminTemplateBulkOperations.tsx
+   - 🔲 一括選択・削除
+   - 🔲 一括ステータス変更
+   - 🔲 CSV エクスポート
+
+3. 管理者権限制御
+   - 🔲 Role-based アクセス制御
+   - 🔲 操作ログ記録
+```
+
+---
+
+## ⏳ 実装中・未実装内容 (Phase 3b-4)
 
 ### 🔧 Phase 3b: 管理画面テンプレート管理
 
@@ -276,7 +320,10 @@ src/features/templates/components/management/admin/
 
 - ✅ **基本エラーハンドリング**: API 通信エラー・バリデーション
 - ✅ **基本パフォーマンス最適化**: useCallback・useMemo・React.memo
-- ✅ **TypeScript 型安全性**: 完全な型定義
+- ✅ **TypeScript 型安全性**: 完全な型定義・ESLint エラー 0 件
+- ✅ **コード品質**: 33 個の Lint エラー完全解決、保守性向上
+- ✅ **統合管理 UI**: 個人・共通テンプレート統合管理機能完成
+- ✅ **順序・表示制御**: ローカル編集 → 一括保存の UX 完成
 
 #### **未完了項目**
 
@@ -340,13 +387,12 @@ interface TemplateState {
 ✅ SET_LOADING / SET_LOADING_DROPDOWN / SET_LOADING_PREFERENCES
 ✅ SET_ERROR / CLEAR_ERROR
 ✅ SET_USER_TEMPLATES / SET_ADMIN_TEMPLATES / SET_DROPDOWN_TEMPLATES
-✅ SET_TEMPLATE_PREFERENCES
-✅ ADD_USER_TEMPLATE
-✅ SET_INITIALIZED (Phase 2.5で追加)
-⏳ UPDATE_USER_TEMPLATE (Phase 3aで実装予定)
-⏳ DELETE_USER_TEMPLATE (Phase 3aで実装予定)
-⏳ REORDER_USER_TEMPLATES (Phase 3aで実装予定)
-⏳ UPDATE_TEMPLATE_PREFERENCES (Phase 3aで実装予定)
+✅ SET_TEMPLATE_PREFERENCES / SET_INITIALIZED
+✅ ADD_USER_TEMPLATE / UPDATE_USER_TEMPLATE / DELETE_USER_TEMPLATE
+✅ MOVE_TEMPLATE_UP / MOVE_TEMPLATE_DOWN / TOGGLE_TEMPLATE_VISIBILITY
+✅ OPEN_SAVE_MODAL / CLOSE_SAVE_MODAL / OPEN_EDIT_MODAL / CLOSE_EDIT_MODAL
+✅ SET_UNSAVED_CHANGES (Phase 3aで実装完了)
+⏳ Admin系アクション (Phase 3bで実装予定)
 ```
 
 ### **API 基盤の設計**
@@ -356,16 +402,16 @@ interface TemplateState {
 ✅ fetchWithAuth: 共通認証付きfetch
 ✅ credentials: 'include' 統一済み
 ✅ エラーハンドリング統一済み
-✅ TypeScript型安全性確保
+✅ TypeScript型安全性確保（unknownタイプ活用）
 
 // templateApi.ts - 実装状況
 ✅ loadTemplatesForDropdown()
 ✅ loadTemplatePreferences()
 ✅ saveUserTemplate()
-✅ getUserTemplates() (Phase 3aで追加)
-⏳ updateUserTemplate() (Phase 3aで実装予定)
-⏳ deleteUserTemplate() (Phase 3aで実装予定)
-⏳ updateTemplatePreferences() (Phase 3aで実装予定)
+✅ getUserTemplates()
+✅ updateUserTemplate() (Phase 3aで実装完了)
+✅ deleteUserTemplate() (Phase 3aで実装完了)
+✅ updateTemplatePreferences() (Phase 3aで実装完了)
 ⏳ loadAdminTemplates() (Phase 3bで実装予定)
 ⏳ saveAdminTemplate() (Phase 3bで実装予定)
 ⏳ updateAdminTemplate() (Phase 3bで実装予定)
@@ -384,74 +430,40 @@ interface TemplateState {
 // React StrictMode 対応
 ✅ 開発環境での重複実行防止
 ✅ 本番環境での安定動作確認済み
+
+// ESLint・TypeScript最適化 (Phase 3aで実装)
+✅ useEffect依存関係最適化（react-hooks/exhaustive-deps）
+✅ useMemo/useCallback活用による再レンダリング防止
+✅ 未使用変数・import削除による軽量化
+✅ any型排除による型安全性向上
 ```
 
 ---
 
 ## 🎯 次フェーズの推奨実装戦略
 
-### **Phase 3a: ユーザー画面 (推奨期間: 1-2 週間) - 60%完了**
+### **Phase 3a: ユーザー画面 (**完了** - 100%完了)**
 
-#### **✅ 完了済み (Week 0.5)**
-
-```typescript
-1. UserTemplateManagementPage.tsx
-   ✅ 基本レイアウト作成
-   ✅ useTemplates統合
-   ✅ ナビゲーション実装
-   ✅ テンプレート一覧表示
-
-2. API統合
-   ✅ getUserTemplates() API統合
-   ✅ template-preferences データ取得
-   ✅ 基本的なCRUD基盤構築
-```
-
-#### **⏳ 残りタスク (Week 1-2)**
+#### **✅ 完了済み**
 
 ```typescript
-1. UserTemplateList.tsx (Week 1)
-   - ⏳ 詳細なテンプレート表示コンポーネント
-   - ⏳ 編集・削除ボタンの実装
-   - ⏳ 表示・非表示切り替え
-
-2. UserTemplateEditModal.tsx (Week 1)
-   - ⏳ モーダル編集
-   - ⏳ バリデーション
-   - ⏳ updateUserTemplate() API統合
-
-3. UserTemplateDeleteModal.tsx (Week 1)
-   - ⏳ 削除確認ダイアログ
-   - ⏳ deleteUserTemplate() API統合
-
-4. UserTemplateOrderControl.tsx (Week 2)
-   - ⏳ 上下移動ボタン、ショートカットキー
-   - ⏳ template-preferences 順序同期
-
-5. API拡張 (Week 1-2)
-   - ⏳ updateUserTemplate() 実装
-   - ⏳ deleteUserTemplate() 実装
-   - ⏳ updateTemplatePreferences() 実装
-   - ⏳ Reducer拡張 (UPDATE_USER_TEMPLATE, DELETE_USER_TEMPLATE)
+✅ 基本レイアウト・CRUD機能 - 完成
+✅ 統合管理UI実装 - 完成
+✅ 順序変更・表示制御 - 完成
+✅ API統合・エラーハンドリング - 完成
+✅ ESLint・TypeScript最適化 - 完成
+✅ 共通テンプレート統合管理 - 完成
+✅ ローカル状態→一括保存UX - 完成
+✅ パフォーマンス・保守性向上 - 完成
 ```
 
-#### **Week 2: 最適化・テスト**
+#### **✅ 技術継承ポイント**
 
-```typescript
-1. パフォーマンス最適化
-   ✅ メモ化戦略 (Phase 2.5で完了)
-   ✅ レンダリング最適化 (useRef ガード実装済み)
-
-2. ユニットテスト作成
-   - ⏳ UserTemplateManagementPage.test.tsx
-   - ⏳ カスタムフックテスト拡張
-   - ⏳ API連携テスト
-
-3. UX改善
-   - ⏳ ローディング状態改善
-   - ⏳ エラーメッセージ改善
-   - ⏳ アニメーション追加
-```
+- **統合管理 UI パターン**: UserTemplateInlineManagement.tsx
+- **ローカル状態管理**: useState + useEffect 同期パターン
+- **一括保存 UX**: hasChanges フラグ + 保存ボタン統合
+- **型安全性**: TemplateWithPreferences 型活用
+- **API 統合**: template-preferences 単一データソース
 
 ### **Phase 3b: 管理画面 (推奨期間: 2-3 週間)**
 
