@@ -3,7 +3,8 @@ import { useTemplateContext } from './useTemplateContext';
 import type { TemplateWithPreferences, TemplatePreference } from '../types/template';
 
 /**
- * テンプレート操作に特化したカスタムフック
+ * テンプレート操作に関するカスタムフック
+ * テンプレートの CRUD 操作、設定管理、初期化などを提供
  */
 export const useTemplates = () => {
   const { state, actions } = useTemplateContext();
@@ -206,19 +207,6 @@ export const useTemplateOrder = () => {
   }, [actions]);
 
   /**
-   * テンプレート順序を変更
-   */
-  const reorderTemplate = useCallback(async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom'): Promise<boolean> => {
-    try {
-      await actions.reorderTemplate(templateId, direction);
-      return true;
-    } catch (error) {
-      console.error('順序変更エラー:', error);
-      return false;
-    }
-  }, [actions]);
-
-  /**
    * テンプレート表示設定を更新
    */
   const updatePreferences = useCallback(async (preferences: TemplatePreference[]): Promise<boolean> => {
@@ -258,7 +246,6 @@ export const useTemplateOrder = () => {
     getUserTemplates: actions.loadUserTemplates,
     
     // 順序・表示制御
-    reorderTemplate,
     updatePreferences,
   };
 };

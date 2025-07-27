@@ -49,7 +49,7 @@ interface UIState {
   stopLoading: () => void;
 }
 
-export const createUIStore = () => create<UIState>((set, _get) => ({
+export const createUIStore = () => create<UIState>((set) => ({
   // 初期状態
   isPending: false,
   isLoadingMore: false,

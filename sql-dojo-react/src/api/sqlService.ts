@@ -73,7 +73,7 @@ export const formatSql = async ({ sql }: { sql: string }): Promise<string> => {
 export const getSqlSuggestions = async ({ sql, position, context }: { 
   sql: string; 
   position: number; 
-  context: any; 
+  context: Record<string, unknown>; 
 }): Promise<SqlCompletionResult> => {
   return apiClient.post<SqlCompletionResult>('/sql/suggest', { sql, position, context });
 }; 

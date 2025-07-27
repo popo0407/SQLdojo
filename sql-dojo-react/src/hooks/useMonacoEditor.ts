@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import type * as monaco from 'monaco-editor';
 import { useEditorStore } from '../stores/useEditorStore';
 
 /**
@@ -8,7 +9,7 @@ import { useEditorStore } from '../stores/useEditorStore';
 export const useMonacoEditor = () => {
   const { setEditor } = useEditorStore();
 
-  const handleEditorDidMount = useCallback((editor: any) => {
+  const handleEditorDidMount = useCallback((editor: monaco.editor.IStandaloneCodeEditor) => {
     // Monaco Editor初期化開始
     
     // エディタインスタンスをストアに保存

@@ -3,11 +3,11 @@ import type { FilterConfig } from '../types/common';
 // エラーレスポンスの型を定義
 interface ApiErrorDetail {
   message: string;
-  detail?: any;
+  detail?: unknown;
 }
 
 export class ApiError extends Error {
-  public readonly detail?: any;
+  public readonly detail?: unknown;
 
   constructor(errorData: ApiErrorDetail) {
     super(errorData.message);
@@ -39,7 +39,7 @@ export const apiClient = {
     return response.json() as Promise<T>;
   },
 
-  post: async <T>(endpoint: string, body: any, method: string = 'POST'): Promise<T> => {
+  post: async <T>(endpoint: string, body: unknown, method: string = 'POST'): Promise<T> => {
     const response = await fetch(`/api/v1${endpoint}`, {
       method,
       credentials: 'include', // セッションCookieを含める

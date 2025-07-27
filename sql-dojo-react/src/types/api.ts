@@ -125,7 +125,7 @@ export interface CacheReadResponse {
   total_pages?: number;
   has_next?: boolean;
   has_prev?: boolean;
-  session_info?: Record<string, any>;
+  session_info?: Record<string, unknown>;
   execution_time?: number;
   error_message?: string;
   message?: string;

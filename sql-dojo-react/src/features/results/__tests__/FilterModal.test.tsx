@@ -12,9 +12,9 @@ vi.mock('../../../stores/useUIStore');
 vi.mock('../../../stores/useResultsFilterStore');
 vi.mock('../../../api/metadataService');
 
-let mockSessionStoreState: any;
-let mockUIStoreState: any;
-let mockFilterStoreState: any;
+let mockSessionStoreState: Record<string, unknown> | null;
+let mockUIStoreState: Record<string, unknown> | null;
+let mockFilterStoreState: Record<string, unknown> | null;
 
 const defaultSessionStoreState = { sessionId: 'test-session-id' };
 const defaultUIStoreState = {

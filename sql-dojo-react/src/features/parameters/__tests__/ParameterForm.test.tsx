@@ -2,14 +2,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import { ParameterForm } from '../ParameterForm';
-import type { Placeholder } from '../../../types/parameters';
+import type { Placeholder, ParameterType } from '../../../types/parameters';
 
 // テスト用のモック関数
 const mockOnChange = vi.fn();
 
 // テスト用のプレースホルダー
 const createPlaceholder = (type: string, displayName: string, choices?: string[]): Placeholder => ({
-  type: type as any,
+  type: type as ParameterType,
   displayName,
   choices,
   fullMatch: `{{${displayName}}}`,

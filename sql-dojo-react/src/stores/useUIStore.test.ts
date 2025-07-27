@@ -3,7 +3,33 @@ import { act } from 'react';
 import { createUIStore } from './useUIStore';
 import type { StoreApi } from 'zustand';
 
-let store: StoreApi<any>;
+interface UIState {
+  isPending: boolean;
+  isLoadingMore: boolean;
+  isConfigLoading: boolean;
+  isDownloading: boolean;
+  isError: boolean;
+  error: Error | null;
+  filterModal: { show: boolean; columnName: string; currentFilters?: string[] };
+  showLimitDialog: boolean;
+  limitDialogData: { totalCount: number; message: string } | null;
+  configSettings: { default_page_size?: number; max_records_for_csv_download?: number } | null;
+  setIsPending: (pending: boolean) => void;
+  setIsLoadingMore: (loading: boolean) => void;
+  setIsConfigLoading: (loading: boolean) => void;
+  setIsDownloading: (downloading: boolean) => void;
+  setIsError: (error: boolean) => void;
+  setError: (error: Error | null) => void;
+  setFilterModal: (modal: { show: boolean; columnName: string; currentFilters?: string[] }) => void;
+  setShowLimitDialog: (show: boolean) => void;
+  setLimitDialogData: (data: { totalCount: number; message: string } | null) => void;
+  setConfigSettings: (settings: { default_page_size?: number; max_records_for_csv_download?: number } | null) => void;
+  clearError: () => void;
+  startLoading: () => void;
+  stopLoading: () => void;
+}
+
+let store: StoreApi<UIState>;
 
 describe('useUIStore', () => {
   beforeEach(() => {

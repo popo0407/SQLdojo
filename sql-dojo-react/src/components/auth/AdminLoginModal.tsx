@@ -37,9 +37,10 @@ const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClose }) =>
       onClose();
       // 管理者ページにリダイレクト
       navigate('/admin');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('管理者ログインエラー:', err);
-      if (err.message?.includes('401') || err.message?.includes('無効')) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (errorMessage.includes('401') || errorMessage.includes('無効')) {
         setError('管理者パスワードが正しくありません。');
       } else {
         setError('認証に失敗しました。しばらく時間をおいて再度お試しください。');
@@ -56,7 +57,7 @@ const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ isOpen, onClose }) =>
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleSubmit(e as any);
+      handleSubmit(e as React.FormEvent);
     }
   };
 

@@ -1,7 +1,7 @@
-import React, { useReducer, ReactNode, useCallback, useEffect } from 'react';
-import type { Template } from '../types/template';
+/* eslint-disable react-refresh/only-export-components */
+import React, { useReducer, ReactNode, useCallback, useEffect, createContext, useContext } from 'react';
+import type { Template, TemplateWithPreferences, TemplateState, TemplateAction } from '../types/template';
 import { templateReducer, initialTemplateState } from './templateReducer';
-import { TemplateContext, TemplateContextValue } from './templateContext';
 
 /**
  * テンプレートコンテキストの値の型定義
@@ -250,7 +250,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: true });
       
       const preferences = state.templatePreferences.map(template => ({
-        template_id: template.id,
+        template_id: template.template_id,
         display_order: template.display_order,
         is_visible: template.is_visible,
       }));
@@ -282,6 +282,17 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
 
   // アクション関数をまとめたオブジェクト
   const actions = {
+    // 初期化
+    initializeTemplates: async () => {
+      await Promise.all([
+        loadUserTemplates(),
+        loadAdminTemplates(),
+        loadDropdownTemplates(),
+        loadTemplatePreferences()
+      ]);
+      dispatch({ type: 'SET_INITIALIZED', payload: true });
+    },
+    
     // データ読み込み
     loadUserTemplates,
     loadAdminTemplates,
@@ -312,6 +323,8 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     // ユーティリティ
     clearError: () => dispatch({ type: 'SET_ERROR', payload: null }),
     setUnsavedChanges: (hasChanges: boolean) => dispatch({ type: 'SET_UNSAVED_CHANGES', payload: hasChanges }),
+    setTemplatePreferences: (preferences: TemplateWithPreferences[]) => 
+      dispatch({ type: 'SET_TEMPLATE_PREFERENCES', payload: preferences }),
   };
 
   // 未保存変更の警告を設定

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getUniqueValues } from '../../../api/metadataService';
 import { useUIStore } from '../../../stores/useUIStore';
 import { useResultsSessionStore } from '../../../stores/useResultsSessionStore';
@@ -9,6 +9,9 @@ export const useFilterModalState = (): FilterModalState & FilterModalActions => 
   const { filterModal } = useUIStore();
   const sessionId = useResultsSessionStore(state => state.sessionId);
   const filters = useResultsFilterStore(state => state.filters);
+  
+  // フィルタのシリアライズ化を別変数として抽出
+  const filtersString = useMemo(() => JSON.stringify(filters), [filters]);
   
   const [selectedValues, setSelectedValues] = useState<string[]>(filterModal.currentFilters || []);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,7 +46,7 @@ export const useFilterModalState = (): FilterModalState & FilterModalActions => 
       })
       .catch((e: Error) => setError(e.message || 'ユニーク値の取得に失敗しました'))
       .finally(() => setIsLoading(false));
-  }, [filterModal.show, sessionId, filterModal.columnName, JSON.stringify(filters)]);
+  }, [filterModal.show, sessionId, filterModal.columnName, filters, filtersString]);
 
   // モーダルが開くたびに現在のフィルタを設定
   useEffect(() => {

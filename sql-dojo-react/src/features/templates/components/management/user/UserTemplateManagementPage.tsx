@@ -24,30 +24,6 @@ export const UserTemplateManagementPage: React.FC = () => {
     // reorderTemplate  // 一時的にコメントアウト
   } = useTemplates();
 
-  // 順序変更処理 - actionsから直接使用
-  const handleReorderTemplate = async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
-    try {
-      console.log('順序変更開始:', { templateId, direction });
-      console.log('templateId type:', typeof templateId);
-      console.log('templateIdの値:', `"${templateId}"`);
-      
-      // template_idから実際のidにマッピング
-      // allTemplatesでtemplate_idにマッピングしたが、実際の操作は元のidで行う
-      const actualId = templateId; // template_idは実際はidの値なので、そのまま使用
-      
-      console.log('実際のID:', actualId);
-      console.log('実際のID type:', typeof actualId);
-      
-      // actions.reorderTemplateを直接使用して順序変更
-      await actions.reorderTemplate(actualId, direction);
-      
-      console.log('順序変更完了');
-    } catch (error) {
-      console.error('テンプレート順序変更エラー:', error);
-      throw error;
-    }
-  };
-
   // ローカル状態
   const [isInitialized, setIsInitialized] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TemplateWithPreferences | null>(null);
@@ -64,16 +40,12 @@ export const UserTemplateManagementPage: React.FC = () => {
     
     const initialize = async () => {
       if (!isInitialized && !state.isInitialized) {
-        console.log('初期化開始: グローバル初期化が必要');
         // グローバルに初期化されていない場合のみ初期化
         await initializeTemplates();
         setIsInitialized(true);
       } else if (!isInitialized && state.isInitialized) {
-        console.log('初期化スキップ: 既にグローバル初期化済み');
         // 既にグローバル初期化済みの場合
         setIsInitialized(true);
-      } else {
-        console.log('初期化不要:', { isInitialized, 'state.isInitialized': state.isInitialized });
       }
     };
 
@@ -81,26 +53,14 @@ export const UserTemplateManagementPage: React.FC = () => {
   }, [initializeTemplates, isInitialized, state.isInitialized, state.templatePreferences.length]);
 
   // 全テンプレート一覧取得（個人＋管理者）
-  console.log('state.templatePreferences:', state.templatePreferences);
-  
   const allTemplates: TemplateWithPreferences[] = state.templatePreferences
     .filter(template => {
       const hasId = !!template.template_id;
-      console.log('template filter check:', { template_id: template.template_id, hasId, template });
       return hasId;
     }); // IDが存在するテンプレートのみを含める
-  
-  console.log('final allTemplates:', allTemplates);
 
   // ユーザーテンプレートのみ（下位互換性のため）
   const userTemplates = allTemplates.filter(template => !template.is_common);
-
-  // デバッグ用：テンプレートデータの確認
-  console.log('UserTemplateManagementPage デバッグ情報:');
-  console.log('allTemplates:', allTemplates);
-  console.log('userTemplates:', userTemplates);
-  console.log('allTemplates.length:', allTemplates.length);
-  console.log('state:', state);
 
   // 編集モーダルを開く
   const handleEditTemplate = (template: TemplateWithPreferences) => {
@@ -142,13 +102,6 @@ export const UserTemplateManagementPage: React.FC = () => {
     }
   };
   // ローディング中の表示
-  console.log('ローディング状態チェック:', { 
-    isInitialized, 
-    'state.isLoading': state.isLoading,
-    'state.isLoadingPreferences': state.isLoadingPreferences,
-    'shouldShowLoading': !isInitialized || state.isLoading
-  });
-  
   if (!isInitialized || state.isLoading) {
     return (
       <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
@@ -214,15 +167,6 @@ export const UserTemplateManagementPage: React.FC = () => {
                 templates={allTemplates}
                 onEdit={handleEditTemplate}
                 onDelete={handleDeleteTemplate}
-                onReorder={async (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
-                  try {
-                    await handleReorderTemplate(templateId, direction);
-                    setSaveMessage('順序を変更しました');
-                    setTimeout(() => setSaveMessage(''), 3000);
-                  } catch (error) {
-                    console.error('順序変更エラー:', error);
-                  }
-                }}
                 onUpdatePreferences={async () => {
                   try {
                     // 直接APIを呼び出して設定を更新

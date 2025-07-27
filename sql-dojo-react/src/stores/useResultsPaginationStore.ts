@@ -40,7 +40,7 @@ export const createResultsPaginationStore = () => create<PaginationStoreState>((
       });
       
       if (readRes.success && readRes.data && readRes.columns) {
-        const newData = (readRes.data as unknown as unknown[][]).map((rowArr: unknown[], _idx: number) => 
+        const newData = (readRes.data as unknown as unknown[][]).map((rowArr: unknown[]) => 
           Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
         ) as TableRow[];
         

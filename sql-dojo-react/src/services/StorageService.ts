@@ -17,7 +17,7 @@ export class StorageService {
   /**
    * ユーザー情報を保存
    */
-  setUser(user: any): void {
+  setUser(user: Record<string, unknown>): void {
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('isAuthenticated', 'true');
   }
@@ -25,7 +25,7 @@ export class StorageService {
   /**
    * ユーザー情報を取得
    */
-  getUser(): any | null {
+  getUser(): Record<string, unknown> | null {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   }
@@ -80,7 +80,7 @@ export class StorageService {
   /**
    * 特定のキーの値を設定
    */
-  setItem(key: string, value: any): void {
+  setItem(key: string, value: unknown): void {
     localStorage.setItem(key, JSON.stringify(value));
   }
 

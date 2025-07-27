@@ -30,7 +30,7 @@ export const getAllMetadata = async (): Promise<Schema[]> => {
 /**
  * 設定情報を取得する
  */
-export const getConfigSettings = async (): Promise<any> => {
+export const getConfigSettings = async (): Promise<Record<string, unknown>> => {
   return apiClient.get('/config/settings');
 };
 

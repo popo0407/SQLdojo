@@ -19,7 +19,6 @@ interface UserTemplateInlineManagementProps {
   templates: TemplateWithPreferences[];
   onEdit: (template: TemplateWithPreferences) => void;
   onDelete: (template: TemplateWithPreferences) => void;
-  onReorder: (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => Promise<void>;
   onUpdatePreferences: () => Promise<void>;
   isLoading?: boolean;
 }
@@ -32,17 +31,13 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
   templates,
   onEdit,
   onDelete,
-  onReorder,
   onUpdatePreferences,
   isLoading = false
 }) => {
-  console.log('UserTemplateInlineManagement received templates:', templates);
-  console.log('templates.length:', templates.length);
+  // 表示/非表示のローカル状態
   const [localVisibility, setLocalVisibility] = useState<Record<string, boolean>>(() => {
-    console.log('templates for localVisibility init:', templates);
     const visibility: Record<string, boolean> = {};
     templates.forEach(template => {
-      console.log('template for visibility init:', template);
       const templateId = template.template_id;
       if (templateId) {
         visibility[templateId] = template.is_visible;
@@ -50,16 +45,20 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
         console.warn('template_id is undefined for template:', template);
       }
     });
-    console.log('initial visibility state:', visibility);
     return visibility;
   });
+
+  // 順序のローカル状態
+  const [localTemplates, setLocalTemplates] = useState<TemplateWithPreferences[]>(() => {
+    return [...templates];
+  });
   
-  const [hasVisibilityChanges, setHasVisibilityChanges] = useState(false);
-  const [isSavingVisibility, setIsSavingVisibility] = useState(false);
+  // 統合変更フラグ（表示/非表示と順序の両方）
+  const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // 表示/非表示の切り替え（個別のテンプレートだけを変更）
   const handleVisibilityToggle = useCallback((templateId: string, isVisible: boolean) => {
-    console.log(`個別表示切り替え: ${templateId} -> ${isVisible}`);
     if (!templateId) {
       console.error('templateId is undefined in handleVisibilityToggle');
       return;
@@ -67,39 +66,88 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
     setLocalVisibility(prev => {
       const newVisibility = { ...prev };
       newVisibility[templateId] = isVisible;
-      console.log('新しい表示状態:', newVisibility);
       return newVisibility;
     });
-    setHasVisibilityChanges(true);
+    setHasChanges(true);
   }, []);
 
-  // 表示設定の保存
-  const handleSaveVisibility = useCallback(async () => {
-    if (!hasVisibilityChanges || isSavingVisibility) return;
+  // 順序変更処理
+  const handleReorder = useCallback((templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => {
+    setLocalTemplates(prev => {
+      const currentIndex = prev.findIndex(t => t.template_id === templateId);
+      if (currentIndex === -1) return prev;
 
-    setIsSavingVisibility(true);
+      let newIndex: number;
+      switch (direction) {
+        case 'up':
+          newIndex = Math.max(0, currentIndex - 1);
+          break;
+        case 'down':
+          newIndex = Math.min(prev.length - 1, currentIndex + 1);
+          break;
+        case 'top':
+          newIndex = 0;
+          break;
+        case 'bottom':
+          newIndex = prev.length - 1;
+          break;
+        default:
+          return prev;
+      }
+
+      if (newIndex === currentIndex) return prev;
+
+      const newTemplates = [...prev];
+      const [movedTemplate] = newTemplates.splice(currentIndex, 1);
+      newTemplates.splice(newIndex, 0, movedTemplate);
+      
+      return newTemplates;
+    });
+    setHasChanges(true);
+  }, []);
+
+  // 設定の保存（表示/非表示と順序の両方）
+  const handleSaveSettings = useCallback(async () => {
+    if (!hasChanges || isSaving) return;
+
+    setIsSaving(true);
     try {
       await onUpdatePreferences();
-      setHasVisibilityChanges(false);
+      setHasChanges(false);
     } catch (error) {
-      console.error('表示設定保存エラー:', error);
+      console.error('設定保存エラー:', error);
+      // エラー時はローカル状態をリセット
+      setLocalVisibility(() => {
+        const visibility: Record<string, boolean> = {};
+        templates.forEach(template => {
+          const templateId = template.template_id;
+          if (templateId) {
+            visibility[templateId] = template.is_visible;
+          }
+        });
+        return visibility;
+      });
+      setLocalTemplates([...templates]);
+      setHasChanges(false);
+      throw error;
     } finally {
-      setIsSavingVisibility(false);
+      setIsSaving(false);
     }
-  }, [onUpdatePreferences, hasVisibilityChanges, isSavingVisibility]);
+  }, [onUpdatePreferences, hasChanges, isSaving, templates]);
 
-  // 表示設定のリセット
-  const handleResetVisibility = useCallback(() => {
+  // 設定のリセット（表示/非表示と順序の両方）
+  const handleResetSettings = useCallback(() => {
     const visibility: Record<string, boolean> = {};
     templates.forEach(template => {
       visibility[template.template_id] = template.is_visible;
     });
     setLocalVisibility(visibility);
-    setHasVisibilityChanges(false);
+    setLocalTemplates([...templates]);
+    setHasChanges(false);
   }, [templates]);
 
   // 全テンプレートを統合表示（個人・管理者テンプレート両方を表示）
-  const allTemplates = templates;
+  const allTemplates = localTemplates;
 
   const renderTemplateRow = (template: TemplateWithPreferences, index: number, isLast: boolean) => (
     <tr key={template.template_id}>
@@ -169,7 +217,7 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
           id={`visibility-${template.template_id}`}
           checked={localVisibility[template.template_id] ?? template.is_visible}
           onChange={(e) => handleVisibilityToggle(template.template_id, e.target.checked)}
-          disabled={isLoading || isSavingVisibility}
+          disabled={isLoading || isSaving}
         />
       </td>
       
@@ -177,7 +225,7 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
         <ButtonGroup size="sm">
           <Button
             variant="outline-secondary"
-            onClick={() => onReorder(template.template_id, 'up')}
+            onClick={() => handleReorder(template.template_id, 'up')}
             disabled={index === 0 || isLoading || template.is_common}
             title={template.is_common ? "管理者テンプレートは順序変更できません" : "上に移動"}
           >
@@ -185,7 +233,7 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
           </Button>
           <Button
             variant="outline-secondary"
-            onClick={() => onReorder(template.template_id, 'down')}
+            onClick={() => handleReorder(template.template_id, 'down')}
             disabled={isLast || isLoading || template.is_common}
             title={template.is_common ? "管理者テンプレートは順序変更できません" : "下に移動"}
           >
@@ -225,13 +273,13 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
             <FontAwesomeIcon icon={faArrowsUpDown} className="me-2" />
             テンプレート管理
           </h6>
-          {hasVisibilityChanges && (
+          {hasChanges && (
             <div>
               <Button
                 variant="outline-secondary"
                 size="sm"
-                onClick={handleResetVisibility}
-                disabled={isSavingVisibility}
+                onClick={handleResetSettings}
+                disabled={isSaving}
                 className="me-2"
               >
                 <FontAwesomeIcon icon={faUndo} />
@@ -239,15 +287,15 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
               <Button
                 variant="primary"
                 size="sm"
-                onClick={handleSaveVisibility}
-                disabled={isSavingVisibility}
+                onClick={handleSaveSettings}
+                disabled={isSaving}
               >
-                {isSavingVisibility ? (
+                {isSaving ? (
                   <Spinner animation="border" size="sm" />
                 ) : (
                   <FontAwesomeIcon icon={faSave} />
                 )}
-                <span className="ms-1">保存</span>
+                <span className="ms-1">設定を保存</span>
               </Button>
             </div>
           )}

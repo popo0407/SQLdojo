@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { authService, type User } from '../api/authService';
 import { storageService } from '../services/StorageService';
@@ -31,7 +32,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // ストレージから管理者フラグを復元
       const isAdminFromStorage = storageService.isAdmin();
       setIsAdmin(isAdminFromStorage);
-    } catch (error) {
+    } catch {
       setUser(null);
       setIsAuthenticated(false);
       setIsAdmin(false);
@@ -49,7 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsAdmin(false);
       
       // ストレージにユーザー情報を保存
-      storageService.setUser(response.user);
+      storageService.setUser(response.user as unknown as Record<string, unknown>);
     } catch (error) {
       console.error('ログインエラー:', error);
       throw error;

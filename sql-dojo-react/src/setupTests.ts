@@ -2,9 +2,7 @@ import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
 // グローバルモックの設定
-// @ts-ignore
 if (typeof global !== 'undefined') {
-  // @ts-ignore
   global.ResizeObserver = vi.fn().mockImplementation(() => ({
     observe: vi.fn(),
     unobserve: vi.fn(),
@@ -30,11 +28,11 @@ Object.defineProperty(window, 'matchMedia', {
 if (typeof global.ClipboardEvent === 'undefined') {
   // Vitest/jsdom用のClipboardEventダミー
   global.ClipboardEvent = class ClipboardEvent extends Event {
-    constructor(type: string, eventInitDict: any) {
+    constructor(type: string, eventInitDict?: ClipboardEventInit) {
       super(type, eventInitDict);
-      this.clipboardData = eventInitDict && eventInitDict.clipboardData ? eventInitDict.clipboardData : undefined;
+      this.clipboardData = eventInitDict && eventInitDict.clipboardData ? eventInitDict.clipboardData : null;
     }
-    clipboardData: any;
+    clipboardData: DataTransfer | null;
   };
 }
 

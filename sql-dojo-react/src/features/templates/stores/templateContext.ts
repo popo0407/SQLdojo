@@ -29,7 +29,6 @@ export interface TemplateContextValue {
     
     // 設定操作
     updateTemplatePreferences: () => Promise<void>;
-    reorderTemplate: (templateId: string, direction: 'up' | 'down' | 'top' | 'bottom') => Promise<void>;
     moveTemplateUp: (templateId: string) => void;
     moveTemplateDown: (templateId: string) => void;
     toggleTemplateVisibility: (templateId: string, isVisible: boolean) => void;
