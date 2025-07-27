@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Card, Table, Button, ButtonGroup, Form, Badge, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -19,7 +19,7 @@ interface UserTemplateInlineManagementProps {
   templates: TemplateWithPreferences[];
   onEdit: (template: TemplateWithPreferences) => void;
   onDelete: (template: TemplateWithPreferences) => void;
-  onUpdatePreferences: () => Promise<void>;
+  onUpdatePreferences: (updatedTemplates: TemplateWithPreferences[]) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -48,14 +48,50 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
     return visibility;
   });
 
-  // 順序のローカル状態
+  // 順序のローカル状態（個人テンプレート→共通テンプレートの順序でソート）
   const [localTemplates, setLocalTemplates] = useState<TemplateWithPreferences[]>(() => {
-    return [...templates];
+    const sortedTemplates = [...templates].sort((a, b) => {
+      // type で最初にソート（user が先、admin が後）
+      if (a.type !== b.type) {
+        return a.type === 'user' ? -1 : 1;
+      }
+      // 同じtype内では display_order でソート
+      return a.display_order - b.display_order;
+    });
+    return sortedTemplates;
   });
   
   // 統合変更フラグ（表示/非表示と順序の両方）
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // templates プロパティが変更された時にローカル状態を同期
+  useEffect(() => {
+    // 個人テンプレート→共通テンプレートの順序でソート
+    const sortedTemplates = [...templates].sort((a, b) => {
+      // type で最初にソート（user が先、admin が後）
+      if (a.type !== b.type) {
+        return a.type === 'user' ? -1 : 1;
+      }
+      // 同じtype内では display_order でソート
+      return a.display_order - b.display_order;
+    });
+    
+    setLocalTemplates(sortedTemplates);
+    
+    // 表示状態も同期
+    const newVisibility: Record<string, boolean> = {};
+    templates.forEach(template => {
+      const templateId = template.template_id;
+      if (templateId) {
+        newVisibility[templateId] = template.is_visible;
+      }
+    });
+    setLocalVisibility(newVisibility);
+    
+    // プロパティが変更された場合は変更フラグをリセット
+    setHasChanges(false);
+  }, [templates]);
 
   // 表示/非表示の切り替え（個別のテンプレートだけを変更）
   const handleVisibilityToggle = useCallback((templateId: string, isVisible: boolean) => {
@@ -112,7 +148,14 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
 
     setIsSaving(true);
     try {
-      await onUpdatePreferences();
+      // ローカル状態を統合したテンプレートリストを作成
+      const updatedTemplates = localTemplates.map((template, index) => ({
+        ...template,
+        display_order: index + 1, // 新しい順序（1から開始）
+        is_visible: localVisibility[template.template_id] ?? template.is_visible // ローカルの表示状態を反映
+      }));
+      
+      await onUpdatePreferences(updatedTemplates);
       setHasChanges(false);
     } catch (error) {
       console.error('設定保存エラー:', error);
@@ -133,7 +176,7 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
     } finally {
       setIsSaving(false);
     }
-  }, [onUpdatePreferences, hasChanges, isSaving, templates]);
+  }, [onUpdatePreferences, hasChanges, isSaving, localTemplates, localVisibility, templates]);
 
   // 設定のリセット（表示/非表示と順序の両方）
   const handleResetSettings = useCallback(() => {
@@ -226,16 +269,16 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
           <Button
             variant="outline-secondary"
             onClick={() => handleReorder(template.template_id, 'up')}
-            disabled={index === 0 || isLoading || template.is_common}
-            title={template.is_common ? "管理者テンプレートは順序変更できません" : "上に移動"}
+            disabled={index === 0 || isLoading || isSaving}
+            title="上に移動"
           >
             <FontAwesomeIcon icon={faArrowUp} />
           </Button>
           <Button
             variant="outline-secondary"
             onClick={() => handleReorder(template.template_id, 'down')}
-            disabled={isLast || isLoading || template.is_common}
-            title={template.is_common ? "管理者テンプレートは順序変更できません" : "下に移動"}
+            disabled={isLast || isLoading || isSaving}
+            title="下に移動"
           >
             <FontAwesomeIcon icon={faArrowDown} />
           </Button>

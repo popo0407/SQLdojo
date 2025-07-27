@@ -167,9 +167,11 @@ export const UserTemplateManagementPage: React.FC = () => {
                 templates={allTemplates}
                 onEdit={handleEditTemplate}
                 onDelete={handleDeleteTemplate}
-                onUpdatePreferences={async () => {
+                onUpdatePreferences={async (updatedTemplates: TemplateWithPreferences[]) => {
                   try {
-                    // 直接APIを呼び出して設定を更新
+                    // 更新されたテンプレート状態をTemplateProviderに反映
+                    actions.setTemplatePreferences(updatedTemplates);
+                    // APIに保存
                     await actions.updateTemplatePreferences();
                     setSaveMessage('表示設定を保存しました');
                     setTimeout(() => setSaveMessage(''), 3000);
