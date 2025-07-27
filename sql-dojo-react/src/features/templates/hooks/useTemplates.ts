@@ -97,9 +97,15 @@ export const useTemplates = () => {
   /**
    * 表示可能なテンプレートのみを取得
    * template-preferencesから取得したデータでis_visibleがtrueのもの
+   * テンプレート管理画面と同じ並び順（display_order順）で返す
    */
   const getVisibleTemplates = useCallback(() => {
-    return state.templatePreferences.filter(template => template.is_visible);
+    return state.templatePreferences
+      .filter(template => template.is_visible)
+      .sort((a, b) => {
+        // display_order でソート（昇順）
+        return a.display_order - b.display_order;
+      });
   }, [state.templatePreferences]);
 
   /**

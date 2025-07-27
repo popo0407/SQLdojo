@@ -48,14 +48,10 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
     return visibility;
   });
 
-  // 順序のローカル状態（個人テンプレート→共通テンプレートの順序でソート）
+  // 順序のローカル状態（display_order順でソート）
   const [localTemplates, setLocalTemplates] = useState<TemplateWithPreferences[]>(() => {
     const sortedTemplates = [...templates].sort((a, b) => {
-      // type で最初にソート（user が先、admin が後）
-      if (a.type !== b.type) {
-        return a.type === 'user' ? -1 : 1;
-      }
-      // 同じtype内では display_order でソート
+      // display_order でソート（昇順）
       return a.display_order - b.display_order;
     });
     return sortedTemplates;
@@ -67,13 +63,9 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
 
   // templates プロパティが変更された時にローカル状態を同期
   useEffect(() => {
-    // 個人テンプレート→共通テンプレートの順序でソート
+    // display_order順でソート
     const sortedTemplates = [...templates].sort((a, b) => {
-      // type で最初にソート（user が先、admin が後）
-      if (a.type !== b.type) {
-        return a.type === 'user' ? -1 : 1;
-      }
-      // 同じtype内では display_order でソート
+      // display_order でソート（昇順）
       return a.display_order - b.display_order;
     });
     
@@ -202,10 +194,6 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
         >
           <FontAwesomeIcon icon={template.is_common ? faUserShield : faUser} />
         </Badge>
-      </td>
-      
-      <td style={{ width: '80px', textAlign: 'center' }}>
-        <span className="text-muted small">#{template.display_order}</span>
       </td>
       
       <td>
@@ -356,7 +344,6 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
             <thead className="table-light">
               <tr>
                 <th style={{ width: '40px' }}>種別</th>
-                <th style={{ width: '80px' }}>順序</th>
                 <th style={{ width: '200px' }}>テンプレート名</th>
                 <th>SQL内容</th>
                 <th style={{ width: '80px' }}>表示</th>

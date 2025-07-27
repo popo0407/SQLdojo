@@ -71,10 +71,6 @@ export const TemplateDropdown: React.FC<TemplateDropdownProps> = ({
     setHoveredTemplate(null);
   };
 
-  // 個人テンプレートと共通テンプレートを分離
-  const userTemplates = templates.filter(t => t.type === 'user');
-  const adminTemplates = templates.filter(t => t.type === 'admin');
-
   return (
     <div className={`template-dropdown ${className}`} ref={dropdownRef}>
       {/* ドロップダウンボタン */}
@@ -111,58 +107,21 @@ export const TemplateDropdown: React.FC<TemplateDropdownProps> = ({
             </div>
           ) : (
             <>
-              {/* 個人テンプレート */}
-              {userTemplates.length > 0 && (
-                <>
-                  <h6 className="dropdown-header">
-                    <i className="fas fa-user me-2"></i>
-                    個人テンプレート
-                  </h6>
-                  {userTemplates.map((template) => (
-                    <button
-                      key={template.id}
-                      type="button"
-                      className="dropdown-item template-item"
-                      onClick={() => handleSelectTemplate(template)}
-                      onMouseEnter={(e) => handleMouseEnter(template, e)}
-                      onMouseLeave={handleMouseLeave}
-                      title={template.sql}
-                    >
-                      <i className="fas fa-user me-2"></i>
-                      {template.name}
-                    </button>
-                  ))}
-                </>
-              )}
-
-              {/* 区切り線 */}
-              {userTemplates.length > 0 && adminTemplates.length > 0 && (
-                <div className="dropdown-divider"></div>
-              )}
-
-              {/* 共通テンプレート */}
-              {adminTemplates.length > 0 && (
-                <>
-                  <h6 className="dropdown-header">
-                    <i className="fas fa-shield-alt me-2"></i>
-                    共通テンプレート
-                  </h6>
-                  {adminTemplates.map((template) => (
-                    <button
-                      key={template.id}
-                      type="button"
-                      className="dropdown-item template-item"
-                      onClick={() => handleSelectTemplate(template)}
-                      onMouseEnter={(e) => handleMouseEnter(template, e)}
-                      onMouseLeave={handleMouseLeave}
-                      title={template.sql}
-                    >
-                      <i className="fas fa-shield-alt me-2"></i>
-                      {template.name}
-                    </button>
-                  ))}
-                </>
-              )}
+              {/* テンプレート一覧（管理画面の並び順で表示） */}
+              {templates.map((template) => (
+                <button
+                  key={template.id}
+                  type="button"
+                  className="dropdown-item template-item"
+                  onClick={() => handleSelectTemplate(template)}
+                  onMouseEnter={(e) => handleMouseEnter(template, e)}
+                  onMouseLeave={handleMouseLeave}
+                  title={template.sql}
+                >
+                  <i className={`fas ${template.type === 'user' ? 'fa-user' : 'fa-shield-alt'} me-2`}></i>
+                  {template.name}
+                </button>
+              ))}
             </>
           )}
         </div>
