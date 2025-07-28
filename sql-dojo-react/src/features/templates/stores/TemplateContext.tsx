@@ -25,6 +25,9 @@ export interface TemplateContextValue {
     saveUserTemplate: (name: string, sql: string) => Promise<void>;
     updateUserTemplate: (template: Template) => Promise<void>;
     deleteUserTemplate: (templateId: string) => Promise<void>;
+    saveAdminTemplate: (name: string, sql: string) => Promise<void>;
+    updateAdminTemplate: (template: Template) => Promise<void>;
+    deleteAdminTemplate: (templateId: string) => Promise<void>;
     
     // 設定操作
     updateTemplatePreferences: () => Promise<void>;
@@ -243,6 +246,81 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   }, [fetchWithAuth, loadTemplatePreferences]);
 
   /**
+   * 管理者テンプレートを保存
+   */
+  const saveAdminTemplate = useCallback(async (name: string, sql: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      const data = await fetchWithAuth('/admin/templates', {
+        method: 'POST',
+        body: JSON.stringify({ name, sql }),
+      });
+      
+      if (data.template) {
+        dispatch({ type: 'ADD_ADMIN_TEMPLATE', payload: data.template });
+      }
+      
+      // テンプレート保存後、管理者テンプレート一覧を再読み込み
+      await loadAdminTemplates();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの保存に失敗しました';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [fetchWithAuth, loadAdminTemplates]);
+
+  /**
+   * 管理者テンプレートを更新
+   */
+  const updateAdminTemplate = useCallback(async (template: Template) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      const data = await fetchWithAuth(`/admin/templates/${template.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ name: template.name, sql: template.sql }),
+      });
+      
+      if (data.template) {
+        dispatch({ type: 'UPDATE_ADMIN_TEMPLATE', payload: data.template });
+      }
+      
+      // テンプレート更新後、管理者テンプレート一覧を再読み込み
+      await loadAdminTemplates();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの更新に失敗しました';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [fetchWithAuth, loadAdminTemplates]);
+
+  /**
+   * 管理者テンプレートを削除
+   */
+  const deleteAdminTemplate = useCallback(async (templateId: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      await fetchWithAuth(`/admin/templates/${templateId}`, {
+        method: 'DELETE',
+      });
+      
+      dispatch({ type: 'DELETE_ADMIN_TEMPLATE', payload: templateId });
+      
+      // テンプレート削除後、管理者テンプレート一覧を再読み込み
+      await loadAdminTemplates();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの削除に失敗しました';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [fetchWithAuth, loadAdminTemplates]);
+
+  /**
    * テンプレート設定を更新
    */
   const updateTemplatePreferences = useCallback(async () => {
@@ -303,6 +381,9 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     saveUserTemplate,
     updateUserTemplate,
     deleteUserTemplate,
+    saveAdminTemplate,
+    updateAdminTemplate,
+    deleteAdminTemplate,
     
     // 設定操作
     updateTemplatePreferences,

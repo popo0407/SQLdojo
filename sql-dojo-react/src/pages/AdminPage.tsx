@@ -1,10 +1,10 @@
 import React from 'react';
+import { AdminTemplateManagementPage } from '../features/templates/components/management/admin/AdminTemplateManagementPage';
 
 const AdminPage: React.FC = () => {
   return (
     <div>
-      <h1>管理者ページ</h1>
-      {/* 今後ここに管理者機能が配置されます */}
+      <AdminTemplateManagementPage />
     </div>
   );
 };

@@ -196,4 +196,35 @@ export const templateApi = {
     const response = await request<TemplatesResponse>('/admin/templates');
     return response.templates;
   },
+
+  /**
+   * 管理者テンプレートを作成
+   */
+  createAdminTemplate: async (createRequest: CreateTemplateRequest): Promise<Template> => {
+    const response = await request<{ template: Template }>('/admin/templates', {
+      method: 'POST',
+      body: JSON.stringify(createRequest),
+    });
+    return response.template;
+  },
+
+  /**
+   * 管理者テンプレートを更新
+   */
+  updateAdminTemplate: async (id: string, updateRequest: UpdateTemplateRequest): Promise<Template> => {
+    const response = await request<{ template: Template }>(`/admin/templates/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateRequest),
+    });
+    return response.template;
+  },
+
+  /**
+   * 管理者テンプレートを削除
+   */
+  deleteAdminTemplate: async (id: string): Promise<void> => {
+    await request<{ message: string }>(`/admin/templates/${id}`, {
+      method: 'DELETE',
+    });
+  },
 };

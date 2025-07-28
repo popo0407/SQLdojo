@@ -160,6 +160,9 @@ export type TemplateAction =
   | { type: 'ADD_USER_TEMPLATE'; payload: Template }
   | { type: 'UPDATE_USER_TEMPLATE'; payload: Template }
   | { type: 'DELETE_USER_TEMPLATE'; payload: string }
+  | { type: 'ADD_ADMIN_TEMPLATE'; payload: Template }
+  | { type: 'UPDATE_ADMIN_TEMPLATE'; payload: Template }
+  | { type: 'DELETE_ADMIN_TEMPLATE'; payload: string }
   
   // ドロップダウン用データ操作
   | { type: 'SET_DROPDOWN_TEMPLATES'; payload: TemplateDropdownItem[] }

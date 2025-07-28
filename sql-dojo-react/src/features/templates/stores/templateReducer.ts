@@ -116,6 +116,29 @@ export function templateReducer(state: TemplateState, action: TemplateAction): T
         error: null,
       };
 
+    case 'ADD_ADMIN_TEMPLATE':
+      return {
+        ...state,
+        adminTemplates: [...state.adminTemplates, action.payload],
+        error: null,
+      };
+
+    case 'UPDATE_ADMIN_TEMPLATE':
+      return {
+        ...state,
+        adminTemplates: state.adminTemplates.map(template =>
+          template.id === action.payload.id ? action.payload : template
+        ),
+        error: null,
+      };
+
+    case 'DELETE_ADMIN_TEMPLATE':
+      return {
+        ...state,
+        adminTemplates: state.adminTemplates.filter(template => template.id !== action.payload),
+        error: null,
+      };
+
     // ドロップダウン用データ操作
     case 'SET_DROPDOWN_TEMPLATES':
       return {
