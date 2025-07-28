@@ -83,16 +83,94 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
    */
   const loadAdminTemplates = useCallback(async () => {
     try {
+      console.log('[PROVIDER] 管理者テンプレート読み込み開始');
       dispatch({ type: 'SET_LOADING', payload: true });
       const data = await fetchWithAuth('/admin/templates');
-      dispatch({ type: 'SET_ADMIN_TEMPLATES', payload: data.templates || [] });
+      console.log('[PROVIDER] loadAdminTemplates API response:', data);
+      console.log('[PROVIDER] data.templates:', data.templates);
+      console.log('[PROVIDER] Array.isArray(data):', Array.isArray(data));
+      
+      // APIレスポンスが配列で直接返される場合とtemplatesプロパティで返される場合の両方に対応
+      const templates = Array.isArray(data) ? data : (data.templates || []);
+      console.log('[PROVIDER] 最終的に設定するtemplates:', templates);
+      
+      dispatch({ type: 'SET_ADMIN_TEMPLATES', payload: templates });
     } catch (error) {
+      console.error('[PROVIDER] 管理者テンプレート読み込みエラー:', error);
       const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの読み込みに失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, [fetchWithAuth]);
+
+  /**
+   * 管理者テンプレートを作成
+   */
+  const createAdminTemplate = useCallback(async (templateData: Omit<Template, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      const data = await fetchWithAuth('/admin/templates', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: templateData.name,
+          sql: templateData.sql,
+        }),
+      });
+      
+      // 作成後にリロード
+      await loadAdminTemplates();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの作成に失敗しました';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [fetchWithAuth, loadAdminTemplates]);
+
+  /**
+   * 管理者テンプレートを更新
+   */
+  const updateAdminTemplate = useCallback(async (template: Template) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      const data = await fetchWithAuth(`/admin/templates/${template.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ name: template.name, sql: template.sql }),
+      });
+      
+      // 更新後にリロード
+      await loadAdminTemplates();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの更新に失敗しました';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [fetchWithAuth, loadAdminTemplates]);
+
+  /**
+   * 管理者テンプレートを削除
+   */
+  const deleteAdminTemplate = useCallback(async (templateId: string) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      await fetchWithAuth(`/admin/templates/${templateId}`, {
+        method: 'DELETE',
+      });
+      
+      // 削除後にリロード
+      await loadAdminTemplates();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの削除に失敗しました';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [fetchWithAuth, loadAdminTemplates]);
 
   /**
    * ドロップダウン用テンプレート一覧を読み込み
@@ -285,6 +363,9 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     saveUserTemplate,
     updateUserTemplate,
     deleteUserTemplate,
+    createAdminTemplate,
+    updateAdminTemplate,
+    deleteAdminTemplate,
     
     // 設定操作
     updateTemplatePreferences,
@@ -315,6 +396,9 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     saveUserTemplate,
     updateUserTemplate,
     deleteUserTemplate,
+    createAdminTemplate,
+    updateAdminTemplate,
+    deleteAdminTemplate,
     updateTemplatePreferences,
     resetPreferences,
     dispatch,

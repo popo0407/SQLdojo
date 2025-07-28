@@ -1,35 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTimes, faSave } from '@fortawesome/free-solid-svg-icons';
 
-interface AdminTemplateCreateModalProps {
-  show: boolean;
-  onHide: () => void;
-  onSubmit: (templateData: { name: string; sql: string; description?: string }) => Promise<void>;
+import type { Template } from '../../../types/template';
+
+interface AdminTemplateEditModalProps {
+  template: Template;
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (updatedTemplate: Template) => Promise<boolean>;
 }
 
 /**
- * 管理者用テンプレート新規作成モーダル
- * 名前とSQLの入力フォームを提供
+ * 管理者用テンプレート編集モーダル
+ * 既存テンプレートの名前とSQLを編集
  */
-export const AdminTemplateCreateModal: React.FC<AdminTemplateCreateModalProps> = ({
-  show,
-  onHide,
-  onSubmit
+export const AdminTemplateEditModal: React.FC<AdminTemplateEditModalProps> = ({
+  template,
+  isOpen,
+  onClose,
+  onConfirm
 }) => {
   const [name, setName] = useState('');
   const [sql, setSql] = useState('');
   const [error, setError] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // テンプレートデータでフォームを初期化
+  useEffect(() => {
+    if (template) {
+      setName(template.name || '');
+      setSql(template.sql || '');
+      setError('');
+    }
+  }, [template]);
+
   // モーダルを閉じる時の処理
   const handleClose = () => {
     if (!isSaving) {
-      setName('');
-      setSql('');
       setError('');
-      onHide();
+      onClose();
     }
   };
 
@@ -58,31 +69,41 @@ export const AdminTemplateCreateModal: React.FC<AdminTemplateCreateModalProps> =
       return;
     }
 
+    // 変更があるかチェック
+    const trimmedName = name.trim();
+    const trimmedSql = sql.trim();
+    
+    if (trimmedName === template.name && trimmedSql === template.sql) {
+      setError('変更内容がありません');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await onSubmit({ 
-        name: name.trim(), 
-        sql: sql.trim(),
-        description: ''
-      });
-      setName('');
-      setSql('');
-      setError('');
-      onHide();
+      const updatedTemplate: Template = {
+        ...template,
+        name: trimmedName,
+        sql: trimmedSql
+      };
+      
+      const success = await onConfirm(updatedTemplate);
+      if (!success) {
+        setError('テンプレートの更新に失敗しました');
+      }
     } catch (error) {
-      console.error('Create template error:', error);
-      setError('テンプレートの作成中にエラーが発生しました');
+      console.error('Update template error:', error);
+      setError('テンプレートの更新中にエラーが発生しました');
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <Modal show={show} onHide={handleClose} size="lg" backdrop="static">
+    <Modal show={isOpen} onHide={handleClose} size="lg" backdrop="static">
       <Modal.Header closeButton={!isSaving}>
         <Modal.Title>
-          <FontAwesomeIcon icon={faPlus} className="me-2 text-primary" />
-          新規共通テンプレート作成
+          <FontAwesomeIcon icon={faEdit} className="me-2 text-primary" />
+          共通テンプレート編集
         </Modal.Title>
       </Modal.Header>
 
@@ -128,10 +149,18 @@ export const AdminTemplateCreateModal: React.FC<AdminTemplateCreateModalProps> =
               }}
             />
             <Form.Text className="text-muted">
-              共通テンプレートとして全ユーザーが利用できます
+              変更内容は全ユーザーに反映されます
             </Form.Text>
           </Form.Group>
         </Form>
+
+        {template && (
+          <div className="bg-light p-3 rounded">
+            <small className="text-muted">
+              <strong>元のテンプレート:</strong> {template.name}
+            </small>
+          </div>
+        )}
       </Modal.Body>
 
       <Modal.Footer>
@@ -151,12 +180,12 @@ export const AdminTemplateCreateModal: React.FC<AdminTemplateCreateModalProps> =
           {isSaving ? (
             <>
               <Spinner animation="border" size="sm" className="me-2" />
-              作成中...
+              更新中...
             </>
           ) : (
             <>
               <FontAwesomeIcon icon={faSave} className="me-2" />
-              作成
+              更新
             </>
           )}
         </Button>

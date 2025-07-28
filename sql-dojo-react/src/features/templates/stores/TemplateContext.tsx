@@ -15,6 +15,15 @@ export interface TemplateContextValue {
   
   // 高レベルなアクション関数
   actions: {
+    // 初期化
+    initializeTemplates: () => Promise<void>;
+    
+    // データ読み込み
+    loadUserTemplates: () => Promise<void>;
+    loadAdminTemplates: () => Promise<void>;
+    loadDropdownTemplates: () => Promise<void>;
+    loadTemplatePreferences: () => Promise<void>;
+    
     // データ読み込み
     loadUserTemplates: () => Promise<void>;
     loadAdminTemplates: () => Promise<void>;
@@ -26,6 +35,7 @@ export interface TemplateContextValue {
     updateUserTemplate: (template: Template) => Promise<void>;
     deleteUserTemplate: (templateId: string) => Promise<void>;
     saveAdminTemplate: (name: string, sql: string) => Promise<void>;
+    createAdminTemplate: (templateData: Omit<Template, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
     updateAdminTemplate: (template: Template) => Promise<void>;
     deleteAdminTemplate: (templateId: string) => Promise<void>;
     
@@ -47,6 +57,7 @@ export interface TemplateContextValue {
     // ユーティリティ
     clearError: () => void;
     setUnsavedChanges: (hasChanges: boolean) => void;
+    setTemplatePreferences: (preferences: TemplateWithPreferences[]) => void;
   };
 }
 
@@ -82,8 +93,17 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
    * 共通のfetch処理
    */
   const fetchWithAuth = useCallback(async (endpoint: string, options: RequestInit = {}) => {
+    console.log('[FETCH] === fetchWithAuth開始 ===');
+    console.log('[FETCH] endpoint:', endpoint);
+    console.log('[FETCH] options:', options);
+    
     const token = localStorage.getItem('token');
-    const response = await fetch(`${apiBaseUrl}${endpoint}`, {
+    console.log('[FETCH] token存在:', !!token);
+    
+    const url = `${apiBaseUrl}${endpoint}`;
+    console.log('[FETCH] 完全URL:', url);
+    
+    const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -92,13 +112,20 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       },
     });
 
+    console.log('[FETCH] レスポンス status:', response.status);
+    console.log('[FETCH] レスポンス ok:', response.ok);
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error('[FETCH] エラーレスポンス:', errorData);
       const errorMessage = errorData.message || errorData.detail || `API Error: ${response.statusText}`;
       throw new Error(errorMessage);
     }
 
-    return response.json();
+    const result = await response.json();
+    console.log('[FETCH] レスポンスデータ:', result);
+    console.log('[FETCH] === fetchWithAuth終了 ===');
+    return result;
   }, [apiBaseUrl]);
 
   /**
@@ -122,15 +149,36 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
    * 管理者テンプレート一覧を読み込み
    */
   const loadAdminTemplates = useCallback(async () => {
+    console.log('[CONTEXT] === loadAdminTemplates開始 ===');
     try {
+      console.log('[CONTEXT] dispatch SET_LOADING true');
       dispatch({ type: 'SET_LOADING', payload: true });
+      
+      console.log('[CONTEXT] fetchWithAuth呼び出し開始: /admin/templates');
       const data = await fetchWithAuth('/admin/templates');
-      dispatch({ type: 'SET_ADMIN_TEMPLATES', payload: data.templates || [] });
+      console.log('[CONTEXT] fetchWithAuth完了');
+      console.log('[CONTEXT] APIレスポンス全体:', data);
+      console.log('[CONTEXT] data.templates:', data.templates);
+      console.log('[CONTEXT] typeof data:', typeof data);
+      console.log('[CONTEXT] Array.isArray(data):', Array.isArray(data));
+      console.log('[CONTEXT] Array.isArray(data.templates):', Array.isArray(data.templates));
+      
+      const templates = data.templates || data || [];
+      console.log('[CONTEXT] 最終的に設定するtemplates:', templates);
+      console.log('[CONTEXT] dispatch SET_ADMIN_TEMPLATES');
+      dispatch({ type: 'SET_ADMIN_TEMPLATES', payload: templates });
+      console.log('[CONTEXT] dispatch完了');
     } catch (error) {
+      console.error('[CONTEXT] === エラー発生 ===');
+      console.error('[CONTEXT] エラー詳細:', error);
+      console.error('[CONTEXT] エラーメッセージ:', error.message);
+      console.error('[CONTEXT] エラースタック:', error.stack);
       const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの読み込みに失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     } finally {
+      console.log('[CONTEXT] dispatch SET_LOADING false');
       dispatch({ type: 'SET_LOADING', payload: false });
+      console.log('[CONTEXT] === loadAdminTemplates終了 ===');
     }
   }, [fetchWithAuth]);
 
@@ -272,6 +320,35 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   }, [fetchWithAuth, loadAdminTemplates]);
 
   /**
+   * 管理者テンプレートを作成
+   */
+  const createAdminTemplate = useCallback(async (templateData: Omit<Template, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      const data = await fetchWithAuth('/admin/templates', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: templateData.name,
+          sql: templateData.sql,
+        }),
+      });
+      
+      if (data.template) {
+        dispatch({ type: 'ADD_ADMIN_TEMPLATE', payload: data.template });
+      }
+      
+      // テンプレート作成後、管理者テンプレート一覧を再読み込み
+      await loadAdminTemplates();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの作成に失敗しました';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [fetchWithAuth, loadAdminTemplates]);
+
+  /**
    * 管理者テンプレートを更新
    */
   const updateAdminTemplate = useCallback(async (template: Template) => {
@@ -359,7 +436,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   }, [loadTemplatePreferences]);
 
   // アクション関数をまとめたオブジェクト
-  const actions = {
+  const actions: TemplateContextValue['actions'] = {
     // 初期化
     initializeTemplates: async () => {
       await Promise.all([
@@ -382,6 +459,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     updateUserTemplate,
     deleteUserTemplate,
     saveAdminTemplate,
+    createAdminTemplate,
     updateAdminTemplate,
     deleteAdminTemplate,
     

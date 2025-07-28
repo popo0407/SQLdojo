@@ -7,7 +7,6 @@ import type { TemplateWithPreferences } from '../../../types/template';
 
 interface AdminTemplateListProps {
   templates: TemplateWithPreferences[];
-  onEdit: (template: TemplateWithPreferences) => void;
   onDelete: (template: TemplateWithPreferences) => void;
   isLoading?: boolean;
 }
@@ -15,10 +14,10 @@ interface AdminTemplateListProps {
 /**
  * 管理者用テンプレート一覧表示コンポーネント
  * シンプルなテーブル表示でCRUD操作ボタンを提供
+ * 注意: 編集機能は現在無効化されています
  */
 export const AdminTemplateList: React.FC<AdminTemplateListProps> = ({
   templates,
-  onEdit,
   onDelete,
   isLoading = false
 }) => {
@@ -79,15 +78,22 @@ export const AdminTemplateList: React.FC<AdminTemplateListProps> = ({
       
       <td style={{ width: '120px' }}>
         <div className="d-flex gap-2">
-          <Button
-            variant="outline-primary"
-            size="sm"
-            onClick={() => onEdit(template)}
-            disabled={isLoading}
-            title="編集"
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>編集機能は現在無効化されています</Tooltip>}
           >
-            <FontAwesomeIcon icon={faEdit} />
-          </Button>
+            <span className="d-inline-block">
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                disabled={true}
+                title="編集機能は現在無効化されています"
+                style={{ pointerEvents: 'none' }}
+              >
+                <FontAwesomeIcon icon={faEdit} />
+              </Button>
+            </span>
+          </OverlayTrigger>
           <Button
             variant="outline-danger"
             size="sm"
