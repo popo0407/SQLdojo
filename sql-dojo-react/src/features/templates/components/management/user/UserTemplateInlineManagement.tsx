@@ -20,6 +20,7 @@ interface UserTemplateInlineManagementProps {
   onEdit: (template: TemplateWithPreferences) => void;
   onDelete: (template: TemplateWithPreferences) => void;
   onUpdatePreferences: (updatedTemplates: TemplateWithPreferences[]) => Promise<void>;
+  onHasChangesChange?: (hasChanges: boolean) => void;
   isLoading?: boolean;
 }
 
@@ -32,6 +33,7 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
   onEdit,
   onDelete,
   onUpdatePreferences,
+  onHasChangesChange,
   isLoading = false
 }) => {
   // 表示/非表示のローカル状態
@@ -61,29 +63,47 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
   const [hasChanges, setHasChanges] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // templates プロパティが変更された時にローカル状態を同期
+  // templates プロパティが変更された時にローカル状態を同期（初期化時または外部変更時のみ）
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [lastTemplatesLength, setLastTemplatesLength] = useState(0);
+  
   useEffect(() => {
-    // display_order順でソート
-    const sortedTemplates = [...templates].sort((a, b) => {
-      // display_order でソート（昇順）
-      return a.display_order - b.display_order;
-    });
+    // 初期化時または templates が空でない場合、またはテンプレート数が変更された場合のみ同期
+    const shouldSync = !isInitialized && templates.length > 0 || 
+                      (isInitialized && templates.length !== lastTemplatesLength);
     
-    setLocalTemplates(sortedTemplates);
-    
-    // 表示状態も同期
-    const newVisibility: Record<string, boolean> = {};
-    templates.forEach(template => {
-      const templateId = template.template_id;
-      if (templateId) {
-        newVisibility[templateId] = template.is_visible;
-      }
-    });
-    setLocalVisibility(newVisibility);
-    
-    // プロパティが変更された場合は変更フラグをリセット
-    setHasChanges(false);
-  }, [templates]);
+    if (shouldSync) {
+      console.log('Syncing templates:', { isInitialized, templatesLength: templates.length, lastLength: lastTemplatesLength });
+      
+      // display_order順でソート
+      const sortedTemplates = [...templates].sort((a, b) => {
+        // display_order でソート（昇順）
+        return a.display_order - b.display_order;
+      });
+      
+      setLocalTemplates(sortedTemplates);
+      
+      // 表示状態も同期
+      const newVisibility: Record<string, boolean> = {};
+      templates.forEach(template => {
+        const templateId = template.template_id;
+        if (templateId) {
+          newVisibility[templateId] = template.is_visible;
+        }
+      });
+      setLocalVisibility(newVisibility);
+      
+      // 初期化完了フラグと長さを更新
+      setIsInitialized(true);
+      setLastTemplatesLength(templates.length);
+      setHasChanges(false);
+    }
+  }, [templates, isInitialized, lastTemplatesLength]);
+
+  // hasChanges の変更を親コンポーネントに通知
+  useEffect(() => {
+    onHasChangesChange?.(hasChanges);
+  }, [hasChanges, onHasChangesChange]);
 
   // 表示/非表示の切り替え（個別のテンプレートだけを変更）
   const handleVisibilityToggle = useCallback((templateId: string, isVisible: boolean) => {
@@ -148,21 +168,33 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
       }));
       
       await onUpdatePreferences(updatedTemplates);
+      
+      // 保存成功時にローカル状態を更新された状態に合わせる
+      setLocalTemplates(updatedTemplates);
+      const newVisibility: Record<string, boolean> = {};
+      updatedTemplates.forEach(template => {
+        const templateId = template.template_id;
+        if (templateId) {
+          newVisibility[templateId] = template.is_visible;
+        }
+      });
+      setLocalVisibility(newVisibility);
+      
       setHasChanges(false);
     } catch (error) {
       console.error('設定保存エラー:', error);
-      // エラー時はローカル状態をリセット
-      setLocalVisibility(() => {
-        const visibility: Record<string, boolean> = {};
-        templates.forEach(template => {
-          const templateId = template.template_id;
-          if (templateId) {
-            visibility[templateId] = template.is_visible;
-          }
-        });
-        return visibility;
+      // エラー時は元の状態に戻す（templatesプロパティベース）
+      const sortedTemplates = [...templates].sort((a, b) => a.display_order - b.display_order);
+      setLocalTemplates(sortedTemplates);
+      
+      const originalVisibility: Record<string, boolean> = {};
+      templates.forEach(template => {
+        const templateId = template.template_id;
+        if (templateId) {
+          originalVisibility[templateId] = template.is_visible;
+        }
       });
-      setLocalTemplates([...templates]);
+      setLocalVisibility(originalVisibility);
       setHasChanges(false);
       throw error;
     } finally {

@@ -18,17 +18,33 @@ import type { TemplateWithPreferences } from '../../../types/template';
 export const UserTemplateManagementPage: React.FC = () => {
   const { state, actions } = useTemplateContext();
   const { 
-    initializeTemplates, 
-    updateTemplate, 
-    deleteTemplate,
-    // reorderTemplate  // 一時的にコメントアウト
+    initializeTemplates,
+    updateTemplate,
+    deleteTemplate
   } = useTemplates();
 
   // ローカル状態
   const [isInitialized, setIsInitialized] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string>('');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<TemplateWithPreferences | null>(null);
   const [deletingTemplate, setDeletingTemplate] = useState<TemplateWithPreferences | null>(null);
-  const [saveMessage, setSaveMessage] = useState<string>('');
+
+  // ブラウザの beforeunload イベントで未保存変更を警告
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   // 初期化処理
   useEffect(() => {
@@ -52,6 +68,51 @@ export const UserTemplateManagementPage: React.FC = () => {
     initialize();
   }, [initializeTemplates, isInitialized, state.isInitialized, state.templatePreferences.length]);
 
+  // 変更状態の更新ハンドラー
+  const handleHasChangesChange = (hasChanges: boolean) => {
+    setHasUnsavedChanges(hasChanges);
+  };
+
+  // 編集モーダル関連のハンドラー
+  const handleEditTemplate = (template: TemplateWithPreferences) => {
+    setEditingTemplate(template);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditingTemplate(null);
+  };
+
+  const handleUpdateTemplate = async (updatedTemplate: TemplateWithPreferences) => {
+    const success = await updateTemplate(updatedTemplate);
+    if (success) {
+      setEditingTemplate(null);
+      setSaveMessage('テンプレートを更新しました');
+      setTimeout(() => setSaveMessage(''), 3000);
+      // テンプレート更新後にデータを再読み込み
+      await actions.loadTemplatePreferences();
+    }
+  };
+
+  // 削除モーダル関連のハンドラー
+  const handleDeleteTemplate = (template: TemplateWithPreferences) => {
+    setDeletingTemplate(template);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setDeletingTemplate(null);
+  };
+
+  const handleConfirmDelete = async (templateId: string) => {
+    const success = await deleteTemplate(templateId);
+    if (success) {
+      setDeletingTemplate(null);
+      setSaveMessage('テンプレートを削除しました');
+      setTimeout(() => setSaveMessage(''), 3000);
+      // テンプレート削除後にデータを再読み込み
+      await actions.loadTemplatePreferences();
+    }
+  };
+
   // 全テンプレート一覧取得（個人＋管理者）
   const allTemplates: TemplateWithPreferences[] = state.templatePreferences
     .filter(template => {
@@ -62,45 +123,6 @@ export const UserTemplateManagementPage: React.FC = () => {
   // ユーザーテンプレートのみ（下位互換性のため）
   const userTemplates = allTemplates.filter(template => !template.is_common);
 
-  // 編集モーダルを開く
-  const handleEditTemplate = (template: TemplateWithPreferences) => {
-    setEditingTemplate(template);
-  };
-
-  // 編集モーダルを閉じる
-  const handleCloseEditModal = () => {
-    setEditingTemplate(null);
-  };
-
-  // テンプレート更新処理
-  const handleUpdateTemplate = async (updatedTemplate: TemplateWithPreferences) => {
-    const success = await updateTemplate(updatedTemplate);
-    if (success) {
-      setSaveMessage('テンプレートを更新しました');
-      setTimeout(() => setSaveMessage(''), 3000);
-      handleCloseEditModal();
-    }
-  };
-
-  // 削除モーダルを開く
-  const handleDeleteTemplate = (template: TemplateWithPreferences) => {
-    setDeletingTemplate(template);
-  };
-
-  // 削除モーダルを閉じる
-  const handleCloseDeleteModal = () => {
-    setDeletingTemplate(null);
-  };
-
-  // テンプレート削除処理
-  const handleConfirmDelete = async (templateId: string) => {
-    const success = await deleteTemplate(templateId);
-    if (success) {
-      setSaveMessage('テンプレートを削除しました');
-      setTimeout(() => setSaveMessage(''), 3000);
-      handleCloseDeleteModal();
-    }
-  };
   // ローディング中の表示
   if (!isInitialized || state.isLoading) {
     return (
@@ -167,6 +189,7 @@ export const UserTemplateManagementPage: React.FC = () => {
                 templates={allTemplates}
                 onEdit={handleEditTemplate}
                 onDelete={handleDeleteTemplate}
+                onHasChangesChange={handleHasChangesChange}
                 onUpdatePreferences={async (updatedTemplates: TemplateWithPreferences[]) => {
                   try {
                     // 更新されたテンプレート状態をTemplateProviderに反映
@@ -175,6 +198,8 @@ export const UserTemplateManagementPage: React.FC = () => {
                     await actions.updateTemplatePreferences();
                     setSaveMessage('表示設定を保存しました');
                     setTimeout(() => setSaveMessage(''), 3000);
+                    // 保存成功時に未保存変更フラグをリセット
+                    setHasUnsavedChanges(false);
                   } catch (error) {
                     console.error('表示設定保存エラー:', error);
                   }
