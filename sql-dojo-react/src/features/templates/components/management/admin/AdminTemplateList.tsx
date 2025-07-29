@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Button, Badge, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Table, Button, Badge, OverlayTrigger, Popover, Tooltip } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -21,20 +21,105 @@ export const AdminTemplateList: React.FC<AdminTemplateListProps> = ({
   onDelete,
   isLoading = false
 }) => {
+  // SQLポップオーバーの表示状態
+  const [showPopover, setShowPopover] = useState<string | null>(null);
+  
+  // Popover外クリックで閉じる処理
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      // Popover要素自体またはその子要素をクリックした場合は何もしない
+      if (target.closest('.popover') || target.closest('[data-sql-trigger]')) {
+        return;
+      }
+      setShowPopover(null);
+    };
+
+    if (showPopover) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showPopover]);
+  
   // SQL内容のプレビューツールチップ
   const renderSqlTooltip = (sql: string) => (
-    <Tooltip>
-      <div style={{ 
-        maxWidth: '500px', 
-        maxHeight: '300px', 
-        overflow: 'auto',
-        fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
-        fontSize: '14px',
-        whiteSpace: 'pre-wrap'
-      }}>
-        {sql.length > 1000 ? `${sql.substring(0, 1000)}...` : sql}
-      </div>
-    </Tooltip>
+    <Popover id="sql-popover" style={{ maxWidth: 'none' }}>
+      <Popover.Header as="h6" className="d-flex justify-content-between align-items-center">
+        SQL内容 
+        <small className="text-muted">(キーボードでスクロール可能)</small>
+      </Popover.Header>
+      <Popover.Body>
+        <div 
+          ref={(el) => {
+            // Popover表示時に自動フォーカス
+            if (el && showPopover) {
+              setTimeout(() => el.focus(), 100);
+            }
+          }}
+          style={{ 
+            width: '70vw', 
+            height: '40vh', 
+            overflow: 'auto',
+            fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
+            fontSize: '14px',
+            whiteSpace: 'pre-wrap',
+            minWidth: '300px',
+            minHeight: '100px',
+            maxWidth: '800px',
+            maxHeight: '500px',
+            lineHeight: '1.4',
+            border: '1px solid #dee2e6',
+            borderRadius: '4px',
+            padding: '8px',
+            outline: 'none',
+            cursor: 'text'
+          }}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            const scrollAmount = 40;
+            const element = e.currentTarget;
+            
+            switch (e.key) {
+              case 'ArrowUp':
+                e.preventDefault();
+                e.stopPropagation();
+                element.scrollTop = Math.max(0, element.scrollTop - scrollAmount);
+                break;
+              case 'ArrowDown':
+                e.preventDefault();
+                e.stopPropagation();
+                element.scrollTop = Math.min(element.scrollHeight - element.clientHeight, element.scrollTop + scrollAmount);
+                break;
+              case 'PageUp':
+                e.preventDefault();
+                e.stopPropagation();
+                element.scrollTop = Math.max(0, element.scrollTop - element.clientHeight * 0.8);
+                break;
+              case 'PageDown':
+                e.preventDefault();
+                e.stopPropagation();
+                element.scrollTop = Math.min(element.scrollHeight - element.clientHeight, element.scrollTop + element.clientHeight * 0.8);
+                break;
+              case 'Home':
+                e.preventDefault();
+                e.stopPropagation();
+                element.scrollTop = 0;
+                break;
+              case 'End':
+                e.preventDefault();
+                e.stopPropagation();
+                element.scrollTop = element.scrollHeight;
+                break;
+              case 'Escape':
+                setShowPopover(null);
+                break;
+            }
+          }}
+        >
+          {sql.length > 2000 ? `${sql.substring(0, 2000)}...` : sql}
+        </div>
+      </Popover.Body>
+    </Popover>
   );
 
   const renderTemplateRow = (template: TemplateWithPreferences, index: number) => (
@@ -65,10 +150,18 @@ export const AdminTemplateList: React.FC<AdminTemplateListProps> = ({
           </div>
           {template.sql.length > 0 && (
             <OverlayTrigger
-              placement="top"
+              placement="auto"
+              trigger="manual"
+              show={showPopover === template.template_id}
               overlay={renderSqlTooltip(template.sql)}
             >
-              <Button variant="link" size="sm" className="p-1 ms-2">
+              <Button 
+                variant="link" 
+                size="sm" 
+                className="p-1 ms-2"
+                data-sql-trigger
+                onClick={() => setShowPopover(template.template_id)}
+              >
                 <FontAwesomeIcon icon={faInfoCircle} />
               </Button>
             </OverlayTrigger>

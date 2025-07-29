@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Table, Button, ButtonGroup, Form, Badge, Spinner, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Card, Table, Button, ButtonGroup, Form, Badge, Spinner, OverlayTrigger, Popover } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faEdit, 
@@ -36,6 +36,26 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
   onHasChangesChange,
   isLoading = false
 }) => {
+  // SQLポップオーバーの表示状態
+  const [showPopover, setShowPopover] = useState<string | null>(null);
+  
+  // Popover外クリックで閉じる処理
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      // Popover要素自体またはその子要素をクリックした場合は何もしない
+      if (target.closest('.popover') || target.closest('[data-sql-trigger]')) {
+        return;
+      }
+      setShowPopover(null);
+    };
+
+    if (showPopover) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showPopover]);
+  
   // 表示/非表示のローカル状態
   const [localVisibility, setLocalVisibility] = useState<Record<string, boolean>>(() => {
     const visibility: Record<string, boolean> = {};
@@ -237,23 +257,90 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
       <td>
         {template.sql && (
           <OverlayTrigger
-            placement="top"
+            placement="auto"
+            trigger="manual"
+            show={showPopover === template.template_id}
             overlay={
-              <Tooltip id={`sql-tooltip-${template.template_id}`}>
-                <div style={{ 
-                  maxWidth: '500px', 
-                  maxHeight: '300px', 
-                  overflow: 'auto',
-                  whiteSpace: 'pre-wrap',
-                  fontFamily: 'monospace',
-                  fontSize: '18px'
-                }}>
-                  {template.sql.length > 1000 ? 
-                    `${template.sql.substring(0, 1000)}...` : 
-                    template.sql
-                  }
-                </div>
-              </Tooltip>
+              <Popover id={`sql-popover-${template.template_id}`} style={{ maxWidth: 'none' }}>
+                <Popover.Header as="h6" className="d-flex justify-content-between align-items-center">
+                  SQL内容 
+                  <small className="text-muted">(キーボードでスクロール可能)</small>
+                </Popover.Header>
+                <Popover.Body>
+                  <div 
+                    ref={(el) => {
+                      // Popover表示時に自動フォーカス
+                      if (el && showPopover === template.template_id) {
+                        setTimeout(() => el.focus(), 100);
+                      }
+                    }}
+                    style={{ 
+                      width: '70vw', 
+                      height: '40vh', 
+                      overflow: 'auto',
+                      whiteSpace: 'pre-wrap',
+                      fontFamily: 'Monaco, Consolas, "Lucida Console", monospace',
+                      fontSize: '14px',
+                      minWidth: '300px',
+                      minHeight: '100px',
+                      maxWidth: '800px',
+                      maxHeight: '500px',
+                      lineHeight: '1.4',
+                      border: '1px solid #dee2e6',
+                      borderRadius: '4px',
+                      padding: '8px',
+                      outline: 'none',
+                      cursor: 'text'
+                    }}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      const scrollAmount = 40;
+                      const element = e.currentTarget;
+                      
+                      switch (e.key) {
+                        case 'ArrowUp':
+                          e.preventDefault();
+                          e.stopPropagation();
+                          element.scrollTop = Math.max(0, element.scrollTop - scrollAmount);
+                          break;
+                        case 'ArrowDown':
+                          e.preventDefault();
+                          e.stopPropagation();
+                          element.scrollTop = Math.min(element.scrollHeight - element.clientHeight, element.scrollTop + scrollAmount);
+                          break;
+                        case 'PageUp':
+                          e.preventDefault();
+                          e.stopPropagation();
+                          element.scrollTop = Math.max(0, element.scrollTop - element.clientHeight * 0.8);
+                          break;
+                        case 'PageDown':
+                          e.preventDefault();
+                          e.stopPropagation();
+                          element.scrollTop = Math.min(element.scrollHeight - element.clientHeight, element.scrollTop + element.clientHeight * 0.8);
+                          break;
+                        case 'Home':
+                          e.preventDefault();
+                          e.stopPropagation();
+                          element.scrollTop = 0;
+                          break;
+                        case 'End':
+                          e.preventDefault();
+                          e.stopPropagation();
+                          element.scrollTop = element.scrollHeight;
+                          break;
+                        case 'Escape':
+                          setShowPopover(null);
+                          break;
+                      }
+                    }}
+                  >
+                    {template.sql.length > 2000 ? 
+                      `${template.sql.substring(0, 2000)}...` : 
+                      template.sql
+                    }
+                  </div>
+                </Popover.Body>
+              </Popover>
             }
           >
             <small 
@@ -267,6 +354,8 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
                 cursor: 'pointer',
                 padding: '4px 0'
               }}
+              data-sql-trigger
+              onClick={() => setShowPopover(template.template_id)}
             >
               {template.sql.substring(0, 100)}...
             </small>
