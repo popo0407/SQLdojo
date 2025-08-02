@@ -258,7 +258,6 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
         {template.sql && (
           <OverlayTrigger
             placement="auto"
-            trigger="manual"
             show={showPopover === template.template_id}
             overlay={
               <Popover id={`sql-popover-${template.template_id}`} style={{ maxWidth: 'none' }}>

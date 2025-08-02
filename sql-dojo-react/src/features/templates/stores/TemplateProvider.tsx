@@ -110,7 +110,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   const createAdminTemplate = useCallback(async (templateData: Omit<Template, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const data = await fetchWithAuth('/admin/templates', {
+      await fetchWithAuth('/admin/templates', {
         method: 'POST',
         body: JSON.stringify({
           name: templateData.name,
@@ -135,7 +135,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   const updateAdminTemplate = useCallback(async (template: Template) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const data = await fetchWithAuth(`/admin/templates/${template.id}`, {
+      await fetchWithAuth(`/admin/templates/${template.id}`, {
         method: 'PUT',
         body: JSON.stringify({ name: template.name, sql: template.sql }),
       });

@@ -8,6 +8,16 @@ import { useEditorStore } from '../stores/useEditorStore';
 export const useEditorOperations = () => {
   const { sql, setSql, sqlToInsert, clearSqlToInsert, formatSql, insertText } = useEditorStore();
 
+  // 初期化時にlocalStorageからSQLを復元（SQL履歴からのコピー対応）
+  useEffect(() => {
+    const sqlToCopy = localStorage.getItem('sqlToCopy');
+    if (sqlToCopy) {
+      setSql(sqlToCopy);
+      localStorage.removeItem('sqlToCopy'); // 使用後は削除
+      console.log('SQL履歴からのコピーを復元しました');
+    }
+  }, [setSql]); // setSQL を依存関係に追加
+
   // sqlToInsertを監視し、統一されたinsertTextを使用
   useEffect(() => {
     if (sqlToInsert) {

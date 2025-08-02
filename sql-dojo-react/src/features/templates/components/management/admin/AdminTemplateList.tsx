@@ -151,7 +151,6 @@ export const AdminTemplateList: React.FC<AdminTemplateListProps> = ({
           {template.sql.length > 0 && (
             <OverlayTrigger
               placement="auto"
-              trigger="manual"
               show={showPopover === template.template_id}
               overlay={renderSqlTooltip(template.sql)}
             >

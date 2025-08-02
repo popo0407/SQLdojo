@@ -2,7 +2,57 @@
 
 SQL Dojo React は、SQL クエリの実行と結果表示を行う Web アプリケーションです。
 
-## 最新の改善（2025 年 7 月）
+## 最新の改善（2025 年 8 月）
+
+### 🔄 SQL 履歴機能の React 化とエディタ統合一旦完了
+
+#### 実装された改善点
+
+**1. SQL 履歴機能のフル React 化**
+
+- **完全移行**: レガシー HTML テンプレートから React コンポーネントに完全移行
+- **UX 統一**: テンプレート機能と同等のエディタ統合（ポップオーバー表示はバグだし中）
+- **Zustand 統合**: 状態管理を Zustand で統一し、レスポンシブな UX を実現
+
+**2. エディタ反映機能の実装**
+
+- **即座転記**: 「エディタに反映」ボタンで SQL を即座にメインエディタに転記
+- **SPA 対応**: React Router と useNavigate によるスムーズなナビゲーション
+- **二重保証**: Zustand ステートと localStorage 両方での状態管理
+
+**3. 開発環境の整備**
+
+- **依存関係解決**: requirements.txt のエンコーディング問題を解決
+- **バックエンド起動**: FastAPI + uvicorn による完全な開発環境
+
+#### 技術的成果
+
+```
+📁 src/features/sql-history/
+├── components/
+│   ├── SqlHistoryTable.tsx     # React化されたSQL履歴テーブル
+│   ├── SqlHistoryRow.tsx       # 各行の表示とアクション処理
+│   └── SqlHistoryPopover.tsx   # SQLプレビュー表示
+├── utils/
+│   └── sqlCopyHandler.ts       # エディタ反映ロジック
+└── types/
+    └── index.ts                # SQL履歴専用型定義
+
+📁 src/hooks/
+└── useEditorOperations.ts      # エディタ操作の統合管理
+
+📁 backend/
+├── requirements.txt            # UTF-8エンコーディング対応
+└── app/                        # FastAPI完全対応
+```
+
+**4. UX/UI 改善**
+
+- **テンプレート機能準拠**: 既存テンプレート機能と完全に同じ UX
+- **ポップオーバー表示**: SQL 内容をホバーでプレビューする機能は正常に動作していない
+- **レスポンシブ対応**: 全デバイスサイズでの最適表示
+
+## 過去の改善（2025 年 7 月）
 
 ### 🔄 型定義の重複と不整合の解消完了
 
