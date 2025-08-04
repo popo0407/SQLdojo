@@ -1,4 +1,5 @@
 import type { FilterConfig } from '../types/common';
+import { API_CONFIG } from '../config/api';
 
 // エラーレスポンスの型を定義
 interface ApiErrorDetail {
@@ -26,7 +27,7 @@ interface SQLFormatResponse {
 // 汎用的なAPIクライアント
 export const apiClient = {
   get: async <T>(endpoint: string): Promise<T> => {
-    const response = await fetch(`/api/v1${endpoint}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
       credentials: 'include', // セッションCookieを含める
     });
 
@@ -40,7 +41,7 @@ export const apiClient = {
   },
 
   post: async <T>(endpoint: string, body: unknown, method: string = 'POST'): Promise<T> => {
-    const response = await fetch(`/api/v1${endpoint}`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
       method,
       credentials: 'include', // セッションCookieを含める
       headers: {
@@ -60,7 +61,7 @@ export const apiClient = {
 
   // SQL整形API
   formatSQL: async (sql: string): Promise<SQLFormatResponse> => {
-    const response = await fetch('/api/v1/sql/format', {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/sql/format`, {
       method: 'POST',
       credentials: 'include', // セッションCookieを含める
       headers: {
@@ -85,7 +86,7 @@ export const apiClient = {
     filters?: FilterConfig,
     sortConfig?: import('../types/results').SortConfig | null
   ) => {
-    const response = await fetch(`/api/v1/sql/cache/read`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/read`, {
       method: 'POST',
       credentials: 'include', // セッションCookieを含める
       headers: {
@@ -112,7 +113,7 @@ export const apiClient = {
 
   // CSVダウンロード（session_idベースに変更）
   downloadCsv: async (sessionId: string, filters?: FilterConfig, sortBy?: string, sortOrder?: string): Promise<Blob> => {
-    const response = await fetch(`/api/v1/sql/cache/download/csv`, {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/download/csv`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

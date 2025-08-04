@@ -27,10 +27,6 @@ export const useSqlHistory = () => {
     try {
       const cachedData = cacheManager.getFromCache();
       if (cachedData) {
-        console.log('SQL履歴: キャッシュからデータを読み込みました', {
-          totalCount: cachedData.total_count,
-          cacheInfo: cacheManager.getCacheInfo()
-        });
         setData(cachedData);
         return true;
       }
@@ -51,7 +47,6 @@ export const useSqlHistory = () => {
     setError(null);
     
     try {
-      console.log('SQL履歴: APIから最新データを取得中...');
       const response = await sqlHistoryApi.getSqlHistory();
       
       if (!mountedRef.current) return;
@@ -59,10 +54,6 @@ export const useSqlHistory = () => {
       setData(response);
       cacheManager.saveToCache(response);
       
-      console.log('SQL履歴: 最新データを取得しました', {
-        totalCount: response.total_count,
-        logsCount: response.logs.length
-      });
     } catch (err) {
       if (!mountedRef.current) return;
       
@@ -83,12 +74,10 @@ export const useSqlHistory = () => {
   const initializeData = useCallback(async () => {
     // 既に初期化済みの場合はスキップ
     if (initializingRef.current) {
-      console.log('useSqlHistory: 初期化中のためスキップ');
       return;
     }
     
     initializingRef.current = true;
-    console.log('useSqlHistory: 初期化開始');
     
     try {
       // キャッシュから読み込み試行
@@ -96,7 +85,6 @@ export const useSqlHistory = () => {
       
       // キャッシュがない場合はAPIから取得
       if (!hasCache) {
-        console.log('useSqlHistory: キャッシュなし、APIから取得');
         await refreshData();
       }
     } finally {

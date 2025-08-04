@@ -3,7 +3,8 @@
  * 既存のバックエンドAPIエンドポイントを活用
  */
 
-import type { SqlHistoryResponse } from '../types/sqlHistory';
+import type { SqlHistoryResponse } from '../types';
+import { API_CONFIG } from '../../../config/api';
 
 /**
  * SQL履歴API通信のクラス
@@ -16,7 +17,7 @@ export const sqlHistoryApi = {
    */
   async getSqlHistory(): Promise<SqlHistoryResponse> {
     try {
-      const response = await fetch('/api/v1/users/history', {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/users/history`, {
         method: 'GET',
         credentials: 'include', // Cookie認証のために必須
         headers: {

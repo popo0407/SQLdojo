@@ -6,7 +6,21 @@ import { ParameterContainer } from '../../features/parameters/ParameterContainer
 import styles from '../../styles/Layout.module.css';
 
 const Sidebar: React.FC = () => {
-  const { data: schemas, isLoading, isError, error } = useMetadata();
+  // MetadataProviderが存在しない場合のフォールバック
+  let schemas, loading, error;
+  
+  try {
+    const metadataState = useMetadata();
+    schemas = metadataState.data;
+    loading = metadataState.loading;
+    error = metadataState.error;
+  } catch (metadataError: unknown) {
+    console.warn('MetadataProvider not found, using fallback state', metadataError);
+    schemas = [];
+    loading = false;
+    error = null;
+  }
+  
   const applySelectionToEditor = useEditorStore((state) => state.applySelectionToEditor);
 
   const handleApplySelection = () => {
@@ -14,7 +28,7 @@ const Sidebar: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (isLoading) {
+    if (loading) {
       return (
         <div className="text-center text-muted p-2">
           <div className="spinner-border spinner-border-sm" role="status">
@@ -25,10 +39,10 @@ const Sidebar: React.FC = () => {
       );
     }
 
-    if (isError) {
+    if (error) {
       return (
         <div className="alert alert-danger p-2">
-          <small>DB情報の取得に失敗しました。<br />{error.message}</small>
+          <small>DB情報の取得に失敗しました。<br />{error}</small>
         </div>
       );
     }

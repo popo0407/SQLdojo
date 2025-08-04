@@ -2,7 +2,7 @@
 export type * from './types/template';
 
 // Context と Provider
-export { TemplateContext } from './stores/templateContext';
+export { TemplateContext } from './stores/TemplateProvider';
 export type { TemplateContextValue } from './stores/templateContext';
 export { TemplateProvider } from './stores/TemplateProvider';
 

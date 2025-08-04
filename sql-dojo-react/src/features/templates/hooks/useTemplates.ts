@@ -19,22 +19,18 @@ export const useTemplates = () => {
   const initializeTemplates = useCallback(async () => {
     // 既に初期化済みの場合はスキップ
     if (state.isInitialized) {
-      console.log('initializeTemplates: 既に初期化済みのためスキップ');
       return;
     }
     
     // 初期化中の場合はスキップ（React StrictMode対策）
     if (initializingRef.current) {
-      console.log('initializeTemplates: 初期化中のためスキップ');
       return;
     }
     
     initializingRef.current = true;
-    console.log('initializeTemplates: 初期化開始');
     
     try {
       await actions.loadTemplatePreferences(); // これだけですべてのデータを取得
-      console.log('initializeTemplates: 初期化完了');
     } catch (error) {
       console.error('テンプレート初期化エラー:', error);
     } finally {

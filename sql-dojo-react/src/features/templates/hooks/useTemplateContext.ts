@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { TemplateContext } from '../stores/templateContext';
+import { TemplateContext } from '../stores/TemplateProvider';
 import type { TemplateContextValue } from '../stores/templateContext';
 
 /**

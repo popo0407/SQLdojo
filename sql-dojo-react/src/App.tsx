@@ -6,9 +6,11 @@ import LoginPage from './pages/LoginPage';
 import TemplateManagementPage from './pages/TemplateManagementPage';
 import SqlLogPage from './pages/SqlLogPage';
 import { AuthProvider } from './contexts/AuthContext';
+import { MetadataProvider } from './contexts/MetadataContext';
 import PrivateRoute from './components/auth/PrivateRoute';
 import MainLayout from './components/layout/MainLayout';
 import { TemplateProvider } from './features/templates/stores/TemplateProvider';
+import { PageErrorBoundary } from './components/common/ErrorBoundary';
 
 function App() {
   const location = useLocation();
@@ -26,19 +28,21 @@ function App() {
   );
 
   return (
-    <AuthProvider>
-      <TemplateProvider>
-        {isLoginPage ? (
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-          </Routes>
-        ) : (
-          <MainLayout>
-            {AppContent}
-          </MainLayout>
-        )}
-      </TemplateProvider>
-    </AuthProvider>
+    <PageErrorBoundary>
+      <AuthProvider>
+        <MetadataProvider>
+          <TemplateProvider>
+            {isLoginPage ? (
+              AppContent
+            ) : (
+              <MainLayout>
+                {AppContent}
+              </MainLayout>
+            )}
+          </TemplateProvider>
+        </MetadataProvider>
+      </AuthProvider>
+    </PageErrorBoundary>
   );
 }
 

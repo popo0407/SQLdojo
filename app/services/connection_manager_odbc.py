@@ -51,7 +51,7 @@ class ConnectionManagerODBC:
             else:
                 self.logger.info("Snowflake ODBCドライバーが見つかりました: %s", snowflake_drivers)
         except Exception as e:
-            self.logger.error("ODBCドライバーの確認中にエラー: %s", e)
+            self.logger.error(f"ODBCドライバーの確認中にエラー: {e}")
     
     def _start_monitoring(self):
         """接続プールの監視を開始"""

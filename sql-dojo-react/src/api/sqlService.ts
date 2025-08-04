@@ -1,15 +1,11 @@
 import type { ExecuteSqlResponse, CacheReadResponse, SqlCompletionResult } from '../types/api';
 import type { FilterConfig } from '../types/common';
 import { apiClient } from './apiClient';
+import { API_CONFIG } from '../config/api';
 
 // SQL実行API
 export const executeSqlOnCache = async ({ sql }: { sql: string }): Promise<ExecuteSqlResponse> => {
-  const response = await fetch('/api/v1/sql/cache/execute', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sql }),
-  });
-  return response.json();
+  return apiClient.post<ExecuteSqlResponse>('/sql/cache/execute', { sql });
 };
 
 // SQLキャッシュ読み込みAPI
@@ -28,7 +24,7 @@ export const readSqlCache = async ({
   sort_by?: string;
   sort_order?: 'ASC' | 'DESC';
 }): Promise<CacheReadResponse> => {
-  const response = await fetch('/api/v1/sql/cache/read', {
+  const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/read`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ session_id, page, page_size, filters, sort_by, sort_order }),
@@ -48,7 +44,7 @@ export const downloadCsvFromCache = async ({
   sort_by?: string;
   sort_order?: string;
 }): Promise<Blob> => {
-  const response = await fetch('/api/v1/sql/cache/download/csv', {
+  const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/download/csv`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ session_id, filters, sort_by, sort_order }),
@@ -58,7 +54,7 @@ export const downloadCsvFromCache = async ({
 
 // SQL整形API
 export const formatSql = async ({ sql }: { sql: string }): Promise<string> => {
-  const response = await fetch('/api/v1/sql/format', {
+  const response = await fetch(`${API_CONFIG.BASE_URL}/sql/format`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ sql }),

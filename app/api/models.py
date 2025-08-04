@@ -20,6 +20,20 @@ class UserLoginRequest(BaseModel):
 class UserInfo(BaseModel):
     user_id: str
     user_name: str
+    role: Optional[str] = Field(default=None, description="ユーザーロールID")
+
+
+class BusinessUserListResponse(BaseModel):
+    """業務システムユーザー一覧レスポンス"""
+    users: List[UserInfo] = Field(description="ユーザー一覧")
+    total_count: int = Field(description="総件数")
+
+
+class BusinessUserRefreshResponse(BaseModel):
+    """業務システムユーザー情報更新レスポンス"""
+    success: bool = Field(description="更新成功フラグ")
+    updated_count: int = Field(description="更新されたユーザー数")
+    message: str = Field(description="メッセージ")
 
 
 class SQLRequest(BaseModel):
@@ -201,23 +215,6 @@ class ExportResponse(BaseModel):
 class ExportHistoryResponse(BaseModel):
     """エクスポート履歴レスポンス"""
     history: List[Dict[str, Any]] = Field(description="エクスポート履歴")
-
-
-class WarehouseInfo(BaseModel):
-    """ウェアハウス情報"""
-    name: str = Field(description="ウェアハウス名")
-    size: str = Field(description="サイズ")
-    type: str = Field(description="タイプ")
-    running: int = Field(description="実行中クエリ数")
-    queued: int = Field(description="待機中クエリ数")
-    is_default: bool = Field(description="デフォルトウェアハウスかどうか")
-    is_current: bool = Field(description="現在のウェアハウスかどうか")
-
-
-class DatabaseInfo(BaseModel):
-    """データベース情報"""
-    name: str = Field(description="データベース名")
-    created_on: str = Field(description="作成日時")
     owner: str = Field(description="所有者")
     comment: str = Field(description="コメント")
     is_default: bool = Field(description="デフォルトデータベースかどうか")

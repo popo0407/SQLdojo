@@ -39,9 +39,10 @@ export const SqlHistoryRow: React.FC<SqlHistoryRowProps> = ({
 
   const handlePopoverToggle = () => {
     // テンプレート機能のAdminTemplateList.tsxと完全に同じ呼び出し方式
-    // setShowPopover(template.template_id) と同じパターン
-    // 開閉ロジックは外クリック処理に任せる
-    onTogglePopover(uniqueId);
+    // setShowPopover(template.template_id)の代わりにonTogglePopover(uniqueId)で直接ID設定
+    // 外クリック処理がnullに戻す役割を担う
+    const newShowId = showPopover === uniqueId ? null : uniqueId;
+    onTogglePopover(newShowId);
   };
 
   return (

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { ComponentErrorBoundary } from '../../../components/common/ErrorBoundary';
 import type { TemplateDropdownProps, TemplateDropdownItem } from '../types/template';
 
 /**
@@ -210,3 +211,10 @@ export const TemplateDropdown: React.FC<TemplateDropdownProps> = ({
     </div>
   );
 };
+
+// エラーバウンダリでラップしたコンポーネントをエクスポート
+export const TemplateDropdownWithErrorBoundary: React.FC<TemplateDropdownProps> = (props) => (
+  <ComponentErrorBoundary name="テンプレートドロップダウン">
+    <TemplateDropdown {...props} />
+  </ComponentErrorBoundary>
+);

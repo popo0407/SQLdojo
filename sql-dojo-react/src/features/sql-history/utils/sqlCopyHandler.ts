@@ -13,7 +13,6 @@ import { useEditorStore } from '../../../stores/useEditorStore';
 export const copyToEditor = (sql: string): void => {
   try {
     if (!sql) {
-      console.warn('コピーするSQLが空です');
       return;
     }
     
@@ -23,9 +22,6 @@ export const copyToEditor = (sql: string): void => {
     
     // バックアップとしてlocalStorageにも保存（ページリロード対応）
     localStorage.setItem('sqlToCopy', sql);
-    
-    // 成功フィードバック（UI要求に応じて調整）
-    console.log('SQLをエディタにコピーしました');
     
   } catch (error) {
     console.error('SQLのコピーに失敗:', error);

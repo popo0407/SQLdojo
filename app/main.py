@@ -60,14 +60,20 @@ register_exception_handlers(app)
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],  # 明示的にフロントエンドのURLを指定
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # セッション管理ミドルウェア
-app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+app.add_middleware(
+    SessionMiddleware, 
+    secret_key=SECRET_KEY,
+    same_site="none",  # クロスオリジンに対応
+    https_only=False,  # HTTPでも動作するように設定（開発環境用）
+    max_age=24*60*60   # 24時間
+)
 
 # リクエスト処理時間を記録するミドルウェア
 @app.middleware("http")

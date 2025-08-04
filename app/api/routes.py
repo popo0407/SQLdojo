@@ -25,7 +25,7 @@ from app.api.models import (
     TableDetailInfo, SchemaListResponse, TableListResponse, DownloadRequest,
     DownloadResponse, DownloadStatusResponse, HealthCheckResponse,
     PerformanceMetricsResponse, ExportRequest, ExportResponse, ExportHistoryResponse,
-    WarehouseInfo, DatabaseInfo, ConnectionStatusResponse, UserLoginRequest, UserInfo,
+    ConnectionStatusResponse, UserLoginRequest, UserInfo, BusinessUserListResponse, BusinessUserRefreshResponse,
     TemplateRequest, TemplateResponse, PartRequest, PartResponse, UserRefreshResponse, AdminLoginRequest,
     SQLExecutionLog, SQLExecutionLogResponse, SaveVisibilitySettingsRequest,
     UserTemplatePreferencesResponse, UserPartPreferencesResponse,
@@ -226,11 +226,17 @@ async def format_sql_endpoint(
 @router.post("/login")
 async def login(request: Request, login_req: UserLoginRequest, user_service: UserServiceDep):
     """ユーザー認証"""
+    logger.info(f"ログイン要求: {login_req.user_id}")
+    
     user = await run_in_threadpool(user_service.authenticate_user, login_req.user_id)
     if user:
         request.session["user"] = user
+        logger.info(f"ログイン成功: {user['user_id']}, セッションキー: {list(request.session.keys())}")
+        
+        # SessionMiddlewareに完全に任せる
         return {"message": "ログイン成功", "user": user}
     else:
+        logger.warning(f"ログイン失敗: {login_req.user_id}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="ユーザーIDが無効です")
 
 # キャッシュクリア用のヘルパー関数を定義
@@ -265,6 +271,16 @@ async def logout(request: Request):
 async def get_current_user_info(current_user: CurrentUserDep):
     """認証済みユーザーの情報を取得"""
     return current_user
+
+@router.get("/debug/session")
+async def debug_session(request: Request):
+    """デバッグ: セッション情報を確認"""
+    session_data = dict(request.session)
+    return {
+        "session_keys": list(request.session.keys()),
+        "session_data": session_data,
+        "has_user": "user" in request.session
+    }
 
 
 # 管理者認証API
@@ -855,7 +871,7 @@ async def execute_sql_with_cache_endpoint(
     background_tasks: BackgroundTasks
 ):
     """キャッシュ機能付きSQL実行エンドポイント"""
-    logger.info(f"キャッシュSQL実行要求, sql={request.sql}, limit={request.limit}")
+    logger.info(f"キャッシュSQL実行要求, sql={request.sql}, limit={request.limit}, user_id={current_user['user_id']}")
 
     if not request.sql:
         raise SQLExecutionError("SQLクエリが無効です")
@@ -1320,3 +1336,37 @@ async def get_cache_unique_values(
     except Exception as e:
         logger.error(f"キャッシュユニーク値取得エラー: {e}")
         raise HTTPException(status_code=500, detail=f"ユニーク値の取得に失敗しました: {str(e)}")
+
+
+# 業務システムユーザー管理エンドポイント
+@router.get("/admin/business-users", response_model=BusinessUserListResponse)
+async def get_business_users(current_admin: CurrentAdminDep, user_service: UserServiceDep):
+    """業務システムユーザー一覧を取得（管理者専用）"""
+    try:
+        users = await run_in_threadpool(user_service.get_all_users)
+        return BusinessUserListResponse(
+            users=[UserInfo(user_id=user["user_id"], user_name=user["user_name"], role=user.get("role")) for user in users],
+            total_count=len(users)
+        )
+    except Exception as e:
+        logger.error(f"業務システムユーザー一覧取得エラー: {e}")
+        raise HTTPException(status_code=500, detail=f"ユーザー一覧の取得に失敗しました: {str(e)}")
+
+
+@router.post("/admin/business-users/refresh", response_model=BusinessUserRefreshResponse)
+async def refresh_business_users(current_admin: CurrentAdminDep, user_service: UserServiceDep):
+    """業務システムユーザー情報を更新（管理者専用）"""
+    try:
+        updated_count = await run_in_threadpool(user_service.refresh_users_from_db)
+        return BusinessUserRefreshResponse(
+            success=True,
+            updated_count=updated_count,
+            message=f"業務システムユーザー情報を更新しました。更新件数: {updated_count}"
+        )
+    except Exception as e:
+        logger.error(f"業務システムユーザー情報更新エラー: {e}")
+        return BusinessUserRefreshResponse(
+            success=False,
+            updated_count=0,
+            message=f"ユーザー情報の更新に失敗しました: {str(e)}"
+        )

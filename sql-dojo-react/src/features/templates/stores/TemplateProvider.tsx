@@ -4,6 +4,10 @@ import type { Template, TemplateWithPreferences } from '../types/template';
 import { templateReducer, initialTemplateState } from './templateReducer';
 import { TemplateContext } from './templateContext';
 import type { TemplateContextValue } from './templateContext';
+import { TemplateErrorBoundary } from '../../../components/common/ErrorBoundary';
+
+// re-export TemplateContext for external use
+export { TemplateContext } from './templateContext';
 
 /**
  * テンプレートコンテキストプロバイダーのprops
@@ -83,20 +87,14 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
    */
   const loadAdminTemplates = useCallback(async () => {
     try {
-      console.log('[PROVIDER] 管理者テンプレート読み込み開始');
       dispatch({ type: 'SET_LOADING', payload: true });
       const data = await fetchWithAuth('/admin/templates');
-      console.log('[PROVIDER] loadAdminTemplates API response:', data);
-      console.log('[PROVIDER] data.templates:', data.templates);
-      console.log('[PROVIDER] Array.isArray(data):', Array.isArray(data));
       
       // APIレスポンスが配列で直接返される場合とtemplatesプロパティで返される場合の両方に対応
       const templates = Array.isArray(data) ? data : (data.templates || []);
-      console.log('[PROVIDER] 最終的に設定するtemplates:', templates);
       
       dispatch({ type: 'SET_ADMIN_TEMPLATES', payload: templates });
     } catch (error) {
-      console.error('[PROVIDER] 管理者テンプレート読み込みエラー:', error);
       const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの読み込みに失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     } finally {
@@ -242,14 +240,11 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      console.log('Template Update - ID:', template.template_id, 'Name:', template.name);
-      
       const requestBody = { 
         name: template.name, 
         sql: template.sql,
         display_order: template.display_order
       };
-      console.log('Update Request Body:', requestBody);
       
       // 編集時は現在の表示順序を保持するため、display_orderも送信
       const data = await fetchWithAuth(`/users/templates/${template.template_id}`, {
@@ -264,7 +259,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       // 設定データも更新
       await loadTemplatePreferences();
     } catch (error) {
-      console.error('テンプレート更新エラー:', error);
       const errorMessage = error instanceof Error ? error.message : 'テンプレートの更新に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
@@ -303,17 +297,12 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     try {
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: true });
       
-      const preferences = state.templatePreferences.map(template => {
-        // TemplateWithPreferencesの場合typeフィールドがある
-        const templateType = 'type' in template ? (template as TemplateWithPreferences).type : 'user';
-        
-        return {
-          template_id: template.template_id,
-          template_type: templateType,
-          display_order: template.display_order,
-          is_visible: template.is_visible,
-        };
-      });
+      const preferences = state.templatePreferences.map(template => ({
+        template_id: template.template_id,
+        template_type: template.type, // 直接typeを使用
+        display_order: template.display_order,
+        is_visible: template.is_visible,
+      }));
 
       await fetchWithAuth('/users/template-preferences', {
         method: 'PUT',
@@ -322,7 +311,8 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       
       dispatch({ type: 'SET_UNSAVED_CHANGES', payload: false });
       
-      // 設定は既にtemplatePreferencesに反映されているので、再読み込み不要
+      // 保存後にデータを再読み込みして同期を確保
+      await loadTemplatePreferences();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'テンプレート設定の保存に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
@@ -330,7 +320,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     } finally {
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: false });
     }
-  }, [fetchWithAuth, state.templatePreferences]);
+  }, [fetchWithAuth, state.templatePreferences, loadTemplatePreferences]);
 
   /**
    * 初期化統一メソッド
@@ -427,8 +417,10 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
   }), [state, dispatch, actions]);
 
   return (
-    <TemplateContext.Provider value={contextValue}>
-      {children}
-    </TemplateContext.Provider>
+    <TemplateErrorBoundary>
+      <TemplateContext.Provider value={contextValue}>
+        {children}
+      </TemplateContext.Provider>
+    </TemplateErrorBoundary>
   );
 };

@@ -190,9 +190,19 @@ def get_hybrid_sql_service_di(
 # 認証チェックの依存性注入
 def get_current_user(request: Request):
     """現在のユーザーを取得（認証チェック付き）"""
+    logger = get_logger("dependencies")
+    
+    # リクエスト情報をログに出力
+    headers = dict(request.headers)
+    cookie_header = headers.get('cookie', 'なし')
+    logger.info(f"認証チェック開始 - session keys: {list(request.session.keys())}, Cookie: {cookie_header[:100]}...")
+    
     user = request.session.get("user")
     if not user:
+        logger.warning("セッションにユーザー情報が見つかりません")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="未ログインです")
+    
+    logger.info(f"認証成功 - user_id: {user.get('user_id')}")
     if 'role' not in user:
         user['role'] = 'DEFAULT' # 古いセッションの場合のフォールバック
     return user

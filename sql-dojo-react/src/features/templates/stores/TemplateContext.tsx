@@ -24,12 +24,6 @@ export interface TemplateContextValue {
     loadDropdownTemplates: () => Promise<void>;
     loadTemplatePreferences: () => Promise<void>;
     
-    // データ読み込み
-    loadUserTemplates: () => Promise<void>;
-    loadAdminTemplates: () => Promise<void>;
-    loadDropdownTemplates: () => Promise<void>;
-    loadTemplatePreferences: () => Promise<void>;
-    
     // テンプレート操作
     saveUserTemplate: (name: string, sql: string) => Promise<void>;
     updateUserTemplate: (template: Template) => Promise<void>;
@@ -135,7 +129,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const data = await fetchWithAuth('/templates');
-      console.log('loadUserTemplates API response:', data);
       dispatch({ type: 'SET_USER_TEMPLATES', payload: data || [] });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'ユーザーテンプレートの読み込みに失敗しました';
@@ -149,30 +142,14 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
    * 管理者テンプレート一覧を読み込み
    */
   const loadAdminTemplates = useCallback(async () => {
-    console.log('[CONTEXT] === loadAdminTemplates開始 ===');
     try {
-      console.log('[CONTEXT] dispatch SET_LOADING true');
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      console.log('[CONTEXT] fetchWithAuth呼び出し開始: /admin/templates');
       const data = await fetchWithAuth('/admin/templates');
-      console.log('[CONTEXT] fetchWithAuth完了');
-      console.log('[CONTEXT] APIレスポンス全体:', data);
-      console.log('[CONTEXT] data.templates:', data.templates);
-      console.log('[CONTEXT] typeof data:', typeof data);
-      console.log('[CONTEXT] Array.isArray(data):', Array.isArray(data));
-      console.log('[CONTEXT] Array.isArray(data.templates):', Array.isArray(data.templates));
       
       const templates = data.templates || data || [];
-      console.log('[CONTEXT] 最終的に設定するtemplates:', templates);
-      console.log('[CONTEXT] dispatch SET_ADMIN_TEMPLATES');
       dispatch({ type: 'SET_ADMIN_TEMPLATES', payload: templates });
-      console.log('[CONTEXT] dispatch完了');
     } catch (error) {
-      console.error('[CONTEXT] === エラー発生 ===');
-      console.error('[CONTEXT] エラー詳細:', error);
-      console.error('[CONTEXT] エラーメッセージ:', error.message);
-      console.error('[CONTEXT] エラースタック:', error.stack);
       const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの読み込みに失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     } finally {
@@ -406,27 +383,32 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       
       const preferences = state.templatePreferences.map(template => ({
         template_id: template.template_id,
+        template_type: template.type, // 直接typeを使用
         display_order: template.display_order,
         is_visible: template.is_visible,
       }));
+
+      console.log('保存データ:', preferences); // デバッグログ
 
       await fetchWithAuth('/users/template-preferences', {
         method: 'PUT',
         body: JSON.stringify({ preferences }),
       });
       
+      console.log('保存成功'); // デバッグログ
       dispatch({ type: 'SET_UNSAVED_CHANGES', payload: false });
       
-      // 設定は既にtemplatePreferencesに反映されているので、再読み込み不要
-      dispatch({ type: 'SET_UNSAVED_CHANGES', payload: false });
+      // 保存後にデータを再読み込みして同期を確保
+      await loadTemplatePreferences();
     } catch (error) {
+      console.error('保存エラー:', error); // デバッグログ
       const errorMessage = error instanceof Error ? error.message : 'テンプレート設定の保存に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     } finally {
       dispatch({ type: 'SET_LOADING_PREFERENCES', payload: false });
     }
-  }, [fetchWithAuth, state.templatePreferences]);
+  }, [fetchWithAuth, state.templatePreferences, loadTemplatePreferences]);
 
   /**
    * 設定をリセット（最後に保存した状態に戻す）

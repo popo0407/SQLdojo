@@ -1,6 +1,6 @@
 /**
- * SQLツールチップコンポーネント
- * テンプレート機能と同じポップオーバーでSQL全文を表示
+ * SQLツールチップコンプーネント
+ * テンプレート機能と完全同一の実装でSQL全文を表示
  */
 
 import React from 'react';
@@ -11,7 +11,7 @@ import type { SqlTooltipProps } from '../types/sqlHistory';
 
 /**
  * SQLツールチップコンポーネント
- * クリックでSQL全文をポップオーバーで表示（テンプレート機能と完全一致）
+ * クリックでSQL全文をポップオーバーで表示（AdminTemplateList.tsxと完全一致）
  */
 export const SqlTooltip: React.FC<SqlTooltipProps> = ({ 
   sql, 
@@ -26,8 +26,8 @@ export const SqlTooltip: React.FC<SqlTooltipProps> = ({
     return <>{children}</>;
   }
 
-  // SQL内容のプレビューポップオーバー（テンプレート機能と完全同一）
-  const renderSqlPopover = (sql: string) => (
+  // SQL内容のプレビューポップオーバー（AdminTemplateList.tsxと完全同一）
+  const renderSqlTooltip = (sql: string) => (
     <Popover id={`sql-popover-${id}`} style={{ maxWidth: 'none' }}>
       <Popover.Header as="h6" className="d-flex justify-content-between align-items-center">
         SQL内容 
@@ -125,12 +125,12 @@ export const SqlTooltip: React.FC<SqlTooltipProps> = ({
         </small>
       </div>
       
-      {/* ポップオーバートリガーボタン（テンプレート機能と完全一致） */}
+      {/* ポップオーバートリガーボタン（AdminTemplateList.tsxと完全一致） */}
       {sql.length > 0 && (
         <OverlayTrigger
           placement="auto"
           show={show}
-          overlay={renderSqlPopover(sql)}
+          overlay={renderSqlTooltip(sql)}
         >
           <Button 
             variant="link" 

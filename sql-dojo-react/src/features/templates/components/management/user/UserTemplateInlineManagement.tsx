@@ -12,6 +12,7 @@ import {
   faSave,
   faUndo
 } from '@fortawesome/free-solid-svg-icons';
+import { ComponentErrorBoundary } from '../../../../../components/common/ErrorBoundary';
 
 import type { TemplateWithPreferences } from '../../../types/template';
 
@@ -187,7 +188,20 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
         is_visible: localVisibility[template.template_id] ?? template.is_visible // ローカルの表示状態を反映
       }));
       
+      console.log('UserTemplateInlineManagement: 保存実行', {
+        hasChanges,
+        localTemplatesLength: localTemplates.length,
+        updatedTemplates: updatedTemplates.map(t => ({
+          id: t.template_id,
+          name: t.name,
+          display_order: t.display_order,
+          is_visible: t.is_visible
+        }))
+      });
+      
       await onUpdatePreferences(updatedTemplates);
+      
+      console.log('UserTemplateInlineManagement: 保存完了');
       
       // 保存成功時にローカル状態を更新された状態に合わせる
       setLocalTemplates(updatedTemplates);
@@ -491,3 +505,10 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
     </Card>
   );
 };
+
+// エラーバウンダリでラップしたコンポーネントをエクスポート
+export const UserTemplateInlineManagementWithErrorBoundary: React.FC<UserTemplateInlineManagementProps> = (props) => (
+  <ComponentErrorBoundary name="テンプレート一覧管理">
+    <UserTemplateInlineManagement {...props} />
+  </ComponentErrorBoundary>
+);
