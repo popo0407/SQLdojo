@@ -3,21 +3,47 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
-import { globalIgnores } from 'eslint/config'
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  { ignores: ['dist'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
-    extends: [
-      js.configs.recommended,
-      tseslint.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-    ],
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true, allowExportNames: ['useMetadataContext'] },
+      ],
+      'no-useless-catch': 'error',
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+    },
+  },
+  // Jest/Vitest モックファイル用の設定
+  {
+    files: ['**/__mocks__/**/*.js', '**/*.mock.js', '**/*.test.{js,ts,tsx}', '**/*.spec.{js,ts,tsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+        ...globals.node,
+        module: 'readonly',
+        exports: 'readonly',
+        require: 'readonly',
+        jest: 'readonly',
+        vi: 'readonly',
+        vitest: 'readonly',
+      },
+    },
+    rules: {
+      'no-undef': 'off', // モックファイルでは undefined チェックを緩和
     },
   },
 ])

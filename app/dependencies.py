@@ -211,10 +211,31 @@ def get_current_user(request: Request):
 # 管理者認証チェックの依存性注入
 def get_current_admin(request: Request):
     """現在の管理者を取得（管理者認証チェック付き）"""
-    # 管理者認証をチェック
-    is_admin = request.session.get("is_admin")
-    if not is_admin:
+    # デバッグ用：セッション情報をログ出力
+    print(f"Session data: {request.session}")
+    print(f"Session keys: {list(request.session.keys())}")
+    
+    # まず基本的なユーザー認証をチェック
+    user = request.session.get("user")
+    if not user:
+        print("ユーザー認証なし")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="ログインが必要です")
+    
+    # ユーザーのロールをチェック
+    user_role = user.get('role', 'DEFAULT')
+    print(f"User role: {user_role}")
+    
+    # 管理者ロールまたは管理者フラグをチェック
+    is_admin_by_role = user_role == 'admin'
+    is_admin_by_flag = request.session.get("is_admin", False)
+    
+    print(f"Admin by role: {is_admin_by_role}, Admin by flag: {is_admin_by_flag}")
+    
+    if not (is_admin_by_role or is_admin_by_flag):
+        print("管理者権限チェック失敗")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="管理者権限が必要です")
+    
+    print("管理者権限チェック成功")
     return True
 
 

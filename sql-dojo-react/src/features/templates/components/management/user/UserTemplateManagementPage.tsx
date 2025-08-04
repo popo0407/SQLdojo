@@ -185,47 +185,43 @@ export const UserTemplateManagementPage: React.FC = () => {
                 onDelete={handleDeleteTemplate}
                 onHasChangesChange={handleHasChangesChange}
                 onUpdatePreferences={async (updatedTemplates: TemplateWithPreferences[]) => {
-                  try {
-                    // 【修正】状態を更新してから保存するのではなく、更新されたデータを直接使用
-                    // 更新されたテンプレート状態をTemplateProviderに反映
-                    actions.setTemplatePreferences(updatedTemplates);
-                    
-                    // 直接updatedTemplatesを使ってAPI呼び出し用のデータを作成
-                    const preferences = updatedTemplates.map(template => ({
-                      template_id: template.template_id,
-                      template_type: template.type,
-                      display_order: template.display_order,
-                      is_visible: template.is_visible,
-                    }));
+                  // 【修正】状態を更新してから保存するのではなく、更新されたデータを直接使用
+                  // 更新されたテンプレート状態をTemplateProviderに反映
+                  actions.setTemplatePreferences(updatedTemplates);
+                  
+                  // 直接updatedTemplatesを使ってAPI呼び出し用のデータを作成
+                  const preferences = updatedTemplates.map(template => ({
+                    template_id: template.template_id,
+                    template_type: template.type,
+                    display_order: template.display_order,
+                    is_visible: template.is_visible,
+                  }));
 
-                    // 直接API呼び出し（状態更新を待たない）
-                    const token = localStorage.getItem('token');
-                    const response = await fetch('http://localhost:8001/api/v1/users/template-preferences', {
-                      method: 'PUT',
-                      credentials: 'include',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        ...(token && { 'Authorization': `Bearer ${token}` }),
-                      },
-                      body: JSON.stringify({ preferences }),
-                    });
+                  // 直接API呼び出し（状態更新を待たない）
+                  const token = localStorage.getItem('token');
+                  const response = await fetch('http://localhost:8001/api/v1/users/template-preferences', {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      ...(token && { 'Authorization': `Bearer ${token}` }),
+                    },
+                    body: JSON.stringify({ preferences }),
+                  });
 
-                    if (!response.ok) {
-                      const errorData = await response.json().catch(() => ({}));
-                      throw new Error(errorData.message || `API Error: ${response.statusText}`);
-                    }
-
-                    
-                    // 保存成功後にデータを明示的に再読み込み
-                    await actions.loadTemplatePreferences();
-                    
-                    setSaveMessage('表示設定を保存しました');
-                    setTimeout(() => setSaveMessage(''), 3000);
-                    // 保存成功時に未保存変更フラグをリセット
-                    setHasUnsavedChanges(false);
-                  } catch (error) {
-                    throw error; // エラーを再throw して UserTemplateInlineManagement でもキャッチできるように
+                  if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `API Error: ${response.statusText}`);
                   }
+
+                  
+                  // 保存成功後にデータを明示的に再読み込み
+                  await actions.loadTemplatePreferences();
+                  
+                  setSaveMessage('表示設定を保存しました');
+                  setTimeout(() => setSaveMessage(''), 3000);
+                  // 保存成功時に未保存変更フラグをリセット
+                  setHasUnsavedChanges(false);
                 }}
                 isLoading={state.isLoading || state.isLoadingPreferences}
               />
