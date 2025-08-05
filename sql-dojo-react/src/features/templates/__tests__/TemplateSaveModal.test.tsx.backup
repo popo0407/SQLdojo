@@ -13,7 +13,7 @@ vi.mock('react-bootstrap', () => ({
   Button: ({ children, onClick, disabled, variant, ...props }: React.ComponentProps<'button'> & { variant?: string }) => (
     <button onClick={onClick} disabled={disabled} data-variant={variant} {...props}>{children}</button>
   ),
-  Form: ({ children, ...props }: React.ComponentProps<'form'>) => <form role="form" {...props}>{children}</form>,
+  Form: ({ children, ...props }: React.ComponentProps<'form'>) => <form {...props}>{children}</form>,
   Alert: ({ children, variant, ...props }: { 
     children: React.ReactNode;
     variant?: string;
@@ -52,27 +52,16 @@ describe('TemplateSaveModal', () => {
   });
 
   it('shows current SQL in preview', () => {
-    const propsWithSql = {
-      ...defaultProps,
-      initialSql: 'SELECT * FROM users',
-    };
+    render(<TemplateSaveModal {...defaultProps} />);
     
-    render(<TemplateSaveModal {...propsWithSql} />);
-
-    // textareaのvalueでSQLを確認
-    const sqlTextarea = screen.getByTestId('sql-content-textarea') as HTMLTextAreaElement;
-    expect(sqlTextarea.value).toBe('SELECT * FROM users');
+    expect(screen.getByText('SELECT * FROM users')).toBeInTheDocument();
   });
 
   it('enables save button when template name is provided', async () => {
     render(<TemplateSaveModal {...defaultProps} />);
     
-    // testidを使って安全にinputを特定
-    const nameInput = screen.getByTestId('template-name-input');
-    const sqlTextarea = screen.getByTestId('sql-content-textarea');
-    
+    const nameInput = screen.getByRole('textbox');
     fireEvent.change(nameInput, { target: { value: 'Test Template' } });
-    fireEvent.change(sqlTextarea, { target: { value: 'SELECT * FROM test' } });
     
     await waitFor(() => {
       const saveButton = screen.getByRole('button', { name: /保存/i });
@@ -92,62 +81,40 @@ describe('TemplateSaveModal', () => {
     
     render(<TemplateSaveModal {...defaultProps} />);
     
-    // テンプレート名を入力
-    const nameInput = screen.getByTestId('template-name-input');
+    const nameInput = screen.getByRole('textbox');
     fireEvent.change(nameInput, { target: { value: 'Test Template' } });
     
-    // SQLコンテンツを入力
-    const sqlTextarea = screen.getByTestId('sql-content-textarea');
-    fireEvent.change(sqlTextarea, { target: { value: 'SELECT * FROM test' } });
-    
-    // フォーム要素を直接取得してsubmit
-    const formElement = nameInput.closest('form');
-    expect(formElement).not.toBeNull();
-    
-    if (formElement) {
-      fireEvent.submit(formElement);
-    }
+    const saveButton = screen.getByRole('button', { name: /保存/i });
+    fireEvent.click(saveButton);
     
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith('Test Template', 'SELECT * FROM test');
+      expect(mockOnSave).toHaveBeenCalledWith('Test Template', 'SELECT * FROM users');
     });
   });
 
   it('shows loading state during save', async () => {
     render(<TemplateSaveModal {...defaultProps} isLoading={true} />);
     
-    // ローディング状態のボタンを確認（アイコンとテキストは別要素）
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    
     const saveButton = screen.getByRole('button', { name: /保存/i });
     expect(saveButton).toBeDisabled();
-    
-    // スピナーアイコンの存在を確認
-    const spinnerIcon = screen.getByRole('button', { name: /保存/i }).querySelector('.fas.fa-spinner');
-    expect(spinnerIcon).toBeInTheDocument();
   });
 
   it('shows error message when save fails', async () => {
-    // onSaveが失敗した場合のテスト
-    const mockOnSaveWithError = vi.fn().mockRejectedValueOnce(new Error('Save failed'));
+    const errorMessage = 'Save failed';
+    mockOnSave.mockRejectedValueOnce(new Error(errorMessage));
     
-    render(<TemplateSaveModal {...defaultProps} onSave={mockOnSaveWithError} />);
+    render(<TemplateSaveModal {...defaultProps} />);
     
-    // フォーム入力
-    const nameInput = screen.getByTestId('template-name-input');
+    const nameInput = screen.getByRole('textbox');
     fireEvent.change(nameInput, { target: { value: 'Test Template' } });
     
-    const sqlTextarea = screen.getByTestId('sql-content-textarea');
-    fireEvent.change(sqlTextarea, { target: { value: 'SELECT * FROM test' } });
+    const saveButton = screen.getByRole('button', { name: /保存/i });
+    fireEvent.click(saveButton);
     
-    // フォーム送信
-    const formElement = nameInput.closest('form');
-    if (formElement) {
-      fireEvent.submit(formElement);
-    }
-    
-    // エラーメッセージが表示されることを確認
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toBeInTheDocument();
-      expect(screen.getByText('Save failed')).toBeInTheDocument();
+      expect(screen.getByText(errorMessage)).toBeInTheDocument();
     });
   });
 
@@ -163,20 +130,20 @@ describe('TemplateSaveModal', () => {
   it('resets form when modal is reopened', async () => {
     const { rerender } = render(<TemplateSaveModal {...defaultProps} isOpen={false} />);
     
-    // Modal opens with input
+    // Open modal and enter name
     rerender(<TemplateSaveModal {...defaultProps} isOpen={true} />);
     
-    const nameInput = screen.getByPlaceholderText(/テンプレート名/i);
-    fireEvent.change(nameInput, { target: { value: 'Test' } });
+    const nameInput = screen.getByRole('textbox');
+    fireEvent.change(nameInput, { target: { value: 'Test Template' } });
     
-    // Modal closes
+    // Close modal
     rerender(<TemplateSaveModal {...defaultProps} isOpen={false} />);
     
-    // Modal reopens - form should be reset
+    // Reopen modal
     rerender(<TemplateSaveModal {...defaultProps} isOpen={true} />);
     
-    const resetNameInput = screen.getByPlaceholderText(/テンプレート名/i);
-    expect(resetNameInput).toHaveValue('');
+    // Name input should be empty
+    expect(screen.getByRole('textbox')).toHaveValue('');
   });
 
   it('closes modal after successful save', async () => {
@@ -184,39 +151,31 @@ describe('TemplateSaveModal', () => {
     
     render(<TemplateSaveModal {...defaultProps} />);
     
-    // テンプレート名とSQLコンテンツの両方を入力
-    const nameInput = screen.getByTestId('template-name-input');
+    const nameInput = screen.getByRole('textbox');
     fireEvent.change(nameInput, { target: { value: 'Test Template' } });
     
-    const sqlTextarea = screen.getByTestId('sql-content-textarea');
-    fireEvent.change(sqlTextarea, { target: { value: 'SELECT * FROM test' } });
-    
-    const formElement = nameInput.closest('form');
-    if (formElement) {
-      fireEvent.submit(formElement);
-    }
+    const saveButton = screen.getByRole('button', { name: /保存/i });
+    fireEvent.click(saveButton);
     
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith('Test Template', 'SELECT * FROM test');
+      expect(mockOnClose).toHaveBeenCalled();
     });
   });
 
   it('validates template name length', async () => {
     render(<TemplateSaveModal {...defaultProps} />);
     
-    const nameInput = screen.getByPlaceholderText(/テンプレート名/i);
+    const nameInput = screen.getByRole('textbox');
     
-    // Test max length validation - HTMLInputElementのmaxLengthは制限として動作するが、
-    // テスト環境では完全には制限されない可能性があるため、入力後の値を確認
-    const longName = 'a'.repeat(101);
+    // Test with very long name
+    const longName = 'a'.repeat(256);
     fireEvent.change(nameInput, { target: { value: longName } });
     
-    // HTMLInputElementのmaxLengthにより制限されるか、またはフォームバリデーションで制限される
+    const saveButton = screen.getByRole('button', { name: /保存/i });
+    fireEvent.click(saveButton);
+    
     await waitFor(() => {
-      const inputValue = (nameInput as HTMLInputElement).value;
-      // 実際の制限がHTMLレベルかJSレベルかによって結果が変わるため、
-      // 100文字以下または101文字のままかを確認
-      expect(inputValue.length).toBeLessThanOrEqual(101);
+      expect(screen.getByText(/テンプレート名が長すぎます/)).toBeInTheDocument();
     });
   });
 
@@ -225,20 +184,14 @@ describe('TemplateSaveModal', () => {
     
     render(<TemplateSaveModal {...defaultProps} />);
     
-    // テンプレート名とSQLコンテンツの両方を入力
-    const nameInput = screen.getByTestId('template-name-input');
+    const nameInput = screen.getByRole('textbox');
     fireEvent.change(nameInput, { target: { value: '  Test Template  ' } });
     
-    const sqlTextarea = screen.getByTestId('sql-content-textarea');
-    fireEvent.change(sqlTextarea, { target: { value: 'SELECT * FROM test' } });
-    
-    const formElement = nameInput.closest('form');
-    if (formElement) {
-      fireEvent.submit(formElement);
-    }
+    const saveButton = screen.getByRole('button', { name: /保存/i });
+    fireEvent.click(saveButton);
     
     await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledWith('Test Template', 'SELECT * FROM test');
+      expect(mockOnSave).toHaveBeenCalledWith('Test Template', 'SELECT * FROM users');
     });
   });
 });

@@ -25,15 +25,13 @@ export const createResultsExecutionStore = () => create<ResultsExecutionActions>
       if (!res.success) {
         // エラーメッセージを適切に処理
         const errorMessage = res.error_message || res.message || 'SQL実行に失敗しました';
-        uiStore.setError(new Error(errorMessage));
-        uiStore.setIsError(true);
+        uiStore.setError(errorMessage);
         uiStore.stopLoading();
         return;
       }
       
       if (!res.session_id) {
-        uiStore.setError(new Error('session_idが返されませんでした'));
-        uiStore.setIsError(true);
+        uiStore.setError('session_idが返されませんでした');
         uiStore.stopLoading();
         return;
       }
@@ -47,8 +45,7 @@ export const createResultsExecutionStore = () => create<ResultsExecutionActions>
       });
       
       if (!readRes.success || !readRes.data || !readRes.columns) {
-        uiStore.setError(new Error(readRes.message || 'データ取得に失敗しました'));
-        uiStore.setIsError(true);
+        uiStore.setError(readRes.message || 'データ取得に失敗しました');
         uiStore.stopLoading();
         return;
       }
@@ -73,9 +70,8 @@ export const createResultsExecutionStore = () => create<ResultsExecutionActions>
       uiStore.stopLoading();
       
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error('SQL実行に失敗しました');
+      const error = err instanceof Error ? err.message : 'SQL実行に失敗しました';
       uiStore.setError(error);
-      uiStore.setIsError(true);
       uiStore.stopLoading();
     }
   },

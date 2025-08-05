@@ -44,6 +44,37 @@ Execute high- and medium-risk development tasks according to the following 6-ste
 5.  **Isolate & Fix Problems**: Systematically analyze issues found during testing, verify with logs to identify root causes, and fix them.
 6.  **Review & Improve**: After completion, analyze any problems that occurred and consider improvements to this charter.
 
+#### **Mandatory Testing Requirements for All Development**
+
+For all code changes (regardless of risk level), the following testing protocol must be executed:
+
+**Pre-Modification Testing (Before Implementation)**
+
+- Execute existing tests for the target component/module: `npx vitest run path/to/target.test.tsx --reporter=default > pre-modification-test.log 2>&1`
+- Document current test success rate and identify any pre-existing failures
+- If no tests exist, create basic test coverage before implementing changes
+
+**Post-Modification Testing (After Implementation)**
+
+- Re-execute the same test suite: `npx vitest run path/to/target.test.tsx --reporter=default > post-modification-test.log 2>&1`
+- Compare pre/post results to ensure no functional regression
+- All previously passing tests must continue to pass
+- New functionality must have corresponding test coverage
+
+**Test Construction for Untested Code**
+When encountering code without adequate test coverage:
+
+1. **Risk Assessment**: Evaluate the criticality of the untested component
+2. **Baseline Test Creation**: Implement basic functionality tests before any modifications
+3. **Edge Case Coverage**: Add tests for error conditions and boundary values
+4. **Integration Verification**: Ensure component interactions are properly tested
+
+**Test Log Management**
+
+- Save all test results with descriptive filenames: `{component}-{date}-{pre|post}-test.log`
+- Archive test logs for audit trails and regression analysis
+- Clean up temporary logs after verification: `Remove-Item *-test.log`
+
 ---
 
 ### **I. Core Design Principles: The Foundation of All Code**
@@ -150,49 +181,63 @@ Execute high- and medium-risk development tasks according to the following 6-ste
     - **Do**: Consolidate common setup logic in tests (e.g., creating test data, mocking DB connections) into shared utilities provided by the testing framework (e.g., `pytest` fixtures).
 
 21. **Ensure Safe Fallbacks and User Confirmation for Exceptions/Errors**
+
     - **Do**: Guarantee safe default behavior even in abnormal situations, such as a corrupted configuration or an empty database. If the behavior for an error or exception is unclear, always confirm the desired course of action with the user.
+
+22. **Mandatory Testing After All Code Changes**
+    - **Do**: Execute relevant tests immediately after any code modification to ensure functionality integrity. Refer to `TESTING_STRATEGY.md` for comprehensive testing guidelines and current test status.
+    - **Required Test Types**:
+      - **Unit Tests**: For individual functions, components, and store logic
+      - **Integration Tests**: For component interactions and API communications
+      - **Regression Tests**: For previously working functionality after changes
+    - **Test Execution Requirements**:
+      - Run `npm test -- [affected-component]` for targeted testing
+      - Run `npm run test:coverage` to ensure coverage standards (minimum 70% for new code)
+      - Fix failing tests before proceeding with new development
+      - Update test cases when modifying existing functionality
+    - **Documentation**: Maintain test documentation in `TESTING_STRATEGY.md` with current test status, known issues, and improvement plans.
 
 ---
 
 ### **V. Refactoring Conventions: For Safe Code Evolution**
 
-22. **The Absolute Protection of Production Features is the Top Priority**
+23. **The Absolute Protection of Production Features is the Top Priority**
 
     - **Do**: Conduct refactoring while ensuring that existing production functionality remains completely intact. Mocks and temporary implementations must be strictly isolated within test code and must not alter the behavior of production code.
 
-23. **Guarantee Behavior with Tests**
+24. **Guarantee Behavior with Tests**
 
     - **Do**: Before refactoring, create or verify tests that cover the target behavior. After refactoring, confirm that all of these tests pass.
 
-24. **Thoroughly Identify and Manage the Scope of Impact**
+25. **Thoroughly Identify and Manage the Scope of Impact**
 
     - **Do**: Before starting a change, identify every location where the target class, function, or variable is referenced (including in test code) and modify them consistently.
 
-25. **Make Changes Small and Incremental**
+26. **Make Changes Small and Incremental**
 
     - **Do**: Break down large refactorings into smaller, meaningful units. Use separate commits or pull requests for each step. Verify and review at each stage.
 
-26. **Plan for Gradual Migration with Backward Compatibility**
+27. **Plan for Gradual Migration with Backward Compatibility**
 
     - **Do**: When replacing an existing feature (API, class, etc.), first add the new feature and allow both to operate in parallel. Deprecate the old feature only after confirming that all callers have migrated to the new one.
 
-27. **Maintain Environment Compatibility When Changing Settings**
+28. **Maintain Environment Compatibility When Changing Settings**
 
     - **Do**: When changing configuration classes or environment variables, ensure the system can still start without errors using existing `.env` files. Use aliases or default values to maintain compatibility. Do not forget to update `env.example`.
 
-28. **Clearly Document the Intent and Result of Changes**
+29. **Clearly Document the Intent and Result of Changes**
 
     - **Do**: Clearly describe _why_ the refactoring was necessary and _what_ changes were made in commit messages, pull requests, and related documentation. Avoid vague messages like "Fixed."
 
-29. **Roll Back Immediately if Anomalies Occur**
+30. **Roll Back Immediately if Anomalies Occur**
 
     - **Do**: If an unexpected error occurs or a test fails during refactoring, immediately stop the work and revert the changes (roll back). Investigate the cause calmly afterward.
 
-30. **Avoid Temporary Fixes; Prioritize Fundamental Solutions Through Abstraction**
+31. **Avoid Temporary Fixes; Prioritize Fundamental Solutions Through Abstraction**
 
     - **Do**: When faced with failures or limitations of external services (databases, APIs, etc.), do not implement temporary workarounds with dummy data or stubs. Instead, confirm the desired handling with the user. Do not adopt temporary solutions that create technical debt.
 
-31. **Design Principles for Abstraction Layers**
+32. **Design Principles for Abstraction Layers**
     - **Do**:
       - **Interface Segregation**: Always abstract external dependencies (DB, APIs, etc.) with interfaces, making concrete implementations injectable.
       - **Configuration-Driven**: Control behavior with environment variables or config files to allow switching without code changes.
@@ -201,17 +246,17 @@ Execute high- and medium-risk development tasks according to the following 6-ste
 
 ### **VI. React-Specific Development Conventions**
 
-32. **Enforce Single Source of Truth for State Management**
+33. **Enforce Single Source of Truth for State Management**
 
     - **Do**: Never create duplicate state management logic for the same data. If multiple files manage the same state (e.g., template preferences), consolidate them into a single Provider or Context.
     - **Don't**: Implement the same API call or state update logic in multiple files like `TemplateProvider.tsx` and `TemplateContext.tsx`.
 
-33. **Ensure Type Safety in State Updates**
+34. **Ensure Type Safety in State Updates**
 
     - **Do**: When mapping data for API calls, ensure all required fields are properly typed and mapped. Use direct property access instead of dynamic field checking.
     - **Example**: Use `template.type` directly instead of `'type' in template ? template.type : 'user'`.
 
-34. **Handle Async State Updates Correctly**
+35. **Handle Async State Updates Correctly**
 
     - **Do**: When updating state that immediately needs to be sent to an API, either:
       - Pass the new data directly to the API call function
@@ -219,12 +264,155 @@ Execute high- and medium-risk development tasks according to the following 6-ste
       - Use callback-based state updates
     - **Don't**: Call API functions immediately after state updates without ensuring the state has been updated.
 
-35. **Maintain Component Pattern Consistency**
+36. **Maintain Component Pattern Consistency**
 
     - **Do**: When implementing similar UI patterns (like popovers, modals, tooltips), use the same implementation approach across all components.
     - **Do**: Create reusable hook patterns for common UI behaviors and reference existing implementations before creating new ones.
 
-36. **Implement Comprehensive Test Coverage for State Management**
+---
+
+## **Universal Testing Strategy: Principles for Any System Development**
+
+The following testing principles and practices are applicable to any software development project, regardless of technology stack or domain.
+
+### **📋 Test Log Management Strategy**
+
+#### **Log File Creation and Organization**
+
+```bash
+# Universal test execution with comprehensive logging
+{test_runner} {test_target} --reporter=verbose > test-{component}-{timestamp}.log 2>&1
+
+# Example implementations:
+# Jest: npm test component.test.js > test-component-20250805.log 2>&1
+# Vitest: npx vitest run component.test.tsx > test-component-20250805.log 2>&1
+# Pytest: python -m pytest test_module.py > test-module-20250805.log 2>&1
+# Go: go test ./... > test-all-20250805.log 2>&1
+```
+
+#### **Cross-Platform Log Cleanup**
+
+```bash
+# Unix/Linux/macOS
+find . -name "*.log" -type f -mtime +7 -delete
+
+# Windows PowerShell
+Get-ChildItem *.log | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Remove-Item
+
+# Windows Command Prompt
+forfiles /p . /m *.log /d -7 /c "cmd /c del @path"
+```
+
+### **📊 Universal Test Metrics and Reporting**
+
+#### **Essential Test Metrics for Any Project**
+
+1. **Test Success Rate**: `(Passed Tests / Total Tests) × 100`
+2. **Test Execution Time**: Monitor for performance regression
+3. **Code Coverage**: Aim for 80%+ on critical paths
+4. **Test Stability**: Track flaky tests and intermittent failures
+5. **Regression Detection**: Compare pre/post-change test results
+
+#### **Standard Test Report Format**
+
+```
+=== Test Execution Summary ===
+Date: {YYYY-MM-DD HH:MM:SS}
+Total Tests: {passed + failed}
+Passed: {count} ({percentage}%)
+Failed: {count} ({percentage}%)
+Execution Time: {seconds}s
+Coverage: {percentage}%
+
+=== Failed Tests ===
+{list of failed test names with brief descriptions}
+
+=== Recommendations ===
+{prioritized action items}
+```
+
+### **🔧 Technology-Agnostic Testing Practices**
+
+#### **1. Test Classification by Risk and Scope**
+
+```
+Unit Tests (Low Risk, High Coverage)
+├── Pure Functions
+├── Business Logic
+└── Data Transformations
+
+Integration Tests (Medium Risk, Moderate Coverage)
+├── API Endpoints
+├── Database Operations
+└── External Service Interactions
+
+End-to-End Tests (High Risk, Low Coverage)
+├── Critical User Journeys
+├── Business-Critical Workflows
+└── Security Boundaries
+```
+
+#### **2. Universal Test Naming Convention**
+
+```
+{ComponentName}_{TestScenario}_{ExpectedOutcome}
+
+Examples:
+- UserService_ValidInput_ReturnsUser
+- PaymentProcessor_InvalidCard_ThrowsException
+- SearchAPI_EmptyQuery_ReturnsAllResults
+```
+
+#### **3. Test Data Management Strategy**
+
+```
+Test Data Hierarchy:
+1. Fixtures: Static, reusable test data
+2. Factories: Dynamic test data generation
+3. Mocks: External dependency simulation
+4. Stubs: Simplified implementations for testing
+```
+
+### **🚀 Continuous Testing Workflow**
+
+#### **Daily Development Cycle**
+
+1. **Pre-Commit**: Run affected tests locally
+2. **Post-Commit**: Execute full test suite in CI
+3. **Daily Report**: Review overnight test results
+4. **Weekly Cleanup**: Remove obsolete tests and logs
+
+#### **Test Failure Response Protocol**
+
+1. **Immediate Triage**: Categorize as regression, flaky, or environment issue
+2. **Root Cause Analysis**: Use logs to identify the actual cause
+3. **Fix Priority**:
+   - Critical: Business-blocking functionality
+   - High: Major feature regression
+   - Medium: Minor functionality impact
+   - Low: Test infrastructure issues
+
+### **📈 Test Strategy Evolution**
+
+#### **Quarterly Test Strategy Review**
+
+1. **Metrics Analysis**: Review success rates, execution times, coverage trends
+2. **Tool Evaluation**: Assess testing framework effectiveness
+3. **Process Improvement**: Identify bottlenecks in testing workflow
+4. **Training Needs**: Address skill gaps in testing practices
+
+#### **Technology Migration Testing**
+
+When changing frameworks or platforms:
+
+1. **Parallel Testing**: Run old and new test suites simultaneously
+2. **Feature Parity**: Ensure new tests cover same functionality
+3. **Performance Comparison**: Verify test execution efficiency
+4. **Migration Validation**: Gradual cutover with rollback capability
+
+This universal testing strategy ensures consistent quality practices across all development projects while adapting to specific technology requirements.
+
+37. **Implement Comprehensive Test Coverage for State Management**
 
     - **Do**: All custom hooks and context providers must have corresponding test files covering:
       - State initialization
@@ -233,7 +421,7 @@ Execute high- and medium-risk development tasks according to the following 6-ste
       - Error handling paths
     - **Don't**: Deploy state management features without automated tests.
 
-37. **Implement Hierarchical Error Boundaries for Production Stability**
+38. **Implement Hierarchical Error Boundaries for Production Stability**
     - **Do**: Establish a three-tier error boundary system to prevent application crashes:
       - **Page Level**: Wrap the entire application with `PageErrorBoundary` to catch application-wide errors
       - **Feature Level**: Wrap feature modules (contexts, providers) with `FeatureErrorBoundary` to isolate domain-specific errors

@@ -1,26 +1,13 @@
-// 共通の型定義
-// このファイルには、複数の場所で使用される共通の型定義を配置します
+// ===========================================
+// 共通型定義（非推奨）
+// 新しい統合型定義は types/index.ts を使用してください
+// ===========================================
 
-// データ行の型定義
-export type TableRow = Record<string, string | number | boolean | null>;
-
-// ソート設定の型定義
-export type SortConfig = { 
-  key: string; 
-  direction: 'asc' | 'desc' 
-};
-
-// フィルタ設定の型定義
-export type FilterConfig = { 
-  [columnName: string]: string[] 
-};
-
-// フィルタモーダルの状態型定義
-export type FilterModalState = { 
-  show: boolean; 
-  columnName: string; 
-  currentFilters?: string[] 
-};
-
-// セル値の型定義
-export type CellValue = string | number | boolean | null; 
+// 統合型定義への移行のため、re-export を提供
+export type {
+  TableRow,
+  SortConfig,
+  FilterConfig,
+  ResultsFilterModalState as FilterModalState,
+  CellValue,
+} from './index'; 

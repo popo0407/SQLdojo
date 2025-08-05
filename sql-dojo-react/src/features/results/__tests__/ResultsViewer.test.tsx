@@ -23,7 +23,7 @@ describe('ResultsViewer', () => {
       ]);
       useResultsDataStore.getState().setRowCount(2);
       useUIStore.getState().setIsPending(false);
-      useUIStore.getState().setIsError(false);
+      useUIStore.getState().setError(null);
     });
     render(<ResultsViewer />);
     // テーブルのヘッダーやデータが表示されることを検証
@@ -35,8 +35,7 @@ describe('ResultsViewer', () => {
 
   it('エラー時はErrorAlertが表示される', () => {
     act(() => {
-      useUIStore.getState().setIsError(true);
-      useUIStore.getState().setError(new Error('テストエラー'));
+      useUIStore.getState().setError('テストエラー');
     });
     render(<ResultsViewer />);
     expect(screen.getByText(/テストエラー/)).toBeInTheDocument();
@@ -45,7 +44,7 @@ describe('ResultsViewer', () => {
   it('ローディング時はLoadingSpinnerが表示される', () => {
     act(() => {
       useUIStore.getState().setIsPending(true);
-      useUIStore.getState().setIsError(false);
+      useUIStore.getState().setError(null);
     });
     render(<ResultsViewer />);
     expect(screen.getAllByText('SQLを実行中...').length).toBeGreaterThan(0);
@@ -57,7 +56,7 @@ describe('ResultsViewer', () => {
       useResultsDataStore.getState().setAllData([{ id: 1 }]);
       useResultsDataStore.getState().setRowCount(1);
       useUIStore.getState().setIsPending(false);
-      useUIStore.getState().setIsError(false);
+      useUIStore.getState().setError(null);
       useResultsPaginationStore.getState().setHasMoreData(true);
       useUIStore.getState().setIsLoadingMore(true);
     });

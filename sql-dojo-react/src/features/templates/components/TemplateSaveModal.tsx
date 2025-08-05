@@ -124,6 +124,7 @@ export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = ({
         role="dialog"
         aria-labelledby="templateSaveModalLabel"
         aria-hidden="false"
+        data-testid="modal"
       >
         <div className="modal-dialog modal-lg" role="document">
           <div className="modal-content">
@@ -162,6 +163,7 @@ export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = ({
                     type="text"
                     className="form-control"
                     id="templateName"
+                    data-testid="template-name-input"
                     ref={nameInputRef}
                     value={templateName}
                     onChange={handleNameChange}
@@ -183,6 +185,7 @@ export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = ({
                   <textarea
                     className="form-control"
                     id="sqlContent"
+                    data-testid="sql-content-textarea"
                     rows={10}
                     value={sqlContent}
                     onChange={handleSqlChange}

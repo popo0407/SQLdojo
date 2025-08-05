@@ -1,35 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { act } from 'react';
-import { createUIStore } from './useUIStore';
+import { createUIStore, type UIStore } from './useUIStore';
 import type { StoreApi } from 'zustand';
 
-interface UIState {
-  isPending: boolean;
-  isLoadingMore: boolean;
-  isConfigLoading: boolean;
-  isDownloading: boolean;
-  isError: boolean;
-  error: Error | null;
-  filterModal: { show: boolean; columnName: string; currentFilters?: string[] };
-  showLimitDialog: boolean;
-  limitDialogData: { totalCount: number; message: string } | null;
-  configSettings: { default_page_size?: number; max_records_for_csv_download?: number } | null;
-  setIsPending: (pending: boolean) => void;
-  setIsLoadingMore: (loading: boolean) => void;
-  setIsConfigLoading: (loading: boolean) => void;
-  setIsDownloading: (downloading: boolean) => void;
-  setIsError: (error: boolean) => void;
-  setError: (error: Error | null) => void;
-  setFilterModal: (modal: { show: boolean; columnName: string; currentFilters?: string[] }) => void;
-  setShowLimitDialog: (show: boolean) => void;
-  setLimitDialogData: (data: { totalCount: number; message: string } | null) => void;
-  setConfigSettings: (settings: { default_page_size?: number; max_records_for_csv_download?: number } | null) => void;
-  clearError: () => void;
-  startLoading: () => void;
-  stopLoading: () => void;
-}
-
-let store: StoreApi<UIState>;
+let store: StoreApi<UIStore>;
 
 describe('useUIStore', () => {
   beforeEach(() => {
@@ -46,7 +20,7 @@ describe('useUIStore', () => {
     expect(state.isLoadingMore).toBe(false);
     expect(state.isConfigLoading).toBe(true);
     expect(state.isDownloading).toBe(false);
-    expect(state.isError).toBe(false);
+    expect(state.isLoading).toBe(false);
     expect(state.error).toBeNull();
     expect(state.filterModal).toEqual({ show: false, columnName: '', currentFilters: [] });
     expect(state.showLimitDialog).toBe(false);
@@ -59,22 +33,23 @@ describe('useUIStore', () => {
     expect(store.getState().isPending).toBe(true);
   });
 
-  it('setIsError/setErrorでエラー状態が更新される', () => {
+  it('setError/clearErrorでエラー状態が更新される', () => {
     act(() => {
-      store.getState().setIsError(true);
-      store.getState().setError(new Error('err'));
+      store.getState().setError('Test error');
     });
-    expect(store.getState().isError).toBe(true);
-    expect(store.getState().error).toEqual(new Error('err'));
+    expect(store.getState().error).toBe('Test error');
+    
+    act(() => {
+      store.getState().clearError();
+    });
+    expect(store.getState().error).toBeNull();
   });
 
   it('clearErrorでエラー状態がリセットされる', () => {
     act(() => {
-      store.getState().setIsError(true);
-      store.getState().setError(new Error('err'));
+      store.getState().setError('Test error');
       store.getState().clearError();
     });
-    expect(store.getState().isError).toBe(false);
     expect(store.getState().error).toBeNull();
   });
 
