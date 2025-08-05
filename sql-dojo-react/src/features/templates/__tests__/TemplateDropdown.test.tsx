@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+﻿import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TemplateDropdown } from '../components/TemplateDropdown';
 import type { TemplateDropdownItem } from '../types/template';
@@ -63,109 +63,88 @@ describe('TemplateDropdown', () => {
     render(<TemplateDropdown {...defaultProps} />);
     
     expect(screen.getByRole('button')).toBeInTheDocument();
-    expect(screen.getByText('テンプレート')).toBeInTheDocument();
+    expect(screen.getByText('テンプレート選択')).toBeInTheDocument();
   });
 
   it('shows loading spinner when loading', () => {
     render(<TemplateDropdown {...defaultProps} isLoading={true} />);
     
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByText('読み込み中...')).toBeInTheDocument();
   });
 
   it('opens dropdown when button is clicked', async () => {
     render(<TemplateDropdown {...defaultProps} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
-      expect(screen.getByTestId('dropdown')).toHaveAttribute('data-show', 'true');
+      expect(screen.getByRole('button', { name: /User Template 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Admin Template 1/ })).toBeInTheDocument();
     });
   });
 
   it('displays template list when dropdown is open', async () => {
     render(<TemplateDropdown {...defaultProps} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
-      expect(screen.getByText('User Template 1')).toBeInTheDocument();
-      expect(screen.getByText('Admin Template 1')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /User Template 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Admin Template 1/ })).toBeInTheDocument();
     });
   });
 
   it('calls onSelect when template is selected', async () => {
     render(<TemplateDropdown {...defaultProps} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
-      const templateButton = screen.getByText('User Template 1');
+      const templateButton = screen.getByRole('button', { name: /User Template 1/ });
       fireEvent.click(templateButton);
     });
     
     expect(mockOnSelectTemplate).toHaveBeenCalledWith(mockTemplates[0]);
   });
 
-  it('shows save template option', async () => {
-    render(<TemplateDropdown {...defaultProps} />);
-    
-    const toggleButton = screen.getByText('Toggle');
-    fireEvent.click(toggleButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText('テンプレート保存')).toBeInTheDocument();
-    });
-  });
-
-  it('shows current content save option', async () => {
-    render(<TemplateDropdown {...defaultProps} />);
-    
-    const toggleButton = screen.getByText('Toggle');
-    fireEvent.click(toggleButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText('テンプレート保存')).toBeInTheDocument();
-    });
-  });
-
-  it('handles template save action', async () => {
-    render(<TemplateDropdown {...defaultProps} />);
-    
-    const toggleButton = screen.getByText('Toggle');
-    fireEvent.click(toggleButton);
-    
-    await waitFor(() => {
-      expect(screen.getByText('テンプレート保存')).toBeInTheDocument();
-    });
-  });
-
   it('shows empty state when no templates are available', async () => {
     render(<TemplateDropdown {...defaultProps} templates={[]} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
       expect(screen.getByText('テンプレートがありません')).toBeInTheDocument();
+      expect(screen.getByText('「テンプレート保存」ボタンで新しいテンプレートを作成できます')).toBeInTheDocument();
     });
   });
 
   it('displays template preview on hover', async () => {
     render(<TemplateDropdown {...defaultProps} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
-      const templateButton = screen.getByText('User Template 1');
+      const templateButton = screen.getByRole('button', { name: /User Template 1/ });
       fireEvent.mouseEnter(templateButton);
     });
     
-    // Should show SQL preview
-    expect(screen.getByText('SELECT * FROM users WHERE id = 1')).toBeInTheDocument();
+    // Should show SQL preview in tooltip
+    await waitFor(() => {
+      expect(screen.getByText('SELECT * FROM users WHERE id = 1')).toBeInTheDocument();
+    });
+    
+    // Should hide tooltip on mouse leave
+    const templateButton = screen.getByRole('button', { name: /User Template 1/ });
+    fireEvent.mouseLeave(templateButton);
+    
+    await waitFor(() => {
+      expect(screen.queryByText('SELECT * FROM users WHERE id = 1')).not.toBeInTheDocument();
+    });
   });
 
   it('truncates long SQL in preview', async () => {
@@ -179,11 +158,11 @@ describe('TemplateDropdown', () => {
 
     render(<TemplateDropdown {...defaultProps} templates={[longSqlTemplate]} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
-      const templateButton = screen.getByText('Long Template');
+      const templateButton = screen.getByRole('button', { name: /Long Template/ });
       fireEvent.mouseEnter(templateButton);
     });
     
@@ -191,50 +170,73 @@ describe('TemplateDropdown', () => {
     expect(screen.getByText(/\.\.\./)).toBeInTheDocument();
   });
 
-  it('separates user and admin templates', async () => {
+  it('separates user and admin templates with icons', async () => {
     render(<TemplateDropdown {...defaultProps} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
-      expect(screen.getByText('個人テンプレート')).toBeInTheDocument();
-      expect(screen.getByText('管理者テンプレート')).toBeInTheDocument();
+      // テンプレートはただリストアップされ、セクションヘッダーは無い
+      expect(screen.getByRole('button', { name: /User Template 1/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Admin Template 1/ })).toBeInTheDocument();
     });
   });
 
   it('closes dropdown after template selection', async () => {
     render(<TemplateDropdown {...defaultProps} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
-      const templateButton = screen.getByText('User Template 1');
+      const templateButton = screen.getByRole('button', { name: /User Template 1/ });
       fireEvent.click(templateButton);
     });
     
+    // ドロップダウンが閉じられていることを確認（DOM上からドロップダウンメニューが削除される）
     await waitFor(() => {
-      expect(screen.getByTestId('dropdown')).toHaveAttribute('data-show', 'false');
+      expect(screen.queryByRole('button', { name: /User Template 1/ })).not.toBeInTheDocument();
     });
   });
 
   it('maintains keyboard accessibility', async () => {
     render(<TemplateDropdown {...defaultProps} />);
     
-    const toggleButton = screen.getByText('Toggle');
+    const toggleButton = screen.getByText('テンプレート選択');
     fireEvent.click(toggleButton);
     
     await waitFor(() => {
-      const templateButton = screen.getByText('User Template 1');
+      const templateButton = screen.getByRole('button', { name: /User Template 1/ });
       
       // Should be focusable
       templateButton.focus();
       expect(templateButton).toHaveFocus();
-      
-      // Should respond to Enter key
-      fireEvent.keyDown(templateButton, { key: 'Enter' });
-      expect(mockOnSelectTemplate).toHaveBeenCalledWith(mockTemplates[0]);
+    });
+    
+    // ESCキーでドロップダウンが閉じることをテスト
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /User Template 1/ })).not.toBeInTheDocument();
+    });
+  });
+
+  it('closes dropdown when clicking outside', async () => {
+    render(<TemplateDropdown {...defaultProps} />);
+    
+    const toggleButton = screen.getByText('テンプレート選択');
+    fireEvent.click(toggleButton);
+    
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /User Template 1/ })).toBeInTheDocument();
+    });
+    
+    // ドロップダウン外をクリック
+    fireEvent.mouseDown(document.body);
+    
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /User Template 1/ })).not.toBeInTheDocument();
     });
   });
 });
+

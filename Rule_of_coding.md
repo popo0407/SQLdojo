@@ -7,7 +7,7 @@ This charter establishes the fundamental principles for continuously developing 
 - The AI's internal thought process for analysis and strategy must be in English. However, explanations of the implementation plan, along with all other external responses and documentation, must be provided in Japanese.
 - Review this entire development charter and process all tasks according to it.
 - If any points are unclear, always seek clarification _before_ starting work.
-- Upon agent startup, read the entirety of `Rule_or_coding.md` and display all top-level principles in the chat.
+- Upon agent startup, read the entirety of `Rule_of_coding.md` and display all top-level principles in the chat.
 - Upon completion of all tasks, check for any violations of these principles, get confirmation, then update README.md and `git add`, `commit`, and `push` to GitHub.
 - Upon completion of every task, reflect on any bugs or issues that occurred. Conduct a self-review asking, "Why did this happen?" and "Could it have been prevented by following the development charter?". If necessary, propose improvements to the charter itself to enhance quality in the future.
 
@@ -50,16 +50,49 @@ For all code changes (regardless of risk level), the following testing protocol 
 
 **Pre-Modification Testing (Before Implementation)**
 
-- Execute existing tests for the target component/module: `npx vitest run path/to/target.test.tsx --reporter=default > pre-modification-test.log 2>&1`
+- Execute existing tests for the target component/module: `npx vitest run path/to/target.test.tsx --reporter=default --no-color > pre-modification-test.log 2>&1`
 - Document current test success rate and identify any pre-existing failures
 - If no tests exist, create basic test coverage before implementing changes
 
 **Post-Modification Testing (After Implementation)**
 
-- Re-execute the same test suite: `npx vitest run path/to/target.test.tsx --reporter=default > post-modification-test.log 2>&1`
+- Re-execute the same test suite: `npx vitest run path/to/target.test.tsx --reporter=default --no-color > post-modification-test.log 2>&1`
 - Compare pre/post results to ensure no functional regression
 - All previously passing tests must continue to pass
 - New functionality must have corresponding test coverage
+
+**Test Log Verification Protocol (Mandatory)**
+
+After every test execution, follow this verification protocol to ensure complete log capture:
+
+1. **Execution Confirmation**: Display `echo "ログファイルを確認"` before checking log files
+2. **Log File Existence**: Verify the log file was created: `Test-Path "logfile.log"`
+3. **Log File Completeness**: Check log file size and content validity: `Get-Content "logfile.log" | Select-Object -First 10 -Last 10`
+4. **Test Result Extraction**: Parse and document test success/failure counts from log
+5. **Missing Output Investigation**: If log is incomplete, re-execute with alternative capture methods
+
+**PowerShell Log Capture Best Practices**
+
+For Windows PowerShell environments, use these proven methods in order of preference:
+
+```powershell
+# Method 1: Standard redirection with no-color flag (Primary)
+npx vitest run path/to/target.test.tsx --reporter=default --no-color > logfile.log 2>&1
+
+# Method 2: PowerShell Out-File with UTF8 encoding (Fallback)
+npx vitest run path/to/target.test.tsx --reporter=default --no-color 2>&1 | Out-File -FilePath "logfile.log" -Encoding UTF8
+
+# Method 3: Timestamped logging with verification (Comprehensive)
+$timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$logFile = "ComponentName-$timestamp-test.log"
+npx vitest run path/to/target.test.tsx --reporter=default --no-color > $logFile 2>&1
+echo "ログファイルを確認"
+if (Test-Path $logFile) { 
+    Get-Content $logFile | Select-Object -First 5 -Last 5 
+} else { 
+    Write-Error "Log file not created: $logFile" 
+}
+```
 
 **Test Construction for Untested Code**
 When encountering code without adequate test coverage:
@@ -71,9 +104,27 @@ When encountering code without adequate test coverage:
 
 **Test Log Management**
 
-- Save all test results with descriptive filenames: `{component}-{date}-{pre|post}-test.log`
+- Save all test results with descriptive filenames: `{component}-{timestamp}-{pre|post}-test.log`
 - Archive test logs for audit trails and regression analysis
-- Clean up temporary logs after verification: `Remove-Item *-test.log`
+- Clean up temporary logs after verification using PowerShell-compatible commands:
+
+```powershell
+# Windows PowerShell log cleanup (keep logs from last 7 days)
+Get-ChildItem *.log | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-7)} | Remove-Item
+
+# Manual cleanup after test verification
+Remove-Item *-test.log -Exclude "*$(Get-Date -Format 'yyyyMMdd')*"
+```
+
+**Cross-Platform Log Cleanup Alternatives**
+
+```bash
+# Unix/Linux/macOS
+find . -name "*.log" -type f -mtime +7 -delete
+
+# Windows Command Prompt
+forfiles /p . /m *.log /d -7 /c "cmd /c del @path"
+```
 
 ---
 
@@ -437,3 +488,13 @@ This universal testing strategy ensures consistent quality practices across all 
     - **Do**:
       1. `cd /path/to/project`
       2. `npm run build`
+
+39. **Mandatory Verification Before Log File Access**
+    - **Do**: Always display explicit confirmation before accessing log files or test results: `echo "ログファイルを確認"`
+    - **Do**: Wait for command completion before proceeding to file verification
+    - **Do**: Use systematic verification steps for all log-dependent operations:
+      1. Execute the command
+      2. Display verification message
+      3. Check file existence
+      4. Verify file content
+    - **Don't**: Rush to read log files immediately after command execution without proper verification steps
