@@ -27,7 +27,7 @@ export class AdminVisibilityService {
    */
   async getAllMetadata(): Promise<Schema[]> {
     try {
-      const response = await this.fetchWithAuth('/api/v1/admin/metadata/all-raw');
+      const response = await this.fetchWithAuth('/admin/metadata/all-raw');
       
       if (!response.ok) {
         throw new Error(`メタデータ取得失敗: ${response.status} ${response.statusText}`);
@@ -46,7 +46,7 @@ export class AdminVisibilityService {
    */
   async getVisibilitySettings(): Promise<VisibilitySettings> {
     try {
-      const response = await this.fetchWithAuth('/api/v1/admin/visibility-settings');
+      const response = await this.fetchWithAuth('/admin/visibility-settings');
       
       if (!response.ok) {
         throw new Error(`表示設定取得失敗: ${response.status} ${response.statusText}`);
@@ -67,7 +67,7 @@ export class AdminVisibilityService {
     try {
       const request: SaveVisibilityRequest = { settings };
       
-      const response = await this.fetchWithAuth('/api/v1/admin/visibility-settings', {
+      const response = await this.fetchWithAuth('/admin/visibility-settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
