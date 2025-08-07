@@ -99,6 +99,7 @@ export interface Schema {
   name: string;
   comment: string | null;
   tables: Table[];
+  schema_hidden?: boolean; // スキーマが非表示だがテーブルが表示される場合のフラグ
 }
 
 // キャッシュ機能用の型定義

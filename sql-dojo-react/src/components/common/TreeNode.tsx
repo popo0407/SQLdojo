@@ -20,6 +20,17 @@ const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName })
 
   // スキーマ
   if ('tables' in item) {
+    // スキーマが非表示の場合は、テーブルを直接表示
+    if (item.schema_hidden) {
+      return (
+        <>
+          {item.tables.map((table) => (
+            <TreeNode key={table.name} item={table} level={level} />
+          ))}
+        </>
+      );
+    }
+
     return (
       <>
         <ListGroup.Item

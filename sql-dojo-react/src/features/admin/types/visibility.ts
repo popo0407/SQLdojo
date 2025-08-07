@@ -10,6 +10,7 @@
 export interface Schema {
   name: string;
   tables: Table[];
+  schema_hidden?: boolean; // スキーマが非表示だがテーブルが表示される場合のフラグ
 }
 
 export interface Table {
