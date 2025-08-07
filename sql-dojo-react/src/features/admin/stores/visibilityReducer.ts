@@ -8,13 +8,13 @@
  */
 
 import type { VisibilityState, VisibilityAction } from '../types/visibility';
-import { DEFAULT_ROLE, OTHER_ROLE, PROTECTED_ROLES } from '../types/visibility';
+import { DEFAULT_ROLE, PROTECTED_ROLES } from '../types/visibility';
 
 // 初期状態
 export const initialVisibilityState: VisibilityState = {
   metadata: [],
   settings: {},
-  roles: [DEFAULT_ROLE, OTHER_ROLE],
+  roles: [DEFAULT_ROLE],
   loading: false,
   error: null,
   saving: false,
@@ -148,11 +148,9 @@ export const visibilityReducer = (
 // ユーティリティ関数: ロール一覧取得
 export const getRoleListFromState = (state: VisibilityState): string[] => {
   return state.roles.slice().sort((a, b) => {
-    // DEFAULT を最初に、その他を最後に、その間は辞書順
+    // DEFAULT を最初に、その他は辞書順
     if (a === DEFAULT_ROLE) return -1;
     if (b === DEFAULT_ROLE) return 1;
-    if (a === OTHER_ROLE) return 1;
-    if (b === OTHER_ROLE) return -1;
     return a.localeCompare(b);
   });
 };
@@ -174,11 +172,6 @@ export const getVisibilityForObject = (
     return objectSettings[roleName];
   }
   
-  // ロール固有設定がない場合は「その他」ロールの設定を使用
-  if (objectSettings[OTHER_ROLE] !== undefined) {
-    return objectSettings[OTHER_ROLE];
-  }
-  
-  // 「その他」ロールの設定もない場合はDEFAULTを使用
+  // ロール固有設定がない場合はDEFAULTを使用
   return objectSettings[DEFAULT_ROLE] ?? false;
 };

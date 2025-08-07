@@ -84,5 +84,4 @@ export interface VisibilityApiResponse {
 
 // デフォルト値定数
 export const DEFAULT_ROLE = 'DEFAULT';
-export const OTHER_ROLE = 'その他';
-export const PROTECTED_ROLES = [DEFAULT_ROLE, OTHER_ROLE];
+export const PROTECTED_ROLES = [DEFAULT_ROLE];

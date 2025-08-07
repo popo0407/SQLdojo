@@ -18,13 +18,11 @@ const VisibilityTableComponent: React.FC<VisibilityTableProps> = ({
   roles,
   onToggleVisibility,
 }) => {
-  // ロールの表示順序を決定（DEFAULT → その他 → アルファベット順）
+  // ロールの表示順序を決定（DEFAULT → アルファベット順）
   const sortedRoles = React.useMemo(() => {
     return roles.slice().sort((a, b) => {
       if (a === 'DEFAULT') return -1;
       if (b === 'DEFAULT') return 1;
-      if (a === 'その他') return 1;
-      if (b === 'その他') return -1;
       return a.localeCompare(b, 'ja');
     });
   }, [roles]);
@@ -42,12 +40,8 @@ const VisibilityTableComponent: React.FC<VisibilityTableProps> = ({
       return objectSettings[roleName];
     }
     
-    // ロール固有設定がない場合は「その他」ロールの設定を使用
-    if (objectSettings['その他'] !== undefined) {
-      return objectSettings['その他'];
-    }
-    
-    // 「その他」ロールの設定もない場合はDEFAULTを使用
+    // ロール固有設定がない場合はDEFAULTを使用
+    return objectSettings['DEFAULT'] ?? false;
     return objectSettings['DEFAULT'] ?? false;
   }, [settings]);
 
