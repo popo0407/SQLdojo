@@ -4,10 +4,13 @@ import MetadataTree from '../../features/metadata/MetadataTree';
 import { useEditorStore } from '../../stores/useEditorStore';
 import { ParameterContainer } from '../../features/parameters/ParameterContainer';
 import styles from '../../styles/Layout.module.css';
+import type { Schema } from '../../types/api';
 
 const Sidebar: React.FC = () => {
   // MetadataProviderが存在しない場合のフォールバック
-  let schemas, loading, error;
+  let schemas: Schema[] = [];
+  let loading = false;
+  let error: string | null = null;
   
   try {
     const metadataState = useMetadata();

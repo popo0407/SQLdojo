@@ -230,8 +230,14 @@ async def login(request: Request, login_req: UserLoginRequest, user_service: Use
     
     user = await run_in_threadpool(user_service.authenticate_user, login_req.user_id)
     if user:
+        # セッション保存前の状態をログ
+        logger.info(f"セッション保存前: {list(request.session.keys())}")
+        
         request.session["user"] = user
+        
+        # セッション保存後の状態をログ
         logger.info(f"ログイン成功: {user['user_id']}, セッションキー: {list(request.session.keys())}")
+        logger.info(f"保存されたユーザー情報: {request.session.get('user')}")
         
         # SessionMiddlewareに完全に任せる
         return {"message": "ログイン成功", "user": user}

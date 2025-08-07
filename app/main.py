@@ -70,9 +70,10 @@ app.add_middleware(
 app.add_middleware(
     SessionMiddleware, 
     secret_key=SECRET_KEY,
-    same_site="none",  # クロスオリジンに対応
+    same_site="lax",  # localhost開発環境では lax が最も適切
     https_only=False,  # HTTPでも動作するように設定（開発環境用）
-    max_age=24*60*60   # 24時間
+    max_age=24*60*60,   # 24時間
+    path="/"  # パスを明示
 )
 
 # リクエスト処理時間を記録するミドルウェア
