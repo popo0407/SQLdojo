@@ -59,7 +59,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside className={styles.sidebar}>
-      <div className="p-2">
+      <div className="p-2" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* パラメータ入力フォーム */}
         <ParameterContainer />
         
@@ -72,7 +72,7 @@ const Sidebar: React.FC = () => {
             エディタに反映
           </button>
         </div>
-        <div id="metadata-tree">
+        <div id="metadata-tree" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {renderContent()}
         </div>
       </div>
