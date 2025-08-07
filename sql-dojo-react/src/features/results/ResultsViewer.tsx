@@ -6,6 +6,7 @@ import { useResultsDataStore } from '../../stores/useResultsDataStore';
 import { useResultsFilterStore } from '../../stores/useResultsFilterStore';
 import { useResultsSessionStore } from '../../stores/useResultsSessionStore';
 import { useUIStore } from '../../stores/useUIStore';
+import { useSqlPageStore } from '../../stores/useSqlPageStore';
 import FilterModal from './FilterModal';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { useResultsDisplay } from '../../hooks/useResultsDisplay';
@@ -21,7 +22,10 @@ const ResultsViewer: React.FC = () => {
   const sessionId = useResultsSessionStore(state => state.sessionId);
 
   // UIストアから状態を取得
-  const { isPending, isError, error, isLoadingMore, filterModal, setFilterModal } = useUIStore();
+  const { isPending, isLoadingMore, filterModal, setFilterModal, error, isDownloading } = useUIStore();
+
+  // SQLページストアからCSVダウンロード機能を取得
+  const { downloadCsv } = useSqlPageStore();
 
   // カスタムフックを使用
   const { containerRef, hasMoreData } = useInfiniteScroll();
@@ -38,8 +42,8 @@ const ResultsViewer: React.FC = () => {
   }
 
   // エラー状態
-  if (isError) {
-    return <ErrorAlert error={error} />;
+  if (error) {
+    return <ErrorAlert error={new Error(error)} />;
   }
 
   // データなし状態
@@ -56,6 +60,8 @@ const ResultsViewer: React.FC = () => {
           sortConfig={sortConfig}
           filters={filters}
           sessionId={sessionId || undefined}
+          onDownloadCsv={downloadCsv}
+          isDownloading={isDownloading}
         />
         <ResultTable 
           columns={displayData.columns} 

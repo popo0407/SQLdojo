@@ -19,11 +19,22 @@
 .statsBar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding-left: 16px;
   padding-right: 16px;
   margin-bottom: 8px;
   gap: 24px;
-  /* 必要に応じてjustify-content: flex-start; も追加可 */
+}
+
+.statsInfo {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.statsActions {
+  display: flex;
+  align-items: center;
 }
 
 .tableHeader {

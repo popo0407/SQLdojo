@@ -1,13 +1,14 @@
 import React from 'react';
-import { Button, ButtonGroup } from 'react-bootstrap';
+import { Button, ButtonGroup, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faPlay, 
-  faDownload, 
   faMagic, 
   faTrash,
   faExpand,
-  faCompress
+  faCompress,
+  faFileCode,
+  faSave
 } from '@fortawesome/free-solid-svg-icons';
 import { useLayoutStore } from '../../stores/useLayoutStore';
 import styles from './EditorToolbar.module.css';
@@ -15,23 +16,27 @@ import styles from './EditorToolbar.module.css';
 interface EditorToolbarProps {
   onFormat: () => void;
   onClear: () => void;
-  onDownloadCsv: () => void;
   onExecute: () => void;
+  onSelectTemplate: (templateSql: string) => void;
+  onSaveTemplate: () => void;
   isPending: boolean;
-  isDownloading: boolean;
   hasSql: boolean;
   hasSelection: boolean;
+  templates?: Array<{ id: string; name: string; sql: string; type: string }>;
+  isTemplatesLoading?: boolean;
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onFormat,
   onClear,
-  onDownloadCsv,
   onExecute,
+  onSelectTemplate,
+  onSaveTemplate,
   isPending,
-  isDownloading,
   hasSql,
-  hasSelection
+  hasSelection,
+  templates = [],
+  isTemplatesLoading = false
 }) => {
   const { isEditorMaximized, toggleEditorMaximized } = useLayoutStore();
 
@@ -40,13 +45,13 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       <div className={styles.leftSection}>
         <ButtonGroup size="sm">
           <Button
-            variant="primary"
-            onClick={onExecute}
-            disabled={!hasSql || isPending}
-            title={hasSelection ? "選択範囲のSQLを実行" : "SQLを実行"}
+            variant="outline-secondary"
+            onClick={onClear}
+            disabled={!hasSql}
+            title="SQLをクリア"
           >
-            <FontAwesomeIcon icon={faPlay} className="me-1" />
-            {isPending ? "実行中..." : "実行"}
+            <FontAwesomeIcon icon={faTrash} className="me-1" />
+            クリア
           </Button>
           
           <Button
@@ -59,30 +64,68 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             フォーマット
           </Button>
           
+          <Dropdown>
+            <Dropdown.Toggle
+              variant="outline-info"
+              size="sm"
+              disabled={isTemplatesLoading}
+              title="テンプレート選択"
+            >
+              <FontAwesomeIcon icon={faFileCode} className="me-1" />
+              {isTemplatesLoading ? "読み込み中..." : `テンプレート選択 (${templates.length})`}
+            </Dropdown.Toggle>
+            
+            <Dropdown.Menu>
+              {isTemplatesLoading ? (
+                <Dropdown.ItemText>読み込み中...</Dropdown.ItemText>
+              ) : templates.length === 0 ? (
+                <Dropdown.ItemText>テンプレートがありません</Dropdown.ItemText>
+              ) : (
+                templates.map((template) => (
+                  <Dropdown.Item
+                    key={template.id}
+                    onClick={() => onSelectTemplate(template.sql)}
+                    title={template.sql}
+                  >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <span className="fw-medium">{template.name}</span>
+                      <small className="text-muted ms-2">
+                        {template.type === 'admin' ? '管理者' : 'ユーザー'}
+                      </small>
+                    </div>
+                    <small className="text-muted d-block text-truncate" style={{ maxWidth: '250px' }}>
+                      {template.sql}
+                    </small>
+                  </Dropdown.Item>
+                ))
+              )}
+            </Dropdown.Menu>
+          </Dropdown>
+          
           <Button
-            variant="outline-secondary"
-            onClick={onClear}
+            variant="outline-success"
+            onClick={onSaveTemplate}
             disabled={!hasSql}
-            title="SQLをクリア"
+            title="テンプレート保存"
           >
-            <FontAwesomeIcon icon={faTrash} className="me-1" />
-            クリア
+            <FontAwesomeIcon icon={faSave} className="me-1" />
+            テンプレート保存
+          </Button>
+          
+          <Button
+            variant="primary"
+            onClick={onExecute}
+            disabled={!hasSql || isPending}
+            title={hasSelection ? "選択範囲のSQLを実行" : "SQLを実行"}
+          >
+            <FontAwesomeIcon icon={faPlay} className="me-1" />
+            {isPending ? "実行中..." : "実行"}
           </Button>
         </ButtonGroup>
       </div>
       
       <div className={styles.rightSection}>
         <ButtonGroup size="sm">
-          <Button
-            variant="outline-primary"
-            onClick={onDownloadCsv}
-            disabled={isDownloading}
-            title="CSVダウンロード"
-          >
-            <FontAwesomeIcon icon={faDownload} className="me-1" />
-            {isDownloading ? "ダウンロード中..." : "CSV"}
-          </Button>
-          
           <Button
             variant="outline-secondary"
             onClick={toggleEditorMaximized}

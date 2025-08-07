@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { Stack } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
-import { useUIStore } from '../../stores/useUIStore';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
 import { useMonacoEditor } from '../../hooks/useMonacoEditor';
 import { useEditorOperations } from '../../hooks/useEditorOperations';
@@ -10,14 +9,15 @@ import { useEditorStore } from '../../stores/useEditorStore';
 import { useLayoutControl } from '../../hooks/useLayoutControl';
 import { EditorToolbar } from '../../components/editor/EditorToolbar';
 import { getEditorOptions } from '../../config/editorConfig';
-import { MainPageTemplate } from '../templates/components/MainPageTemplate';
+import { TemplateSaveModal } from '../templates/components/TemplateSaveModal';
+import { useTemplates, useTemplateModals } from '../templates/hooks/useTemplates';
+import type { TemplateDropdownItem, TemplateWithPreferences } from '../templates/types/template';
 
 const SQLEditor: React.FC = () => {
-  // UIストアから状態を取得
-  const { isDownloading } = useUIStore();
+  // UIストアから状態を取得（isDownloadingを削除）
   
   // SQLページストアからアクションと状態を取得
-  const { executeSql, downloadCsv, isPending } = useSqlPageStore();
+  const { executeSql, isPending } = useSqlPageStore();
   
   // エディタストアから選択状態を取得
   const hasSelection = useEditorStore((state) => state.hasSelection());
@@ -29,31 +29,74 @@ const SQLEditor: React.FC = () => {
   // レイアウト制御フックを使用
   useLayoutControl();
 
+  // テンプレート機能のフック
+  const { 
+    state, 
+    getVisibleTemplates, 
+    saveTemplate,
+    initializeTemplates
+  } = useTemplates();
+
+  // テンプレートの初期化
+  useEffect(() => {
+    console.log('Initializing templates...');
+    initializeTemplates();
+  }, [initializeTemplates]);
+
+  // デバッグ用: テンプレート状態を監視
+  useEffect(() => {
+    console.log('Template state:', state);
+    console.log('Visible templates:', getVisibleTemplates());
+  }, [state, getVisibleTemplates]);
+
+  const {
+    isSaveModalOpen,
+    openSaveModal,
+    closeSaveModal,
+  } = useTemplateModals();
+
+  // テンプレート選択ハンドラ（ツールバーのドロップダウン用）
+  const handleSelectTemplateFromToolbar = (templateSql: string) => {
+    setSql(templateSql);
+  };
+
+  // テンプレート保存ハンドラ
+  const handleSaveTemplate = () => {
+    openSaveModal();
+  };
+
+  // テンプレート変換ユーティリティ
+  const convertToDropdownItems = (templates: TemplateWithPreferences[]): TemplateDropdownItem[] => {
+    const converted = templates.map(template => ({
+      id: template.template_id,
+      name: template.name,
+      sql: template.sql,
+      type: template.type,
+      is_common: template.is_common,
+      created_at: template.created_at
+    }));
+    
+    // デバッグ用ログ
+    console.log('Templates converted:', converted);
+    return converted;
+  };
+
   return (
     <Stack gap={2} className={styles.editorContainer}>
-      {/* テンプレート機能 */}
-      <MainPageTemplate 
-        onInsertTemplate={(templateSql: string) => setSql(templateSql)}
-        onGetEditorContent={() => sql}
-        onGetSelectedContent={() => {
-          // 選択されたテキストを取得する場合の処理
-          // 現在は全体のSQLを返す
-          return sql;
-        }}
-        hasSelection={hasSelection}
-      />
-      
       {/* ツールバー */}
       <EditorToolbar
         onFormat={handleFormat}
         onClear={handleClear}
-        onDownloadCsv={downloadCsv}
         onExecute={executeSql}
+        onSelectTemplate={handleSelectTemplateFromToolbar}
+        onSaveTemplate={handleSaveTemplate}
         isPending={isPending}
-        isDownloading={isDownloading}
         hasSql={!!sql.trim()}
         hasSelection={hasSelection}
+        templates={convertToDropdownItems(getVisibleTemplates())}
+        isTemplatesLoading={state.isLoading}
       />
+
       {/* Monaco Editor 本体 */}
       <div className={styles.editorWrapper}>
         <Editor
@@ -66,6 +109,18 @@ const SQLEditor: React.FC = () => {
           options={getEditorOptions()}
         />
       </div>
+
+      {/* テンプレート保存モーダル */}
+      <TemplateSaveModal
+        isOpen={isSaveModalOpen}
+        onClose={closeSaveModal}
+        initialSql={sql}
+        onSave={async (name: string, sqlContent: string) => {
+          await saveTemplate(name, sqlContent);
+          closeSaveModal();
+        }}
+        isLoading={state.isLoading}
+      />
     </Stack>
   );
 };
