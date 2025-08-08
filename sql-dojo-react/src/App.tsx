@@ -1,6 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import UserPage from './pages/UserPage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import TemplateManagementPage from './pages/TemplateManagementPage';
@@ -19,7 +18,7 @@ function App() {
   const AppContent = (
     <Routes>
       <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
-      <Route path="/user" element={<PrivateRoute><UserPage /></PrivateRoute>} />
+  {/* /user ルート削除: テンプレート管理とSQL実行履歴へはヘッダーから直接遷移 */}
       <Route path="/manage-templates" element={<PrivateRoute><TemplateManagementPage /></PrivateRoute>} />
       <Route path="/sql-log" element={<PrivateRoute><SqlLogPage /></PrivateRoute>} />
       <Route path="/admin" element={<PrivateRoute requireAdmin><AdminPage /></PrivateRoute>} />

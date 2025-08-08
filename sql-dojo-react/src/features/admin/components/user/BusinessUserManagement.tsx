@@ -3,7 +3,7 @@ import type { BusinessUser } from '../../api/businessUserApi';
 import { useBusinessUser } from '../../hooks/useBusinessUser';
 
 export const BusinessUserManagement: React.FC = () => {
-  const { users, totalCount, loading, error, refreshing, fetchUsers, refreshUsers } = useBusinessUser();
+  const { users, loading, error, refreshing, fetchUsers, refreshUsers } = useBusinessUser();
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
   const [refreshMessageType, setRefreshMessageType] = useState<'success' | 'error'>('success');
 
@@ -83,36 +83,7 @@ export const BusinessUserManagement: React.FC = () => {
           </div>
         )}
 
-        {/* ユーザー統計 */}
-        <div className="row mb-4">
-          <div className="col-md-4">
-            <div className="card bg-light">
-              <div className="card-body text-center">
-                <i className="fas fa-users fa-2x text-primary mb-2" />
-                <h4 className="mb-0">{totalCount}</h4>
-                <small className="text-muted">総ユーザー数</small>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card bg-light">
-              <div className="card-body text-center">
-                <i className="fas fa-user-shield fa-2x text-success mb-2" />
-                <h4 className="mb-0">{users.filter((u: BusinessUser) => u.role === 'ADMIN').length}</h4>
-                <small className="text-muted">管理者</small>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4">
-            <div className="card bg-light">
-              <div className="card-body text-center">
-                <i className="fas fa-user fa-2x text-info mb-2" />
-                <h4 className="mb-0">{users.filter((u: BusinessUser) => u.role !== 'ADMIN').length}</h4>
-                <small className="text-muted">一般ユーザー</small>
-              </div>
-            </div>
-          </div>
-        </div>
+  {/* ユーザー統計カード削除済み */}
 
         {/* ユーザー一覧テーブル */}
         {users.length > 0 ? (

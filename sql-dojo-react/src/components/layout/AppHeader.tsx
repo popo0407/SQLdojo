@@ -35,7 +35,7 @@ const AppHeader: React.FC = () => {
                   {user?.user_name} ({user?.user_id})
                 </Navbar.Text>
               </Nav.Item>
-              <Nav.Link as={Link} to="/user">ユーザーページ</Nav.Link>
+              <Nav.Link as={Link} to="/">SQLエディタ</Nav.Link>
               <Nav.Link as={Link} to="/manage-templates">テンプレート管理</Nav.Link>
               <Nav.Link as={Link} to="/sql-log">SQL実行履歴</Nav.Link>
               {!isAdmin && (
