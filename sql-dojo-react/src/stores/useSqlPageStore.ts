@@ -63,16 +63,19 @@ export const useSqlPageStore = create<SqlPageState>((set) => ({
     // パラメータ検証
     const validation = parameterStore.validateParameters();
     if (!validation.isValid) {
-      // エラーメッセージをUIストアに表示
-      const errorMessage = validation.errors.join('\n');
+      // バリデーションメッセージを統一的にUIストアへ
       const uiStore = useUIStore.getState();
-      uiStore.setError(new Error(errorMessage));
-      uiStore.setIsError(true);
+      uiStore.setValidationMessages(validation.errors);
+      uiStore.setError(null);
       return;
     }
     
     // パラメータ置換を実行
     const replacedSql = parameterStore.getReplacedSql(trimmedSql);
+
+    // バリデーションメッセージクリア
+    const uiStore = useUIStore.getState();
+    uiStore.setValidationMessages([]);
     
     // 実行状態を設定
     set({ isPending: true });

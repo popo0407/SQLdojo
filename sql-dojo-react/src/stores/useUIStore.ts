@@ -25,6 +25,9 @@ interface UIState extends BaseStoreState {
   
   // 設定状態
   configSettings: { default_page_size?: number; max_records_for_csv_download?: number } | null;
+  // バリデーション/ヘルプ
+  validationMessages: string[];
+  showShortcutHelp: boolean;
 }
 
 interface UIActions extends BaseStoreActions {
@@ -37,6 +40,8 @@ interface UIActions extends BaseStoreActions {
   setShowLimitDialog: (show: boolean) => void;
   setLimitDialogData: (data: LimitDialogData) => void;
   setConfigSettings: (settings: { default_page_size?: number; max_records_for_csv_download?: number } | null) => void;
+  setValidationMessages: (messages: string[]) => void;
+  setShowShortcutHelp: (show: boolean) => void;
   
   // 便利なアクション
   startLoading: () => void;
@@ -60,6 +65,8 @@ export const createUIStore = () => create<UIStore>((set) => ({
   showLimitDialog: false,
   limitDialogData: null,
   configSettings: null,
+  validationMessages: [],
+  showShortcutHelp: false,
 
   // BaseStoreActions の実装
   reset: () => set({
@@ -74,6 +81,8 @@ export const createUIStore = () => create<UIStore>((set) => ({
     showLimitDialog: false,
     limitDialogData: null,
     configSettings: null,
+  validationMessages: [],
+  showShortcutHelp: false,
   }),
   
   clearError: () => set({ error: null }),
@@ -91,6 +100,8 @@ export const createUIStore = () => create<UIStore>((set) => ({
   setShowLimitDialog: (showLimitDialog: boolean) => set({ showLimitDialog }),
   setLimitDialogData: (limitDialogData: LimitDialogData) => set({ limitDialogData }),
   setConfigSettings: (configSettings: { default_page_size?: number; max_records_for_csv_download?: number } | null) => set({ configSettings }),
+  setValidationMessages: (validationMessages: string[]) => set({ validationMessages }),
+  setShowShortcutHelp: (showShortcutHelp: boolean) => set({ showShortcutHelp }),
   
   // 便利なアクション
   startLoading: () => set({ isPending: true, error: null }),

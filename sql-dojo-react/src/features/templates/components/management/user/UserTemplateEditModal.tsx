@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Button, Alert, Spinner } from 'react-bootstrap';
+import { Modal, Form, Button, Spinner } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faSave, faTimes, faCode } from '@fortawesome/free-solid-svg-icons';
+import ValidationMessages from '../../../../../components/common/ValidationMessages';
 
 import type { TemplateWithPreferences } from '../../../types/template';
 
@@ -134,16 +135,7 @@ export const UserTemplateEditModal: React.FC<UserTemplateEditModalProps> = ({
       </Modal.Header>
 
       <Modal.Body>
-        {/* バリデーションエラー */}
-        {validationErrors.length > 0 && (
-          <Alert variant="danger">
-            <ul className="mb-0">
-              {validationErrors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </Alert>
-        )}
+  <ValidationMessages messages={validationErrors} onClose={() => setValidationErrors([])} />
 
         <Form onKeyDown={handleKeyDown}>
           {/* テンプレート名 */}
