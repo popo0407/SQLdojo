@@ -67,9 +67,10 @@ After every test execution, follow this verification protocol to ensure complete
 
 1. **Execution Confirmation**: Display `echo "ログファイルを確認"` before checking log files
 2. **Log File Existence**: Verify the log file was created: `Test-Path "logfile.log"`
-3. **Log File Completeness**: Check log file size and content validity: `Get-Content "logfile.log" | Select-Object -First 10 -Last 10`
+3. **Log File Completeness**: Check log file size and content validity: `Get-Content "logfile.log" | Select-Object -First 20 -Last 20`
 4. **Test Result Extraction**: Parse and document test success/failure counts from log
 5. **Missing Output Investigation**: If log is incomplete, re-execute with alternative capture methods
+6. **Immediate Cleanup (新ルール)**: 検証が完了したら当該ログファイルは即時削除する（例: `Remove-Item "logfile.log" -Force`）。長期保存が必要な場合のみ、別名へアーカイブしてから削除ポリシーに従う。
 
 **テスト実行戦略（エラー多数時の効率化）**
 
@@ -177,6 +178,38 @@ if (Test-Path "test-results.json") {
 }
 ```
 
+**PowerShell における pytest 個別実行フロー（FastAPI バックエンド）**
+
+以下は Windows PowerShell での「個別実行・検証・即削除」手順の標準例です。各コマンドは必ず“個別に”実行してください（コマンド結合は禁止）。
+
+1. テスト実行とログ保存（例: メタデータ API テスト）
+
+```powershell
+$ts = Get-Date -Format "yyyyMMdd-HHmmss"
+$logC = "post-metadata-$ts.log"
+C:/Users/user/Downloads/SQLdojo_20250712/.venv/Scripts/python.exe -m pytest app/tests/test_metadata_api.py -q > $logC 2>&1
+```
+
+2. 検証メッセージ表示（必須）
+
+```powershell
+echo "ログファイルを確認"
+```
+
+3. 生成確認と内容要約確認（先頭/末尾 20 行）
+
+```powershell
+Test-Path $logC
+Get-Content $logC | Select-Object -First 20 | Out-String
+Get-Content $logC | Select-Object -Last 20 | Out-String
+```
+
+4. 検証完了後の即時削除
+
+```powershell
+Remove-Item $logC -Force
+```
+
 **Test Construction for Untested Code**
 When encountering code without adequate test coverage:
 
@@ -187,12 +220,13 @@ When encountering code without adequate test coverage:
 
 **Test Log Management (効率化・文字化け対策)**
 
-- Save all test results with descriptive filenames: `{component}-{timestamp}-{summary|detail|error}-test.log`
-- Use staged logging approach for efficiency:
+- 基本原則（新ルール）: 個別のローカル検証用ログは「検証完了後に即時削除」する。恒久的に残す必要がある場合のみ、別名でアーカイブした上で保存方針に従う。
+- Save all test results with descriptive filenames only when archiving is required: `{component}-{timestamp}-{summary|detail|error}-test.log`
+- Use staged logging approach for efficiency (for archived logs only):
   - `summary` logs: Basic pass/fail counts (< 100KB)
   - `detail` logs: Full test output when needed (< 5MB)
   - `error` logs: Filtered error information only (< 1MB)
-- Archive test logs for audit trails and regression analysis
+- Archive test logs for audit trails and regression analysis when needed
 - Clean up temporary logs after verification using PowerShell-compatible commands:
 
 ```powershell

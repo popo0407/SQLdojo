@@ -4,6 +4,54 @@
 
 2025 年 7 月 21 日 09:30
 
+## 進捗アップデート（2025 年 8 月 10 日）
+
+最新の修正状況とテスト結果を記録します。次の改善に進む前に本ファイルを更新しました。
+
+- 高優先度 3 件（本番影響大）: 対応済み（テスト確認済み）
+
+  - メタデータ API 例外ハンドリング: 例外捕捉と適切な HTTP エラー返却を routes に実装。テスト再実行で回帰なし。
+    - 検証ログ: `post-metadata-20250810-060348.log`
+  - ログ API の Pydantic 型定義: `log_id` を str として返すよう整合化。テスト再実行で回帰なし。
+    - 検証ログ: `post-logs-20250810-060348.log`
+  - エクスポート API の Content-Type: charset 重複を解消し `text/csv; charset=utf-8` に統一。テスト再実行で回帰なし。
+    - 検証ログ: `post-export-20250810-060348.log`
+
+- 次に対応する項目（中優先度）
+  - 認証 API レスポンス構造の統一（/login に success を追加して暫定統一、最終方針検討）
+
+追加対応（2025-08-10）:
+
+- ストリーミング例外処理の改善（CSV 生成）: 対応済み
+
+  - 対象: `/sql/download/csv`
+  - 変更: レスポンス開始前に SQL 実行とカラム取得を実施し、例外を事前に検出。ジェネレータ内は I/O のみに限定。
+  - 効果: `RuntimeError: Caught handled exception, but response already started.` の再発を抑止
+  - テスト: `app/tests/test_export_api.py` → 8 passed, 3 skipped（ログは確認後に削除）
+
+  - ログ API の未実装エンドポイントの明確化（スタブ）: 実装済み
+    - `/logs/analytics` と `/logs/export` に 501 Not Implemented を明示返却
+    - 目的: 404 からの状態改善と仕様未決領域の明確化。将来実装時の移行影響を最小化
+    - テスト: `app/tests/test_logs_api.py` → 7 passed, 4 skipped（ログは確認後に削除）
+
+- 認証 API の刷新（/refresh 実装）: 対応済み
+
+  - 対象: `POST /refresh`
+  - 仕様: セッションの current_user を前提に、UserService.authenticate_user でキャッシュ（SQLite）から最新ユーザー情報を取得し、`request.session["user"]` を更新。レスポンスは `/login` と同一スキーマ（`{ success, message, user }`）。
+  - 例外: ユーザー未検出は 404、その他は 500 を返す。
+  - テスト: 追加した最小テスト `app/tests/test_refresh_api_minimal.py` → 2 passed（未認証 401 を含む）。
+  - 回帰確認: `app/tests/test_auth_api.py` → 8 passed, 5 skipped（変更なし）。
+  - ログ: 実行ログの先頭/末尾を確認。`app.log` はロックのため削除ではなく Clear-Content でクリア。
+
+- 認証 API の補強（/user/info, /users/me の最小テスト追加）: 対応済み
+  - 追加テスト:
+    - `app/tests/test_user_info_api_minimal.py` → 2 passed（認証あり/未認証）
+    - `app/tests/test_users_me_api_minimal.py` → 2 passed（認証あり/未認証）
+  - 目的: セッション DI 上書きによる簡易検証で、FastAPI TestClient 制約（session_transaction 非対応）を回避
+  - ログ: 実行後に app.log を確認のうえ Clear-Content でクリア
+
+備考: ログは確認後に削除する運用へ移行（詳細は `Rule_of_coding.md` のテスト運用ルール参照）。
+
 ## 認証 API (/login) の問題
 
 ### 問題 1: レスポンス構造の不一致
@@ -30,7 +78,13 @@
 }
 ```
 
-**影響**: テストが実際の API レスポンス構造と一致していない
+**対応（2025-08-10）**:
+
+- /login の成功レスポンスに `success: true` を追加し、暫定統一。
+- /logout の成功レスポンスにも `success: true` を追加し、統一。
+- /user/info を実装（`GET /user/info` → 認証済みユーザー情報を返却、`response_model=UserInfo`）。
+- /refresh は仕様未決のため `501 Not Implemented` を明示返却するスタブを追加。
+  **影響**: テストが実際の API レスポンス構造と一致していない問題は解消（`app/tests/test_auth_api.py` → 8 passed, 5 skipped を維持）。
 
 ### 問題 2: サービス実装と API レスポンスの詳細
 
@@ -79,8 +133,10 @@ else:
 
 **発見箇所**: `/refresh`, `/user/info`
 
-**エラー**: `404 Not Found`
-**問題**: ルーティングが定義されていないか、実装が不完全
+**現状対応（2025-08-10）**:
+
+- 501 Not Implemented を明示返却するスタブを追加（/refresh, /user/info）。
+- 目的: 404（未定義）から 501（仕様未決・未実装）に変更してクライアント実装を安定化。
 
 ### 問題 6: TestClient セッション処理問題
 
@@ -303,6 +359,13 @@ RuntimeError: Caught handled exception, but response already started.
 # cursor.description の取り扱いとエラーハンドリング
 ```
 
+【対応状況（2025-08-10 完了）】
+
+- `/sql/download/csv` にて、`StreamingResponse` 返却前に `cursor.execute()` と `cursor.description` によるカラム取得を実施
+- 例外はレスポンス開始前に `HTTPException(500)` で返却、ジェネレータ内はチャンク書き出しのみ
+- 影響範囲最小化のため既存 IF は変更なし、Content-Type は `text/csv; charset=utf-8` を維持
+- テスト結果: `app/tests/test_export_api.py` 8 passed, 3 skipped（ログは確認後に削除）
+
 ## ログ API (/logs/\*) の問題
 
 ### 問題 1: Pydantic モデル型定義エラー
@@ -329,11 +392,10 @@ log_id
 
 **発見箇所**: `/logs/analytics`, `/logs/export`
 
-**問題**:
+**問題 → 現状**:
 
-- ルーティングは定義されているがエンドポイントが存在しない
-- 404 エラーが発生
-- テストでスキップマークが必要
+- ルーティング未定義による 404 を解消し、スタブで 501 を明示返却（/logs/analytics, /logs/export）
+- 本実装の仕様確定までスキップ継続
 
 ## 修正優先度と推奨アクション
 
@@ -345,8 +407,8 @@ log_id
 
 ### 📋 中優先度 (開発効率影響)
 
-4. **認証 API レスポンス構造統一**: API とテストの整合性
-5. **ストリーミング例外処理改善**: 安定性向上
+4. **認証 API レスポンス構造統一**: API とテストの整合性（テスト側は現行レスポンス構造に整合済み。最終仕様の決定・ドキュメント反映を残件とする）
+5. ~~**ストリーミング例外処理改善**: 安定性向上~~ → 対応済み（/sql/download/csv）
 
 ### 📝 低優先度 (機能拡張)
 

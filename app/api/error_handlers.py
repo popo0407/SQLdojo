@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Union
 import logging
+import time
 
 from app.exceptions import BaseAppException
 from app.logger import get_logger
@@ -24,9 +25,11 @@ async def app_exception_handler(request: Request, exc: BaseAppException) -> JSON
                 path=request.url.path,
                 method=request.method)
     
+    content = exc.to_dict()
+    content["timestamp"] = time.time()
     return JSONResponse(
         status_code=exc.status_code,
-        content=exc.to_dict()
+        content=content
     )
 
 
@@ -47,7 +50,13 @@ def register_exception_handlers(app):
         
         return JSONResponse(
             status_code=exc.status_code,
-            content={"detail": detail, "error": True, "message": detail, "status_code": exc.status_code}
+            content={
+                "detail": detail,
+                "error": True,
+                "message": detail,
+                "status_code": exc.status_code,
+                "timestamp": time.time(),
+            }
         )
     
     app.add_exception_handler(StarletteHTTPException, starlette_http_exception_handler)
@@ -73,7 +82,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             "status_code": 422,
             "detail": {
                 "validation_errors": exc.errors()
-            }
+            },
+            "timestamp": time.time(),
         }
     )
 
@@ -95,7 +105,8 @@ async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPE
             "error": True,
             "message": exc.detail,
             "status_code": exc.status_code,
-            "detail": {}
+            "detail": {},
+            "timestamp": time.time(),
         }
     )
 
@@ -113,6 +124,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
             "error": True,
             "message": "内部サーバーエラー",
             "status_code": 500,
-            "detail": {}
+            "detail": {},
+            "timestamp": time.time(),
         }
     ) 

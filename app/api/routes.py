@@ -238,12 +238,42 @@ async def login(request: Request, login_req: UserLoginRequest, user_service: Use
         # セッション保存後の状態をログ
         logger.info(f"ログイン成功: {user['user_id']}, セッションキー: {list(request.session.keys())}")
         logger.info(f"保存されたユーザー情報: {request.session.get('user')}")
-        
         # SessionMiddlewareに完全に任せる
-        return {"message": "ログイン成功", "user": user}
+        return {"success": True, "message": "ログイン成功", "user": user}
     else:
         logger.warning(f"ログイン失敗: {login_req.user_id}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="ユーザーIDが無効です")
+
+
+@router.post("/refresh")
+async def refresh_user_info(request: Request, current_user: CurrentUserDep, user_service: UserServiceDep):
+    """ユーザー情報の再取得（キャッシュから最新を取得してセッションを更新）"""
+    logger.info(f"ユーザー情報リフレッシュ要求: user_id={current_user.get('user_id')}")
+
+    try:
+        user_id = current_user["user_id"]
+        fresh_user = await run_in_threadpool(user_service.authenticate_user, user_id)
+
+        if not fresh_user:
+            logger.warning(f"ユーザー情報がキャッシュに存在しません: user_id={user_id}")
+            raise HTTPException(status_code=404, detail="ユーザー情報が見つかりません")
+
+        # セッション内のユーザー情報を更新
+        request.session["user"] = fresh_user
+        logger.info(f"ユーザー情報を更新しました: user_id={user_id}")
+
+        return {"success": True, "message": "ユーザー情報を更新しました", "user": fresh_user}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"ユーザー情報リフレッシュ中にエラー: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"ユーザー情報の更新に失敗しました: {str(e)}")
+
+
+@router.get("/user/info", response_model=UserInfo)
+async def get_user_info(current_user: CurrentUserDep):
+    """現在のユーザー情報を返す（/users/me のエイリアス）"""
+    return current_user
 
 # キャッシュクリア用のヘルパー関数を定義
 def cleanup_user_cache_task(
@@ -271,7 +301,7 @@ async def logout(request: Request):
     user = request.session.get("user")
     request.session.clear()
     logger.info(f"セッションをクリアしました。ユーザー: {user.get('user_id') if user else '不明'}")
-    return {"message": "ログアウトしました"}
+    return {"success": True, "message": "ログアウトしました"}
 
 @router.get("/users/me", response_model=UserInfo)
 async def get_current_user_info(current_user: CurrentUserDep):
@@ -524,7 +554,7 @@ async def get_sql_logs(
     
     logs = [
         SQLExecutionLog(
-            log_id=log["log_id"],
+            log_id=str(log["log_id"]) if log.get("log_id") is not None else "",
             user_id=log["user_id"],
             sql=log["sql"],
             execution_time=log["execution_time"],
@@ -557,7 +587,7 @@ async def get_all_sql_logs(
     
     logs = [
         SQLExecutionLog(
-            log_id=log["log_id"],
+            log_id=str(log["log_id"]) if log.get("log_id") is not None else "",
             user_id=log["user_id"],
             sql=log["sql"],
             execution_time=log["execution_time"],
@@ -593,6 +623,19 @@ async def clear_all_sql_logs(
     """全SQL実行ログをクリア（管理者用）"""
     sql_log_service.clear_logs()
     return {"message": "全SQL実行ログをクリアしました"}
+
+
+# ログ分析・エクスポート（未実装スタブ）
+@router.get("/logs/analytics")
+async def get_log_analytics(current_user: CurrentUserDep):
+    """ログ分析（未実装）"""
+    raise HTTPException(status_code=501, detail="ログ分析APIは未実装です")
+
+
+@router.post("/logs/export")
+async def export_logs(current_user: CurrentUserDep):
+    """ログCSVエクスポート（未実装）"""
+    raise HTTPException(status_code=501, detail="ログエクスポートAPIは未実装です")
 
 
 # 管理者用のAPI（メタデータ・表示設定）
@@ -775,19 +818,40 @@ def export_data_endpoint(request: ExportRequest, export_service: ExportServiceDe
 @router.get("/metadata/schemas", response_model=List[Dict[str, Any]])
 async def get_schemas_endpoint(metadata_service: MetadataServiceDep):
     """スキーマ一覧を取得する"""
-    return await run_in_threadpool(metadata_service.get_schemas)
+    try:
+        return await run_in_threadpool(metadata_service.get_schemas)
+    except MetadataError as e:
+        logger.error(f"メタデータ取得エラー(スキーマ): {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"予期しないエラー(スキーマ): {e}")
+        raise HTTPException(status_code=500, detail="メタデータ取得に失敗しました")
 
 
 @router.get("/metadata/schemas/{schema_name}/tables", response_model=List[Dict[str, Any]])
 async def get_tables_endpoint(schema_name: str, metadata_service: MetadataServiceDep):
     """テーブル一覧を取得する"""
-    return await run_in_threadpool(metadata_service.get_tables, schema_name)
+    try:
+        return await run_in_threadpool(metadata_service.get_tables, schema_name)
+    except MetadataError as e:
+        logger.error(f"メタデータ取得エラー(テーブル): {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"予期しないエラー(テーブル): {e}")
+        raise HTTPException(status_code=500, detail="メタデータ取得に失敗しました")
 
 
 @router.get("/metadata/schemas/{schema_name}/tables/{table_name}/columns", response_model=List[Dict[str, Any]])
 async def get_columns_endpoint(schema_name: str, table_name: str, metadata_service: MetadataServiceDep):
     """カラム一覧を取得する"""
-    return await run_in_threadpool(metadata_service.get_columns, schema_name, table_name)
+    try:
+        return await run_in_threadpool(metadata_service.get_columns, schema_name, table_name)
+    except MetadataError as e:
+        logger.error(f"メタデータ取得エラー(カラム): {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"予期しないエラー(カラム): {e}")
+        raise HTTPException(status_code=500, detail="メタデータ取得に失敗しました")
 
 
 @router.post("/metadata/refresh-cache")
@@ -1205,58 +1269,56 @@ async def download_csv_endpoint(
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"query_result_{timestamp}.csv"
         
+        # レスポンス開始前にSQLを実行し、カラムを確定させる（例外をここで検出）
+        try:
+            cursor.execute(request.sql)
+            columns = [column[0] for column in cursor.description]
+        except Exception as e:
+            logger.error(f"CSVダウンロード実行時エラー: {e}", exc_info=True)
+            # 接続はこの後のfinallyで解放
+            raise HTTPException(status_code=500, detail=f"CSVダウンロードに失敗しました: {str(e)}")
+
         def csv_stream_generator():
-            """CSVストリーミング生成器"""
+            """CSVストリーミング生成器（ヘッダー確定後に開始）"""
             try:
-                # SQLを実行
-                cursor.execute(request.sql)
-                
-                # カラム情報を取得
-                columns = [column[0] for column in cursor.description]
-                
                 # CSVライターを作成
                 output = io.StringIO()
                 writer = csv.writer(output)
-                
+
                 # ヘッダーを書き込み
                 writer.writerow(columns)
                 yield output.getvalue()
                 output.seek(0)
                 output.truncate()
-                
+
                 # データをチャンク単位で取得・書き込み
                 chunk_size = 1000
                 processed_rows = 0
-                
+
                 while True:
                     chunk = cursor.fetchmany(chunk_size)
                     if not chunk:
                         break
-                    
+
                     for row in chunk:
                         writer.writerow(row)
                         processed_rows += 1
-                    
+
                     # チャンクごとにストリーミング
                     yield output.getvalue()
                     output.seek(0)
                     output.truncate()
-                
+
                 logger.info(f"CSVダウンロード完了: {processed_rows}件, ユーザー: {current_user['user_id']}")
-                
-            except Exception as e:
-                logger.error(f"CSVダウンロードエラー: {e}", exc_info=True)
-                raise HTTPException(status_code=500, detail=f"CSVダウンロードに失敗しました: {str(e)}")
             finally:
                 if 'conn_id' in locals() and conn_id:
                     connection_manager.release_connection(conn_id)
         
         return StreamingResponse(
             csv_stream_generator(),
-            media_type="text/csv",
+            media_type="text/csv; charset=utf-8",
             headers={
-                "Content-Disposition": f"attachment; filename={filename}",
-                "Content-Type": "text/csv; charset=utf-8"
+                "Content-Disposition": f"attachment; filename={filename}"
             }
         )
         
