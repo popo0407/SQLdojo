@@ -306,6 +306,11 @@ class SaveVisibilitySettingsRequest(BaseModel):
     settings: List[VisibilitySetting] = Field(..., description="表示設定リスト")
 
 
+class SaveVisibilitySettingsDictRequest(BaseModel):
+    """管理UIからの簡易dict形式 { object_name: is_visible } を受けるためのモデル"""
+    settings: Dict[str, bool] = Field(..., description="表示設定マップ")
+
+
 # ユーザー表示設定用のモデル
 class UserTemplatePreference(BaseModel):
     """ユーザーテンプレート表示設定"""

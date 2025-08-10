@@ -12,7 +12,8 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
 from app.dependencies import (
-    get_sql_service_di, get_performance_service_di, get_completion_service_di
+    get_sql_service_di, get_performance_service_di, get_completion_service_di,
+    get_current_user
 )
 
 

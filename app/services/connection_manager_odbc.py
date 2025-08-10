@@ -47,9 +47,9 @@ class ConnectionManagerODBC:
             drivers = pyodbc.drivers()
             snowflake_drivers = [d for d in drivers if 'snowflake' in d.lower()]
             if not snowflake_drivers:
-                self.logger.warning("Snowflake ODBCドライバーが見つかりません。利用可能なドライバー: %s", drivers)
+                self.logger.warning(f"Snowflake ODBCドライバーが見つかりません。利用可能なドライバー: {drivers}")
             else:
-                self.logger.info("Snowflake ODBCドライバーが見つかりました: %s", snowflake_drivers)
+                self.logger.info(f"Snowflake ODBCドライバーが見つかりました: {snowflake_drivers}")
         except Exception as e:
             self.logger.error(f"ODBCドライバーの確認中にエラー: {e}")
     

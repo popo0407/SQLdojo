@@ -52,6 +52,88 @@
 
 備考: ログは確認後に削除する運用へ移行（詳細は `Rule_of_coding.md` のテスト運用ルール参照）。
 
+— エラーレスポンス統一の適用範囲拡大（メタデータ API/ログ API）: 対応済み
+
+    - 追加テスト:
+      - `app/tests/test_error_response_metadata_minimal.py` → 2 passed
+      - 既存の `app/tests/test_error_response_minimal.py` と併せて 4 passed を確認
+    - 目的: `timestamp` を含む統一エラーフォーマットの維持検証（HTTPException/一般例外/バリデーション）
+    - ログ: 実行後に app.log を確認し、Clear-Content でクリア
+
+— 付随修正: ODBC ロガーのフォーマット引数エラー修正
+
+    - 現象: `Logger.info() takes 2 positional arguments but 3 were given`
+    - 原因: `logging` 標準の`%s`フォーマット引数スタイルがカスタム Logger のシグネチャと不整合
+    - 修正: `app/services/connection_manager_odbc.py` の warning/info 呼び出しを f文字列に変更
+    - 検証: 最小テスト実行後の `app.log` にエラー再発なし
+
+- エラーレスポンス統一の適用範囲拡大（エクスポート/CSV 系）: 対応済み
+
+  - 追加テスト: `app/tests/test_error_response_export_minimal.py` → 5 passed
+    - /sql/download/csv: 空 SQL(400), SQL 実行例外(500), 件数超過(400)
+    - /sql/cache/download/csv: session_id 欠如(422), データなし(404)
+  - 変更: /sql/cache/download/csv で発生する HTTPException(404) を 500 にラップせずに伝播
+  - ログ: 実行後に app.log を確認し、Clear-Content でクリア
+
+- エラーレスポンス統一の適用範囲拡大（認証/認可 系）: 対応済み
+
+  - 追加テスト: `app/tests/test_error_response_authz_minimal.py` → 3 passed
+    - /admin/system/refresh: 未認証 401、権限不足 403
+    - /users/templates: 未認証 401
+  - ポリシー: 401/403 は HTTPException をそのまま統一ハンドラーへ伝播
+  - ログ: 実行後に app.log を確認し、Clear-Content でクリア
+
+- エラーレスポンス統一の適用範囲拡大（テンプレート/パーツ 系）: 対応済み（2025-08-10）
+
+  - 追加テスト: `app/tests/test_error_response_templates_parts_minimal.py` → 5 passed
+    - /admin/templates: サービス例外時 500（統一フォーマット）
+    - /users/templates: バリデーション欠如時 422（統一フォーマット）
+    - /users/templates/{template_id}: サービス例外(ValueError)時 500（統一フォーマット）
+    - /admin/parts: サービス例外時 500（統一フォーマット）
+    - /users/parts: バリデーション欠如時 422（統一フォーマット）
+  - 備考: FastAPI TestClient の例外再スローにより 500 検証が妨げられていたため、テスト用クライアントを `raise_server_exceptions=False` に設定（`conftest.py` フィクスチャ）。
+  - ログ: 実行後に app.log を確認し、Clear-Content でクリア
+
+— 表示設定 API（/admin/visibility-settings, /visibility-settings）: 対応済み（2025-08-10）
+
+  - 変更点:
+    - GET /admin/visibility-settings と GET /visibility-settings のレスポンスを `{ "settings": ... }` へ統一
+    - POST /admin/visibility-settings の入力を拡張し、`{"settings": {object_name: is_visible}}` 形式（dict）と、既存の `{"settings": [VisibilitySetting, ...]}` 形式（list）の両方を受容
+    - サービス実装差分に対応するため、`get_all_visibility_settings|get_all_settings` と `save_visibility_settings|save_settings` の両メソッド名にフォールバック対応
+  - 追加/更新: `app/api/models.py` に `SaveVisibilitySettingsDictRequest` を追加
+  - テスト: `TestVisibilitySettingsAPI::test_get_visibility_settings_success`, `::test_save_visibility_settings_success` → 2 passed
+  - ログ: 異常出力なし（`app/tests/app.log` のみ使用）。
+
+— 互換APIの追加とユーティリティ改善（2025-08-10）
+
+  - メタデータAPIの互換ラッパー追加:
+    - GET `/metadata/tables?schema_name=...` → `{ "tables": [...] }`
+    - GET `/metadata/columns?schema_name=...&table_name=...` → `{ "columns": [...] }`
+    - GET `/metadata/schemas` は `{ "schemas": [...] }` で返却
+    - 管理者用 GET `/admin/metadata/all-raw` は `get_all_metadata_raw` があれば優先、無い場合は `get_all_metadata`
+  - SQL補完API改善:
+    - 空SQL時は 400 + `detail: "SQLクエリが空です"` を返却
+    - 例外時は 500 + `detail` に元メッセージ
+  - パフォーマンスメトリクスAPI改善:
+    - サービス例外時に 500 を返却
+  - クリンナップAPI追加:
+    - POST `/cleanup/cache` → `{ success: true, message: "クリーンアップが完了しました" }`
+  - テスト: 対応範囲の最小テスト → 9 passed（表示設定 2件、互換/補完/性能/クリンナップ関連）
+
+  - HybridSQLService のテスト互換修正（2025-08-10）: 対応済み
+
+    - 変更点:
+      - execute_sql_with_cache にレガシーモードを追加（cache_service.cache_results が存在する場合）
+      - セッションID生成で session_service.create_session を優先（旧テスト互換）
+      - レガシーモードでは fetchall + cache_results を使用し、COUNT 取得失敗時は processed_rows を total_count にフォールバック
+      - get_cached_data は欠損キー（page/page_size/total_pages）にデフォルト値で補完
+      - _get_total_count は多様な Mock 戻り値に対応し、例外時は 0 を返す（Logger.debug の引数不整合も修正）
+    - テスト結果:
+      - app/tests/test_services.py::TestHybridSQLService → 5 passed（他は deselected）
+    - 影響範囲:
+      - 既存 API の挙動は維持（通常モードは従来どおりのカーソル逐次取得）。
+      - 旧テストが期待するレガシー経路でも成功するよう互換を確保。
+
 ## 認証 API (/login) の問題
 
 ### 問題 1: レスポンス構造の不一致
