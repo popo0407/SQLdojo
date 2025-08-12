@@ -27,9 +27,12 @@ interface SQLFormatResponse {
 // 汎用的なAPIクライアント
 export const apiClient = {
   get: async <T>(endpoint: string): Promise<T> => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
     const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
       credentials: 'include', // セッションCookieを含める
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timer));
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -41,6 +44,8 @@ export const apiClient = {
   },
 
   post: async <T>(endpoint: string, body: unknown, method: string = 'POST'): Promise<T> => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
     const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
       method,
       credentials: 'include', // セッションCookieを含める
@@ -48,7 +53,8 @@ export const apiClient = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timer));
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -61,6 +67,8 @@ export const apiClient = {
 
   // SQL整形API
   formatSQL: async (sql: string): Promise<SQLFormatResponse> => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
     const response = await fetch(`${API_CONFIG.BASE_URL}/sql/format`, {
       method: 'POST',
       credentials: 'include', // セッションCookieを含める
@@ -68,7 +76,8 @@ export const apiClient = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ sql }),
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timer));
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -86,6 +95,8 @@ export const apiClient = {
     filters?: FilterConfig,
     sortConfig?: import('../types/results').SortConfig | null
   ) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
     const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/read`, {
       method: 'POST',
       credentials: 'include', // セッションCookieを含める
@@ -100,7 +111,8 @@ export const apiClient = {
         sort_by: sortConfig?.key,
         sort_order: sortConfig?.direction?.toUpperCase() || 'ASC'
       }),
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timer));
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -113,8 +125,11 @@ export const apiClient = {
 
   // CSVダウンロード（session_idベースに変更）
   downloadCsv: async (sessionId: string, filters?: FilterConfig, sortBy?: string, sortOrder?: string): Promise<Blob> => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
     const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/download/csv`, {
       method: 'POST',
+      credentials: 'include', // セッションCookieを含める
       headers: {
         'Content-Type': 'application/json',
       },
@@ -124,7 +139,8 @@ export const apiClient = {
         sort_by: sortBy,
         sort_order: sortOrder
       }),
-    });
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timer));
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

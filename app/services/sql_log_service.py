@@ -30,6 +30,7 @@ class SQLLogService:
             from app.services.connection_manager_sqlite import ConnectionManagerSQLite
             sqlite_connection_manager = ConnectionManagerSQLite()
             sqlite_query_executor = QueryExecutor(sqlite_connection_manager)
+            self.logger.info(f"SQLite ログDBパス: {self.settings.sqlite_db_path}")
             self.log_handler = SqliteLogHandler(self.settings.sqlite_db_path)
         elif log_storage_type == "snowflake":
             self.logger.info("Snowflakeログハンドラを初期化します")

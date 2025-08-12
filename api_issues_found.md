@@ -96,43 +96,55 @@
 
 — 表示設定 API（/admin/visibility-settings, /visibility-settings）: 対応済み（2025-08-10）
 
+- 変更点:
+  - GET /admin/visibility-settings と GET /visibility-settings のレスポンスを `{ "settings": ... }` へ統一
+  - POST /admin/visibility-settings の入力を拡張し、`{"settings": {object_name: is_visible}}` 形式（dict）と、既存の `{"settings": [VisibilitySetting, ...]}` 形式（list）の両方を受容
+  - サービス実装差分に対応するため、`get_all_visibility_settings|get_all_settings` と `save_visibility_settings|save_settings` の両メソッド名にフォールバック対応
+- 追加/更新: `app/api/models.py` に `SaveVisibilitySettingsDictRequest` を追加
+- テスト: `TestVisibilitySettingsAPI::test_get_visibility_settings_success`, `::test_save_visibility_settings_success` → 2 passed
+- ログ: 異常出力なし（`app/tests/app.log` のみ使用）。
+
+— 互換 API の追加とユーティリティ改善（2025-08-10）
+
+- メタデータ API の互換ラッパー追加:
+  - GET `/metadata/tables?schema_name=...` → `{ "tables": [...] }`
+  - GET `/metadata/columns?schema_name=...&table_name=...` → `{ "columns": [...] }`
+  - GET `/metadata/schemas` は `{ "schemas": [...] }` で返却
+  - 管理者用 GET `/admin/metadata/all-raw` は `get_all_metadata_raw` があれば優先、無い場合は `get_all_metadata`
+- SQL 補完 API 改善:
+  - 空 SQL 時は 400 + `detail: "SQLクエリが空です"` を返却
+  - 例外時は 500 + `detail` に元メッセージ
+- パフォーマンスメトリクス API 改善:
+  - サービス例外時に 500 を返却
+- クリンナップ API 追加:
+  - POST `/cleanup/cache` → `{ success: true, message: "クリーンアップが完了しました" }`
+- テスト: 対応範囲の最小テスト → 9 passed（表示設定 2 件、互換/補完/性能/クリンナップ関連）
+
+- HybridSQLService のテスト互換修正（2025-08-10）: 対応済み
+
   - 変更点:
-    - GET /admin/visibility-settings と GET /visibility-settings のレスポンスを `{ "settings": ... }` へ統一
-    - POST /admin/visibility-settings の入力を拡張し、`{"settings": {object_name: is_visible}}` 形式（dict）と、既存の `{"settings": [VisibilitySetting, ...]}` 形式（list）の両方を受容
-    - サービス実装差分に対応するため、`get_all_visibility_settings|get_all_settings` と `save_visibility_settings|save_settings` の両メソッド名にフォールバック対応
-  - 追加/更新: `app/api/models.py` に `SaveVisibilitySettingsDictRequest` を追加
-  - テスト: `TestVisibilitySettingsAPI::test_get_visibility_settings_success`, `::test_save_visibility_settings_success` → 2 passed
-  - ログ: 異常出力なし（`app/tests/app.log` のみ使用）。
+    - execute_sql_with_cache にレガシーモードを追加（cache_service.cache_results が存在する場合）
+    - セッション ID 生成で session_service.create_session を優先（旧テスト互換）
+    - レガシーモードでは fetchall + cache_results を使用し、COUNT 取得失敗時は processed_rows を total_count にフォールバック
+    - get_cached_data は欠損キー（page/page_size/total_pages）にデフォルト値で補完
+    - \_get_total_count は多様な Mock 戻り値に対応し、例外時は 0 を返す（Logger.debug の引数不整合も修正）
+  - テスト結果:
+    - app/tests/test_services.py::TestHybridSQLService → 5 passed（他は deselected）
+  - 影響範囲:
+    - 既存 API の挙動は維持（通常モードは従来どおりのカーソル逐次取得）。
+    - 旧テストが期待するレガシー経路でも成功するよう互換を確保。
 
-— 互換APIの追加とユーティリティ改善（2025-08-10）
+- CORS とポートの .env 化（2025-08-10）: 対応済み
 
-  - メタデータAPIの互換ラッパー追加:
-    - GET `/metadata/tables?schema_name=...` → `{ "tables": [...] }`
-    - GET `/metadata/columns?schema_name=...&table_name=...` → `{ "columns": [...] }`
-    - GET `/metadata/schemas` は `{ "schemas": [...] }` で返却
-    - 管理者用 GET `/admin/metadata/all-raw` は `get_all_metadata_raw` があれば優先、無い場合は `get_all_metadata`
-  - SQL補完API改善:
-    - 空SQL時は 400 + `detail: "SQLクエリが空です"` を返却
-    - 例外時は 500 + `detail` に元メッセージ
-  - パフォーマンスメトリクスAPI改善:
-    - サービス例外時に 500 を返却
-  - クリンナップAPI追加:
-    - POST `/cleanup/cache` → `{ success: true, message: "クリーンアップが完了しました" }`
-  - テスト: 対応範囲の最小テスト → 9 passed（表示設定 2件、互換/補完/性能/クリンナップ関連）
-
-  - HybridSQLService のテスト互換修正（2025-08-10）: 対応済み
-
-    - 変更点:
-      - execute_sql_with_cache にレガシーモードを追加（cache_service.cache_results が存在する場合）
-      - セッションID生成で session_service.create_session を優先（旧テスト互換）
-      - レガシーモードでは fetchall + cache_results を使用し、COUNT 取得失敗時は processed_rows を total_count にフォールバック
-      - get_cached_data は欠損キー（page/page_size/total_pages）にデフォルト値で補完
-      - _get_total_count は多様な Mock 戻り値に対応し、例外時は 0 を返す（Logger.debug の引数不整合も修正）
-    - テスト結果:
-      - app/tests/test_services.py::TestHybridSQLService → 5 passed（他は deselected）
-    - 影響範囲:
-      - 既存 API の挙動は維持（通常モードは従来どおりのカーソル逐次取得）。
-      - 旧テストが期待するレガシー経路でも成功するよう互換を確保。
+  - 変更点:
+  - 環境変数 `CORS_ORIGINS` を導入し、`.env` から CORS 許可オリジンを設定可能に（カンマ区切りのみ対応）
+    - ポート設定は `APP_PORT` に一本化（`PORT_NO` 互換上書きは廃止）
+    - `app/main.py` で `settings.cors_origins` を使用して CORS ミドルウェアを構成
+  - 検証:
+    - 最小起動テストで許可オリジンが反映されることをヘッダーで確認（開発モード）
+    - 127.0.0.1 / localhost 両方のオリジンで Cookie セッションが維持されることをブラウザで確認予定
+  - 備考:
+    - `env.example.simplified` に `CORS_ORIGINS` を追記（`PORT_NO` 記載は削除）
 
 ## 認証 API (/login) の問題
 

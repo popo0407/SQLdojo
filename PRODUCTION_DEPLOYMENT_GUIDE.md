@@ -88,7 +88,7 @@ python check_database.py
 systemctl start sqldojo-app
 
 # ヘルスチェック
-curl http://localhost:8000/api/v1/health
+curl http://localhost:8001/api/v1/health
 
 # 新機能の動作確認
 python test_api_integration.py

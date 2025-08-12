@@ -10,6 +10,7 @@ import { UserTemplateDeleteModal } from './UserTemplateDeleteModal';
 import { UserTemplateInlineManagement } from './UserTemplateInlineManagement';
 
 import type { TemplateWithPreferences } from '../../../types/template';
+import { API_CONFIG } from '../../../../../config/api';
 
 /**
  * ユーザーテンプレート管理のメインページ
@@ -199,7 +200,7 @@ export const UserTemplateManagementPage: React.FC = () => {
 
                   // 直接API呼び出し（状態更新を待たない）
                   const token = localStorage.getItem('token');
-                  const response = await fetch('http://localhost:8001/api/v1/users/template-preferences', {
+                  const response = await fetch(`${API_CONFIG.BASE_URL}/users/template-preferences`, {
                     method: 'PUT',
                     credentials: 'include',
                     headers: {

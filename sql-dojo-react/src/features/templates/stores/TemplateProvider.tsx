@@ -5,6 +5,7 @@ import { templateReducer, initialTemplateState } from './templateReducer';
 import { TemplateContext } from './templateContext';
 import type { TemplateContextValue } from './templateContext';
 import { TemplateErrorBoundary } from '../../../components/common/ErrorBoundary';
+import { API_CONFIG } from '../../../config/api';
 
 // re-export TemplateContext for external use
 export { TemplateContext } from './templateContext';
@@ -20,7 +21,7 @@ interface TemplateProviderProps {
 /**
  * API通信用のベースURL（デフォルト値）
  */
-const DEFAULT_API_BASE_URL = 'http://localhost:8001/api/v1';
+const DEFAULT_API_BASE_URL = API_CONFIG.BASE_URL;
 
 /**
  * テンプレートコンテキストプロバイダー

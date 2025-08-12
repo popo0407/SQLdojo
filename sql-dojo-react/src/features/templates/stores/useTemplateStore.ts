@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { API_CONFIG } from '../../../config/api';
 import type { 
   TemplateWithPreferences, 
   TemplatePreference,
@@ -121,7 +122,7 @@ const initialState: TemplateStoreState = {
 // API通信ヘルパー
 // ===========================================
 
-const DEFAULT_API_BASE_URL = 'http://localhost:8001/api/v1';
+const DEFAULT_API_BASE_URL = API_CONFIG.BASE_URL;
 
 /**
  * 認証付きfetch処理

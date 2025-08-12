@@ -14,9 +14,10 @@ import type {
   TemplateDropdownResponse,
   TemplatePreferencesResponse,
 } from '../types/template';
+import { API_CONFIG } from '../../../config/api';
 
 // API基本設定
-const API_BASE_URL = 'http://localhost:8001/api/v1';
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // 汎用エラークラス
 export class TemplateApiError extends Error {

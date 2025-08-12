@@ -2,9 +2,8 @@
 """
 簡素化された設定管理モジュール（キーペア認証専用）
 """
-import os
 from typing import Optional, List
-from pydantic import Field, field_validator, ConfigDict
+from pydantic import Field, field_validator, ConfigDict, AliasChoices
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
@@ -49,17 +48,36 @@ class Settings(BaseSettings):
     oracle_user: Optional[str] = Field(default=None, description="Oracleユーザー名")
     oracle_password: Optional[str] = Field(default=None, description="Oracleパスワード")
     
-    # SQLite接続設定
-    sqlite_db_path: str = Field(default="./logs/sql_logs.db", description="SQLiteデータベースファイルパス")
+    # SQLite接続設定（環境変数 SQLITE_LOG_DB_PATH を優先）
+    sqlite_db_path: str = Field(
+        default="./logs/sql_logs.db",
+        description="SQLiteデータベースファイルパス",
+        validation_alias=AliasChoices('SQLITE_LOG_DB_PATH', 'sqlite_db_path')
+    )
+    sqlite_tool_name: str = Field(
+        default="SQLDOJOWEB",
+        description="SQLiteログで使用するTOOL_NAME（空文字でフィルタ無効化）",
+        validation_alias=AliasChoices('SQLITE_TOOL_NAME', 'sqlite_tool_name')
+    )
 
     # アプリケーション設定
     app_host: str = Field(default="0.0.0.0", description="アプリケーションホスト")
-    app_port: int = Field(default=8000, description="アプリケーションポート")
+    app_port: int = Field(default=8001, description="アプリケーションポート")
     app_debug: bool = Field(default=False, description="デバッグモード")
+    # CORS 設定（環境変数はカンマ区切りの文字列を受け取り、プロパティで List[str] に変換）
+    cors_origins_raw: str = Field(
+        default="http://localhost:5173,http://127.0.0.1:5173",
+        description="CORS許可オリジンのカンマ区切り文字列",
+        validation_alias=AliasChoices('CORS_ORIGINS', 'cors_origins')
+    )
     
     # ログ設定
     log_level: str = Field(default="INFO", description="ログレベル")
-    log_storage_type: str = Field(default="oracle", description="ログ保存先タイプ (oracle, sqlite, snowflake)")
+    log_storage_type: str = Field(
+        default="oracle",
+        description="ログ保存先タイプ (oracle, sqlite, snowflake)",
+        validation_alias=AliasChoices('LOG_STORAGE_TYPE', 'log_storage_type')
+    )
 
     # Snowflakeログ用接続設定（キーペア認証）
     snowflake_log_account: Optional[str] = Field(default=None, description="Snowflakeログ用アカウント")
@@ -152,6 +170,14 @@ class Settings(BaseSettings):
         if v.lower() not in valid_types:
             raise ValueError(f'ログストレージタイプは{valid_types}のいずれかである必要があります')
         return v.lower()
+
+    @property
+    def cors_origins(self) -> List[str]:
+        s = (self.cors_origins_raw or "").strip()
+        if not s:
+            return ["http://localhost:5173", "http://127.0.0.1:5173"]
+        parts = [p.strip() for p in s.split(',')]
+        return [p for p in parts if p]
 
 
 # グローバル設定インスタンス
