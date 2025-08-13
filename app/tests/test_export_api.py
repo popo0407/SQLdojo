@@ -260,10 +260,11 @@ class TestCacheDownloadCSVAPI:
                 json={"session_id": "empty_session"}
             )
             
-            # 実際のAPIは500エラーを返す（例外ハンドリングの問題）
-            assert response.status_code == 500
+            # 統一エラーレスポンスではデータなしは404
+            assert response.status_code == 404
             data = response.json()
-            assert "CSVダウンロードに失敗しました" in data["detail"]
+            # メッセージ詳細に「データが見つかりません」を含む
+            assert "データが見つかりません" in data["detail"]
         finally:
             app.dependency_overrides.clear()
     

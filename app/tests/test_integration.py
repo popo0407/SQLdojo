@@ -10,7 +10,8 @@ from unittest.mock import Mock, patch
 import json
 from app.dependencies import (
     get_sql_service_di, get_hybrid_sql_service_di, get_current_user,
-    get_sql_log_service_di, get_metadata_service_di, get_export_service_di
+    get_sql_log_service_di, get_metadata_service_di, get_export_service_di,
+    get_visibility_control_service_di
 )
 
 
@@ -197,7 +198,7 @@ class TestMetadataWorkflow:
         
         try:
             # 1. スキーマ一覧取得
-            schema_response = client.get("/api/v1/metadata/schemas")
+            schema_response = client.get("/api/v1/metadata/schemas?compat=1")
             assert schema_response.status_code == 200
             schema_data = schema_response.json()
             assert len(schema_data["schemas"]) == 2
@@ -380,27 +381,22 @@ class TestUserSessionWorkflow:
             assert login_data["user_id"] == "workflow_user"
             
             # 2. SQL実行（認証済み）
-            # セッションを設定
-            with client as c:
-                with c.session_transaction() as sess:
-                    sess["user_id"] = "workflow_user"
-                    sess["user_name"] = "Workflow Test User"
-                
-                execute_response = c.post(
-                    "/api/v1/sql/cache/execute",
-                    json={"sql": "SELECT * FROM test_table"}
-                )
-                assert execute_response.status_code == 200
-                execute_data = execute_response.json()
-                assert execute_data["success"] is True
-                
-                # 3. 実行ログ確認
-                log_response = c.get("/api/v1/logs/sql")
-                assert log_response.status_code == 200
-                log_data = log_response.json()
-                assert len(log_data["logs"]) == 1
-                assert log_data["logs"][0]["user_id"] == "workflow_user"
-                assert log_data["logs"][0]["success"] is True
+            # FastAPI TestClientには session_transaction は無いので、ログインAPIでセッション確立済み
+            execute_response = client.post(
+                "/api/v1/sql/cache/execute",
+                json={"sql": "SELECT * FROM test_table"}
+            )
+            assert execute_response.status_code == 200
+            execute_data = execute_response.json()
+            assert execute_data["success"] is True
+            
+            # 3. 実行ログ確認
+            log_response = client.get("/api/v1/logs/sql")
+            assert log_response.status_code == 200
+            log_data = log_response.json()
+            assert len(log_data["logs"]) == 1
+            assert log_data["logs"][0]["user_id"] == "workflow_user"
+            assert log_data["logs"][0]["success"] is True
             
         finally:
             app.dependency_overrides.clear()

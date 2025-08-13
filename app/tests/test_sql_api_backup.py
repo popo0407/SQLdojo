@@ -29,7 +29,7 @@ class TestMetadataSchemaAPI:
         app.dependency_overrides[get_user_preference_service_di] = lambda: Mock()
         
         try:
-            response = client.get("/api/v1/metadata/schemas")
+            response = client.get("/api/v1/metadata/schemas?compat=1")
             
             assert response.status_code == 200
             data = response.json()

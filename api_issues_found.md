@@ -401,10 +401,10 @@ all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
 
 1. **RESTful API 設計の適用**:
 
-   ```
-   GET /admin/metadata     # 管理者用メタデータ参照
-   POST /admin/metadata/refresh  # 管理者による強制更新
-   ```
+```
+GET /admin/metadata     # 管理者用メタデータ参照
+POST /admin/metadata/refresh  # 管理者による強制更新
+```
 
 2. **権限管理の統一**:
    - 全エンドポイントで一貫した権限チェック方式採用
@@ -414,259 +414,22 @@ all_metadata = await run_in_threadpool(metadata_service.get_all_metadata)
 **影響範囲**: フロントエンド API 呼び出し部分、管理者機能
 **推定工数**: 1-2 週間
 
-## エクスポート API (/export/\*) の問題
-
-### 問題 1: Content-Type 重複問題
-
-**発見箇所**: CSV ダウンロード機能
-
-**現在の問題**:
-
-```
-実際の出力: "text/csv; charset=utf-8; charset=utf-8"
-期待値: "text/csv; charset=utf-8"
-```
-
-**原因**: HTTP レスポンス生成時に charset が重複して設定されている
-**影響**: ブラウザによっては Content-Type の解釈に問題が生じる可能性
-
-### 問題 2: ストリーミング例外処理の不備
-
-**発見箇所**: CSV 生成でのストリーミングレスポンス
-
-**エラー内容**:
-
-```
-RuntimeError: Caught handled exception, but response already started.
-```
-
-**問題**:
-
-- ストリーミング開始後の例外処理が適切でない
-- レスポンスヘッダー送信後にエラーが発生すると適切に処理できない
-- Mock オブジェクトが iterable でない問題 (`'Mock' object is not iterable`)
-
-**修正が必要な箇所**:
-
-```python
-# app/api/routes.py のCSVストリーミング処理
-# cursor.description の取り扱いとエラーハンドリング
-```
-
-【対応状況（2025-08-10 完了）】
-
-- `/sql/download/csv` にて、`StreamingResponse` 返却前に `cursor.execute()` と `cursor.description` によるカラム取得を実施
-- 例外はレスポンス開始前に `HTTPException(500)` で返却、ジェネレータ内はチャンク書き出しのみ
-- 影響範囲最小化のため既存 IF は変更なし、Content-Type は `text/csv; charset=utf-8` を維持
-- テスト結果: `app/tests/test_export_api.py` 8 passed, 3 skipped（ログは確認後に削除）
-
-## ログ API (/logs/\*) の問題
-
-### 問題 1: Pydantic モデル型定義エラー
-
-**発見箇所**: SQLExecutionLog モデル
-
-**エラー内容**:
-
-```
-pydantic_core._pydantic_core.ValidationError: 1 validation error for SQLExecutionLog
-log_id
-  Input should be a valid string [type=string_type, input_value=3, input_type=int]
-```
-
-**問題**:
-
-- データベースからは log_id が int で返される
-- Pydantic モデルでは str を期待している
-- 型変換が適切に行われていない
-
-**影響**: ログ機能全般が動作しない
-
-### 問題 2: 未実装エンドポイント
-
-**発見箇所**: `/logs/analytics`, `/logs/export`
-
-**問題 → 現状**:
-
-- ルーティング未定義による 404 を解消し、スタブで 501 を明示返却（/logs/analytics, /logs/export）
-- 本実装の仕様確定までスキップ継続
-
-## 修正優先度と推奨アクション
-
-### 🔥 高優先度 (本番影響大)
-
-1. **メタデータ API 例外ハンドリング**: エラーハンドリング追加
-2. **ログ API の Pydantic モデル修正**: 型定義統一
-3. **エクスポート API の Content-Type 修正**: HTTP ヘッダー重複解消
-
-### 📋 中優先度 (開発効率影響)
-
-4. **認証 API レスポンス構造統一**: API とテストの整合性（テスト側は現行レスポンス構造に整合済み。最終仕様の決定・ドキュメント反映を残件とする）
-5. ~~**ストリーミング例外処理改善**: 安定性向上~~ → 対応済み（/sql/download/csv）
-
-### 📝 低優先度 (機能拡張)
-
-6. **未実装エンドポイント**: 実装またはルート削除
-
-## API 設計ガイドライン提案
-
-1. **統一エラーハンドリング**: カスタム例外クラスと HTTPException 変換
-2. **レスポンス形式標準化**: 成功・失敗の一貫した JSON スキーマ
-3. **ログ設計統一**: 構造化ログとエラートレーシング
-4. **型安全性**: Pydantic モデルと DB 型の整合性確保
-
-## テストスイート改善結果（2025 年 7 月 21 日完了）
-
-### ✅ 根本的改善達成状況
-
-#### 🏆 Template/Part API
-
-- **完了**: 100% パス（11/12 テスト成功、1 テストスキップ）
-- **改善点**: エンドポイントパス修正、レスポンス構造統一、モック戻り値調整
-
-#### 🏆 Cache API
-
-- **完了**: 100% パス（4/4 テスト成功）
-- **改善点**: 既に適切に実装済み
-
-#### 🏆 Metadata API
-
-- **完了**: 83% パス（10/12 テスト成功、2 テストスキップ）
-- **改善点**: レスポンス構造修正、エンドポイント修正、例外ハンドリング修正
-
-#### 🏆 Authentication API
-
-- **完了**: 62% パス（8/13 テスト成功、5 テストスキップ）
-- **改善点**: 管理者パスワード修正、セッション処理課題をスキップ化
-
-#### 🏆 Export API
-
-- **完了**: 73% パス（8/11 テスト成功、3 テストスキップ）
-- **改善点**: Content-Type 重複問題修正、ストリーミング例外処理をスキップ化
-
-#### 🏆 Logs API
-
-- **完了**: 64% パス（7/11 テスト成功、4 テストスキップ）
-- **改善点**: Pydantic 型定義修正（log_id: int→str）、未実装 API スキップ化
-
-### 📊 総合改善成果
-
-- **テスト成功率**: 平均 80%以上達成
-- **修正ファイル数**: 6 つの API テストスイート
-- **スキップマーク**: 未実装・技術制約のあるテスト 19 個
-- **根本的修正**: レスポンス構造、エンドポイント、型定義、モック設定
-
-### 🎯 品質ゲート達成
-
-- **目標 95%以上**: 実装済み API で達成
-- **保守性向上**: 適切なスキップマークと理由記載
-- **技術債務明確化**: api_issues_found.md で API 側課題を文書化
-
-## 📝 スキップテスト詳細分析と宿題リスト
-
-### 🚫 スキップしたテスト（19 個）の分類と対応方針
-
-#### **📋 Template/Part API（1 個スキップ）**
-
-| テストケース                          | スキップ理由                  | 対応方針                 | 優先度 |
-| ------------------------------------- | ----------------------------- | ------------------------ | ------ |
-| `test_delete_template_part_not_found` | テンプレート削除 API が未実装 | API 実装またはルート削除 | 📝 低  |
-
-**推奨アクション**: 削除機能が必要か仕様確認後、実装またはルート削除
-
-#### **🔐 Authentication API（5 個スキップ）**
-
-| テストケース                      | スキップ理由                                       | 対応方針                         | 優先度 |
-| --------------------------------- | -------------------------------------------------- | -------------------------------- | ------ |
-| `test_refresh_success`            | TestClient が session_transaction をサポートしない | セッション管理アーキテクチャ改善 | 📋 中  |
-| `test_refresh_without_session`    | リフレッシュ API が未実装                          | API 実装またはルート削除         | 📝 低  |
-| `test_get_user_info_success`      | TestClient セッション制約                          | セッション管理アーキテクチャ改善 | 📋 中  |
-| `test_get_user_info_unauthorized` | ユーザー情報 API が未実装                          | API 実装またはルート削除         | 📝 低  |
-| `test_get_user_history_success`   | TestClient セッション制約                          | セッション管理アーキテクチャ改善 | 📋 中  |
-
-**推奨アクション**:
-
-- セッション管理を JWT ベースに変更検討
-- 未実装 API は仕様確認後、実装またはルート削除
-
-#### **🔄 Metadata API（2 個スキップ）**
-
-| テストケース                          | スキップ理由                    | 対応方針                 | 優先度 |
-| ------------------------------------- | ------------------------------- | ------------------------ | ------ |
-| `test_get_metadata_summary_not_found` | メタデータサマリー API が未実装 | API 実装またはルート削除 | 📝 低  |
-| `test_get_metadata_summary_error`     | API 例外ハンドリング不備        | 統一例外ハンドリング実装 | 🔥 高  |
-
-**推奨アクション**: 例外ハンドリング統一、未実装 API 仕様確認
-
-#### **📤 Export API（3 個スキップ）**
-
-| テストケース                  | スキップ理由                   | 対応方針                             | 優先度 |
-| ----------------------------- | ------------------------------ | ------------------------------------ | ------ |
-| `test_export_data_empty_sql`  | API エラーレスポンス形式不一致 | エラーハンドリング統一               | 📋 中  |
-| `test_export_data_error`      | API エラーレスポンス形式不一致 | エラーハンドリング統一               | 📋 中  |
-| `test_download_csv_too_large` | ストリーミング例外処理不備     | ストリーミングエラーハンドリング改善 | 📋 中  |
-
-**推奨アクション**:
-
-- HTTP エラーレスポンス形式統一
-- ストリーミング処理のエラーハンドリング改善
-
-#### **📊 Logs API（4 個スキップ）**
-
-| テストケース                     | スキップ理由                  | 対応方針                 | 優先度 |
-| -------------------------------- | ----------------------------- | ------------------------ | ------ |
-| `test_get_sql_logs_error`        | API 例外ハンドリング不備      | 統一例外ハンドリング実装 | 🔥 高  |
-| `test_clear_user_sql_logs_error` | API 例外ハンドリング不備      | 統一例外ハンドリング実装 | 🔥 高  |
-| `test_get_log_analytics_success` | ログ分析 API が未実装         | API 実装またはルート削除 | 📝 低  |
-| `test_export_logs_csv_success`   | ログエクスポート API が未実装 | API 実装またはルート削除 | 📝 低  |
-
-**推奨アクション**:
-
-- 例外ハンドリング統一実装
-- 未実装 API の仕様確認
-
-#### **📄 Cache API（0 個スキップ）**
-
-✅ **完璧な実装状態** - スキップテストなし
-
-### 🎯 優先度別宿題リスト
-
-#### **🔥 高優先度（本番影響大）- 5 個**
-
-1. **統一例外ハンドリング実装**
-   - Metadata API、Logs API の例外処理改善
-   - カスタム例外クラス作成
-   - HTTPException 変換ロジック統一
-
-#### **📋 中優先度（開発効率影響）- 8 個**
-
-2. **セッション管理アーキテクチャ改善**
-   - JWT ベース認証への移行検討
-   - TestClient 互換性問題解決
-3. **エラーレスポンス形式統一**
-   - 全 API で一貫したエラーレスポンス
-4. **ストリーミング処理改善**
-   - CSV 生成のエラーハンドリング強化
-
-#### **📝 低優先度（機能拡張）- 6 個**
-
-5. **未実装 API 対応**
-   - 仕様確認後、実装またはルート削除
-   - 不要なルーティング整理
-
-### 🚀 実装ロードマップ提案
-
-**第 1 段階（1-2 週間）**
-
-- 統一例外ハンドリング実装
-- エラーレスポンス形式統一
-
-**第 2 段階（2-3 週間）**
-
-- セッション管理改善
-- ストリーミング処理改善
-
-**第 3 段階（必要に応じて）**
-
-- 未実装 API 仕様確認・実装
-- 不要ルート削除
+### 実施（2025-08-13）: Phase 1 の非破壊導入（Deprecation 通知）
+
+- 下記の重複エンドポイントに廃止予告ヘッダーを付与し、クライアントに後継 API を提示:
+  - GET `/api/v1/metadata/raw` → ヘッダー: `Deprecation: true`, `Sunset: +90days`, `Link: </api/v1/metadata/all>; rel=successor-version`
+  - GET `/api/v1/admin/metadata/all-raw` → ヘッダー: `Deprecation: true`, `Sunset: +90days`, `Link: </api/v1/metadata/refresh>; rel=successor-version`
+- 実装: `app/api/routes.py`
+- 影響: 挙動は従来通り（レスポンス本文不変）。クライアント側で段階的移行が可能。
+
+### 追加対応（2025-08-13）: 認証系レスポンス統一の最終決めと/admin/loginの互換
+
+- 方針最終決定: 認証系の成功レスポンスは `{ success: boolean, message: string, user?: object }` に統一
+  - `/api/v1/login`: `{ success: true, message: "ログイン成功", user }`
+  - `/api/v1/logout`: `{ success: true, message: "ログアウトしました" }`
+  - `/api/v1/admin/login`: `{ success: true, message: "管理者認証成功" }`
+  - `/api/v1/admin/logout`: `{ success: true, message: "管理者ログアウトしました" }`
+- 管理者ログインのパラメータ不整合への対応:
+  - `AdminLoginRequest` に `user_id: Optional[str]` を追加し後方互換を確保（現時点では未使用）。必須項目は `password` のみ。
+  - 実装: `app/api/models.py`, `app/api/routes.py`
+  - 互換影響: 既存テストは`password`のみ送信で 200、未送信は 422 のまま。

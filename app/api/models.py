@@ -275,7 +275,12 @@ class UserRefreshResponse(BaseModel):
 
 
 class AdminLoginRequest(BaseModel):
+    """管理者ログイン用リクエスト
+
+    最終方針（暫定）: password を必須、user_id は後方互換のため任意で受け付ける（現時点では未使用）。
+    """
     password: str = Field(..., description="管理者パスワード")
+    user_id: Optional[str] = Field(default=None, description="（互換用・任意）管理者ユーザーID。現時点では未使用")
 
 
 class SQLExecutionLog(BaseModel):
