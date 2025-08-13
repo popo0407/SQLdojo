@@ -62,14 +62,8 @@ class HybridSQLService:
         start_time = datetime.now()
         session_id = None  # finallyブロックで参照できるよう、tryの外で初期化
         try:
-            # レガシーモード判定（旧テスト互換: cache_results を持つキャッシュサービス）
-            legacy_mode = hasattr(self.cache_service, 'cache_results')
-
-            # セッションIDを生成（テスト互換のため session_service.create_session を優先）
-            if self.session_service and hasattr(self.session_service, 'create_session'):
-                session_id = self.session_service.create_session(user_id)
-            else:
-                session_id = self.cache_service.generate_session_id(user_id)
+            # セッションIDを生成（現行実装に統一）
+            session_id = self.cache_service.generate_session_id(user_id)
 
             # セッションを登録（同時実行制限チェック）
             if not self.cache_service.register_session(session_id, user_id):
@@ -97,20 +91,19 @@ class HybridSQLService:
                     'message': f"大容量データです（{total_count:,}件）。ダウンロードしますか？"
                 }
 
-            # SQLバリデーション（レガシーモードではスキップし、互換性確保）
-            if not legacy_mode:
-                validation_result = self.validator.validate_sql(sql)
-                if not validation_result.is_valid:
-                    error_message = "; ".join(validation_result.errors)
-                    return {
-                        'success': False,
-                        'error_message': error_message,
-                        'message': error_message,  # APIエンドポイントで期待されるフィールド
-                        'session_id': None,
-                        'total_count': 0,
-                        'processed_rows': 0,
-                        'execution_time': 0
-                    }
+            # SQLバリデーション（常に実施）
+            validation_result = self.validator.validate_sql(sql)
+            if not validation_result.is_valid:
+                error_message = "; ".join(validation_result.errors)
+                return {
+                    'success': False,
+                    'error_message': error_message,
+                    'message': error_message,  # APIエンドポイントで期待されるフィールド
+                    'session_id': None,
+                    'total_count': 0,
+                    'processed_rows': 0,
+                    'execution_time': 0
+                }
 
             # セッション情報を更新
             self.cache_service.update_session_progress(session_id, 0, False)
@@ -119,35 +112,8 @@ class HybridSQLService:
             if self.streaming_state_service:
                 self.streaming_state_service.create_streaming_state(session_id, total_count)
 
-            # データ取得・キャッシュ
-            if legacy_mode:
-                conn_id = None
-                processed_rows = 0
-                data = []
-                columns = []
-                try:
-                    conn_id, connection = self.connection_manager.get_connection()
-                    cursor = connection.cursor()
-                    cursor.execute(sql)
-                    columns_raw = cursor.description or []
-                    columns = [c[0] if isinstance(c, (list, tuple)) and len(c) > 0 else (c if isinstance(c, str) else str(c)) for c in columns_raw]
-                    data = cursor.fetchall() or []
-                    processed_rows = len(data)
-                    # レガシーキャッシュ保存
-                    try:
-                        self.cache_service.cache_results(session_id, data, columns)
-                    except Exception:
-                        logger.debug("legacy cache_results での保存に失敗しました")
-                finally:
-                    if conn_id:
-                        self.connection_manager.release_connection(conn_id)
-
-                # 総件数が取得できなかった場合は処理行数を採用
-                if total_count == 0:
-                    total_count = processed_rows
-            else:
-                # 現行実装: カーソル方式で逐次取得
-                processed_rows = self._fetch_and_cache_data(sql, session_id, limit)
+            # データ取得・キャッシュ（カーソル方式で逐次取得に統一）
+            processed_rows = self._fetch_and_cache_data(sql, session_id, limit)
 
             # 実行時間を計算
             execution_time = (datetime.now() - start_time).total_seconds()
@@ -343,10 +309,21 @@ class HybridSQLService:
                     # subscriptable でないケース用に単純化
                     result = {'data': [], 'columns': [], 'total_count': 0, 'page': page, 'page_size': page_size, 'total_pages': 0}
 
-            total_count = result.get('total_count', 0)
-            page_val = result.get('page', page)
-            page_size_val = result.get('page_size', page_size)
-            total_pages_val = result.get('total_pages', (total_count + page_size_val - 1) // page_size_val if page_size_val else 0)
+            def _to_int_safe(v, default=0):
+                try:
+                    # Mock や非数値を考慮して安全に変換
+                    if v is None:
+                        return default
+                    return int(v)
+                except Exception:
+                    return default
+
+            total_count = _to_int_safe(result.get('total_count', 0), 0)
+            page_val = _to_int_safe(result.get('page', page), page)
+            page_size_val = _to_int_safe(result.get('page_size', page_size), page_size)
+            total_pages_val = result.get('total_pages')
+            if total_pages_val is None:
+                total_pages_val = (total_count + page_size_val - 1) // page_size_val if page_size_val else 0
 
             return {
                 'success': True,
