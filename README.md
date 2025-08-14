@@ -10,12 +10,55 @@ SQL Dojo React は、SQL クエリの実行と結果表示を行う Web アプ�
 
 **1. SQL 履歴機能のフル React 化**
 
-- **完全移行**: レガシー HTML テンプレートから React コンポーネントに完全移行
-- **UX 統一**: テンプレート機能と同等のエディタ統合（ポップオーバー表示はバグだし中）
-- **Zustand 統合**: 状態管理を Zustand で統一し、レスポンシブな UX を実現
-
 **2. エディタ反映機能の実装**
 
+### エクスポート/クリップボード機能 (2025-08 追加)
+
+| 機能                                 | エンドポイント              | フロント操作                           | 制御環境変数                     |
+| ------------------------------------ | --------------------------- | -------------------------------------- | -------------------------------- |
+| CSV ダウンロード (キャッシュ)        | `/sql/cache/download/csv`   | 結果画面の CSV ボタン (session 必須)   | `max_records_for_csv_download`   |
+| CSV ダウンロード (直接 SQL)          | `/sql/download/csv`         | キャッシュ未確立時のみ利用             | 同上                             |
+| Excel ダウンロード (キャッシュ)      | `/sql/cache/download/excel` | 結果画面の Excel ボタン (session 必須) | `max_records_for_excel_download` |
+| TSV クリップボードコピー(キャッシュ) | `/sql/cache/clipboard/tsv`  | TSV コピー ボタン (session 必須)       | `max_records_for_clipboard_copy` |
+
+#### フロント側コンポーネント
+
+`ExportControls.tsx` が任意ファイル名入力 + CSV/Excel/TSV コピー操作を提供。Zustand `useUIStore` に `exportFilename` と `toasts` を保持し、通知表示は `Toasts` コンポーネント（`main.tsx` へ組込）。
+
+#### 任意ファイル名
+
+UI で拡張子なしの入力可。保存時に `.csv` / `.xlsx` を自動付与（既に付与済なら二重付与しない）。不正文字は `_` に置換し 120 文字に制限。
+
+#### 通知 / エラー統一
+
+成功・警告・エラーはトーストで表示。サーバー側は既存の統一エラーレスポンス（`error_code`, `message` 等）を利用。Excel 無効化やサイズ制限超過時は HTTP ではなく UI 側早期判定で即時トースト。
+
+#### 環境変数 ( `.env` / ホスト設定 )
+
+| 変数                                                                | 役割                   | デフォルト | 備考                      |
+| ------------------------------------------------------------------- | ---------------------- | ---------- | ------------------------- |
+| `MAX_RECORDS_FOR_EXCEL_DOWNLOAD` / `max_records_for_excel_download` | Excel 許可最大行数     | 100,000    | 超過時 400 LIMIT_EXCEEDED |
+| `MAX_RECORDS_FOR_CLIPBOARD_COPY` / `max_records_for_clipboard_copy` | TSV コピー許容最大行数 | 100,000    | 超過時 400 LIMIT_EXCEEDED |
+| `MAX_RECORDS_FOR_CSV_DOWNLOAD` / `max_records_for_csv_download`     | CSV 許可最大行数       | 10,000,000 | 既存設定                  |
+
+#### 取得 API
+
+フロントは `/config/settings` を初回ロードで呼び、`useUIStore.configSettings` に閾値のみ格納（Excel フラグは廃止）。ボタン活性条件は session_id の有無と行数推定ロジック。
+
+#### テスト
+
+Vitest 結合テスト `ExportControls.integration.test.tsx` で:
+
+1. ファイル名入力反映
+2. Excel 機能フラグによるボタン活性/非活性
+   を確認。追加でダウンロード API モック・サイズ制限テストを拡張可能。
+
+#### 拡張予定アイデア
+
+- サイズ制限超過時にサーバー応答メッセージをトーストへ反映
+- Excel 生成オプション（列幅自動調整、ヘッダースタイル）
+- TSV ダウンロード UI ボタン
+- 一括エクスポートジョブ（非同期）キューイング
 - **即座転記**: 「エディタに反映」ボタンで SQL を即座にメインエディタに転記
 - **SPA 対応**: React Router と useNavigate によるスムーズなナビゲーション
 - **二重保証**: Zustand ステートと localStorage 両方での状態管理

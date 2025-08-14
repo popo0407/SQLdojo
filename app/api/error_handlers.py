@@ -40,24 +40,37 @@ def register_exception_handlers(app):
     
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
-        detail = exc.detail
-        if not isinstance(detail, str):
-            detail = str(detail) if detail else "エラーが発生しました"
-        logger.error(f"HTTP例外: {detail}", 
-                    status_code=exc.status_code,
-                    path=request.url.path,
-                    method=request.method)
-        
-        return JSONResponse(
-            status_code=exc.status_code,
-            content={
-                "detail": detail,
-                "error": True,
-                "message": detail,
-                "status_code": exc.status_code,
-                "timestamp": time.time(),
-            }
-        )
+        raw = exc.detail
+        # detail が dict の場合は unified_error 形式を想定し再構築
+        if isinstance(raw, dict):
+            payload = dict(raw)  # コピー
+            payload.setdefault("error", True)
+            payload.setdefault("status_code", exc.status_code)
+            payload["timestamp"] = time.time()
+            # レガシーテスト互換: detail キーにも message を複製
+            payload.setdefault("detail", payload.get("message"))
+            logger.error(f"HTTP例外: {payload.get('message')}",
+                         status_code=exc.status_code,
+                         path=request.url.path,
+                         method=request.method,
+                         error_code=payload.get('error_code'))
+            return JSONResponse(status_code=exc.status_code, content=payload)
+        else:
+            detail = str(raw) if raw else "エラーが発生しました"
+            logger.error(f"HTTP例外: {detail}",
+                         status_code=exc.status_code,
+                         path=request.url.path,
+                         method=request.method)
+            return JSONResponse(
+                status_code=exc.status_code,
+                content={
+                    "detail": detail,
+                    "error": True,
+                    "message": detail,
+                    "status_code": exc.status_code,
+                    "timestamp": time.time(),
+                }
+            )
     
     app.add_exception_handler(StarletteHTTPException, starlette_http_exception_handler)
     

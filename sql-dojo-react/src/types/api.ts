@@ -33,6 +33,8 @@ export interface ConfigSettings {
   default_page_size?: number;
   max_records_for_display?: number;
   max_records_for_csv_download?: number;
+  max_records_for_excel_download?: number;
+  max_records_for_clipboard_copy?: number;
 }
 
 export interface SqlValidationResult {

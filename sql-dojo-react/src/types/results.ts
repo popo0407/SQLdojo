@@ -56,17 +56,22 @@ export type PaginationStoreState = ResultsPaginationState & ResultsPaginationAct
 export interface ResultsExportActions {
   downloadCsv: () => Promise<void>;
   downloadCsvLocal: () => void;
+  downloadExcel?: () => Promise<void>;
+  copyTsvToClipboard?: () => Promise<void>;
 }
 
 // セッション管理ストアの型定義
 export interface ResultsSessionState {
   sessionId: string | null;
   configSettings: { default_page_size?: number; max_records_for_csv_download?: number } | null;
+  // 任意ファイル名 (UI で指定)
+  exportFilename?: string;
 }
 
 export interface ResultsSessionActions {
   setSessionId: (id: string | null) => void;
   setConfigSettings: (settings: { default_page_size?: number; max_records_for_csv_download?: number } | null) => void;
+  setExportFilename?: (name: string) => void;
 }
 
 // SQL実行ストアの型定義

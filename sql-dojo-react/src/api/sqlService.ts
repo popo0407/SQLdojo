@@ -52,6 +52,72 @@ export const downloadCsvFromCache = async ({
   return response.blob();
 };
 
+// 直接SQLからCSVダウンロード (非キャッシュ経路)
+export const downloadCsvDirect = async ({ sql, filename }: { sql: string; filename?: string }): Promise<Blob> => {
+  const response = await fetch(`${API_CONFIG.BASE_URL}/sql/download/csv`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sql, filename }),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`CSVダウンロード失敗: ${response.status} ${text}`);
+  }
+  return response.blob();
+};
+
+// Excelダウンロード (キャッシュ経路)
+export const downloadExcelFromCache = async ({
+  session_id,
+  filters,
+  sort_by,
+  sort_order,
+  filename,
+}: {
+  session_id: string;
+  filters?: FilterConfig;
+  sort_by?: string;
+  sort_order?: string;
+  filename?: string;
+}): Promise<Blob> => {
+  const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/download/excel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id, filters, sort_by, sort_order, filename }),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Excelダウンロード失敗: ${response.status} ${text}`);
+  }
+  return response.blob();
+};
+
+// クリップボード用TSV取得 (キャッシュ経路)
+export const fetchClipboardTsvFromCache = async ({
+  session_id,
+  filters,
+  sort_by,
+  sort_order,
+  filename,
+}: {
+  session_id: string;
+  filters?: FilterConfig;
+  sort_by?: string;
+  sort_order?: string;
+  filename?: string;
+}): Promise<string> => {
+  const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/clipboard/tsv`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id, filters, sort_by, sort_order, filename }),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`TSV取得失敗: ${response.status} ${text}`);
+  }
+  return response.text();
+};
+
 // SQL整形API
 export const formatSql = async ({ sql }: { sql: string }): Promise<string> => {
   const response = await fetch(`${API_CONFIG.BASE_URL}/sql/format`, {

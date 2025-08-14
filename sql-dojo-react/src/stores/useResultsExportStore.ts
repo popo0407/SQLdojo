@@ -1,5 +1,10 @@
 import { create } from 'zustand';
-import { downloadCsvFromCache } from '../api/sqlService';
+import { 
+  downloadCsvFromCache, 
+  downloadCsvDirect, 
+  downloadExcelFromCache, 
+  fetchClipboardTsvFromCache 
+} from '../api/sqlService';
 import { useResultsDataStore } from './useResultsDataStore';
 import { useResultsFilterStore } from './useResultsFilterStore';
 import { useResultsSessionStore } from './useResultsSessionStore';
@@ -12,8 +17,11 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
     const filterStore = useResultsFilterStore.getState();
     const sessionStore = useResultsSessionStore.getState();
     const uiStore = useUIStore.getState();
+  const filename = useUIStore.getState().exportFilename;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const currentSql: string = ((window as any).__SQL_EDITOR__?.getValue?.() || '') as string;
     
-    if (sessionStore.sessionId) {
+  if (sessionStore.sessionId) {
       uiStore.setIsDownloading(true);
       try {
         const blob = await downloadCsvFromCache({
@@ -26,28 +34,50 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'result.csv';
+        a.download = filename ? sanitizeFilename(filename, 'csv') : 'result.csv';
         document.body.appendChild(a);
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'CSVダウンロードに失敗しました';
-        alert('CSVダウンロードに失敗しました: ' + errorMessage);
+      } catch {
+        uiStore.pushToast('CSVダウンロードに失敗しました', 'danger');
       } finally {
         uiStore.setIsDownloading(false);
       }
     } else {
-      // ローカルデータからCSVダウンロード
-      const exportStore = useResultsExportStore.getState();
-      exportStore.downloadCsvLocal();
+      // 直接SQL経路 (非キャッシュ) が使えるならサーバへ、なければローカル
+      if (currentSql.trim()) {
+        uiStore.setIsDownloading(true);
+        try {
+          const blob = await downloadCsvDirect({ sql: currentSql, filename });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename ? sanitizeFilename(filename, 'csv') : 'result.csv';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+  } catch {
+          // フォールバック: ローカル
+          const exportStore = useResultsExportStore.getState();
+          exportStore.downloadCsvLocal();
+        } finally {
+          uiStore.setIsDownloading(false);
+        }
+      } else {
+        const exportStore = useResultsExportStore.getState();
+        exportStore.downloadCsvLocal();
+      }
     }
   },
   
   downloadCsvLocal: () => {
     const dataStore = useResultsDataStore.getState();
+    const uiStore = useUIStore.getState();
+  const filename = uiStore.exportFilename;
     if (!dataStore.allData.length || !dataStore.columns.length) {
-      alert('データがありません');
+  uiStore.pushToast('データがありません', 'warning');
       return;
     }
     const csvRows = [dataStore.columns.join(',')];
@@ -59,12 +89,76 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'result.csv';
+    a.download = filename ? sanitizeFilename(filename, 'csv') : 'result.csv';
     document.body.appendChild(a);
     a.click();
     a.remove();
     window.URL.revokeObjectURL(url);
   },
+  downloadExcel: async () => {
+    const uiStore = useUIStore.getState();
+    const filterStore = useResultsFilterStore.getState();
+    const sessionStore = useResultsSessionStore.getState();
+    const filename = uiStore.exportFilename;
+    if (!sessionStore.sessionId) {
+      uiStore.pushToast('セッションがありません。再実行してください', 'danger');
+      return;
+    }
+    uiStore.setIsDownloading(true);
+    try {
+      const blob = await downloadExcelFromCache({
+        session_id: sessionStore.sessionId,
+        filters: filterStore.filters,
+        sort_by: filterStore.sortConfig?.key,
+        sort_order: (filterStore.sortConfig?.direction?.toUpperCase() || 'ASC'),
+        filename,
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename ? sanitizeFilename(filename, 'xlsx') : 'result.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      uiStore.pushToast('Excelダウンロードに失敗しました', 'danger');
+    } finally {
+      uiStore.setIsDownloading(false);
+    }
+  },
+  copyTsvToClipboard: async () => {
+    const uiStore = useUIStore.getState();
+    const filterStore = useResultsFilterStore.getState();
+    const sessionStore = useResultsSessionStore.getState();
+    if (!sessionStore.sessionId) {
+      uiStore.pushToast('セッションがありません。再実行してください', 'danger');
+      return;
+    }
+    try {
+      if (uiStore.configSettings?.max_records_for_clipboard_copy === 0) {
+        uiStore.pushToast('クリップボードコピーは無効化されています', 'danger');
+        return;
+      }
+      const tsv = await fetchClipboardTsvFromCache({
+        session_id: sessionStore.sessionId,
+        filters: filterStore.filters,
+        sort_by: filterStore.sortConfig?.key,
+        sort_order: (filterStore.sortConfig?.direction?.toUpperCase() || 'ASC'),
+        filename: uiStore.exportFilename,
+      });
+      await navigator.clipboard.writeText(tsv);
+      uiStore.pushToast('TSVをコピーしました', 'success');
+    } catch {
+      uiStore.pushToast('TSVコピーに失敗しました', 'danger');
+    }
+  },
 }));
 
 export const useResultsExportStore = createResultsExportStore(); 
+
+// ファイル名サニタイズ
+function sanitizeFilename(name: string, ext: string): string {
+  const base = (name || '').replace(/[\\/:*?"<>|]/g, '_').slice(0, 120) || 'result';
+  return base.endsWith(`.${ext}`) ? base : `${base}.${ext}`;
+}

@@ -1,4 +1,4 @@
-globalThis.alert = () => {};
+// alertは使用されず toast に移行したためダミー不要
 import { describe, it, expect, beforeEach } from 'vitest';
 import { act } from 'react';
 import { createResultsExportStore } from './useResultsExportStore';

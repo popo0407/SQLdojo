@@ -40,6 +40,7 @@ class SQLRequest(BaseModel):
     """SQL実行リクエスト"""
     sql: str = Field(..., description="実行するSQL")
     limit: Optional[int] = Field(default=5000, description="結果の最大件数")
+    filename: Optional[str] = Field(default=None, description="(オプション) ダウンロード/エクスポート用の希望ファイル名（拡張子除く）")
 
 
 class SQLResponse(BaseModel):

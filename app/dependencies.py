@@ -208,6 +208,20 @@ def get_current_user(request: Request):
     return user
 
 
+def get_current_user_optional(request: Request):
+    """現在のユーザー（未ログインでもNoneを返す）
+    エクスポート等ユーザー不要機能向け。
+    """
+    logger = get_logger("dependencies")
+    user = request.session.get("user")
+    if not user:
+        logger.debug("optional user: 未ログイン扱い")
+        return None
+    if 'role' not in user:
+        user['role'] = 'DEFAULT'
+    return user
+
+
 # 管理者認証チェックの依存性注入
 def get_current_admin(request: Request):
     """現在の管理者を取得（管理者認証チェック付き）"""

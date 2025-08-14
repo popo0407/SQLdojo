@@ -107,7 +107,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const uiStore = useUIStore.getState();
     
     if (!sql.trim()) {
-      alert('SQLが空です');
+      alert('データがありません');
       return;
     }
     
@@ -122,9 +122,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         editor.focus();
       }
     } catch (error) {
-      const errorObj = error instanceof Error ? error : new Error('SQL整形に失敗しました');
-      uiStore.setError(errorObj);
-      uiStore.setIsError(true);
+      const msg = error instanceof Error ? error.message : 'SQL整形に失敗しました';
+      uiStore.setError(msg);
       throw error;
     } finally {
       uiStore.stopLoading();

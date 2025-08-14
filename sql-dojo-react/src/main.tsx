@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query' // インポート
 import App from './App'
+import { Toasts } from './components/common/Toasts'
 import 'bootstrap/dist/css/bootstrap.min.css'; // BootstrapのCSSをインポート
 import './styles/global.css'; // グローバルなスタイルシート
 
@@ -14,7 +15,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     {/* アプリケーション全体をQueryClientProviderでラップ */}
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+  <App />
+  <Toasts />
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,

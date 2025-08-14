@@ -240,7 +240,8 @@ class TestCacheDownloadCSVAPI:
             assert "value3,value4" in content
         finally:
             app.dependency_overrides.clear()
-    
+
+
     def test_cache_download_csv_no_data(self, client: TestClient):
         """データなしキャッシュCSVダウンロードのテスト"""
         mock_service = Mock()

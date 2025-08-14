@@ -24,10 +24,17 @@ interface UIState extends BaseStoreState {
   limitDialogData: LimitDialogData;
   
   // 設定状態
-  configSettings: { default_page_size?: number; max_records_for_csv_download?: number } | null;
+  configSettings: { 
+    default_page_size?: number; 
+    max_records_for_csv_download?: number; 
+    max_records_for_excel_download?: number;
+    max_records_for_clipboard_copy?: number;
+  } | null;
+  exportFilename?: string;
   // バリデーション/ヘルプ
   validationMessages: string[];
   showShortcutHelp: boolean;
+  toasts: { id: string; message: string; variant?: string; ts: number }[];
 }
 
 interface UIActions extends BaseStoreActions {
@@ -39,9 +46,17 @@ interface UIActions extends BaseStoreActions {
   setFilterModal: (modal: ResultsFilterModalState) => void;
   setShowLimitDialog: (show: boolean) => void;
   setLimitDialogData: (data: LimitDialogData) => void;
-  setConfigSettings: (settings: { default_page_size?: number; max_records_for_csv_download?: number } | null) => void;
+  setConfigSettings: (settings: { 
+    default_page_size?: number; 
+    max_records_for_csv_download?: number; 
+    max_records_for_excel_download?: number;
+    max_records_for_clipboard_copy?: number;
+  } | null) => void;
   setValidationMessages: (messages: string[]) => void;
   setShowShortcutHelp: (show: boolean) => void;
+  setExportFilename: (name: string) => void;
+  pushToast: (message: string, variant?: string) => void;
+  removeToast: (id: string) => void;
   
   // 便利なアクション
   startLoading: () => void;
@@ -65,8 +80,10 @@ export const createUIStore = () => create<UIStore>((set) => ({
   showLimitDialog: false,
   limitDialogData: null,
   configSettings: null,
+  exportFilename: undefined,
   validationMessages: [],
   showShortcutHelp: false,
+  toasts: [],
 
   // BaseStoreActions の実装
   reset: () => set({
@@ -81,8 +98,10 @@ export const createUIStore = () => create<UIStore>((set) => ({
     showLimitDialog: false,
     limitDialogData: null,
     configSettings: null,
+  exportFilename: undefined,
   validationMessages: [],
   showShortcutHelp: false,
+  toasts: [],
   }),
   
   clearError: () => set({ error: null }),
@@ -99,9 +118,17 @@ export const createUIStore = () => create<UIStore>((set) => ({
   setFilterModal: (filterModal: ResultsFilterModalState) => set({ filterModal }),
   setShowLimitDialog: (showLimitDialog: boolean) => set({ showLimitDialog }),
   setLimitDialogData: (limitDialogData: LimitDialogData) => set({ limitDialogData }),
-  setConfigSettings: (configSettings: { default_page_size?: number; max_records_for_csv_download?: number } | null) => set({ configSettings }),
+  setConfigSettings: (configSettings: { 
+    default_page_size?: number; 
+    max_records_for_csv_download?: number; 
+    max_records_for_excel_download?: number;
+    max_records_for_clipboard_copy?: number;
+  } | null) => set({ configSettings }),
+  setExportFilename: (exportFilename: string) => set({ exportFilename }),
   setValidationMessages: (validationMessages: string[]) => set({ validationMessages }),
   setShowShortcutHelp: (showShortcutHelp: boolean) => set({ showShortcutHelp }),
+  pushToast: (message: string, variant?: string) => set((s) => ({ toasts: [...s.toasts, { id: Math.random().toString(36).slice(2), message, variant, ts: Date.now() }] })),
+  removeToast: (id: string) => set((s) => ({ toasts: s.toasts.filter(t => t.id !== id) })),
   
   // 便利なアクション
   startLoading: () => set({ isPending: true, error: null }),

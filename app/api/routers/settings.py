@@ -15,4 +15,7 @@ async def get_config_settings():
         "infinite_scroll_threshold": settings.infinite_scroll_threshold,
         "max_records_for_display": settings.max_records_for_display,
         "max_records_for_csv_download": settings.max_records_for_csv_download,
+    "max_records_for_excel_download": settings.max_records_for_excel_download,
+    "max_records_for_clipboard_copy": settings.max_records_for_clipboard_copy,
+    "max_rows_for_excel_chart": settings.max_rows_for_excel_chart,
     }

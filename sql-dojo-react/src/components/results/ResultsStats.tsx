@@ -12,6 +12,7 @@ interface ResultsStatsProps {
   sessionId?: string;
   onDownloadCsv?: () => void;
   isDownloading?: boolean;
+  rightExtras?: React.ReactNode;
 }
 
 /**
@@ -24,7 +25,8 @@ export const ResultsStats: React.FC<ResultsStatsProps> = ({
   filters,
   sessionId,
   onDownloadCsv,
-  isDownloading = false
+  isDownloading = false,
+  rightExtras,
 }) => {
   // 現在のソート情報を表示
   const sortInfo = sortConfig 
@@ -46,18 +48,21 @@ export const ResultsStats: React.FC<ResultsStatsProps> = ({
         <span><i className="fas fa-filter me-1"></i> {filterInfo}</span>
         {sessionId && <span><i className="fas fa-database me-1"></i> セッション: {sessionId}</span>}
       </div>
-      {onDownloadCsv && (
-        <div className="statsActions" style={{ display: 'flex', alignItems: 'center' }}>
-          <Button
-            variant="outline-primary"
-            size="sm"
-            onClick={onDownloadCsv}
-            disabled={isDownloading}
-            title="CSVダウンロード"
-          >
-            <FontAwesomeIcon icon={faDownload} className="me-1" />
-            {isDownloading ? "ダウンロード中..." : "CSV"}
-          </Button>
+      {(onDownloadCsv || rightExtras) && (
+        <div className="statsActions" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {onDownloadCsv && (
+            <Button
+              variant="outline-primary"
+              size="sm"
+              onClick={onDownloadCsv}
+              disabled={isDownloading}
+              title="CSVダウンロード"
+            >
+              <FontAwesomeIcon icon={faDownload} className="me-1" />
+              {isDownloading ? "ダウンロード中..." : "CSV"}
+            </Button>
+          )}
+          {rightExtras}
         </div>
       )}
     </div>
