@@ -53,7 +53,11 @@ export class AdminVisibilityService {
       }
       
       const data = await response.json();
-      return data as VisibilitySettings;
+      // 新形式(プレーンマップ) / 旧形式({settings: map}) 両対応
+      const normalized: VisibilitySettings = (data && typeof data === 'object' && 'settings' in data)
+        ? (data as any).settings
+        : data;
+      return normalized as VisibilitySettings;
     } catch (error) {
       console.error('表示設定取得エラー:', error);
       throw error instanceof Error ? error : new Error('表示設定取得中に不明なエラーが発生しました');

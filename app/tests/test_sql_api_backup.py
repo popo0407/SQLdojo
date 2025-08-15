@@ -259,9 +259,9 @@ class TestVisibilitySettingsAPI:
             
             assert response.status_code == 200
             data = response.json()
-            assert "settings" in data
-            assert data["settings"]["PUBLIC.test_table.column1"] is True
-            assert data["settings"]["PUBLIC.test_table.column2"] is False
+            # 新形式ではプレーンマップが返る
+            assert data["PUBLIC.test_table.column1"] is True
+            assert data["PUBLIC.test_table.column2"] is False
         finally:
             app.dependency_overrides.clear()
     
@@ -278,6 +278,7 @@ class TestVisibilitySettingsAPI:
             response = client.post(
                 "/api/v1/admin/visibility-settings",
                 json={
+                    # POST 互換: 旧形式を引き続き受け入れる仕様（サーバ側で正規化）
                     "settings": {
                         "PUBLIC.test_table.column1": True,
                         "PUBLIC.test_table.column2": False

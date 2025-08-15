@@ -77,9 +77,11 @@ async def get_visibility_settings(current_admin: CurrentAdminDep, visibility_ser
     get_fn = getattr(visibility_service, "get_all_visibility_settings", None) or visibility_service.get_all_settings
     # 同期実装のためスレッドプールで実行
     settings = await run_in_threadpool(get_fn)
-    # 互換性のため、テストが期待する {"settings": mapping} 形式で返す
-    # （フロント側がプレーンmappingを期待する場合でも、settingsキーの下に含まれるため問題なし）
-    return {"settings": settings}
+    # 根本対策: ラッパーキー("settings")を廃止しプレーンマップを返す
+    # 旧形式: {"settings": {object_name: {role_name: bool}}}
+    # 新形式: {object_name: {role_name: bool}}
+    # もし互換が必要ならクエリパラメータ等で旧形式を返す実装を追加する余地あり。
+    return settings
 
 
 @router.post("/visibility-settings")
