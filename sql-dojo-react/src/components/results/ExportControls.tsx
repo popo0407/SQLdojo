@@ -66,8 +66,8 @@ export const ExportControls: React.FC<ExportControlsProps> = ({ compact = false 
           size="sm" 
           onClick={onCopyTsv}
           disabled={ui.isDownloading}
-          title={clipboardLimit === 0 ? 'クリップボードコピーは無効化されています' : 'TSVをクリップボードへ'}
-        >TSVコピー</Button>
+          title={clipboardLimit === 0 ? 'クリップボードコピーは無効化されています' : '表示中データをクリップボード (TSV) へコピー'}
+        >クリップボード</Button>
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
 import { EmptyState } from '../../components/common/EmptyState';
 import { ResultsStats } from '../../components/results/ResultsStats';
-import ExportControls from '../../components/results/ExportControls';
+import ResultsHeaderExtras from '../../components/results/ResultsHeaderExtras';
 
 const ResultsViewer: React.FC = () => {
   // 各ストアから状態とアクションを取得
@@ -61,7 +61,7 @@ const ResultsViewer: React.FC = () => {
           filters={filters}
           sessionId={sessionId || undefined}
           isDownloading={isDownloading}
-          rightExtras={<ExportControls compact />}
+          rightExtras={<ResultsHeaderExtras />}
         />
         <ResultTable 
           columns={displayData.columns} 

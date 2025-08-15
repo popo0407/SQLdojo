@@ -31,6 +31,11 @@ describe('ResultsViewer', () => {
     expect(screen.getByText('name')).toBeInTheDocument();
     expect(screen.getByText('Alice')).toBeInTheDocument();
     expect(screen.getByText('Bob')).toBeInTheDocument();
+  // 新しい全解除ボタンと注記 (フィルタ無し状態では disabled)
+  const clearBtn = screen.getByTestId('clear-all-filters-sort');
+  expect(clearBtn).toBeInTheDocument();
+  expect(clearBtn).toHaveTextContent('フィルター・ソート全解除');
+  expect(screen.getByText(/フィルタ・ソート適用後/)).toBeInTheDocument();
   });
 
   it('エラー時はErrorAlertが表示される', () => {
