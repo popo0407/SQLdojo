@@ -16,6 +16,7 @@ from app.api.error_handlers import register_exception_handlers
 from app.config_simplified import get_settings
 from app.logger import get_logger
 from app import __version__
+from app.app_factory import create_app
 from app.services.connection_manager_odbc import ConnectionManagerODBC
 from app.dependencies import get_connection_manager_di
 
@@ -43,13 +44,11 @@ async def lifespan(app: FastAPI):
 
 
 # --- FastAPIアプリケーション作成 ---
-app = FastAPI(
-    title="SQL道場 Webアプリ",
-    description="Webブラウザ上でSQLを記述・実行し、結果をわかりやすく表示・解析できるインターフェース",
+app = create_app(
     version=__version__,
-    docs_url="/docs",
-    redoc_url="/redoc",
-    lifespan=lifespan
+    session_secret=SECRET_KEY,
+    lifespan=lifespan,
+    for_test=False,
 )
 
 # --- ミドルウェアの設定 ---
@@ -91,10 +90,7 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 # --- ルーターと静的ファイルの設定 ---
-app.include_router(router, prefix="/api/v1")
-# 静的ファイルとテンプレートはReactに移行済みのため、コメントアウト
-# app.mount("/static", StaticFiles(directory="app/static"), name="static")
-# templates = Jinja2Templates(directory="app/templates")
+# ルーター登録は factory で実施済み。静的ファイルは React 移行済み
 
 
 # --- ルート定義 (エンドポイント) ---
@@ -121,8 +117,7 @@ async def template_management_page():
     return {"message": "Reactアプリケーションに移行済みです"}
 
 @app.get("/api/health")
-async def health_check():
-    """簡易ヘルスチェック"""
+async def health_check():  # 既存互換: /api/health を保持
     return {"status": "healthy", "version": __version__}
 
 

@@ -40,6 +40,7 @@ UI で拡張子なしの入力可。保存時に `.csv` / `.xlsx` を自動付�
 | `MAX_RECORDS_FOR_EXCEL_DOWNLOAD` / `max_records_for_excel_download` | Excel 許可最大行数     | 100,000    | 超過時 400 LIMIT_EXCEEDED |
 | `MAX_RECORDS_FOR_CLIPBOARD_COPY` / `max_records_for_clipboard_copy` | TSV コピー許容最大行数 | 100,000    | 超過時 400 LIMIT_EXCEEDED |
 | `MAX_RECORDS_FOR_CSV_DOWNLOAD` / `max_records_for_csv_download`     | CSV 許可最大行数       | 10,000,000 | 既存設定                  |
+| `MAX_ROWS_FOR_EXCEL_CHART` / `max_rows_for_excel_chart`             | 通常モード+グラフ閾値  | 100,000    | 以下で将来グラフ許可候補  |
 
 #### 取得 API
 
@@ -59,6 +60,7 @@ Vitest 結合テスト `ExportControls.integration.test.tsx` で:
 - Excel 生成オプション（列幅自動調整、ヘッダースタイル）
 - TSV ダウンロード UI ボタン
 - 一括エクスポートジョブ（非同期）キューイング
+- グラフ付き Excel (行数 <= `max_rows_for_excel_chart` の場合は通常モード活用、それ以上は write_only でグラフ省略)
 - **即座転記**: 「エディタに反映」ボタンで SQL を即座にメインエディタに転記
 - **SPA 対応**: React Router と useNavigate によるスムーズなナビゲーション
 - **二重保証**: Zustand ステートと localStorage 両方での状態管理

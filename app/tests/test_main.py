@@ -15,6 +15,9 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.config_simplified import get_settings
 from app.api.routes import router
 from app.api.error_handlers import register_exception_handlers
+from app.app_factory import create_app
+
+app = create_app(for_test=True)
 
 settings = get_settings()
 

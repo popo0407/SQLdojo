@@ -6,9 +6,10 @@ FastAPI の HTTPException を投げる代わりに、error_code付きの JSON �
 """
 from fastapi import HTTPException
 from typing import Any, Dict
+from app.exceptions import ErrorCode
 
 
-def unified_error(status_code: int, error_code: str, message: str, **extra: Any) -> HTTPException:
+def unified_error(status_code: int, error_code: str | ErrorCode, message: str, **extra: Any) -> HTTPException:
     """統一エラーペイロードを生成し HTTPException.detail に格納して返す。
 
     既存テスト互換のため以下を必ず含める:
@@ -21,7 +22,7 @@ def unified_error(status_code: int, error_code: str, message: str, **extra: Any)
     payload: Dict[str, Any] = {
         "error": True,
         "status_code": status_code,  # ハンドラ側 setdefault より前に明示
-        "error_code": error_code,
+    "error_code": error_code if isinstance(error_code, str) else error_code.value,
         "message": message,
         "detail": message,  # レガシーテスト: detail 文字列前提
     }
@@ -31,21 +32,22 @@ def unified_error(status_code: int, error_code: str, message: str, **extra: Any)
 
 
 def err_limit_exceeded(limit: int, total_count: int) -> HTTPException:
-    # 既存テスト互換: テストは部分一致で「データが大きすぎます」を期待
+    """行数上限超過 (テスト期待: error_code=LIMIT_EXCEEDED)"""
     msg = f"データが大きすぎます: {total_count:,}件（上限 {limit:,}件）"
-    return unified_error(400, "LIMIT_EXCEEDED", msg, limit=limit, total_count=total_count)
+    return unified_error(400, ErrorCode.LIMIT_EXCEEDED, msg, limit=limit, total_count=total_count)
 
 
 def err_no_data() -> HTTPException:
-    return unified_error(404, "NO_DATA", "データがありません")
+    """0件データ (テスト期待: error_code=NO_DATA)"""
+    return unified_error(404, ErrorCode.NO_DATA, "データがありません")
 
 
 def err_internal(message: str = "内部エラーが発生しました") -> HTTPException:
-    return unified_error(500, "INTERNAL_ERROR", message)
+    return unified_error(500, ErrorCode.INTERNAL_ERROR, message)
 
 
 def err_feature_disabled(feature: str) -> HTTPException:
-    return unified_error(501, "FEATURE_DISABLED", f"機能が無効化されています: {feature}")
+    return unified_error(501, ErrorCode.APP_ERROR, f"機能が無効化されています: {feature}")
 
 
 def extract_error_detail(exc: HTTPException) -> Dict[str, Any]:

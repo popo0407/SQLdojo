@@ -217,12 +217,35 @@ class Logger:
         }
         self.logger.warning(message, **log_kwargs)
 
-    def error(self, message: str, exception: Optional[Exception] = None, **kwargs) -> None:
-        """エラーログ"""
+    def error(self, *args, exception: Optional[Exception] = None, **kwargs) -> None:
+        """エラーログ (後方互換・衝突耐性付き)
+
+        対応パターン:
+          logger.error("msg")
+          logger.error("msg", key=value)
+          logger.error("msg %s", val)
+          logger.error("msg", exception=e)
+          logger.error(message="msg")  # キーワード指定互換
+          logger.error("msg", message="dup")  # 重複時は最初の位置引数を優先
+
+        * 予約キー 'message' は extra へ流さず除去
+        * exception 指定時は exc_info を自動有効化
+        """
+        if args:
+            msg = args[0]
+            fmt_args = args[1:]
+        else:
+            # キーワード message のみ
+            msg = kwargs.pop('message', '')
+            fmt_args = ()
+
+        # 衝突する可能性のある 'message' キーを除去 (extra 内に混入させない)
+        if 'message' in kwargs:
+            kwargs.pop('message', None)
+
         exc_info_val = kwargs.pop('exc_info', None)
         if exception and exc_info_val is None:
             exc_info_val = True
-
         if exception:
             kwargs['exception'] = str(exception)
             kwargs['exception_type'] = type(exception).__name__
@@ -233,7 +256,11 @@ class Logger:
             'stacklevel': kwargs.pop('stacklevel', 1),
             'extra': kwargs
         }
-        self.logger.error(message, **log_kwargs)
+        try:
+            self.logger.error(msg, *fmt_args, **log_kwargs)
+        except TypeError:
+            # フォーマット不整合など最小限フォールバック
+            self.logger.error(str(msg), **log_kwargs)
 
     def critical(self, message: str, exception: Optional[Exception] = None, **kwargs) -> None:
         """重大エラーログ"""
