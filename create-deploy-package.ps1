@@ -1,72 +1,132 @@
-# HTMLエディタシステム デプロイパッケージ作成スクリプト (簡易版)
+﻿param(
+    [string]$DeployPath = "C:\Users\user\Downloads\SQLdojo",
+    [string]$DestinationZip = "C:\Users\user\Downloads\DATAZIP2_summary.zip",
+    [string]$FrontendSourceDirName = "sql-dojo-react",
+    [string]$FrontendBuildDirs = "dist,build"
+)
 
-# 設定
-$sourceProjectRoot = "C:\Users\user\Downloads\HTMLEditer"
-$tempDir = "C:\Users\user\Downloads\HTMLEditor_for_deploy"
-$destinationZip = "C:\Users\user\Downloads\DEPLOY_PACKAGE.zip"
+Write-Host "=============================================="
+Write-Host "  SQLdojo deploy package builder"
+Write-Host "=============================================="
 
-Write-Host "======================================" -ForegroundColor Cyan
-Write-Host "  HTMLエディタ デプロイパッケージ作成" -ForegroundColor Cyan
-Write-Host "======================================" -ForegroundColor Cyan
+$DeployPath = (Resolve-Path -Path $DeployPath).Path
+Write-Host "DeployPath: $DeployPath"
 
-# フロントエンドのビルド確認
-if (-not (Test-Path "$sourceProjectRoot\frontend\build")) {
-    Write-Host "ERROR: フロントエンドがビルドされていません。" -ForegroundColor Red
-    Write-Host "以下を実行してからやり直してください：" -ForegroundColor Yellow
-    Write-Host "cd $sourceProjectRoot\frontend" -ForegroundColor White
-    Write-Host "npm run build" -ForegroundColor White
+$FrontendSourceRoot = Join-Path $DeployPath $FrontendSourceDirName
+if (-not (Test-Path $FrontendSourceRoot)) {
+    Write-Host "ERROR: Frontend source directory not found: $FrontendSourceRoot" -ForegroundColor Red
     exit 1
 }
 
-# 準備
-Write-Host "作業ディレクトリを準備中..." -ForegroundColor Yellow
-if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
-New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+$BackendSourceRoot = $DeployPath
+Write-Host "Frontend Source: $FrontendSourceRoot"
+Write-Host "Backend Source Root: $BackendSourceRoot"
 
-# ルートファイルをコピー
-Write-Host "ルートファイルをコピー中..." -ForegroundColor Yellow
-Get-ChildItem $sourceProjectRoot -File | Where-Object { 
-    $_.Extension -match '\.(md|html|bat|ps1|txt)$' -and $_.Name -notmatch '^(\.env|package-lock\.json)$'
-} | ForEach-Object {
-    Copy-Item $_.FullName $tempDir -Force
-    Write-Host "  ✓ $($_.Name)" -ForegroundColor Green
+# --- フロントエンドを常に再ビルドする: .env を .env.production にコピーしてビルド ---
+Write-Host "フロントエンドのビルド準備を開始します..." -ForegroundColor Yellow
+
+$envProd = Join-Path $FrontendSourceRoot ".env.production"
+if (Test-Path $envProd) {
+    Write-Host "既存の .env.production を削除します: $envProd" -ForegroundColor Yellow
+    Remove-Item $envProd -Force
 }
 
-# バックエンドをコピー
-Write-Host "バックエンドファイルをコピー中..." -ForegroundColor Yellow
-robocopy "$sourceProjectRoot\backend" "$tempDir\backend" /E /XD .venv __pycache__ .git /XF .env *.db *.pyc *.pyo /NFL /NDL /NJH /NJS
+$envFile = Join-Path $FrontendSourceRoot ".env"
+if (Test-Path $envFile) {
+    Write-Host "frontend/.env を .env.production にコピーします" -ForegroundColor Green
+    Copy-Item -Path $envFile -Destination $envProd -Force
+} else {
+    Write-Host "警告: frontend/.env が見つかりません。ビルド時の環境変数が不足している可能性があります。" -ForegroundColor Yellow
+}
 
-# フロントエンドビルド結果をコピー
-Write-Host "フロントエンドビルド結果をコピー中..." -ForegroundColor Yellow
-New-Item -ItemType Directory -Path "$tempDir\frontend" -Force | Out-Null
-robocopy "$sourceProjectRoot\frontend\build" "$tempDir\frontend" /E /NFL /NDL /NJH /NJS
+Write-Host "npm run build を実行します（$FrontendSourceRoot）" -ForegroundColor Yellow
+Push-Location $FrontendSourceRoot
+try {
+    # npm が存在することを前提にビルドを実行
+    & npm run build
+} catch {
+    Write-Host "ERROR: npm run build に失敗しました。出力を確認してください。" -ForegroundColor Red
+    Pop-Location
+    exit 1
+}
+Pop-Location
 
-# パッケージ内容表示
-Write-Host ""
-Write-Host "パッケージ内容:" -ForegroundColor Magenta
+
+$timestamp = Get-Date -Format "yyyyMMddHHmmss"
+$tempDir = Join-Path $env:TEMP "SQLdojo_deploy_$timestamp"
+New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+Write-Host "Working directory: $tempDir" -ForegroundColor Yellow
+
+# Frontend build output detection
+$frontendOutDir = $null
+$buildDirList = $FrontendBuildDirs.Split(',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+foreach ($d in $buildDirList) {
+    $candidate = Join-Path $FrontendSourceRoot $d
+    if (Test-Path $candidate) { 
+        $frontendOutDir = $candidate
+        break 
+    }
+}
+
+if (-not $frontendOutDir) {
+    $frontendOutDir = $FrontendSourceRoot
+    Write-Host "No frontend build output found. Including full source." -ForegroundColor Yellow
+} else {
+    Write-Host "Frontend build output detected: $frontendOutDir" -ForegroundColor Yellow
+}
+
+# Copy frontend
+Write-Host "Copying frontend files..." -ForegroundColor Cyan
+$frontendDest = Join-Path $tempDir $FrontendSourceDirName
+New-Item -ItemType Directory -Path $frontendDest -Force | Out-Null
+$outName = Split-Path $frontendOutDir -Leaf
+$finalFrontendDest = Join-Path $frontendDest $outName
+New-Item -ItemType Directory -Path $finalFrontendDest -Force | Out-Null
+robocopy $frontendOutDir $finalFrontendDest /E /NFL /NDL /NJH /NJS | Out-Null
+
+# Copy backend
+Write-Host "Copying backend files..." -ForegroundColor Cyan
+$backendTarget = $tempDir
+
+$excludeDirs = @($FrontendSourceDirName, "node_modules", ".git", ".venv", "dist", "build", "logs")
+$xdArgs = @()
+foreach ($ex in $excludeDirs) { 
+    $p = Join-Path $BackendSourceRoot $ex
+    if (Test-Path $p) { 
+        $xdArgs += $p 
+    }
+}
+
+$xfArgs = @(".env", "*.db", "*.pyc", "*.pyo")
+robocopy $BackendSourceRoot $backendTarget /E /XD $xdArgs /XF $xfArgs /NFL /NDL /NJH /NJS | Out-Null
+
+# Copy meta files
+Get-ChildItem $DeployPath -File | Where-Object { $_.Extension -match '\.(md|txt|ps1)$' } | ForEach-Object { 
+    Copy-Item $_.FullName $tempDir -Force 
+}
+
+Write-Host "Package file list:" -ForegroundColor Cyan
 Get-ChildItem $tempDir -Recurse -File | ForEach-Object {
-    $relativePath = $_.FullName.Replace($tempDir + "\", "")
+    $relativePath = $_.FullName.Substring($tempDir.Length+1)
     Write-Host "  $relativePath" -ForegroundColor Gray
 }
 
-# 圧縮
-Write-Host ""
-Write-Host "パッケージを圧縮中..." -ForegroundColor Yellow
-if (Test-Path $destinationZip) { Remove-Item $destinationZip -Force }
-Compress-Archive -Path "$tempDir\*" -DestinationPath $destinationZip -Force
+Write-Host "Compressing to ZIP..." -ForegroundColor Yellow
+if (Test-Path $DestinationZip) { 
+    Remove-Item $DestinationZip -Force 
+}
 
-# 完了
-$sizeMB = [math]::Round((Get-Item $destinationZip).Length / 1MB, 2)
-Write-Host ""
-Write-Host "✅ デプロイパッケージ作成完了!" -ForegroundColor Green
-Write-Host "出力先: $destinationZip" -ForegroundColor White
-Write-Host "サイズ: $sizeMB MB" -ForegroundColor White
+$zipSource = Join-Path $tempDir "*"
+Compress-Archive -Path $zipSource -DestinationPath $DestinationZip -Force
 
-# 後片付け
+$sizeBytes = (Get-Item $DestinationZip).Length
+$sizeMB = [math]::Round(($sizeBytes / 1MB), 2)
+
+Write-Host ""
+Write-Host "Package creation completed" -ForegroundColor Cyan
+Write-Host "Output: $DestinationZip" -ForegroundColor Cyan  
+Write-Host "Size: $sizeMB MB ($sizeBytes bytes)" -ForegroundColor Cyan
+
 Remove-Item $tempDir -Recurse -Force
 
-Write-Host ""
-Write-Host "次のステップ:" -ForegroundColor Yellow
-Write-Host "1. ZIPファイルを本番サーバーに転送" -ForegroundColor White
-Write-Host "2. deploy-to-iis.ps1を実行" -ForegroundColor White
-Write-Host "3. CORS設定を環境に合わせて調整" -ForegroundColor White
+Write-Host "Next step: copy ZIP to server and run deploy-to-iis.ps1 on target server." -ForegroundColor Yellow

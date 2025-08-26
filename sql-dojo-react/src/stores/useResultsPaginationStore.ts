@@ -52,9 +52,8 @@ export const createResultsPaginationStore = () => create<PaginationStoreState>((
         });
       }
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error('データ読み込みに失敗しました');
-      uiStore.setError(error);
-      uiStore.setIsError(true);
+      const errorMessage = err instanceof Error ? err.message : 'データ読み込みに失敗しました';
+      uiStore.setError(typeof errorMessage === 'string' ? errorMessage : String(errorMessage));
     } finally {
       uiStore.setIsLoadingMore(false);
     }

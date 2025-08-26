@@ -1,4 +1,4 @@
-## fastapi is pinned for compatibility with starlette 0.27.0
+﻿## fastapi is pinned for compatibility with starlette 0.27.0
 ## Keep a single pin to avoid resolver conflicts
 ## fastapi==0.104.1  # removed due to conflict
 fastapi-mail==1.5.0

@@ -3,7 +3,7 @@
  * 既存のバックエンドAPIエンドポイントを活用
  */
 
-import type { SqlHistoryResponse } from '../types';
+import type { SqlHistoryResponse } from '../types/sqlHistory';
 import { API_CONFIG } from '../../../config/api';
 
 /**

@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react';
-import { createTemplateStore } from '../useTemplateStore';
-import type { TemplateStore } from '../useTemplateStore';
+import { createTemplateStore } from './useTemplateStore';
 
 // モック設定
 const mockFetch = vi.fn();

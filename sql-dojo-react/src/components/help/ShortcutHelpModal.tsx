@@ -13,7 +13,7 @@ const ShortcutHelpModal: React.FC = () => {
   const { showShortcutHelp, setShowShortcutHelp } = useUIStore();
 
   return (
-    <Modal show={showShortcutHelp} onHide={() => setShowShortcutHelp(false)} size="md" centered>
+    <Modal show={showShortcutHelp} onHide={() => setShowShortcutHelp(false)} centered>
       <Modal.Header closeButton>
         <Modal.Title>キーボードショートカット</Modal.Title>
       </Modal.Header>

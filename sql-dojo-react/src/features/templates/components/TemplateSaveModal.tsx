@@ -5,16 +5,11 @@ import type { TemplateSaveModalProps } from '../types/template';
  * テンプレート保存モーダルコンポーネント
  * 新しいテンプレートを保存するためのモーダル
  */
-export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  initialSql = '',
-  isLoading = false,
-}) => {
+export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = (props) => {
+  const { isOpen, onClose, onSave, initialSql = '', isLoading = false, error } = props;
   const [templateName, setTemplateName] = useState('');
   const [sqlContent, setSqlContent] = useState(initialSql);
-  const [error, setError] = useState('');
+  const [internalError, setInternalError] = useState('');
   const nameInputRef = useRef<HTMLInputElement>(null);
 
   // モーダルが開かれた時の初期化
@@ -22,8 +17,8 @@ export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = ({
     if (isOpen) {
       setTemplateName('');
       setSqlContent(initialSql);
-      setError('');
-      
+      setInternalError('');
+
       // 少し遅延させてフォーカスを設定
       setTimeout(() => {
         nameInputRef.current?.focus();
@@ -52,34 +47,34 @@ export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = ({
     
     // バリデーション
     if (!templateName.trim()) {
-      setError('テンプレート名を入力してください');
+        setInternalError('テンプレート名を入力してください');
       nameInputRef.current?.focus();
       return;
     }
 
     if (templateName.trim().length > 100) {
-      setError('テンプレート名は100文字以内で入力してください');
+        setInternalError('テンプレート名は100文字以内で入力してください');
       nameInputRef.current?.focus();
       return;
     }
 
     if (!sqlContent.trim()) {
-      setError('SQLを入力してください');
+        setInternalError('SQLを入力してください');
       return;
     }
 
     if (sqlContent.trim().length > 10000) {
-      setError('SQLは10000文字以内で入力してください');
+        setInternalError('SQLは10000文字以内で入力してください');
       return;
     }
 
     try {
-      setError('');
+      setInternalError('');
       await onSave(templateName.trim(), sqlContent.trim());
       // 成功時はモーダルを閉じる（親コンポーネントで制御）
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '保存に失敗しました';
-      setError(errorMessage);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '保存に失敗しました';
+      setInternalError(errorMessage);
     }
   };
 
@@ -92,14 +87,14 @@ export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = ({
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTemplateName(event.target.value);
     if (error) {
-      setError('');
+      setInternalError('');
     }
   };
 
   const handleSqlChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSqlContent(event.target.value);
     if (error) {
-      setError('');
+      setInternalError('');
     }
   };
 
@@ -147,10 +142,10 @@ export const TemplateSaveModal: React.FC<TemplateSaveModalProps> = ({
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
                 {/* エラーメッセージ */}
-                {error && (
+                {(error ?? internalError) && (
                   <div className="alert alert-danger d-flex align-items-center" role="alert">
                     <i className="fas fa-exclamation-triangle me-2"></i>
-                    <div>{error}</div>
+                    <div>{error ?? internalError}</div>
                   </div>
                 )}
 

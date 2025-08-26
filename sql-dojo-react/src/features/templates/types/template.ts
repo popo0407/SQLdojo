@@ -213,6 +213,8 @@ export interface TemplateSaveModalProps {
   onSave: (name: string, sql: string) => Promise<void>;
   initialSql?: string;
   isLoading?: boolean;
+  // 外部からモーダルのエラーメッセージを渡せるようにする（テストやAPIエラー表示用）
+  error?: string;
 }
 
 /**
