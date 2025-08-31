@@ -88,7 +88,7 @@ class HybridSQLService:
                 return {
                     'status': 'requires_confirmation',
                     'total_count': total_count,
-                    'message': f"大容量データです（{total_count:,}件）。ダウンロードしますか？"
+                    'message': f"大容量データです（{total_count:,}件）。条件を絞れない場合はCSVでダウンロードしてください"
                 }
 
             # SQLバリデーション（常に実施）
@@ -198,6 +198,9 @@ class HybridSQLService:
                             return int(v)
                     except Exception:
                         continue
+            # pyodbc.Rowの場合もタプルと同様に扱える
+            if "pyodbc.Row" in str(type(result)):
+                return result[0] if len(result) > 0 else 0
             # 最後の手段: 0
             logger.debug(f"COUNT(*) 取得結果の形式が未対応のため 0 を返します: {type(result)}")
             return 0

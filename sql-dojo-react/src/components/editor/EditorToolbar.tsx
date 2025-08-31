@@ -8,9 +8,12 @@ import {
   faExpand,
   faCompress,
   faFileCode,
-  faSave
+  faSave,
+  faDownload
 } from '@fortawesome/free-solid-svg-icons';
 import { useLayoutStore } from '../../stores/useLayoutStore';
+import { downloadSqlCsv } from '../../api/sqlService';
+import { useEditorStore } from '../../stores/useEditorStore';
 import styles from './EditorToolbar.module.css';
 
 interface EditorToolbarProps {
@@ -39,6 +42,13 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   isTemplatesLoading = false
 }) => {
   const { isEditorMaximized, toggleEditorMaximized } = useLayoutStore();
+  const { sql } = useEditorStore.getState();
+
+  const handleDownloadCsv = () => {
+    if (hasSql) {
+      downloadSqlCsv(sql);
+    }
+  };
 
   return (
     <div className={styles.toolbar}>
@@ -121,6 +131,16 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             <FontAwesomeIcon icon={faPlay} className="me-1" />
             {isPending ? "実行中..." : "実行"}
           </Button>
+
+          <Button
+            variant="outline-dark"
+            onClick={handleDownloadCsv}
+            disabled={!hasSql || isPending}
+            title="結果をCSVで直接ダウンロード"
+          >
+            <FontAwesomeIcon icon={faDownload} className="me-1" />
+            CSVダウンロード
+          </Button>
         </ButtonGroup>
       </div>
       
@@ -141,4 +161,4 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
       </div>
     </div>
   );
-}; 
+};

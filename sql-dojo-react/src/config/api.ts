@@ -22,6 +22,6 @@ if (!import.meta.env.DEV) {
 export const API_CONFIG = {
   // 開発時はViteのプロキシで同一オリジン
   BASE_URL: resolvedBase,
-  // フロントのAPI呼び出しタイムアウト(ms)。未設定時は10秒
+  // フロントのAPI呼び出しタイムアウト(ms)
   TIMEOUT_MS: Number(import.meta.env.VITE_API_TIMEOUT_MS),
 } as const;

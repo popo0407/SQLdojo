@@ -92,6 +92,23 @@ export const downloadExcelFromCache = async ({
   return response.blob();
 };
 
+export const downloadSqlCsv = async (sql: string): Promise<void> => {
+  try {
+    const blob = await downloadCsvDirect({ sql });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'query_result.csv';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
+  } catch (error) {
+    console.error('CSV download failed:', error);
+    // You might want to show a notification to the user
+  }
+};
+
 // クリップボード用TSV取得 (キャッシュ経路)
 export const fetchClipboardTsvFromCache = async ({
   session_id,
