@@ -53,11 +53,9 @@ export const MainPageTemplate: React.FC<MainPageTemplateProps> = ({
     if (!isInitialized && !state.isInitialized && !initializingRef.current) {
       setIsInitialized(true);
       initializingRef.current = true;
-      console.log('MainPageTemplate: Starting template initialization...');
       // initializeTemplatesを使用して統一
       initializeTemplates().then(() => {
         // 初期化完了
-        console.log('MainPageTemplate: Template initialization completed');
         initializingRef.current = false;
       }).catch((error) => {
         console.error('テンプレート初期化エラー:', error);

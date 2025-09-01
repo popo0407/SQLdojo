@@ -133,6 +133,8 @@ class HybridSQLService:
                 'session_id': session_id,
                 'total_count': total_count,
                 'processed_rows': processed_rows,
+                'current_count': processed_rows,  # 現在取得済みレコード数
+                'progress_percentage': round((processed_rows / total_count) * 100, 1) if total_count > 0 else 100.0,  # 進捗率
                 'execution_time': execution_time,
                 'message': f"データ取得完了: {processed_rows}件"
             }

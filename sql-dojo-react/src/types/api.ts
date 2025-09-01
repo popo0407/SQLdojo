@@ -22,10 +22,22 @@ export interface ExecuteSqlResponse {
   message?: string;
   error_message?: string;
   total_count?: number;
+  current_count?: number;  // 現在取得済みレコード数
+  progress_percentage?: number;  // 進捗率 (0-100)
   data?: TableRow[];
   columns?: string[];
   row_count?: number;
   execution_time?: number;
+}
+
+// 進捗状態レスポンス型
+export interface SessionStatusResponse {
+  session_id: string;
+  status: 'streaming' | 'completed' | 'error' | 'cancelled';
+  total_count: number;
+  processed_count: number;
+  progress_percentage: number;
+  message?: string;
 }
 
 // 設定型定義
@@ -109,6 +121,8 @@ export interface CacheSQLResponse {
   success: boolean;
   session_id?: string;
   total_count?: number;
+  current_count?: number;  // 現在取得済みレコード数
+  progress_percentage?: number;  // 進捗率 (0-100)
   processed_rows?: number;
   execution_time?: number;
   message?: string;
@@ -123,6 +137,8 @@ export interface CacheReadResponse {
   data?: TableRow[];
   columns?: string[];
   total_count?: number;
+  current_count?: number;  // 現在取得済みレコード数
+  progress_percentage?: number;  // 進捗率 (0-100)
   page?: number;
   page_size?: number;
   total_pages?: number;
@@ -132,4 +148,4 @@ export interface CacheReadResponse {
   execution_time?: number;
   error_message?: string;
   message?: string;
-} 
+}

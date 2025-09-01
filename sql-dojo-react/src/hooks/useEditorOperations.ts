@@ -14,7 +14,7 @@ export const useEditorOperations = () => {
     if (sqlToCopy) {
       setSql(sqlToCopy);
       localStorage.removeItem('sqlToCopy'); // 使用後は削除
-      console.log('SQL履歴からのコピーを復元しました');
+      setEditorText(sqlText);
     }
   }, [setSql]); // setSQL を依存関係に追加
 

@@ -87,15 +87,9 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
    * 共通のfetch処理
    */
   const fetchWithAuth = useCallback(async (endpoint: string, options: RequestInit = {}) => {
-    console.log('[FETCH] === fetchWithAuth開始 ===');
-    console.log('[FETCH] endpoint:', endpoint);
-    console.log('[FETCH] options:', options);
-    
     const token = localStorage.getItem('token');
-    console.log('[FETCH] token存在:', !!token);
     
     const url = `${apiBaseUrl}${endpoint}`;
-    console.log('[FETCH] 完全URL:', url);
     
     const response = await fetch(url, {
       ...options,
@@ -106,9 +100,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       },
     });
 
-    console.log('[FETCH] レスポンス status:', response.status);
-    console.log('[FETCH] レスポンス ok:', response.ok);
-
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error('[FETCH] エラーレスポンス:', errorData);
@@ -117,8 +108,6 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
     }
 
     const result = await response.json();
-    console.log('[FETCH] レスポンスデータ:', result);
-    console.log('[FETCH] === fetchWithAuth終了 ===');
     return result;
   }, [apiBaseUrl]);
 
@@ -153,9 +142,7 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
       const errorMessage = error instanceof Error ? error.message : '管理者テンプレートの読み込みに失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     } finally {
-      console.log('[CONTEXT] dispatch SET_LOADING false');
       dispatch({ type: 'SET_LOADING', payload: false });
-      console.log('[CONTEXT] === loadAdminTemplates終了 ===');
     }
   }, [fetchWithAuth]);
 
@@ -388,20 +375,16 @@ export const TemplateProvider: React.FC<TemplateProviderProps> = ({
         is_visible: template.is_visible,
       }));
 
-      console.log('保存データ:', preferences); // デバッグログ
-
       await fetchWithAuth('/users/template-preferences', {
         method: 'PUT',
         body: JSON.stringify({ preferences }),
       });
       
-      console.log('保存成功'); // デバッグログ
       dispatch({ type: 'SET_UNSAVED_CHANGES', payload: false });
       
       // 保存後にデータを再読み込みして同期を確保
       await loadTemplatePreferences();
     } catch (error) {
-      console.error('保存エラー:', error); // デバッグログ
       const errorMessage = error instanceof Error ? error.message : 'テンプレート設定の保存に失敗しました';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;

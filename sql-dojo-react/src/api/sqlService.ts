@@ -1,4 +1,4 @@
-import type { ExecuteSqlResponse, CacheReadResponse, SqlCompletionResult } from '../types/api';
+import type { ExecuteSqlResponse, CacheReadResponse, SqlCompletionResult, SessionStatusResponse } from '../types/api';
 import type { FilterConfig } from '../types/common';
 import { apiClient } from './apiClient';
 import { API_CONFIG } from '../config/api';
@@ -155,4 +155,11 @@ export const getSqlSuggestions = async ({ sql, position, context }: {
   context: Record<string, unknown>; 
 }): Promise<SqlCompletionResult> => {
   return apiClient.post<SqlCompletionResult>('/sql/suggest', { sql, position, context });
+};
+
+/**
+ * セッションの進捗状態を取得する
+ */
+export const getSessionStatus = async (sessionId: string): Promise<SessionStatusResponse> => {
+  return apiClient.get<SessionStatusResponse>(`/sql/cache/status/${sessionId}`);
 }; 

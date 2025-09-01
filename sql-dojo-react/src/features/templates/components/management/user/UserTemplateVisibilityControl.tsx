@@ -45,7 +45,6 @@ export const UserTemplateVisibilityControl: React.FC<UserTemplateVisibilityContr
 
   // 設定変更処理
   const handleVisibilityChange = useCallback((templateId: string, isVisible: boolean) => {
-    console.log(`個別表示切り替え: ${templateId} -> ${isVisible}`);
     setLocalPreferences(prev => 
       prev.map(pref => 
         pref.template_id === templateId 
@@ -58,12 +57,10 @@ export const UserTemplateVisibilityControl: React.FC<UserTemplateVisibilityContr
 
   // 全体表示/非表示切り替え（修正版）
   const handleToggleAll = useCallback((templateType: 'user' | 'admin', isVisible: boolean) => {
-    console.log(`一括${templateType}表示切り替え: ${isVisible}`);
     setLocalPreferences(prev => 
       prev.map(pref => {
         // templateTypeが'user'の場合は管理者テンプレート以外、'admin'の場合は管理者テンプレートのみ
         const shouldToggle = templateType === 'user' ? !pref.is_admin : pref.is_admin;
-        console.log(`テンプレート ${pref.template_name}: is_admin=${pref.is_admin}, shouldToggle=${shouldToggle}`);
         return shouldToggle 
           ? { ...pref, is_visible: isVisible }
           : pref;

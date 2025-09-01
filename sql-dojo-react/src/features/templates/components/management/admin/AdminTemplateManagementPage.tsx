@@ -19,14 +19,11 @@ export const AdminTemplateManagementPage: React.FC = () => {
   // 管理者テンプレート作成ハンドラー
   const handleCreateTemplate = async (templateData: Omit<Template, 'id' | 'created_at' | 'updated_at'>) => {
     try {
-      console.log('[ADMIN] 管理者テンプレート作成開始:', templateData);
       await templateApi.createAdminTemplate({
         name: templateData.name,
         sql: templateData.sql,
       });
-      console.log('[ADMIN] 管理者テンプレート作成完了、リロード開始');
       await loadAdminTemplates(); // 作成後にリロード
-      console.log('[ADMIN] 管理者テンプレートリロード完了');
     } catch (error) {
       console.error('[ADMIN] テンプレート作成エラー:', error);
     }
@@ -35,11 +32,8 @@ export const AdminTemplateManagementPage: React.FC = () => {
   // 管理者テンプレート削除ハンドラー
   const handleDeleteTemplate = async (templateId: string) => {
     try {
-      console.log('[ADMIN] 管理者テンプレート削除開始:', templateId);
       await templateApi.deleteAdminTemplate(templateId);
-      console.log('[ADMIN] 管理者テンプレート削除完了、リロード開始');
       await loadAdminTemplates(); // 削除後にリロード
-      console.log('[ADMIN] 管理者テンプレートリロード完了');
     } catch (error) {
       console.error('[ADMIN] テンプレート削除エラー:', error);
     }
@@ -52,30 +46,13 @@ export const AdminTemplateManagementPage: React.FC = () => {
 
   // 初期データ読み込み
   useEffect(() => {
-    console.log('[ADMIN] AdminTemplateManagementPage: 初期化中...');
-    console.log('[ADMIN] loadAdminTemplates function:', loadAdminTemplates);
-    console.log('[ADMIN] loadAdminTemplates実行開始');
-    loadAdminTemplates().then(() => {
-      console.log('[ADMIN] loadAdminTemplates実行完了');
-    }).catch((error) => {
+    loadAdminTemplates().catch((error) => {
       console.error('[ADMIN] loadAdminTemplates実行エラー:', error);
     });
   }, [loadAdminTemplates]);
 
-  // デバッグ用ログ（一度だけ）
-  useEffect(() => {
-    console.log('[ADMIN] AdminTemplates状態変更:', { 
-      adminTemplatesLength: adminTemplates.length, 
-      adminTemplates: adminTemplates,
-      isLoading, 
-      error,
-      firstTemplate: adminTemplates[0]?.name 
-    });
-  }, [adminTemplates, isLoading, error]);
-
   // adminTemplatesをTemplateWithPreferencesに変換
   const templatesWithPreferences: TemplateWithPreferences[] = adminTemplates.map(template => {
-    console.log('[ADMIN] テンプレート変換:', template);
     return {
       template_id: template.id,
       name: template.name,
@@ -88,8 +65,6 @@ export const AdminTemplateManagementPage: React.FC = () => {
       is_visible: true
     };
   });
-
-  console.log('[ADMIN] 変換後のテンプレート一覧:', templatesWithPreferences);
 
   // 新規作成ハンドラー
   const handleCreate = async (templateData: { name: string; sql: string; description?: string }) => {

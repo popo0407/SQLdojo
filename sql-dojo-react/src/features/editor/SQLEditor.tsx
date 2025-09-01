@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import { Stack } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
+import { useProgressStore } from '../../stores/useProgressStore';
 import { useMonacoEditor } from '../../hooks/useMonacoEditor';
 import { useEditorOperations } from '../../hooks/useEditorOperations';
 import { useEditorStore } from '../../stores/useEditorStore';
@@ -18,6 +19,15 @@ const SQLEditor: React.FC = () => {
   
   // SQLページストアからアクションと状態を取得
   const { executeSql, isPending } = useSqlPageStore();
+  
+  // 進捗ストアから状態を取得
+  const { 
+    isVisible: showProgress, 
+    totalCount, 
+    currentCount, 
+    progressPercentage, 
+    message 
+  } = useProgressStore();
   
   // エディタストアから選択状態を取得
   const hasSelection = useEditorStore((state) => state.hasSelection());
@@ -39,15 +49,8 @@ const SQLEditor: React.FC = () => {
 
   // テンプレートの初期化
   useEffect(() => {
-    console.log('Initializing templates...');
     initializeTemplates();
   }, [initializeTemplates]);
-
-  // デバッグ用: テンプレート状態を監視
-  useEffect(() => {
-    console.log('Template state:', state);
-    console.log('Visible templates:', getVisibleTemplates());
-  }, [state, getVisibleTemplates]);
 
   const {
     isSaveModalOpen,
@@ -76,8 +79,6 @@ const SQLEditor: React.FC = () => {
       created_at: template.created_at
     }));
     
-    // デバッグ用ログ
-    console.log('Templates converted:', converted);
     return converted;
   };
 
@@ -95,6 +96,13 @@ const SQLEditor: React.FC = () => {
         hasSelection={hasSelection}
         templates={convertToDropdownItems(getVisibleTemplates())}
         isTemplatesLoading={state.isLoading}
+        progressData={{
+          total_count: totalCount,
+          current_count: currentCount,
+          progress_percentage: progressPercentage,
+          message: message,
+        }}
+        showProgress={showProgress}
       />
 
       {/* Monaco Editor 本体 */}

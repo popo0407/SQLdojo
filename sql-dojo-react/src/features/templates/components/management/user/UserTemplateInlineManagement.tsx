@@ -94,8 +94,6 @@ export const UserTemplateInlineManagement: React.FC<UserTemplateInlineManagement
                       (isInitialized && templates.length !== lastTemplatesLength);
     
     if (shouldSync) {
-      console.log('Syncing templates:', { isInitialized, templatesLength: templates.length, lastLength: lastTemplatesLength });
-      
       // display_order順でソート
       const sortedTemplates = [...templates].sort((a, b) => {
         // display_order でソート（昇順）

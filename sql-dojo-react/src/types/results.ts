@@ -75,8 +75,14 @@ export interface ResultsSessionActions {
 }
 
 // SQL実行ストアの型定義
+export interface ResultsExecutionState {
+  progressPollingInterval: NodeJS.Timeout | null;
+}
+
 export interface ResultsExecutionActions {
   executeSql: (sql: string) => Promise<void>;
+  startProgressPolling: (sessionId: string) => void;
+  stopProgressPolling: () => void;
 }
 
 // 統合されたストアの型定義（Facade用）
@@ -85,6 +91,7 @@ export interface ResultsState extends
   ResultsFilterState, 
   ResultsPaginationState, 
   ResultsSessionState,
+  ResultsExecutionState,
   ResultsDataActions,
   ResultsFilterActions,
   ResultsPaginationActions,
