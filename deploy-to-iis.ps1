@@ -3,7 +3,10 @@
 #
 # 前提条件:
 # 1. 開発PCでビルドされたフロントエンド(本リポでは `$DeployPath\sql-dojo-react`) と
-#    バックエンド(ルート直下 app/, main.py 等) が $DeployPath に配置済みであ# 自己署名証明書を作成
+#    バックエンド(ルート直下 app/, main.py 等)# 自己署名証明書を作成
+Write-ColorOutput Yellow "  - 自己署名証明書を作成中: $certName (DNS: $($dnsNames -join ', '))"
+$newCert = New-SelfSignedCertificate -DnsName $dnsNames -CertStoreLocation $certStorePath -FriendlyName $certName
+$certThumbprint = $newCert.ThumbprintDeployPath に配置済みであ# 自己署名証明書を作成
 Write-ColorOutput Yellow "  - 自己署名証明書を作成中: $certName (DNS: $($dnsNames -join ', '))"
 $newCert = New-SelfSignedCertificate -DnsName $dnsNames -CertStoreLocation $certStorePath -FriendlyName $certName。
 #    - フロント成果物: `$DeployPath\sql-dojo-react\dist` (なければ build)
@@ -84,51 +87,27 @@ Write-ColorOutput Green  "検出完了: 実構成に基づきデプロイを続
 # 4. バックエンドの環境設定
 Write-ColorOutput Yellow "ステップ 3: バックエンドのPython環境を設定..."
 
-# Python の検出と仮想環境の準備
-Set-Location $BackendDeploy
-
-$venvPython = Join-Path $BackendDeploy ".venv\Scripts\python.exe"
-if (-not (Test-Path $venvPython)) {
-    Write-ColorOutput Yellow ".venv が見つかりません。仮想環境を新規作成します..."
-    try {
-        # システムのPythonを探す
-        $sysPython = (Get-Command python -ErrorAction Stop).Source
-        Write-ColorOutput Yellow "システムの Python を使用して仮想環境を作成: $sysPython"
-        
-        # 仮想環境を作成
-        & $sysPython -m venv .venv
-        
-        if (-not (Test-Path $venvPython)) {
-            # 作成に失敗した場合
-            Write-ColorOutput Red "仮想環境の作成に失敗しました。"
-            Read-Host "Enterキーを押して終了..."
-            exit 1
-        }
-        Write-ColorOutput Green "仮想環境を正常に作成しました。"
-
-    } catch {
-        Write-ColorOutput Red "Python が見つかりません。仮想環境を作成するには Python が必要です。"
-        Read-Host "Enterキーを押して終了..."
-        exit 1
-    }
-}
-
-# この時点で .venv は必ず存在するので、それを使用する
-$pythonPathToUse = $venvPython
-$pipPath = Join-Path $BackendDeploy ".venv\Scripts\pip.exe"
-
-Write-ColorOutput Green ".venv の python を使用: $pythonPathToUse"
-
-if (Test-Path $pipPath) {
-    Write-ColorOutput Yellow "依存関係をインストール中: requirements.txt"
-    & $pipPath install --upgrade pip
-    & $pipPath install -r requirements.txt
-} else {
-    # venv作成が成功していれば、このケースは稀
-    Write-ColorOutput Red "pip が見つかりません。仮想環境が破損している可能性があります。"
+# Pythonの確認
+try {
+    $pythonVersion = python --version 2>&1
+    Write-ColorOutput Green "Python バージョン: $pythonVersion"
+} catch {
+    Write-ColorOutput Red "Pythonが見つかりません。Pythonをインストールしてください。"
     Read-Host "Enterキーを押して終了..."
     exit 1
 }
+
+# 仮想環境の作成とライブラリのインストール
+Set-Location $BackendDeploy
+if (-not (Test-Path ".venv")) {
+    Write-ColorOutput Yellow "Python仮想環境を作成中... (.venv)"
+    python -m venv .venv
+}
+
+Write-ColorOutput Yellow "仮想環境を有効化し、依存関係をインストール中..."
+# PowerShellセッション内で直接有効化するのではなく、pipコマンドへのフルパスを指定して実行
+$PipPath = Join-Path $BackendDeploy ".venv\Scripts\pip.exe"
+& $PipPath install -r requirements.txt
 
 Write-ColorOutput Green "バックエンドの環境設定が完了しました。"
 
