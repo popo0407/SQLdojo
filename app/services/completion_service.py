@@ -74,11 +74,16 @@ class CompletionService:
 
             if context_type == 'TABLE':
                 suggestions.extend(self._get_table_suggestions(current_word))
+            elif context_type == 'COLUMN_SPECIFIC':
+                # ドット直後の場合は、特定のテーブルのカラムのみを提案
+                suggestions.extend(self._get_column_suggestions(tables_in_query, current_word))
             else: # デフォルトはカラム補完を試みる
                 suggestions.extend(self._get_column_suggestions(tables_in_query, current_word))
 
-            suggestions.extend(self._get_keyword_suggestions(current_word))
-            suggestions.extend(self._get_function_suggestions(current_word))
+            # ドット直後の場合はキーワードと関数を除外
+            if context_type != 'COLUMN_SPECIFIC':
+                suggestions.extend(self._get_keyword_suggestions(current_word))
+                suggestions.extend(self._get_function_suggestions(current_word))
 
             seen = set()
             unique_suggestions = [s for s in suggestions if s.label not in seen and not seen.add(s.label)]
@@ -93,6 +98,20 @@ class CompletionService:
         """sqlparseを使い、カーソル位置の文脈（テーブル候補か、カラム候補か）を判断する"""
         tables_in_query = self._extract_table_names_from_sql(sql)
         sql_to_cursor = sql[:position]
+        
+        # ドット直後の場合をチェック
+        if position > 0 and sql[position - 1] == '.':
+            # ドット直前の単語（テーブル名/エイリアス）を取得
+            table_alias = self._get_table_alias_before_dot(sql, position - 1)
+            if table_alias:
+                # エイリアスから実際のテーブル名を解決
+                actual_table = self._resolve_table_alias(sql, table_alias)
+                if actual_table:
+                    self.logger.debug(f"ドット補完: {table_alias} -> {actual_table}")
+                    return 'COLUMN_SPECIFIC', [actual_table]
+                else:
+                    # エイリアスが解決できない場合は、エイリアス名をテーブル名として扱う
+                    return 'COLUMN_SPECIFIC', [table_alias]
         
         # カーソル直前の単語のさらに前のキーワードで判断
         tokens = list(sqlparse.parse(sql_to_cursor)[0].flatten())
@@ -114,9 +133,11 @@ class CompletionService:
         if position > len(sql):
             position = len(sql)
         start = position
-        while start > 0 and (sql[start - 1].isalnum() or sql[start - 1] in '_.'):
+        # ドット文字は単語の区切りとして扱う
+        while start > 0 and (sql[start - 1].isalnum() or sql[start - 1] in '_'):
             start -= 1
-        return sql[start:position].upper()
+        current_word = sql[start:position].upper()
+        return current_word
 
     def _get_keyword_suggestions(self, current_word: str) -> List[SQLCompletionItem]:
         """キーワードの候補を生成する"""
@@ -174,14 +195,62 @@ class CompletionService:
             return suggestions
 
         target_table_names = [t.upper() for t in tables_in_query]
+        
+        # 検索対象テーブルのみを効率的に検索
+        found_tables = []
         for schema_data in self._all_metadata:
             for table_data in schema_data.get("tables", []):
-                if table_data.get("name", "").upper() in target_table_names:
-                    for column_data in table_data.get("columns", []):
-                        column_name = column_data.get("name", "")
-                        if column_name and column_name.upper().startswith(current_word):
-                            suggestions.append(self._create_column_suggestion(column_data, table_data.get("name", "")))
+                table_name = table_data.get("name", "")
+                if table_name.upper() in target_table_names:
+                    found_tables.append(table_data)
+        
+        # 見つかったテーブルのカラムのみを検索
+        for table_data in found_tables:
+            table_name = table_data.get("name", "")
+            columns = table_data.get("columns", [])
+            for column_data in columns:
+                column_name = column_data.get("name", "")
+                # current_wordが空の場合（ドット直後）は全てのカラムを表示
+                if column_name and (not current_word or column_name.upper().startswith(current_word)):
+                    suggestions.append(self._create_column_suggestion(column_data, table_name))
+        
+        self.logger.debug(f"カラム候補: {len(found_tables)}テーブルから{len(suggestions)}個生成")
         return suggestions
+
+    def _get_table_alias_before_dot(self, sql: str, dot_position: int) -> Optional[str]:
+        """ドット直前のテーブル名/エイリアスを取得"""
+        start = dot_position
+        while start > 0 and (sql[start - 1].isalnum() or sql[start - 1] in '_'):
+            start -= 1
+        
+        if start < dot_position:
+            return sql[start:dot_position].strip()
+        return None
+
+    def _resolve_table_alias(self, sql: str, alias: str) -> Optional[str]:
+        """エイリアスから実際のテーブル名を解決"""
+        try:
+            # 簡単な正規表現パターンでエイリアスを探す
+            import re
+            
+            # FROM table_name AS alias または FROM table_name alias パターンを探す
+            patterns = [
+                rf'FROM\s+(\w+)\s+AS\s+{re.escape(alias)}\b',
+                rf'FROM\s+(\w+)\s+{re.escape(alias)}\b',
+                rf'JOIN\s+(\w+)\s+AS\s+{re.escape(alias)}\b', 
+                rf'JOIN\s+(\w+)\s+{re.escape(alias)}\b'
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, sql, re.IGNORECASE)
+                if match:
+                    table_name = match.group(1)
+                    return table_name
+            
+        except Exception as e:
+            self.logger.error(f"エイリアス解決エラー: {e}", exc_info=True)
+        
+        return None
 
     def _create_column_suggestion(self, column_data: Dict[str, Any], table_name: str) -> SQLCompletionItem:
         """カラム候補のアイテムを作成する"""

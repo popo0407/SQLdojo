@@ -117,12 +117,18 @@ def get_export_service_di(
     return ExportService(query_executor)
 
 
+# 補完サービスのシングルトンインスタンス
+_completion_service_instance = None
+
 # 補完サービスの依存性注入
 def get_completion_service_di(
     metadata_service: Annotated[MetadataService, Depends(get_metadata_service_di)]
 ) -> CompletionService:
-    """補完サービスを取得"""
-    return CompletionService(metadata_service)
+    """補完サービスを取得（シングルトン）"""
+    global _completion_service_instance
+    if _completion_service_instance is None:
+        _completion_service_instance = CompletionService(metadata_service)
+    return _completion_service_instance
 
 
 # ユーザーサービスの依存性注入

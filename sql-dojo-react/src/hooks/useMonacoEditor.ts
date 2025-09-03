@@ -3,6 +3,8 @@ import type * as monaco from 'monaco-editor';
 import { useEditorStore } from '../stores/useEditorStore';
 import { useSqlPageStore } from '../stores/useSqlPageStore';
 import { useUIStore } from '../stores/useUIStore';
+import { getSqlSuggestions } from '../api/sqlService';
+import type { SqlCompletionItem } from '../types/api';
 
 /**
  * Monaco Editorのカスタムフック
@@ -45,78 +47,93 @@ export const useMonacoEditor = () => {
     }
     
     // SQL補完機能を設定
-    // TODO: 補完機能の実装時に使用予定
-    /*
-    const completionProvider = monaco.languages.registerCompletionItemProvider('sql', {
-      provideCompletionItems: async (model: any, position: any) => {
-        // 補完リクエスト開始
-        
-        try {
-          const sql = model.getValue();
-          const offset = model.getOffsetAt(position);
+    if (monacoApi) {
+      monacoApi.languages.registerCompletionItemProvider('sql', {
+        provideCompletionItems: async (model: monaco.editor.ITextModel, position: monaco.Position) => {
+          // 補完リクエスト開始
           
-          // SQL補完API呼び出し
-          
-          // バックエンドから補完候補を取得
-          const response = await getSqlSuggestions({
-            sql,
-            position: offset,
-            context: {}
-          });
-          
-          // SQL補完APIレスポンス
-          
-          // Monaco Editorの補完アイテム形式に変換
-          const suggestions = response.suggestions.map((item: SqlCompletionItem) => {
-            // kindの変換
-            let kind = monaco.languages.CompletionItemKind.Text;
-            switch (item.kind.toLowerCase()) {
-              case 'table':
-              case 'view':
-                kind = monaco.languages.CompletionItemKind.Class;
-                break;
-              case 'function':
-                kind = monaco.languages.CompletionItemKind.Function;
-                break;
-              case 'keyword':
-                kind = monaco.languages.CompletionItemKind.Keyword;
-                break;
-              case 'column':
-                kind = monaco.languages.CompletionItemKind.Field;
-                break;
-              default:
-                kind = monaco.languages.CompletionItemKind.Text;
-            }
+          try {
+            const sql = model.getValue();
+            const offset = model.getOffsetAt(position);
+            
+            // SQL補完API呼び出し
+            
+            // バックエンドから補完候補を取得
+            const response = await getSqlSuggestions({
+              sql,
+              position: offset,
+              context: {}
+            });
+            
+            // SQL補完APIレスポンス
+            
+            // Monaco Editorの補完アイテム形式に変換
+            const suggestions = response.suggestions.map((item: SqlCompletionItem) => {
+              // kindの変換
+              let kind = monacoApi.languages.CompletionItemKind.Text;
+              switch (item.kind.toLowerCase()) {
+                case 'table':
+                case 'view':
+                  kind = monacoApi.languages.CompletionItemKind.Class;
+                  break;
+                case 'function':
+                  kind = monacoApi.languages.CompletionItemKind.Function;
+                  break;
+                case 'keyword':
+                  kind = monacoApi.languages.CompletionItemKind.Keyword;
+                  break;
+                case 'column':
+                  kind = monacoApi.languages.CompletionItemKind.Field;
+                  break;
+                default:
+                  kind = monacoApi.languages.CompletionItemKind.Text;
+              }
+              
+              // 現在の単語の範囲を計算
+              const currentText = model.getValue();
+              const currentOffset = model.getOffsetAt(position);
+              let wordStart = currentOffset;
+              
+              // 単語の開始位置を見つける
+              while (wordStart > 0) {
+                const char = currentText.charAt(wordStart - 1);
+                if (!char.match(/[a-zA-Z0-9_]/)) {
+                  break;
+                }
+                wordStart--;
+              }
+              
+              const wordStartPosition = model.getPositionAt(wordStart);
+              
+              return {
+                label: item.label,
+                kind: kind,
+                detail: item.detail,
+                documentation: item.documentation,
+                insertText: item.insert_text || item.label,
+                sortText: item.sort_text || item.label,
+                range: {
+                  startLineNumber: wordStartPosition.lineNumber,
+                  startColumn: wordStartPosition.column,
+                  endLineNumber: position.lineNumber,
+                  endColumn: position.column,
+                }
+              };
+            });
+            
+            // Monaco Editor補完アイテム
             
             return {
-              label: item.label,
-              kind: kind,
-              detail: item.detail,
-              documentation: item.documentation,
-              insertText: item.insert_text || item.label,
-              sortText: item.sort_text || item.label,
-              range: {
-                startLineNumber: position.lineNumber,
-                startColumn: position.column,
-                endLineNumber: position.lineNumber,
-                endColumn: position.column,
-              }
+              suggestions: suggestions
             };
-          });
-          
-          // Monaco Editor補完アイテム
-          
-          return {
-            suggestions: suggestions
-          };
-        } catch (error) {
-          console.error('SQL補完エラー:', error);
-          return { suggestions: [] };
-        }
-      },
-      triggerCharacters: [' ', '.', ',', '(', ')', '\n', '\t']
-    });
-    */
+          } catch (error) {
+            console.error('SQL補完エラー:', error);
+            return { suggestions: [] };
+          }
+        },
+        triggerCharacters: [' ', '.', ',', '(', ')', '\n', '\t']
+      });
+    }
     
     // 選択状態の変更を監視
     editor.onDidChangeCursorSelection(() => {
