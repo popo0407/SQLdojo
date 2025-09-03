@@ -18,6 +18,7 @@ from app.logger import get_logger
 from app import __version__
 from app.app_factory import create_app
 from app.services.connection_manager_odbc import ConnectionManagerODBC
+from app.services.cache_cleanup_service import CacheCleanupService
 from app.dependencies import get_connection_manager_di
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -36,9 +37,16 @@ async def lifespan(app: FastAPI):
     # 起動時の処理
     connection_manager = ConnectionManagerODBC()
     app.dependency_overrides[get_connection_manager_di] = lambda: connection_manager
+    
+    # キャッシュクリーンアップサービスを開始
+    cache_cleanup_service = CacheCleanupService()
+    await cache_cleanup_service.start_cleanup_task()
+    
     logger.info(f"アプリケーション起動 Ver: {__version__}")
     yield
+    
     # 終了時の処理
+    await cache_cleanup_service.stop_cleanup_task()
     connection_manager.close_all_connections()
     logger.info("アプリケーション終了")
 

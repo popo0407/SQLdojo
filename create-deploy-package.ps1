@@ -44,6 +44,16 @@ Push-Location $FrontendSourceRoot
 try {
     # npm が存在することを前提にビルドを実行
     & npm run build
+
+    # ビルド後、web.configをdistにコピー（存在する場合のみ）
+    $webConfigSrc = Join-Path $DeployPath "web.config"
+    $webConfigDest = Join-Path $FrontendSourceRoot "dist\web.config"
+    if (Test-Path $webConfigSrc) {
+        Write-Host "web.config を dist にコピーします: $webConfigDest" -ForegroundColor Cyan
+        Copy-Item -Path $webConfigSrc -Destination $webConfigDest -Force
+    } else {
+        Write-Host "web.config がルートに存在しません。" -ForegroundColor Yellow
+    }
 } catch {
     Write-Host "ERROR: npm run build に失敗しました。出力を確認してください。" -ForegroundColor Red
     Pop-Location

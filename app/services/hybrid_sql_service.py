@@ -73,9 +73,9 @@ class HybridSQLService:
             total_count = self._get_total_count(sql)
 
             # 大容量データの条件分岐
-            # テスト互換のため、安全側のしきい値を適用
-            max_records_for_display = min(getattr(settings, 'max_records_for_display', 100000), 100000)
-            max_records_for_csv_download = max(getattr(settings, 'max_records_for_csv_download', 1000000), 1000000)
+            # 設定値をそのまま使用
+            max_records_for_display = getattr(settings, 'max_records_for_display', 1000000)
+            max_records_for_csv_download = getattr(settings, 'max_records_for_csv_download', 10000000)
 
             if total_count > max_records_for_display:
                 logger.warning(f"大容量データ検出: {total_count}件, ユーザー: {user_id}")

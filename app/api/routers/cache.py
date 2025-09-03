@@ -15,6 +15,7 @@ from app.dependencies import (
     HybridSQLServiceDep, CurrentUserDep, SQLLogServiceDep,
     StreamingStateServiceDep, SessionServiceDep
 )
+from app.services.cache_cleanup_service import CacheCleanupService
 from app.logger import Logger
 
 logger = Logger(__name__)
@@ -202,3 +203,15 @@ async def get_cache_unique_values(request: CacheUniqueValuesRequest, hybrid_sql_
     except Exception as e:
         logger.error(f"キャッシュユニーク値取得エラー: {e}")
         raise HTTPException(status_code=500, detail=f"ユニーク値の取得に失敗しました: {str(e)}")
+
+
+@router.post("/admin/cleanup")
+async def manual_cache_cleanup():
+    """管理者用：手動キャッシュクリーンアップ実行"""
+    try:
+        cleanup_service = CacheCleanupService()
+        result = await cleanup_service.manual_cleanup()
+        return result
+    except Exception as e:
+        logger.error(f"手動キャッシュクリーンアップエラー: {e}")
+        raise HTTPException(status_code=500, detail=f"クリーンアップに失敗しました: {str(e)}")

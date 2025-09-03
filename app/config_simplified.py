@@ -116,6 +116,12 @@ class Settings(BaseSettings):
     max_records_for_excel_download: int = Field(default=1000000, description="Excelダウンロードを許可する最大レコード数の閾値")
     max_records_for_clipboard_copy: int = Field(default=50000, description="クリップボードコピーを許可する最大レコード数の閾値")
     max_rows_for_excel_chart: int = Field(default=100000, description="グラフ付きExcelを許容する最大行数（将来オプション）")
+    
+    # キャッシュセッション自動クリーンアップ設定
+    cache_cleanup_enabled: bool = Field(default=True, description="キャッシュセッション自動クリーンアップの有効/無効")
+    cache_cleanup_interval_minutes: int = Field(default=15, description="キャッシュクリーンアップの実行間隔（分）")
+    cache_session_timeout_minutes: int = Field(default=30, description="セッションタイムアウト時間（分）")
+    cache_session_cleanup_hours: int = Field(default=12, description="セッション削除までの時間（時間）")
 
     @field_validator('snowflake_account')
     @classmethod
