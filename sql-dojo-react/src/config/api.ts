@@ -22,6 +22,10 @@ if (!import.meta.env.DEV) {
 export const API_CONFIG = {
   // 開発時はViteのプロキシで同一オリジン
   BASE_URL: resolvedBase,
-  // フロントのAPI呼び出しタイムアウト(ms)
-  TIMEOUT_MS: Number(import.meta.env.VITE_API_TIMEOUT_MS),
+  // デフォルトタイムアウト(ms)
+  TIMEOUT_MS: Number(import.meta.env.VITE_API_TIMEOUT_MS) || 30000,
+  // 中量処理タイムアウト(ms) - SQL履歴、管理者データ、キャッシュ処理
+  TIMEOUT_MEDIUM_MS: Number(import.meta.env.VITE_API_TIMEOUT_MEDIUM_MS) || 60000,
+  // 重量処理タイムアウト(ms) - エディタSQL実行、ダウンロード系
+  TIMEOUT_HEAVY_MS: Number(import.meta.env.VITE_API_TIMEOUT_HEAVY_MS) || 300000,
 } as const;

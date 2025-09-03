@@ -1,5 +1,6 @@
 import type { FilterConfig } from '../types/common';
 import { API_CONFIG } from '../config/api';
+import { getTimeoutForEndpoint } from '../utils/timeoutUtils';
 
 // エラーレスポンスの型を定義
 interface ApiErrorDetail {
@@ -28,7 +29,8 @@ interface SQLFormatResponse {
 export const apiClient = {
   get: async <T>(endpoint: string): Promise<T> => {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
+    const timeoutMs = getTimeoutForEndpoint(endpoint);
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     
     try {
       const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
@@ -59,7 +61,8 @@ export const apiClient = {
 
   post: async <T>(endpoint: string, body: unknown, method: string = 'POST'): Promise<T> => {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
+    const timeoutMs = getTimeoutForEndpoint(endpoint);
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     
     try {
       const response = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
@@ -96,7 +99,8 @@ export const apiClient = {
   // SQL整形API
   formatSQL: async (sql: string): Promise<SQLFormatResponse> => {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
+    const timeoutMs = getTimeoutForEndpoint('/sql/format');
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     
     try {
       const response = await fetch(`${API_CONFIG.BASE_URL}/sql/format`, {
