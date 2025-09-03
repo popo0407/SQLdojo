@@ -117,6 +117,9 @@ class Settings(BaseSettings):
     max_records_for_clipboard_copy: int = Field(default=50000, description="クリップボードコピーを許可する最大レコード数の閾値")
     max_rows_for_excel_chart: int = Field(default=100000, description="グラフ付きExcelを許容する最大行数（将来オプション）")
     
+    # 履歴関連設定
+    max_history_logs: int = Field(default=1000, description="SQL履歴表示の最大件数")
+    
     # キャッシュセッション自動クリーンアップ設定
     cache_cleanup_enabled: bool = Field(default=True, description="キャッシュセッション自動クリーンアップの有効/無効")
     cache_cleanup_interval_minutes: int = Field(default=15, description="キャッシュクリーンアップの実行間隔（分）")

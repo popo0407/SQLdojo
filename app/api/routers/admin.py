@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Body
 from typing import List
 from datetime import datetime, timedelta
 
+from app.config_simplified import get_settings
 from app.api.models import (
     TemplateRequest, TemplateResponse, PartRequest, PartResponse,
     UserRefreshResponse, BusinessUserListResponse, BusinessUserRefreshResponse, UserInfo,
@@ -213,7 +214,8 @@ async def get_user_history(current_user: CurrentUserDep, sql_log_service: SQLLog
     応答は { "history": [...], "total_count": n } 形式。
     """
     six_months_ago = datetime.now() - timedelta(days=180)
-    result = sql_log_service.get_logs(user_id=current_user["user_id"], limit=1000, offset=0)
+    settings = get_settings()
+    result = sql_log_service.get_logs(user_id=current_user["user_id"], limit=settings.max_history_logs, offset=0)
     history = []
     for log in result.get("logs", []):
         ts = log.get("timestamp")

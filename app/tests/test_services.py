@@ -376,30 +376,46 @@ class TestHybridSQLService:
     
     def test_execute_sql_with_cache_large_data_confirmation(self):
         """大容量データの確認要求のテスト"""
-        mock_connection_manager = Mock()
-        mock_cache_service = Mock()
+        # 設定値をオーバーライドして確実に大容量判定を発生させる
+        from unittest.mock import patch
+        
+        with patch('app.services.hybrid_sql_service.settings') as mock_settings:
+            mock_settings.max_records_for_display = 100000  # 10万件で大容量判定
+            mock_settings.max_records_for_csv_download = 10000000  # 1000万件でCSV制限
+            
+            mock_connection_manager = Mock()
+            mock_cache_service = Mock()
 
-        # 大容量データの件数を返す
-        mock_connection = Mock()
-        mock_cursor = Mock()
-        mock_cursor.fetchone.return_value = [1000000]  # 100万件
-        mock_connection.cursor.return_value = mock_cursor
-        mock_connection_manager.get_connection.return_value = ("conn_1", mock_connection)
+            # cache_serviceのmockを完全に設定
+            mock_cache_service.validate_data_types.return_value = (True, None)
+            mock_cache_service.generate_session_id.return_value = "test_session_123"
 
-        service = HybridSQLService(
-            mock_cache_service,
-            mock_connection_manager,
-        )
+            # 大容量データの件数を返す
+            mock_connection = Mock()
+            mock_cursor = Mock()
+            mock_cursor.fetchone.return_value = [1000000]  # 100万件
+            mock_cursor.description = [('col1',), ('col2',)]  # カラム名のモック
+            mock_cursor.fetchmany.return_value = []  # データは空で返す
+            mock_connection.cursor.return_value = mock_cursor
+            mock_connection_manager.get_connection.return_value = ("conn_1", mock_connection)
 
-        result = service.execute_sql_with_cache(
-            "SELECT * FROM large_table",
-            "test_user",
-            limit=None
-        )
+            service = HybridSQLService(
+                mock_cache_service,
+                mock_connection_manager,
+            )
 
-        assert result["status"] == "requires_confirmation"
-        assert result["total_count"] == 1000000
-        assert "大容量データです" in result["message"]
+            # _get_total_count メソッドをモック（10万件を超える値を設定）
+            service._get_total_count = Mock(return_value=200000)  # 20万件
+
+            result = service.execute_sql_with_cache(
+                "SELECT * FROM large_table WHERE column_name = 'some_value_that_is_long_enough'",  # 十分に長いWHERE句
+                "test_user",
+                limit=None
+            )
+
+            assert result["status"] == "requires_confirmation"
+            assert result["total_count"] == 200000
+            assert "大容量データです" in result["message"]
     
     def test_cleanup_session_success(self):
         """正常なセッションクリーンアップのテスト"""

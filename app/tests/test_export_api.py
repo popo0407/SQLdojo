@@ -325,7 +325,7 @@ class TestCacheDownloadCSVAPI:
             
             # サービスが正しい引数で呼ばれたかチェック
             mock_service.get_cached_data.assert_called_once_with(
-                "test_session_123", page=1, page_size=1000000,
+                "test_session_123", page=1, page_size=10000000,
                 filters={"column1": ["filtered_value1"]}, sort_by="column2", sort_order="DESC"
             )
         finally:

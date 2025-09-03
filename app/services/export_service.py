@@ -3,6 +3,7 @@ import io
 from typing import Optional, Any, Dict, Generator, List
 from dataclasses import dataclass
 
+from app.config_simplified import get_settings
 from app.logger import get_logger
 from app.exceptions import ExportError
 
@@ -40,8 +41,9 @@ class ExportService:
             output.truncate(0)
 
             # データ行
+            settings = get_settings()
             while True:
-                chunk = cursor.fetchmany(1000)
+                chunk = cursor.fetchmany(settings.cursor_chunk_size)
                 if not chunk:
                     break
                 for row in chunk:

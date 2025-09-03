@@ -7,6 +7,7 @@ import csv
 import io
 import inspect
 
+from app.config_simplified import get_settings
 from app.api.models import (
     CacheSQLRequest, CacheSQLResponse, CacheReadRequest, CacheReadResponse,
     SessionStatusResponse, CancelRequest, CancelResponse, CacheUniqueValuesRequest, CacheUniqueValuesResponse
@@ -172,10 +173,11 @@ async def download_cached_csv_endpoint(request: CacheReadRequest = Body(...), hy
     if not request.session_id:
         raise HTTPException(status_code=400, detail="session_idが必要です")
     try:
+        settings = get_settings()
         result = hybrid_sql_service.get_cached_data(
             request.session_id,
             page=1,
-            page_size=1000000,
+            page_size=settings.max_records_for_csv_download,
             filters=request.filters,
             sort_by=request.sort_by,
             sort_order=request.sort_order,

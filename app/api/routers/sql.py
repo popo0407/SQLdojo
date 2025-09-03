@@ -229,7 +229,8 @@ async def download_csv_endpoint(
             writer = csv.writer(output)
             writer.writerow(columns)
             yield output.getvalue(); output.seek(0); output.truncate()
-            chunk_size = 1000
+            settings = get_settings()
+            chunk_size = settings.cursor_chunk_size
             processed_rows = 0
             while True:
                 chunk = cursor.fetchmany(chunk_size)
