@@ -1,29 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import { ParameterForm } from './ParameterForm';
-import { useParameterStore } from '../../stores/useParameterStore';
-import { useEditorStore } from '../../stores/useEditorStore';
+import { useTabStore } from '../../stores/useTabStore';
+
+interface ParameterContainerProps {
+  tabId: string;
+}
 
 /**
- * パラメータフォームのコンテナコンポーネント
- * SQLの変更を監視し、プレースホルダーを検出してフォームを動的生成
+ * パラメータフォームのコンテナコンポーネント（タブ対応版）
+ * 特定のタブのパラメータ状態を表示・編集
  */
-export const ParameterContainer: React.FC = () => {
-  const { sql } = useEditorStore();
-  const { 
-    currentPlaceholders, 
-    values, 
-    setValue, 
-    updatePlaceholders 
-  } = useParameterStore();
+export const ParameterContainer: React.FC<ParameterContainerProps> = ({ tabId }) => {
+  const { getTab, setTabParameterValue } = useTabStore();
+  const tab = getTab(tabId);
 
   // 折りたたみ状態の管理
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // SQL変更時にプレースホルダーを更新
-  useEffect(() => {
-    updatePlaceholders(sql);
-  }, [sql, updatePlaceholders]);
+  if (!tab) {
+    return null;
+  }
+
+  const { currentPlaceholders, values } = tab.parameterState;
 
   // プレースホルダーがない場合は何も表示しない
   if (currentPlaceholders.length === 0) {
@@ -33,6 +32,11 @@ export const ParameterContainer: React.FC = () => {
   // 折りたたみの切り替え
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
+  };
+
+  // パラメータ値の変更ハンドラー
+  const handleParameterChange = (key: string, value: string | string[]) => {
+    setTabParameterValue(tabId, key, value);
   };
 
   return (
@@ -65,14 +69,22 @@ export const ParameterContainer: React.FC = () => {
       </Card.Header>
       {!isCollapsed && (
         <Card.Body className="py-2">
-          {currentPlaceholders.map((placeholder) => (
-            <ParameterForm
-              key={placeholder.displayName}
-              placeholder={placeholder}
-              value={values[placeholder.displayName] || ''}
-              onChange={(value) => setValue(placeholder.displayName, value)}
-            />
-          ))}
+          {currentPlaceholders.map((placeholder) => {
+            // 複数要素のパラメータかどうかを判定
+            const isMultiType = placeholder.type === 'multi-text' || placeholder.type === 'multi-text-quoted';
+            // 適切なデフォルト値を設定
+            const defaultValue = isMultiType ? [] : '';
+            const currentValue = values[placeholder.displayName] || defaultValue;
+            
+            return (
+              <ParameterForm
+                key={placeholder.displayName}
+                placeholder={placeholder}
+                value={currentValue}
+                onChange={(value) => handleParameterChange(placeholder.displayName, value)}
+              />
+            );
+          })}
         </Card.Body>
       )}
       {isCollapsed && currentPlaceholders.length > 0 && (

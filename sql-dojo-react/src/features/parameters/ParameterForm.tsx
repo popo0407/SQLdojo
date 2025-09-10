@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import type { ParameterFormProps } from '../../types/parameters';
 import { parsePastedData } from '../../utils/dataParser';
@@ -17,6 +17,26 @@ export const ParameterForm: React.FC<ParameterFormProps> = ({ placeholder, value
   );
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const localValuesRef = useRef<string[]>(localValues);
+
+  // localValuesRefを常に最新に保つ
+  localValuesRef.current = localValues;
+
+  // valueが変更されたときにlocalValuesを更新（タブ切り替え対応）
+  // ただし、現在のlocalValuesと実質的に同じ場合は更新しない
+  useEffect(() => {
+    const newLocalValues = Array.isArray(value) ? value : value ? [value] : [''];
+    const currentLocalValues = localValuesRef.current;
+    
+    // 現在のlocalValuesと新しい値を比較
+    const areEqual = 
+      currentLocalValues.length === newLocalValues.length &&
+      currentLocalValues.every((val, index) => val === newLocalValues[index]);
+    
+    if (!areEqual) {
+      setLocalValues(newLocalValues);
+    }
+  }, [value]);
 
   // 値の変更を親コンポーネントに通知
   const notifyChange = (newValues: string[]) => {
@@ -24,8 +44,8 @@ export const ParameterForm: React.FC<ParameterFormProps> = ({ placeholder, value
       // 単一項目の場合
       onChange(newValues[0] || '');
     } else {
-      // 複数項目の場合
-      onChange(newValues.filter(v => v.trim() !== ''));
+      // 複数項目の場合 - 空文字列も保持する（行の追加・削除操作のため）
+      onChange(newValues);
     }
   };
 

@@ -131,22 +131,44 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
     const uiStore = useUIStore.getState();
     const filterStore = useResultsFilterStore.getState();
     const sessionStore = useResultsSessionStore.getState();
-    if (!sessionStore.sessionId) {
-      uiStore.pushToast('セッションがありません。再実行してください', 'danger');
-      return;
-    }
+    const dataStore = useResultsDataStore.getState();
+    
     try {
       if (uiStore.configSettings?.max_records_for_clipboard_copy === 0) {
         uiStore.pushToast('クリップボードコピーは無効化されています', 'danger');
         return;
       }
-      const tsv = await fetchClipboardTsvFromCache({
-        session_id: sessionStore.sessionId,
-        filters: filterStore.filters,
-        sort_by: filterStore.sortConfig?.key,
-        sort_order: (filterStore.sortConfig?.direction?.toUpperCase() || 'ASC'),
-        filename: uiStore.exportFilename,
-      });
+      
+      let tsv: string;
+      
+      if (sessionStore.sessionId) {
+        // セッションがある場合はAPI経由で取得
+        tsv = await fetchClipboardTsvFromCache({
+          session_id: sessionStore.sessionId,
+          filters: filterStore.filters,
+          sort_by: filterStore.sortConfig?.key,
+          sort_order: (filterStore.sortConfig?.direction?.toUpperCase() || 'ASC'),
+          filename: uiStore.exportFilename,
+        });
+      } else {
+        // セッションがない場合はローカルデータから生成
+        if (!dataStore.allData.length || !dataStore.columns.length) {
+          uiStore.pushToast('データがありません', 'warning');
+          return;
+        }
+        
+        // ヘッダー行
+        const tsvRows = [dataStore.columns.join('\t')];
+        
+        // データ行
+        for (const row of dataStore.allData) {
+          const rowValues = dataStore.columns.map(col => String(row[col] ?? ''));
+          tsvRows.push(rowValues.join('\t'));
+        }
+        
+        tsv = tsvRows.join('\n');
+      }
+      
       await navigator.clipboard.writeText(tsv);
       uiStore.pushToast('TSVをコピーしました', 'success');
     } catch {

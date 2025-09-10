@@ -10,11 +10,12 @@ import type { SqlCompletionItem } from '../types/api';
  * Monaco Editorのカスタムフック
  * エディタの初期化とイベントハンドリングを管理
  */
-export const useMonacoEditor = () => {
+export const useMonacoEditor_DISABLED = () => {
   const { setEditor } = useEditorStore();
 
   const handleEditorDidMount = useCallback((editor: monaco.editor.IStandaloneCodeEditor, monacoApi?: typeof monaco) => {
     // Monaco Editor初期化開始
+    console.log('🔴 元エディタ: handleEditorDidMount called, model ID:', editor.getModel()?.id);
     
     // エディタインスタンスをストアに保存
     setEditor(editor);
@@ -46,10 +47,31 @@ export const useMonacoEditor = () => {
       });
     }
     
-    // SQL補完機能を設定
-    if (monacoApi) {
+    // SQL補完機能を設定（タブエディタ移行のため一時無効化）
+    if (false && monacoApi) { // 元エディタの補完を完全に無効化
       monacoApi.languages.registerCompletionItemProvider('sql', {
         provideCompletionItems: async (model: monaco.editor.ITextModel, position: monaco.Position) => {
+          console.log('🔴 元エディタ: useMonacoEditor の補完プロバイダーが呼び出されました', {
+            modelId: model.id,
+            editorModelId: editor.getModel()?.id,
+            position: `${position.lineNumber}:${position.column}`,
+            isExactModel: model === editor.getModel()
+          });
+          
+          // このエディタのモデルかチェック（厳密に）
+          const isThisEditorsModel = model === editor.getModel();
+          if (!isThisEditorsModel) {
+            console.log('🔴 元エディタ: 他のエディタからの呼び出しのため空の候補を返します', {
+              modelId: model.id,
+              editorModelId: editor.getModel()?.id,
+              isTabEditor: model.id.includes('tab-') || model.id.startsWith('tab-'),
+              reason: '元エディタのモデルではない'
+            });
+            return { suggestions: [] };
+          }
+          
+          console.log('🔴 元エディタ: 元エディタからの正当な呼び出しを確認');
+          
           // 補完リクエスト開始
           
           try {

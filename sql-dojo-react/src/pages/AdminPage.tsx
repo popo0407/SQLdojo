@@ -6,28 +6,30 @@ import { BusinessUserManagement } from '../features/admin/components/user/Busine
 import { VisibilityControlPanel } from '../features/admin/components/visibility/VisibilityControlPanel';
 import { MetadataProvider } from '../contexts/MetadataContext';
 import { VisibilityProvider } from '../features/admin/stores/VisibilityProvider';
+import styles from '../styles/Layout.module.css';
 
 const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState('templates');
 
   return (
-    <Container fluid className="py-4">
-      <Row>
-        <Col>
-          <h2 className="mb-4">
-            <i className="fas fa-cog me-2" />
-            管理者コンソール
-          </h2>
-          
-          {/* タブナビゲーション */}
-          <Nav variant="tabs" className="mb-4">
-            <Nav.Item>
-              <Nav.Link 
-                active={activeTab === 'templates'} 
-                onClick={() => setActiveTab('templates')}
-              >
-                <i className="fas fa-file-alt me-2" />
-                テンプレート管理
+    <div className={styles.scrollablePageContainer}>
+      <Container fluid className="py-4">
+        <Row>
+          <Col>
+            <h2 className="mb-4">
+              <i className="fas fa-cog me-2" />
+              管理者コンソール
+            </h2>
+            
+            {/* タブナビゲーション */}
+            <Nav variant="tabs" className="mb-4">
+              <Nav.Item>
+                <Nav.Link 
+                  active={activeTab === 'templates'} 
+                  onClick={() => setActiveTab('templates')}
+                >
+                  <i className="fas fa-file-alt me-2" />
+                  テンプレート管理
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
@@ -82,6 +84,7 @@ const AdminPage: React.FC = () => {
         </Col>
       </Row>
     </Container>
+    </div>
   );
 };
 

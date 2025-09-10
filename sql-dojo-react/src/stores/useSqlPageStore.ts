@@ -5,7 +5,6 @@ import { useResultsFilterStore } from './useResultsFilterStore';
 import { useResultsPaginationStore } from './useResultsPaginationStore';
 import type { PaginationStoreState } from '../types/results';
 import { useEditorStore } from './useEditorStore';
-import { useParameterStore } from './useParameterStore';
 import { useUIStore } from './useUIStore';
 
 interface SqlPageState {
@@ -33,7 +32,6 @@ export const useSqlPageStore = create<SqlPageState>((set) => ({
   executeSql: async () => {
     const editorStore = useEditorStore.getState();
     const resultsExecutionStore = useResultsExecutionStore.getState();
-    const parameterStore = useParameterStore.getState();
     
     // 選択範囲があるかチェック
     const hasSelection = editorStore.hasSelection();
@@ -59,19 +57,6 @@ export const useSqlPageStore = create<SqlPageState>((set) => ({
       // 選択範囲のSQLを実行
       // 必要に応じてユーザーに確認を求めることも可能
     }
-    
-    // パラメータ検証
-    const validation = parameterStore.validateParameters();
-    if (!validation.isValid) {
-      // バリデーションメッセージを統一的にUIストアへ
-      const uiStore = useUIStore.getState();
-      uiStore.setValidationMessages(validation.errors);
-      uiStore.setError(null);
-      return;
-    }
-    
-    // パラメータ置換を実行
-    const replacedSql = parameterStore.getReplacedSql(trimmedSql);
 
     // バリデーションメッセージクリア
     const uiStore = useUIStore.getState();
@@ -82,7 +67,7 @@ export const useSqlPageStore = create<SqlPageState>((set) => ({
     
     try {
       // 結果ストアを使用してSQL実行
-      await resultsExecutionStore.executeSql(replacedSql);
+      await resultsExecutionStore.executeSql(trimmedSql);
     } finally {
       // 実行状態をリセット
       set({ isPending: false });

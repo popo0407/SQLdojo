@@ -36,6 +36,13 @@
   cursor: row-resize;
 }
 
+/* SQL実行履歴などの専用ページ用のスクロール可能なコンテナ */
+.scrollablePageContainer {
+  height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 2rem; /* 下部に余白を追加 */
+}
+
 /* サイドバーのスタイル */
 .sidebar {
   display: flex;

@@ -3,7 +3,6 @@ import { editor, Selection } from 'monaco-editor';
 import { formatSql } from '../api/sqlService';
 import { useUIStore } from './useUIStore';
 import { useSidebarStore } from './useSidebarStore';
-import { useParameterStore } from './useParameterStore';
 
 interface EditorState {
   // SQLテキスト
@@ -44,18 +43,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   // セッター
   setSql: (sql) => {
     set({ sql });
-    // SQL変更時にプレースホルダー解析を実行
-    const parameterStore = useParameterStore.getState();
-    parameterStore.updatePlaceholders(sql);
   },
   setEditor: (editor) => {
     set({ editor });
-    // エディタ初期化時にプレースホルダー解析を実行
-    if (editor) {
-      const { sql } = get();
-      const parameterStore = useParameterStore.getState();
-      parameterStore.updatePlaceholders(sql);
-    }
   },
   setSqlToInsert: (sqlToInsert) => set({ sqlToInsert }),
   clearSqlToInsert: () => set({ sqlToInsert: '' }),

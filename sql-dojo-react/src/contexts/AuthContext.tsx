@@ -12,6 +12,7 @@ interface AuthContextType {
   adminLogin: (password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuthStatus: () => Promise<void>;
+  getCurrentUserRole: () => string | null; // ユーザーロールを取得するメソッドを追加
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -93,6 +94,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // 現在のユーザーロールを取得
+  const getCurrentUserRole = () => {
+    return user?.role || null;
+  };
+
   // 初期化時に認証状態をチェック
   useEffect(() => {
     checkAuthStatus();
@@ -107,7 +113,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       login, 
       adminLogin,
       logout, 
-      checkAuthStatus 
+      checkAuthStatus,
+      getCurrentUserRole
     }}>
       {children}
     </AuthContext.Provider>

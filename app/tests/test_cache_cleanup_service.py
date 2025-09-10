@@ -75,15 +75,12 @@ class TestCacheCleanupService:
 
     def test_generate_table_name(self, cleanup_service):
         """テーブル名生成のテスト"""
-        # 正常なセッションID（実際のタイムスタンプを使用）
-        table_name = cleanup_service._generate_table_name("user1_1234567890_abc123")
-        # タイムスタンプ1234567890は2009-02-14 08:31:30 UTC
-        expected = "cache_user1_20090214083130"
-        assert table_name == expected
+        # 新しい設計ではセッションIDがそのままテーブル名
+        table_name = cleanup_service._generate_table_name("cache_user1_20241201120000_123")
+        assert table_name == "cache_user1_20241201120000_123"
         
-        # 不正なフォーマット
-        table_name = cleanup_service._generate_table_name("invalid_session_id")
-        assert table_name == "cache_invalid_session_id"
+        table_name = cleanup_service._generate_table_name("cache_testuser_20241231235959_999")
+        assert table_name == "cache_testuser_20241231235959_999"
 
     @pytest.mark.asyncio
     async def test_manual_cleanup(self, cleanup_service, setup_test_data):

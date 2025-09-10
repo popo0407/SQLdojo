@@ -99,13 +99,19 @@ export function replacePlaceholders(sql: string, placeholderValues: { [key: stri
       let replacementValue: string;
       
       if (Array.isArray(value)) {
-        // 複数項目の場合
-        if (placeholder.type === 'multi-text-quoted') {
-          // シングルクォート付きの場合（SQLインジェクション対策）
-          replacementValue = value.map(v => `'${v.replace(/'/g, "''")}'`).join(', ');
+        // 複数項目の場合 - 空文字列を除外してから処理
+        const filteredValue = value.filter(v => v.trim() !== '');
+        if (filteredValue.length > 0) {
+          if (placeholder.type === 'multi-text-quoted') {
+            // シングルクォート付きの場合（SQLインジェクション対策）
+            replacementValue = filteredValue.map(v => `'${v.replace(/'/g, "''")}'`).join(', ');
+          } else {
+            // 通常の複数項目の場合
+            replacementValue = filteredValue.join(', ');
+          }
         } else {
-          // 通常の複数項目の場合
-          replacementValue = value.join(', ');
+          // 空の配列の場合は置換しない
+          continue;
         }
       } else {
         // 単一項目の場合

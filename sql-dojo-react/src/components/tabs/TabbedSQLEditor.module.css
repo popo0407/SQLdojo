@@ -1,0 +1,66 @@
+.tabbedEditorContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #fff;
+}
+
+.verticalGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.editorPanel {
+  background-color: #ffffff;
+  border-bottom: 1px solid #dee2e6;
+  overflow: hidden;
+}
+
+.editorMaximized {
+  /* 最大化時の特別なスタイル */
+  z-index: 10;
+}
+
+.resultsPanel {
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.horizontalResizeHandle {
+  height: 5px;
+  background-color: #dee2e6;
+  cursor: row-resize;
+  transition: background-color 0.2s;
+}
+
+.horizontalResizeHandle:hover {
+  background-color: #adb5bd;
+}
+
+/* 非表示クラス */
+.hidden {
+  display: none !important;
+}
+
+/* リサイズハンドルのドラッグ中のスタイル */
+.horizontalResizeHandle[data-resize-handle-active] {
+  background-color: #007bff;
+}
+
+/* パネルの最小サイズ制限 */
+.editorPanel[data-panel-size="5"] {
+  min-height: 120px;
+}
+
+.errorContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-style: italic;
+}

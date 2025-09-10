@@ -14,7 +14,6 @@ export const useEditorOperations = () => {
     if (sqlToCopy) {
       setSql(sqlToCopy);
       localStorage.removeItem('sqlToCopy'); // 使用後は削除
-      setEditorText(sqlText);
     }
   }, [setSql]); // setSQL を依存関係に追加
 

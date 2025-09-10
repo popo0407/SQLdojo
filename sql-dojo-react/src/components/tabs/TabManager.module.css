@@ -1,0 +1,216 @@
+.tabManagerContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.tabHeader {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  flex-shrink: 0;
+}
+
+.tabsContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.customTabs {
+  flex: 0 1 auto; /* タブが必要な分だけのサイズを取る */
+  min-width: 0; /* flexアイテムの縮小を許可 */
+  max-width: calc(100% - 60px); /* +ボタンのスペースを確保 */
+}
+
+/* 新規タブ追加ボタン */
+.addTabButton {
+  background: none;
+  border: 1px solid #6c757d;
+  border-radius: 0.375rem;
+  padding: 8px 12px;
+  margin-left: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  transition: all 0.2s;
+  min-width: 36px;
+  height: 36px;
+}
+
+.addTabButton:hover:not(:disabled) {
+  background-color: #e9ecef;
+  border-color: #0056b3;
+}
+
+.addTabButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.addButton {
+  color: #28a745;
+  font-size: 14px;
+}
+
+.addButtonDisabled {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.customTabs .nav-tabs {
+  border-bottom: none;
+  display: flex;
+  flex-wrap: nowrap; /* タブが折り返されないようにする */
+  overflow-x: auto; /* 必要に応じて横スクロールを許可 */
+}
+
+.customTabs .nav-link {
+  position: relative;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #dee2e6;
+  border-bottom: none;
+  background-color: #fff;
+  color: #495057;
+  margin-right: 0.25rem;
+  border-radius: 0.375rem 0.375rem 0 0;
+  transition: all 0.2s ease;
+}
+
+.customTabs .nav-link:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.customTabs .nav-link.active {
+  background-color: #fff;
+  border-color: #007bff #007bff #fff #007bff;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.tabTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 100px;
+  max-width: 180px; /* 少し小さくして、より多くのタブを表示 */
+  position: relative;
+}
+
+.tabName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+  margin-right: 0.5rem;
+}
+
+.tabActions {
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tabTitle:hover .tabActions {
+  opacity: 1;
+}
+
+.editButton,
+.closeButton {
+  padding: 0.25rem;
+  margin: 0 0.125rem;
+  color: #6c757d;
+  text-decoration: none;
+  border: none;
+  background: none;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editButton:hover {
+  color: #007bff;
+}
+
+.closeButton:hover {
+  color: #dc3545;
+}
+
+.editInput {
+  width: 150px;
+}
+
+.editInputField {
+  font-size: 0.875rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.editConfirmButton {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #28a745;
+}
+
+.executingIndicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  background-color: #007bff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  width: 8px;
+  height: 8px;
+  border: 1px solid #fff;
+  border-top: 1px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.addTabButton {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tabContent {
+  flex: 1;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .tabTitle {
+    min-width: 80px;
+    max-width: 120px;
+  }
+  
+  .editInput {
+    width: 100px;
+  }
+  
+  .tabActions {
+    opacity: 1; /* モバイルでは常に表示 */
+  }
+}

@@ -2,11 +2,14 @@ import React from 'react';
 import { useMetadata } from '../../hooks/useMetadata';
 import MetadataTree from '../../features/metadata/MetadataTree';
 import { useEditorStore } from '../../stores/useEditorStore';
+import { useTabStore } from '../../stores/useTabStore';
 import { ParameterContainer } from '../../features/parameters/ParameterContainer';
 import styles from '../../styles/Layout.module.css';
 import type { Schema } from '../../types/api';
 
 const Sidebar: React.FC = () => {
+  // アクティブなタブIDを取得
+  const { activeTabId } = useTabStore();
   // MetadataProviderが存在しない場合のフォールバック
   let schemas: Schema[] = [];
   let loading = false;
@@ -60,8 +63,8 @@ const Sidebar: React.FC = () => {
   return (
     <aside className={styles.sidebar}>
       <div className="p-2" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-        {/* パラメータ入力フォーム */}
-        <ParameterContainer />
+        {/* パラメータ入力フォーム - アクティブタブ用 */}
+        {activeTabId && <ParameterContainer tabId={activeTabId} />}
         
         <h5><i className="fas fa-sitemap me-2"></i>DB情報</h5>
         <div className={styles.sidebarAction}>

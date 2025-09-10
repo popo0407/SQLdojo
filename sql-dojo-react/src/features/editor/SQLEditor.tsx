@@ -4,7 +4,7 @@ import { Stack } from 'react-bootstrap';
 import styles from './SQLEditor.module.css';
 import { useSqlPageStore } from '../../stores/useSqlPageStore';
 import { useProgressStore } from '../../stores/useProgressStore';
-import { useMonacoEditor } from '../../hooks/useMonacoEditor';
+// import { useMonacoEditor } from '../../hooks/useMonacoEditor'; // 無効化：タブエディタ専用に変更
 import { useEditorOperations } from '../../hooks/useEditorOperations';
 import { useEditorStore } from '../../stores/useEditorStore';
 import { useLayoutControl } from '../../hooks/useLayoutControl';
@@ -33,7 +33,7 @@ const SQLEditor: React.FC = () => {
   const hasSelection = useEditorStore((state) => state.hasSelection());
   
   // カスタムフックを使用
-  const { handleEditorDidMount } = useMonacoEditor();
+  // const { handleEditorDidMount } = useMonacoEditor(); // 無効化：タブエディタ専用に変更
   const { sql, setSql, handleClear, handleFormat } = useEditorOperations();
   
   // レイアウト制御フックを使用
@@ -113,7 +113,7 @@ const SQLEditor: React.FC = () => {
           theme="vs-light"
           value={sql}
           onChange={(value) => setSql(value || '')}
-          onMount={handleEditorDidMount}
+          // onMount={handleEditorDidMount} // 無効化：タブエディタ専用に変更
           options={getEditorOptions()}
         />
       </div>

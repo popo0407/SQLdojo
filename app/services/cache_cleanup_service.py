@@ -123,21 +123,8 @@ class CacheCleanupService:
     
     def _generate_table_name(self, session_id: str) -> str:
         """セッションIDからキャッシュテーブル名を生成"""
-        parts = session_id.split('_')
-        if len(parts) >= 3:
-            user_id = parts[0]
-            timestamp = parts[1]
-            # タイムスタンプをYYYYMMDDhhmmss形式に変換
-            try:
-                dt = datetime.fromtimestamp(int(timestamp))
-                formatted_time = dt.strftime('%Y%m%d%H%M%S')
-                return f"cache_{user_id}_{formatted_time}"
-            except (ValueError, OSError):
-                # タイムスタンプが無効な場合はフォールバック
-                pass
-        
-        # フォールバック: 元の形式
-        return f"cache_{session_id.replace('-', '_')}"
+        # 新しい設計ではセッションIDがそのままテーブル名
+        return session_id
     
     async def manual_cleanup(self) -> dict:
         """手動クリーンアップの実行（管理用）"""

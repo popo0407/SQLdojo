@@ -4,6 +4,7 @@ import { apiClient } from './apiClient';
 export interface User {
   user_id: string;
   user_name: string;
+  role?: string; // バックエンドのUser情報にロールが含まれているため追加
 }
 
 export interface LoginResponse {

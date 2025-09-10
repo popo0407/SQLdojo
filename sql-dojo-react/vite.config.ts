@@ -10,9 +10,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
-  host: '127.0.0.1',
+      host: '127.0.0.1',
       proxy: {
-        '/api/v1': {
+        '/api': {
           target: `http://127.0.0.1:${env.APP_PORT || '8001'}`,
           changeOrigin: true,
           secure: false,

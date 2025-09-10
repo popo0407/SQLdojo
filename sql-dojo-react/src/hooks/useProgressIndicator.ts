@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { ExecuteSqlResponse, CacheSQLResponse } from '@/types/api';
+import type { ExecuteSqlResponse, CacheSQLResponse } from '../types/api';
 
 interface ProgressState {
   isVisible: boolean;

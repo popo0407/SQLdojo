@@ -54,25 +54,19 @@ class CacheService:
             conn.commit()
     
     def generate_session_id(self, user_id: str) -> str:
-        """セッションIDを生成"""
-        timestamp = int(time.time())
-        random_hash = hashlib.md5(f"{user_id}_{timestamp}_{uuid.uuid4()}".encode()).hexdigest()[:8]
-        return f"{user_id}_{timestamp}_{random_hash}"
+        """セッションIDを生成（テーブル名と同じ形式にして変換を不要にする）"""
+        from datetime import datetime
+        # YYYYMMDDhhmmss形式のタイムスタンプを生成
+        formatted_time = datetime.now().strftime('%Y%m%d%H%M%S')
+        # 同一秒内の重複を避けるためのサフィックス（ミリ秒の下3桁）
+        import time
+        microseconds = int(time.time() * 1000) % 1000
+        return f"cache_{user_id}_{formatted_time}_{microseconds:03d}"
     
     def create_cache_table(self, session_id: str, columns: List[str]) -> str:
         """キャッシュテーブルを作成"""
-        # セッションIDからユーザーIDとタイムスタンプを抽出
-        parts = session_id.split('_')
-        if len(parts) >= 3:
-            user_id = parts[0]
-            timestamp = parts[1]
-            # タイムスタンプをYYYYMMDDhhmmss形式に変換
-            dt = datetime.fromtimestamp(int(timestamp))
-            formatted_time = dt.strftime('%Y%m%d%H%M%S')
-            table_name = f"cache_{user_id}_{formatted_time}"
-        else:
-            # フォールバック: 元の形式
-            table_name = f"cache_{session_id.replace('-', '_')}"
+        # セッションIDがそのままテーブル名として使用可能になった
+        table_name = session_id
         
         with sqlite3.connect(self.cache_db_path) as conn:
             cursor = conn.cursor()
@@ -236,18 +230,8 @@ class CacheService:
             
             logger.info(f"クリーンアップ後のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
             
-            # セッションIDからテーブル名を生成
-            parts = session_id.split('_')
-            if len(parts) >= 3:
-                user_id = parts[0]
-                timestamp = parts[1]
-                # タイムスタンプをYYYYMMDDhhmmss形式に変換
-                dt = datetime.fromtimestamp(int(timestamp))
-                formatted_time = dt.strftime('%Y%m%d%H%M%S')
-                table_name = f"cache_{user_id}_{formatted_time}"
-            else:
-                # フォールバック: 元の形式
-                table_name = f"cache_{session_id.replace('-', '_')}"
+            # セッションIDがそのままテーブル名
+            table_name = session_id
             
             # キャッシュテーブルを削除
             try:
@@ -274,7 +258,7 @@ class CacheService:
             with sqlite3.connect(self.cache_db_path, timeout=10.0) as conn:
                 cursor = conn.cursor()
                 
-                # 削除対象のセッションIDと対応するテーブル名を取得
+                # 削除対象のセッションIDを取得
                 cursor.execute("SELECT session_id FROM cache_sessions WHERE user_id = ?", (user_id,))
                 sessions_to_delete = cursor.fetchall()
                 
@@ -285,16 +269,8 @@ class CacheService:
                 logger.info(f"ユーザー({user_id})の{len(sessions_to_delete)}件のセッションを削除します。")
 
                 for (session_id,) in sessions_to_delete:
-                    # テーブル名生成ロジックは session_id から導出
-                    parts = session_id.split('_')
-                    if len(parts) >= 3:
-                        user_id_from_session = parts[0]
-                        timestamp = parts[1]
-                        dt = datetime.fromtimestamp(int(timestamp))
-                        formatted_time = dt.strftime('%Y%m%d%H%M%S')
-                        table_name = f"cache_{user_id_from_session}_{formatted_time}"
-                    else:
-                        table_name = f"cache_{session_id.replace('-', '_')}"
+                    # セッションIDがそのままテーブル名
+                    table_name = session_id
                     
                     # キャッシュテーブルを削除
                     logger.debug(f"テーブルを削除します: {table_name}")
@@ -335,18 +311,8 @@ class CacheService:
         if page_size is None:
             page_size = settings.default_page_size
             
-        # セッションIDからテーブル名を生成
-        parts = session_id.split('_')
-        if len(parts) >= 3:
-            user_id = parts[0]
-            timestamp = parts[1]
-            # タイムスタンプをYYYYMMDDhhmmss形式に変換
-            dt = datetime.fromtimestamp(int(timestamp))
-            formatted_time = dt.strftime('%Y%m%d%H%M%S')
-            table_name = f"cache_{user_id}_{formatted_time}"
-        else:
-            # フォールバック: 元の形式
-            table_name = f"cache_{session_id.replace('-', '_')}"
+        # セッションIDがそのままテーブル名
+        table_name = session_id
         
         with sqlite3.connect(self.cache_db_path) as conn:
             cursor = conn.cursor()

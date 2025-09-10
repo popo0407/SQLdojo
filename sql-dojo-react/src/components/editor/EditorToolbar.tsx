@@ -12,10 +12,10 @@ import {
   faDownload
 } from '@fortawesome/free-solid-svg-icons';
 import { useLayoutStore } from '../../stores/useLayoutStore';
+import { useTabStore } from '../../stores/useTabStore';
 import { downloadSqlCsv } from '../../api/sqlService';
 import { useEditorStore } from '../../stores/useEditorStore';
 import { SqlProgressIndicator } from '../common/SqlProgressIndicator';
-import { useProgressIndicator } from '../../hooks/useProgressIndicator';
 import styles from './EditorToolbar.module.css';
 
 interface EditorToolbarProps {
@@ -24,11 +24,13 @@ interface EditorToolbarProps {
   onExecute: () => void;
   onSelectTemplate: (templateSql: string) => void;
   onSaveTemplate: () => void;
+  onDownloadCsv?: () => void; // CSV直接ダウンロード用（オプション）
   isPending: boolean;
   hasSql: boolean;
   hasSelection: boolean;
   templates?: Array<{ id: string; name: string; sql: string; type: string }>;
   isTemplatesLoading?: boolean;
+  tabId?: string; // タブ固有のレイアウト状態管理用
   // 進捗表示用のprops
   progressData?: {
     total_count?: number;
@@ -45,20 +47,44 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onExecute,
   onSelectTemplate,
   onSaveTemplate,
+  onDownloadCsv,
   isPending,
   hasSql,
   hasSelection,
   templates = [],
   isTemplatesLoading = false,
   progressData,
-  showProgress = false
+  showProgress = false,
+  tabId
 }) => {
-  const { isEditorMaximized, toggleEditorMaximized } = useLayoutStore();
+  // タブIDが提供されている場合はタブ固有の状態、そうでなければグローバル状態
+  const globalLayoutStore = useLayoutStore();
+  const { getTab, updateTabLayoutState } = useTabStore();
+  
+  const tab = tabId ? getTab(tabId) : null;
+  const isEditorMaximized = tab ? tab.layoutState.isEditorMaximized : globalLayoutStore.isEditorMaximized;
+  
+  const toggleEditorMaximized = () => {
+    if (tab && tabId) {
+      // タブ固有のレイアウト状態を更新
+      updateTabLayoutState(tabId, { isEditorMaximized: !tab.layoutState.isEditorMaximized });
+    } else {
+      // グローバルレイアウト状態を更新
+      globalLayoutStore.toggleEditorMaximized();
+    }
+  };
+
   const { sql } = useEditorStore.getState();
 
   const handleDownloadCsv = () => {
     if (hasSql) {
-      downloadSqlCsv(sql);
+      if (onDownloadCsv) {
+        // タブエディタの場合は統合管理経由
+        onDownloadCsv();
+      } else {
+        // 元エディタの場合は従来通り
+        downloadSqlCsv(sql);
+      }
     }
   };
 
