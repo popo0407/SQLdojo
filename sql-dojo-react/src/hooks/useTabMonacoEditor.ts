@@ -5,6 +5,160 @@ import type { SqlCompletionItem } from '../types/api';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
+ * エディタ内容からコンテキスト補完候補を抽出
+ */
+function extractContextSuggestions(
+  sql: string, 
+  currentLine: string, 
+  position: monaco.Position, 
+  monacoApi: typeof monaco
+): monaco.languages.CompletionItem[] {
+  const suggestions: monaco.languages.CompletionItem[] = [];
+  
+  try {
+    console.log('🔥 タブエディタ: コンテキスト補完解析開始', {
+      sql: sql.slice(0, 100),
+      currentLine,
+      position: `${position.lineNumber}:${position.column}`
+    });
+    
+    // SQLを大文字に変換して解析
+    const upperCurrentLine = currentLine.toUpperCase();
+    
+    // 現在の位置がSELECTまたはWHERE句内かを判定
+    const selectIndex = upperCurrentLine.indexOf('SELECT');
+    const fromIndex = upperCurrentLine.indexOf('FROM');
+    
+    // SELECT句判定: SELECTが存在し、かつ（FROMがないか、FROMより前にいる）
+    const isInSelectClause = selectIndex !== -1 && 
+                             (fromIndex === -1 || position.column <= fromIndex);
+    
+    const isInWhereClause = upperCurrentLine.includes('WHERE') || 
+                           upperCurrentLine.includes('AND') || 
+                           upperCurrentLine.includes('OR');
+    
+    console.log('🔥 タブエディタ: 句判定結果', {
+      isInSelectClause,
+      isInWhereClause,
+      lineAnalysis: {
+        hasSelect: selectIndex !== -1,
+        hasFrom: fromIndex !== -1,
+        selectIndex,
+        fromIndex,
+        positionColumn: position.column,
+        upperCurrentLine
+      }
+    });
+    
+    if (isInSelectClause || isInWhereClause) {
+      console.log('🔥 タブエディタ: SELECT/WHERE句を検出、コンテキスト補完開始');
+      
+      // FROM句からテーブル/エイリアスを抽出
+      const tableAliases = extractTableAliases(sql);
+      console.log('🔥 タブエディタ: テーブルエイリアス抽出', { aliases: tableAliases });
+      
+      // エディタ内の全ての単語を抽出（カラム候補として）
+      const sqlWords = extractSqlWords(sql);
+      console.log('🔥 タブエディタ: SQL単語抽出', { wordsCount: sqlWords.length, words: sqlWords.slice(0, 10) });
+      
+      // SQLキーワードとテーブル名を除外して、カラム候補を生成
+      const columnCandidates = sqlWords.filter(word => 
+        !SQL_KEYWORDS.includes(word.toUpperCase()) &&
+        !tableAliases.some(alias => alias.name.toUpperCase() === word.toUpperCase() || alias.alias.toUpperCase() === word.toUpperCase())
+      );
+      
+      console.log('🔥 タブエディタ: カラム候補フィルタ後', { candidatesCount: columnCandidates.length, candidates: columnCandidates.slice(0, 10) });
+      
+      // ユニークなカラム候補を作成
+      const uniqueColumns = [...new Set(columnCandidates)];
+      
+      uniqueColumns.forEach(column => {
+        // 現在位置から単語の始まりを探す（元エディタと同じロジック）
+        const lineText = currentLine;
+        let columnStart = position.column;
+        while (columnStart > 1) {
+          const char = lineText.charAt(columnStart - 2);
+          if (!char.match(/[a-zA-Z0-9_]/)) {
+            break;
+          }
+          columnStart--;
+        }
+        
+        suggestions.push({
+          label: column,
+          kind: monacoApi.languages.CompletionItemKind.Field,
+          detail: '🎯 エディタ内コンテキスト',
+          documentation: `このSQLエディタ内で使用されているカラム候補: ${column}`,
+          insertText: column,
+          sortText: `000_${column}`, // 最優先で表示（000で始まる）
+          range: {
+            startLineNumber: position.lineNumber,
+            startColumn: columnStart,
+            endLineNumber: position.lineNumber,
+            endColumn: position.column,
+          }
+        });
+      });
+      
+      console.log('🔥 タブエディタ: コンテキスト補完候補生成完了', { 
+        columnsCount: uniqueColumns.length,
+        columns: uniqueColumns.slice(0, 5),
+        suggestionsGenerated: suggestions.length
+      });
+    } else {
+      console.log('🔥 タブエディタ: SELECT/WHERE句ではないため、コンテキスト補完をスキップ');
+    }
+  } catch (error) {
+    console.error('❌ タブエディタ: extractContextSuggestionsエラー', error);
+  }
+  
+  return suggestions;
+}
+
+/**
+ * SQLからテーブル名とエイリアスを抽出
+ */
+function extractTableAliases(sql: string): { name: string; alias: string }[] {
+  const aliases: { name: string; alias: string }[] = [];
+  const upperSql = sql.toUpperCase();
+  
+  // FROM句のパターンマッチング
+  const fromMatches = upperSql.match(/FROM\s+([^;]+?)(?:WHERE|GROUP|ORDER|LIMIT|$)/g);
+  
+  fromMatches?.forEach(fromClause => {
+    // テーブル名 [AS] エイリアス のパターン
+    const tableAliasMatch = fromClause.match(/FROM\s+(\w+)(?:\s+(?:AS\s+)?(\w+))?/);
+    if (tableAliasMatch) {
+      const tableName = tableAliasMatch[1];
+      const alias = tableAliasMatch[2] || tableName;
+      aliases.push({ name: tableName, alias });
+    }
+  });
+  
+  return aliases;
+}
+
+/**
+ * SQLから有効な単語を抽出
+ */
+function extractSqlWords(sql: string): string[] {
+  // 英数字とアンダースコアからなる単語を抽出
+  const wordMatches = sql.match(/\b[a-zA-Z_][a-zA-Z0-9_]*\b/g);
+  return wordMatches || [];
+}
+
+/**
+ * 基本的なSQLキーワード
+ */
+const SQL_KEYWORDS = [
+  'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'NOT', 'IN', 'LIKE', 'BETWEEN',
+  'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'ALTER', 'TABLE', 'INDEX',
+  'GROUP', 'BY', 'ORDER', 'HAVING', 'DISTINCT', 'AS', 'JOIN', 'LEFT', 'RIGHT',
+  'INNER', 'OUTER', 'ON', 'NULL', 'TRUE', 'FALSE', 'CASE', 'WHEN', 'THEN',
+  'ELSE', 'END', 'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'LIMIT', 'OFFSET'
+];
+
+/**
  * タブエディタ専用Monaco Editorカスタムフック
  */
 export const useTabMonacoEditor = (tabId: string) => {
@@ -106,7 +260,7 @@ export const useTabMonacoEditor = (tabId: string) => {
               detail: item.detail || undefined,
               documentation: item.documentation || undefined,
               insertText: item.insert_text || item.label,
-              sortText: item.sort_text || item.label,
+              sortText: `100_${item.sort_text || item.label}`, // コンテキスト補完(000_)の後に表示
               range: {
                 startLineNumber: wordStartPosition.lineNumber,
                 startColumn: wordStartPosition.column,
@@ -221,7 +375,42 @@ export const useTabMonacoEditor = (tabId: string) => {
             filteredSuggestions = suggestions;
           }
 
-          return { suggestions: filteredSuggestions };
+          // エディタ内容から動的補完候補を追加
+          let enhancedSuggestions: monaco.languages.CompletionItem[] = filteredSuggestions;
+          try {
+            console.log('🔥 タブエディタ: エディタ内容解析による動的補完開始');
+            
+            const sql = model.getValue();
+            const currentLine = model.getLineContent(position.lineNumber);
+            
+            // SQLコンテキストを解析してエディタ内のカラム候補を抽出
+            const contextSuggestions = extractContextSuggestions(sql, currentLine, position, monacoApi);
+            
+            if (contextSuggestions.length > 0) {
+              // 既存の候補と重複しないもののみ追加
+              const existingLabels = filteredSuggestions.map(s => 
+                typeof s.label === 'string' ? s.label.toLowerCase() : String(s.label).toLowerCase()
+              );
+              const uniqueContextSuggestions = contextSuggestions.filter((s) => {
+                const label = typeof s.label === 'string' ? s.label : String(s.label);
+                return !existingLabels.includes(label.toLowerCase());
+              });
+              
+              enhancedSuggestions = [...filteredSuggestions, ...uniqueContextSuggestions];
+              
+              console.log('🔥 タブエディタ: 動的補完候補を追加', {
+                contextSuggestionsCount: contextSuggestions.length,
+                uniqueCount: uniqueContextSuggestions.length,
+                finalCount: enhancedSuggestions.length
+              });
+            }
+            
+          } catch (error) {
+            console.error('❌ タブエディタ: 動的補完エラー', error);
+            enhancedSuggestions = filteredSuggestions;
+          }
+
+          return { suggestions: enhancedSuggestions };
         } catch (error) {
           console.error('❌ タブエディタ: SQL補完候補の取得エラー', error);
           
@@ -238,7 +427,7 @@ export const useTabMonacoEditor = (tabId: string) => {
               detail: 'SQL Keyword',
               documentation: 'Select data from tables',
               insertText: 'SELECT',
-              sortText: '0001',
+              sortText: '200_SELECT', // コンテキスト補完・API補完の後に表示
               range: {
                 startLineNumber: position.lineNumber,
                 startColumn: position.column,
@@ -252,7 +441,7 @@ export const useTabMonacoEditor = (tabId: string) => {
               detail: 'SQL Keyword',
               documentation: 'Specify the source table',
               insertText: 'FROM',
-              sortText: '0002',
+              sortText: '200_FROM',
               range: {
                 startLineNumber: position.lineNumber,
                 startColumn: position.column,
@@ -266,7 +455,7 @@ export const useTabMonacoEditor = (tabId: string) => {
               detail: 'SQL Keyword',
               documentation: 'Filter conditions',
               insertText: 'WHERE',
-              sortText: '0003',
+              sortText: '200_WHERE',
               range: {
                 startLineNumber: position.lineNumber,
                 startColumn: position.column,
