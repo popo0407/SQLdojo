@@ -33,7 +33,15 @@ const ResultsViewer: React.FC = () => {
 
   // フィルターアイコンクリック時のハンドラ
   const handleFilterClick = (col: string) => {
-    setFilterModal({ show: true, columnName: col });
+    // 現在のフィルター値を取得
+    const currentColumnFilters = filters[col] || [];
+    
+    // currentFiltersを含めてモーダル状態を設定
+    setFilterModal({ 
+      show: true, 
+      columnName: col, 
+      currentFilters: currentColumnFilters 
+    });
   };
 
   // ローディング状態

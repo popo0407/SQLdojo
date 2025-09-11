@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+﻿import { useCallback } from 'react';
 import type * as monaco from 'monaco-editor';
 import { getSqlSuggestions } from '../api/sqlService';
 import type { SqlCompletionItem } from '../types/api';
@@ -16,12 +16,6 @@ function extractContextSuggestions(
   const suggestions: monaco.languages.CompletionItem[] = [];
   
   try {
-    console.log('🔥 タブエディタ: コンテキスト補完解析開始', {
-      sql: sql.slice(0, 100),
-      currentLine,
-      position: `${position.lineNumber}:${position.column}`
-    });
-    
     // SQLを大文字に変換して解析
     const upperCurrentLine = currentLine.toUpperCase();
     
@@ -29,7 +23,7 @@ function extractContextSuggestions(
     const selectIndex = upperCurrentLine.indexOf('SELECT');
     const fromIndex = upperCurrentLine.indexOf('FROM');
     
-    // SELECT句判定: SELECTが存在し、かつ（FROMがないか、FROMより前にいる）
+    // SELECT句判定: SELECTが存在し、かつ（FROMがないか、FROMより前にある）
     const isInSelectClause = selectIndex !== -1 && 
                              (fromIndex === -1 || position.column <= fromIndex);
     
@@ -37,29 +31,13 @@ function extractContextSuggestions(
                            upperCurrentLine.includes('AND') || 
                            upperCurrentLine.includes('OR');
     
-    console.log('🔥 タブエディタ: 句判定結果', {
-      isInSelectClause,
-      isInWhereClause,
-      lineAnalysis: {
-        hasSelect: selectIndex !== -1,
-        hasFrom: fromIndex !== -1,
-        selectIndex,
-        fromIndex,
-        positionColumn: position.column,
-        upperCurrentLine
-      }
-    });
-    
     if (isInSelectClause || isInWhereClause) {
-      console.log('🔥 タブエディタ: SELECT/WHERE句を検出、コンテキスト補完開始');
       
       // FROM句からテーブル/エイリアスを抽出
       const tableAliases = extractTableAliases(sql);
-      console.log('🔥 タブエディタ: テーブルエイリアス抽出', { aliases: tableAliases });
       
-      // エディタ内の全ての単語を抽出（カラム候補として）
+      // エディタ内の全ての単語を抽出してカラム候補として使用
       const sqlWords = extractSqlWords(sql);
-      console.log('🔥 タブエディタ: SQL単語抽出', { wordsCount: sqlWords.length, words: sqlWords.slice(0, 10) });
       
       // SQLキーワードとテーブル名を除外して、カラム候補を生成
       const columnCandidates = sqlWords.filter(word => 
@@ -67,7 +45,6 @@ function extractContextSuggestions(
         !tableAliases.some(alias => alias.name.toUpperCase() === word.toUpperCase() || alias.alias.toUpperCase() === word.toUpperCase())
       );
       
-      console.log('🔥 タブエディタ: カラム候補フィルタ後', { candidatesCount: columnCandidates.length, candidates: columnCandidates.slice(0, 10) });
       
       // ユニークなカラム候補を作成
       const uniqueColumns = [...new Set(columnCandidates)];
@@ -90,7 +67,7 @@ function extractContextSuggestions(
           detail: '🎯 エディタ内コンテキスト',
           documentation: `このSQLエディタ内で使用されているカラム候補: ${column}`,
           insertText: column,
-          sortText: `000_${column}`, // 最優先で表示（000で始まる）
+          sortText: `000_${column}`, // 最優先で表示（000で始まる！）
           range: {
             startLineNumber: position.lineNumber,
             startColumn: columnStart,
@@ -100,16 +77,10 @@ function extractContextSuggestions(
         });
       });
       
-      console.log('🔥 タブエディタ: コンテキスト補完候補生成完了', { 
-        columnsCount: uniqueColumns.length,
-        columns: uniqueColumns.slice(0, 5),
-        suggestionsGenerated: suggestions.length
-      });
-    } else {
-      console.log('🔥 タブエディタ: SELECT/WHERE句ではないため、コンテキスト補完をスキップ');
+      return suggestions;
     }
   } catch (error) {
-    console.error('❌ タブエディタ: extractContextSuggestionsエラー', error);
+    console.error('❌タブエディタ: extractContextSuggestionsエラー', error);
   }
   
   return suggestions;
@@ -165,39 +136,18 @@ export const useTabMonacoEditor = (tabId: string) => {
   const { user } = useAuth();
   
   const handleEditorDidMount = useCallback((editor: monaco.editor.IStandaloneCodeEditor, monacoApi: typeof monaco) => {
-    console.log('🔥 タブエディタ: handleEditorDidMount called for tabId:', tabId);
-    console.log('🔥 タブエディタ: 元のeditor model ID:', editor.getModel()?.id);
-    
-    // 元エディタと同じ方法で補完プロバイダーを登録
-    console.log('🔥 タブエディタ: 元エディタと同じ方法で補完プロバイダーを登録');
     
     monacoApi.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: async (model: monaco.editor.ITextModel, position: monaco.Position) => {
-        console.log('🎯🎯🎯 タブエディタ: 補完プロバイダーが呼び出されました!!!', {
-          tabId,
-          modelId: model.id,
-          languageId: model.getLanguageId(),
-          position: `${position.lineNumber}:${position.column}`,
-          lineContent: model.getLineContent(position.lineNumber),
-          wordAtPosition: model.getWordAtPosition(position)
-        });
         
-        // このエディタのモデルかチェック（より厳密に）
+        // このエディタのモデルかチェック（より厳密）
         const isTabEditorModel = model === editor.getModel();
         if (!isTabEditorModel) {
-          console.log('🔥 タブエディタ: 他のエディタからの呼び出しのため空の候補を返します', {
-            modelId: model.id,
-            editorModelId: editor.getModel()?.id,
-            reason: 'タブエディタのモデルではない'
-          });
           return { suggestions: [] };
         }
         
-        console.log('🔥 タブエディタ: タブエディタからの正当な呼び出しを確認');
-        
         try {
           // 元エディタと同じSQL補完ロジック
-          console.log('🔥 タブエディタ: SQL補完API呼び出し開始');
           
           const sql = model.getValue();
           const offset = model.getOffsetAt(position);
@@ -207,10 +157,6 @@ export const useTabMonacoEditor = (tabId: string) => {
             sql,
             position: offset,
             context: {}
-          });
-          
-          console.log('🔥 タブエディタ: SQL補完APIレスポンス取得', { 
-            suggestionsCount: response.suggestions.length 
           });
           
           // Monaco Editorの補完アイテム形式に変換（元エディタと同じロジック）
@@ -270,15 +216,9 @@ export const useTabMonacoEditor = (tabId: string) => {
             };
           });
           
-          console.log('🔥 タブエディタ: SQL補完候補を変換完了', { 
-            suggestionsCount: suggestions.length,
-            tabId 
-          });
-
           // 表示制御フィルタを適用（直接API呼び出し）
           let filteredSuggestions = suggestions;
           try {
-            console.log('🔥 タブエディタ: 表示制御フィルタを開始');
             
             // 直接API呼び出しで表示制御設定を取得
             const visibilityResponse = await fetch('/api/v1/admin/visibility-settings');
@@ -287,10 +227,9 @@ export const useTabMonacoEditor = (tabId: string) => {
             }
             
             const visibilityData = await visibilityResponse.json();
-            console.log('🔥 タブエディタ: 表示制御設定レスポンス', visibilityData);
             
             // レスポンスはオブジェクト形式: {LOG: {}, PUBLIC: {}, ...}
-            // 各キーが "schema.table" 形式で、値が設定オブジェクト
+            // キーが"schema.table" 形式で、値が設定オブジェクト
             const visibilitySettings = Object.entries(visibilityData).map(([key, settings]) => {
               const [schema, table] = key.split('.');
               return {
@@ -301,20 +240,11 @@ export const useTabMonacoEditor = (tabId: string) => {
               };
             });
             
-            console.log('🔥 タブエディタ: 表示制御設定配列', {
-              settingsCount: visibilitySettings.length,
-              isArray: Array.isArray(visibilitySettings),
-              sampleSettings: visibilitySettings.slice(0, 3)
-            });
-            
             // ユーザーロールを取得（動的）
             const userRole = user?.role;
             if (!userRole) {
-              console.log('❌ タブエディタ: ユーザーロールが取得できないため、フィルタなしで表示');
               return { suggestions };
             }
-            
-            console.log('🔥 タブエディタ: ユーザーロール取得', { userRole });
             
             // 補完候補をフィルタリング（metadata-treeと同じロジック）
             filteredSuggestions = suggestions.filter(suggestion => {
@@ -332,11 +262,6 @@ export const useTabMonacoEditor = (tabId: string) => {
                   const roleSpecificSetting = setting.settings[userRole];
                   if (roleSpecificSetting !== undefined) {
                     const shouldShow = roleSpecificSetting;
-                    console.log('🔥 タブエディタ: テーブル表示制御判定（ロール固有）', {
-                      tableName,
-                      userRole,
-                      shouldShow
-                    });
                     return shouldShow;
                   }
                   
@@ -344,18 +269,11 @@ export const useTabMonacoEditor = (tabId: string) => {
                   const defaultSetting = setting.settings['DEFAULT'];
                   if (defaultSetting !== undefined) {
                     const shouldShow = defaultSetting;
-                    console.log('🔥 タブエディタ: テーブル表示制御判定（DEFAULT）', {
-                      tableName,
-                      shouldShow
-                    });
                     return shouldShow;
                   }
                 }
                 
                 // 設定がない場合は非表示（フォールバック禁止）
-                console.log('🔥 タブエディタ: テーブル表示制御判定（設定なし=非表示）', {
-                  tableName
-                });
                 return false;
               }
               
@@ -363,22 +281,14 @@ export const useTabMonacoEditor = (tabId: string) => {
               return true;
             });
             
-            console.log('🔥 タブエディタ: 表示制御フィルタ完了', {
-              originalCount: suggestions.length,
-              filteredCount: filteredSuggestions.length,
-              userRole
-            });
-            
           } catch (error) {
-            console.error('❌ タブエディタ: 表示制御フィルタエラー', error);
-            console.log('🔥 タブエディタ: フィルタエラーのため元の候補をそのまま返します');
+            console.error('❌タブエディタ: 表示制御フィルタエラー', error);
             filteredSuggestions = suggestions;
           }
 
           // エディタ内容から動的補完候補を追加
           let enhancedSuggestions: monaco.languages.CompletionItem[] = filteredSuggestions;
           try {
-            console.log('🔥 タブエディタ: エディタ内容解析による動的補完開始');
             
             const sql = model.getValue();
             const currentLine = model.getLineContent(position.lineNumber);
@@ -397,25 +307,18 @@ export const useTabMonacoEditor = (tabId: string) => {
               });
               
               enhancedSuggestions = [...filteredSuggestions, ...uniqueContextSuggestions];
-              
-              console.log('🔥 タブエディタ: 動的補完候補を追加', {
-                contextSuggestionsCount: contextSuggestions.length,
-                uniqueCount: uniqueContextSuggestions.length,
-                finalCount: enhancedSuggestions.length
-              });
             }
             
           } catch (error) {
-            console.error('❌ タブエディタ: 動的補完エラー', error);
+            console.error('❌タブエディタ: 動的補完エラー', error);
             enhancedSuggestions = filteredSuggestions;
           }
 
           return { suggestions: enhancedSuggestions };
         } catch (error) {
-          console.error('❌ タブエディタ: SQL補完候補の取得エラー', error);
+          console.error('❌タブエディタ: SQL補完候補の取得エラー', error);
           
           // フォールバック: 基本的なSQL補完候補
-          console.log('🔥 タブエディタ: フォールバック補完候補を返します');
         }
         
         // テスト用の基本的な補完候補（フォールバック）
@@ -427,7 +330,7 @@ export const useTabMonacoEditor = (tabId: string) => {
               detail: 'SQL Keyword',
               documentation: 'Select data from tables',
               insertText: 'SELECT',
-              sortText: '200_SELECT', // コンテキスト補完・API補完の後に表示
+              sortText: '200_SELECT', // コンテキスト補完とAPI補完の後に表示
               range: {
                 startLineNumber: position.lineNumber,
                 startColumn: position.column,
@@ -469,12 +372,10 @@ export const useTabMonacoEditor = (tabId: string) => {
       triggerCharacters: [' ', '.', ',', '(', ')', '\n', '\t'] // 元エディタと同じトリガー文字
     });
     
-    console.log('🔥 タブエディタ: 補完プロバイダー登録完了 for tabId:', tabId);
-    
     // エディタにフォーカス
     editor.focus();
     
-  }, [tabId, user]);
+  }, [user]);
 
   // エディタ操作用の関数群
   const getSelectedSQL = useCallback(() => {

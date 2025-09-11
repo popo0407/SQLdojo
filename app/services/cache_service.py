@@ -25,6 +25,24 @@ class CacheService:
         self._active_sessions = {}  # セッションID -> セッション情報
         self._max_concurrent_sessions = 5
         self._init_cache_db()
+
+    def _get_table_name_from_session_id(self, session_id: str) -> str:
+        """セッションIDからテーブル名を生成"""
+        parts = session_id.split('_')
+        if len(parts) >= 4 and parts[0] == 'cache':
+            # 新形式: cache_hint0530_20250911231732_130
+            # この場合、テーブル名はセッションIDと同じ
+            table_name = session_id
+        elif len(parts) >= 3:
+            # 旧形式: user_timestamp_xxx
+            user_id = parts[0]
+            timestamp = parts[1]
+            dt = datetime.fromtimestamp(int(timestamp))
+            formatted_time = dt.strftime('%Y%m%d%H%M%S')
+            table_name = f"cache_{user_id}_{formatted_time}"
+        else:
+            table_name = f"cache_{session_id.replace('-', '_')}"
+        return table_name
     
     def _init_cache_db(self):
         """キャッシュDBの初期化"""
@@ -393,15 +411,9 @@ class CacheService:
     def get_unique_values(self, session_id: str, column_name: str, limit: int = 100, filters: Optional[Dict] = None) -> dict:
         """キャッシュテーブルから指定カラムのユニーク値（最大limit件）を取得（連鎖フィルター対応）"""
         # セッションIDからテーブル名を生成
-        parts = session_id.split('_')
-        if len(parts) >= 3:
-            user_id = parts[0]
-            timestamp = parts[1]
-            dt = datetime.fromtimestamp(int(timestamp))
-            formatted_time = dt.strftime('%Y%m%d%H%M%S')
-            table_name = f"cache_{user_id}_{formatted_time}"
-        else:
-            table_name = f"cache_{session_id.replace('-', '_')}"
+        table_name = self._get_table_name_from_session_id(session_id)
+        
+        logger.info(f"ユニーク値取得: session_id={session_id}, table_name={table_name}, column={column_name}")
 
         with sqlite3.connect(self.cache_db_path) as conn:
             cursor = conn.cursor()

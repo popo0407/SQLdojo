@@ -22,7 +22,7 @@ export const useFilterModalState = (): FilterModalState & FilterModalActions => 
   const [error, setError] = useState<string | null>(null);
   const [isTruncated, setIsTruncated] = useState(false);
 
-  // ユニーク値をAPI経由またはローカルデータから取得
+  // ユニーク値をAPI経由で取得
   useEffect(() => {
     if (!filterModal.show) return;
     
@@ -42,42 +42,16 @@ export const useFilterModalState = (): FilterModalState & FilterModalActions => 
           setUniqueValues(res.values || []);
           setIsTruncated(!!res.truncated);
         })
-        .catch((e: Error) => setError(e.message || 'ユニーク値の取得に失敗しました'))
+        .catch((e: Error) => {
+          setError(e.message || 'ユニーク値の取得に失敗しました');
+        })
         .finally(() => setIsLoading(false));
     } else {
-      // セッションIDがない場合はローカルデータから取得
-      try {
-        if (rawData && rawData.length > 0 && filterModal.columnName) {
-          const uniqueSet = new Set<string>();
-          
-          // フィルタを適用したデータからユニーク値を抽出
-          let filteredData = [...rawData];
-          Object.entries(filters).forEach(([col, vals]) => {
-            if (col !== filterModal.columnName && vals && vals.length > 0) {
-              filteredData = filteredData.filter(row => vals.includes(String(row[col] || '')));
-            }
-          });
-          
-          // ユニーク値を収集
-          filteredData.forEach(row => {
-            const value = String(row[filterModal.columnName] || '');
-            uniqueSet.add(value);
-          });
-          
-          const uniqueArray = Array.from(uniqueSet).sort();
-          setUniqueValues(uniqueArray);
-          setIsTruncated(uniqueArray.length > 1000); // 1000件を超える場合は切り捨て表示
-        } else {
-          setUniqueValues([]);
-        }
-      } catch (error) {
-        setError('ユニーク値の抽出に失敗しました');
-        console.error('Local unique values extraction error:', error);
-      } finally {
-        setIsLoading(false);
-      }
+      // セッションIDがない場合はエラー
+      setError('セッションIDが存在しません');
+      setIsLoading(false);
     }
-  }, [filterModal.show, sessionId, filterModal.columnName, filters, filtersString, rawData]);
+  }, [filterModal.show, sessionId, filterModal.columnName, filterModal.currentFilters, filters, filtersString, rawData]);
 
   // モーダルが開くたびに現在のフィルタを設定
   useEffect(() => {
