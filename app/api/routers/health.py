@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 import time
 from app import __version__
 from app.api.models import HealthCheckResponse, PerformanceMetricsResponse
-from app.dependencies import SQLServiceDep, PerformanceServiceDep
+from app.dependencies import QueryExecutorDep, PerformanceServiceDep
 from app.logger import Logger
 
 logger = Logger(__name__)
@@ -11,9 +11,9 @@ router = APIRouter(tags=["health"])
 
 
 @router.get("/health", response_model=HealthCheckResponse)
-async def health_check(sql_service: SQLServiceDep, performance_service: PerformanceServiceDep):
+async def health_check(query_executor: QueryExecutorDep, performance_service: PerformanceServiceDep):
     logger.info("ヘルスチェック要求")
-    connection_status = sql_service.get_connection_status()
+    connection_status = query_executor.get_connection_status()
     metrics = performance_service.get_metrics()
     return HealthCheckResponse(
         status="healthy",

@@ -17,17 +17,21 @@ from app.api.models import (
 )
 from app.dependencies import (
     SQLValidatorDep, CompletionServiceDep,
-    ConnectionManagerDep, ExportServiceDep,
-    get_current_user_optional, get_sql_log_service_di, get_sql_service_di,
+    ConnectionManagerDep, ExportServiceDep, QueryExecutorDep,
+    get_current_user_optional, get_sql_log_service_di,
     get_hybrid_sql_service_di,
 )
 from app.services.sql_log_service import SQLLogService
 from typing import Annotated
 
 from ._helpers import run_in_threadpool
-from app.logger import Logger
+from app.logger import Logger, get_logger
 from app.exceptions import SQLValidationError, SQLExecutionError
 from app.config_simplified import get_settings
+from app.sql_validator import get_validator
+import time
+
+logger = get_logger(__name__)
 from app.api.error_utils import (
     err_limit_exceeded,
     err_no_data,
@@ -39,52 +43,11 @@ logger = Logger(__name__)
 router = APIRouter(prefix="/sql", tags=["sql"])
 
 
-@router.post("/execute", response_model=SQLResponse)
-async def execute_sql_endpoint(
-    request: SQLRequest,
-    sql_service = Depends(get_sql_service_di),
-    current_user: dict | None = Depends(get_current_user_optional),
-    sql_log_service = Depends(get_sql_log_service_di),
-):
-    if not request.sql:
-        raise SQLExecutionError("SQLクエリが無効です")
-    start_time = datetime.now()
-    result = await run_in_threadpool(sql_service.execute_sql, request.sql, request.limit)
-    response = SQLResponse(
-        success=result.success,
-        data=result.data,
-        columns=result.columns,
-        row_count=result.row_count,
-        execution_time=result.execution_time,
-        error_message=result.error_message,
-        sql=result.sql,
-    )
-    # ログはユーザーが存在する場合のみ記録
-    if current_user:
-        await run_in_threadpool(
-            sql_log_service.add_log_to_db,
-            current_user["user_id"],
-            request.sql,
-            result.execution_time,
-            start_time,
-            result.row_count,
-            result.success,
-            result.error_message,
-        )
-    return response
+# /sql/execute エンドポイントは削除されました
+# 代替: /sql/cache/execute（より高機能、キャッシュ・進捗管理付き）
 
-
-@router.post("/validate", response_model=SQLValidationResponse)
-async def validate_sql_endpoint(request: SQLValidationRequest, sql_service = Depends(get_sql_service_di)):
-    if not request.sql:
-        raise SQLValidationError("SQLクエリが無効です")
-    result = await run_in_threadpool(sql_service.validate_sql, request.sql)
-    return SQLValidationResponse(
-        is_valid=result.is_valid,
-        errors=result.errors,
-        warnings=result.warnings,
-        suggestions=result.suggestions,
-    )
+# /sql/validate エンドポイントは削除されました  
+# 代替: 内部バリデーション（sql_validator.py）、タブエディタのリアルタイムバリデーション
 
 
 @router.post("/format", response_model=SQLFormatResponse)
@@ -108,31 +71,11 @@ async def suggest_sql_endpoint(request: SQLCompletionRequest, completion_service
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/connection/status", response_model=ConnectionStatusResponse)
-async def get_connection_status_endpoint(sql_service = Depends(get_sql_service_di)):
-    status = sql_service.get_connection_status()
-    return ConnectionStatusResponse(connected=status.get("is_connected", False), detail=status)
+# /sql/connection/status エンドポイントは削除されました
+# 代替: /api/v1/health、/api/v1/connection/status（utils.py）
 
-
-@router.post("/export")
-async def export_data_endpoint(request: SQLRequest, export_service: ExportServiceDep):
-    if not request.sql:
-        raise HTTPException(status_code=400, detail="SQLクエリが空です、エクスポートできません")
-    try:
-        stream = export_service.export_to_csv_stream(request.sql)
-        first_chunk = next(stream, None)
-
-        def stream_generator():
-            yield '\ufeff'.encode('utf-8')
-            if first_chunk:
-                yield first_chunk
-            for chunk in stream:
-                yield chunk
-
-        filename = f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        return StreamingResponse(stream_generator(), media_type="text/csv; charset=utf-8", headers={"Content-Disposition": f"attachment; filename={filename}"})
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"エクスポートに失敗しました: {str(e)}")
+# /sql/export エンドポイントは削除されました
+# 代替: /sql/download/csv（より直接的なCSVダウンロード）
 
 
 def _sanitize_filename(raw: str, default_prefix: str, extension: str) -> str:

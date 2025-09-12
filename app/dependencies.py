@@ -16,7 +16,7 @@ from app.services.query_executor import QueryExecutor
 from app.services.query_executor_snowflake_log import QueryExecutorSnowflakeLog
 from app.services.connection_manager_snowflake_log import ConnectionManagerSnowflakeLog
 # from app.services.database_service import DatabaseService  # 削除
-from app.services.sql_service import SQLService
+# from app.services.sql_service import SQLService  # 削除
 from app.services.metadata_service import MetadataService
 from app.services.performance_service import PerformanceService
 from app.services.export_service import ExportService
@@ -86,12 +86,12 @@ def get_query_executor_di(
 #     return DatabaseService(connection_manager, query_executor)
 
 
-# SQLサービスの依存性注入
-def get_sql_service_di(
-    query_executor: Annotated[QueryExecutor, Depends(get_query_executor_di)]
-) -> SQLService:
-    """SQLサービスを取得"""
-    return SQLService(query_executor)
+# SQLサービスの依存性注入（削除）
+# def get_sql_service_di(
+#     query_executor: Annotated[QueryExecutor, Depends(get_query_executor_di)]
+# ) -> SQLService:
+#     """SQLサービスを取得"""
+#     return SQLService(query_executor)
 
 
 # メタデータサービスの依存性注入
@@ -315,7 +315,7 @@ def get_visibility_control_service_di(
 ConnectionManagerDep = Annotated[ConnectionManagerODBC, Depends(get_connection_manager_di)]
 QueryExecutorDep = Annotated[QueryExecutor, Depends(get_query_executor_di)]
 # DatabaseServiceDep = Annotated[DatabaseService, Depends(get_database_service_di)]  # 削除
-SQLServiceDep = Annotated[SQLService, Depends(get_sql_service_di)]
+# SQLServiceDep = Annotated[SQLService, Depends(get_sql_service_di)]  # 削除
 MetadataServiceDep = Annotated[MetadataService, Depends(get_metadata_service_di)]
 PerformanceServiceDep = Annotated[PerformanceService, Depends(get_performance_service_di)]
 ExportServiceDep = Annotated[ExportService, Depends(get_export_service_di)]

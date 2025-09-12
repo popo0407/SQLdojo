@@ -15,7 +15,7 @@ from datetime import datetime
 from app.tests.test_main import app
 from app.api.models import UserInfo
 from app.dependencies import (
-    get_sql_service_di, get_metadata_service_di, get_performance_service_di,
+    get_metadata_service_di, get_performance_service_di,
     get_export_service_di, get_sql_validator_di, get_connection_manager_di,
     get_completion_service_di, get_current_user, get_current_admin,
     get_sql_log_service_di, get_user_service_di, get_template_service_di,
@@ -293,7 +293,7 @@ def mock_user_service():
 def override_dependencies(client: TestClient, **overrides):
     """依存関係を一括でオーバーライド"""
     dependency_map = {
-        'sql_service': get_sql_service_di,
+        'hybrid_sql_service': get_hybrid_sql_service_di,
         'metadata_service': get_metadata_service_di,
         'performance_service': get_performance_service_di,
         'export_service': get_export_service_di,

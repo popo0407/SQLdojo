@@ -77,12 +77,14 @@ export const useTabPageStore = create<TabPageState>((_, get) => ({
 
     // 選択範囲があるかチェック（元エディタと同じ動作）
     const hasSelection = get().hasTabSelection(tabId);
+    console.log('🔍 executeTabSql - hasSelection:', hasSelection);
     
     let finalSql: string;
     
     if (hasSelection) {
       // 選択範囲がある場合：選択されたSQLをそのまま実行（パラメータ置換なし）
       const selectedSql = get().getTabSelectedSQL(tabId);
+      console.log('🔍 executeTabSql - selectedSql:', JSON.stringify(selectedSql));
       if (!selectedSql.trim()) {
         alert('選択範囲にSQLがありません。');
         return;
@@ -91,12 +93,20 @@ export const useTabPageStore = create<TabPageState>((_, get) => ({
     } else {
       // 選択範囲がない場合：全体SQLでバリデーション・パラメータ置換
       const trimmedSql = tab.sql.trim();
+      console.log('🔍 executeTabSql - tab.sql:', JSON.stringify(tab.sql));
+      console.log('🔍 executeTabSql - trimmedSql:', JSON.stringify(trimmedSql));
       if (!trimmedSql) {
         alert('SQLを入力してください。');
         return;
       }
 
       // 基本的な構文チェック（元エディタと同じ）
+      console.log('🔍 SQL validation - trimmedSql:', JSON.stringify(trimmedSql));
+      console.log('🔍 SQL validation - endsWith FROM:', trimmedSql.endsWith('FROM'));
+      console.log('🔍 SQL validation - endsWith WHERE:', trimmedSql.endsWith('WHERE'));
+      console.log('🔍 SQL validation - endsWith AND:', trimmedSql.endsWith('AND'));
+      console.log('🔍 SQL validation - endsWith OR:', trimmedSql.endsWith('OR'));
+      
       if (trimmedSql.endsWith('FROM') || trimmedSql.endsWith('WHERE') || trimmedSql.endsWith('AND') || trimmedSql.endsWith('OR')) {
         alert('SQLが不完全です。FROM句の後にテーブル名を指定してください。');
         return;
@@ -273,13 +283,17 @@ export const useTabPageStore = create<TabPageState>((_, get) => ({
   // 選択範囲SQL取得
   getTabSelectedSQL: (tabId: string) => {
     const editorAPI = tabEditorInstances.get(tabId);
-    return editorAPI?.getSelectedSQL() || '';
+    const result = editorAPI?.getSelectedSQL() || '';
+    console.log('🔍 getTabSelectedSQL - tabId:', tabId, 'result:', JSON.stringify(result));
+    return result;
   },
 
   // 選択状態チェック
   hasTabSelection: (tabId: string) => {
     const editorAPI = tabEditorInstances.get(tabId);
-    return editorAPI?.hasSelection() || false;
+    const result = editorAPI?.hasSelection() || false;
+    console.log('🔍 hasTabSelection - tabId:', tabId, 'result:', result);
+    return result;
   },
 
   // SQL履歴からのコピー（新しいタブを作成して適用）

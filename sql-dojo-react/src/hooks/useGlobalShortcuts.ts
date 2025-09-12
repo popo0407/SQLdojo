@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useSqlPageStore } from '../stores/useSqlPageStore';
 import { useEditorStore } from '../stores/useEditorStore';
 import { useUIStore } from '../stores/useUIStore';
 
 export function useGlobalShortcuts() {
+  const location = useLocation();
   const executeSql = useSqlPageStore((s) => s.executeSql);
   const formatSql = useSqlPageStore((s) => s.formatSql);
   const clearSql = useEditorStore((s) => s.clearSql);
@@ -17,8 +19,15 @@ export function useGlobalShortcuts() {
       const isCtrl = e.ctrlKey || e.metaKey; // macOS 対応
       const code = e.code; // 'Enter', 'KeyF', 'KeyL'
 
+      // タブページ（ホームページ「/」）ではCtrl+Enterをタブエディタに任せる
+      const isTabPage = location.pathname === '/';
+
   // Ctrl + Enter: 実行（テンキーEnter含む）
   if (isCtrl && !e.shiftKey && (code === 'Enter' || code === 'NumpadEnter')) {
+        // タブページではCtrl+Enterを無効化（タブエディタが処理）
+        if (isTabPage) {
+          return;
+        }
         e.preventDefault();
         e.stopPropagation();
         executeSql();
@@ -54,5 +63,5 @@ export function useGlobalShortcuts() {
       window.removeEventListener('keydown', handler, true);
       document.removeEventListener('keydown', handler, true);
     };
-  }, [executeSql, formatSql, clearSql, isPending, setShowShortcutHelp]);
+  }, [executeSql, formatSql, clearSql, isPending, setShowShortcutHelp, location.pathname]);
 }

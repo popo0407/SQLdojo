@@ -4,15 +4,17 @@ from fastapi.responses import StreamingResponse
 from datetime import datetime
 
 from app.api.models import SQLRequest, ConnectionStatusResponse
-from app.dependencies import SQLServiceDep, ExportServiceDep
+from app.dependencies import QueryExecutorDep, ExportServiceDep
 
 router = APIRouter(tags=["utils"])
 
 
 @router.get("/connection/status", response_model=ConnectionStatusResponse)
-async def get_connection_status_endpoint(sql_service: SQLServiceDep):
-    status = sql_service.get_connection_status()
-    return ConnectionStatusResponse(connected=status.get("is_connected", False), detail=status)
+async def get_connection_status_endpoint(query_executor: QueryExecutorDep):
+    status = query_executor.get_connection_status()
+    # 接続プールに接続があれば connected=True とする
+    connected = status.get("total_connections", 0) > 0
+    return ConnectionStatusResponse(connected=connected, detail=status)
 
 
 @router.post("/export")

@@ -12,7 +12,7 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock
 from app.dependencies import (
-    get_sql_service_di, get_performance_service_di, get_completion_service_di,
+    get_query_executor_di, get_performance_service_di, get_completion_service_di,
     get_current_user
 )
 
@@ -22,8 +22,8 @@ class TestHealthCheckAPI:
     
     def test_health_check_success(self, client: TestClient):
         """正常なヘルスチェックのテスト"""
-        mock_sql_service = Mock()
-        mock_sql_service.get_connection_status.return_value = {
+        mock_query_executor = Mock()
+        mock_query_executor.get_connection_status.return_value = {
             "is_connected": True,
             "connection_type": "snowflake",
             "database": "test_db",
@@ -39,7 +39,7 @@ class TestHealthCheckAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        app.dependency_overrides[get_query_executor_di] = lambda: mock_query_executor
         app.dependency_overrides[get_performance_service_di] = lambda: mock_performance_service
         
         try:
@@ -57,8 +57,8 @@ class TestHealthCheckAPI:
     
     def test_health_check_connection_error(self, client: TestClient):
         """接続エラー時のヘルスチェックのテスト"""
-        mock_sql_service = Mock()
-        mock_sql_service.get_connection_status.return_value = {
+        mock_query_executor = Mock()
+        mock_query_executor.get_connection_status.return_value = {
             "is_connected": False,
             "error": "データベース接続エラー"
         }
@@ -72,7 +72,7 @@ class TestHealthCheckAPI:
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        app.dependency_overrides[get_query_executor_di] = lambda: mock_query_executor
         app.dependency_overrides[get_performance_service_di] = lambda: mock_performance_service
         
         try:
@@ -110,48 +110,58 @@ class TestConnectionStatusAPI:
     def test_get_connection_status_success(self, client: TestClient):
         """正常な接続状態取得のテスト"""
         mock_service = Mock()
+        # 接続プールの状態を模擬
         mock_service.get_connection_status.return_value = {
-            "is_connected": True,
-            "connection_type": "snowflake",
-            "database": "test_db",
-            "schema": "PUBLIC",
-            "warehouse": "test_warehouse",
-            "user": "test_user"
+            "total_connections": 2,
+            "max_connections": 5,
+            "active_connections": 1,
+            "connection_details": [
+                {
+                    "id": "conn_1",
+                    "created_at": "2024-01-01T00:00:00",
+                    "last_used": "2024-01-01T00:00:00",
+                    "query_count": 5,
+                    "is_active": True
+                }
+            ]
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service_di] = lambda: mock_service
+        app.dependency_overrides[get_query_executor_di] = lambda: mock_service
         
         try:
             response = client.get("/api/v1/connection/status")
             
             assert response.status_code == 200
             data = response.json()
-            assert data["connected"] is True
-            assert data["detail"]["is_connected"] is True
-            assert data["detail"]["database"] == "test_db"
+            assert data["connected"] is True  # total_connections > 0 なので True
+            assert data["detail"]["total_connections"] == 2
+            assert data["detail"]["active_connections"] == 1
         finally:
             app.dependency_overrides.clear()
     
     def test_get_connection_status_disconnected(self, client: TestClient):
         """切断状態の接続状態取得のテスト"""
         mock_service = Mock()
+        # 接続プールが空の状態を模擬
         mock_service.get_connection_status.return_value = {
-            "is_connected": False,
-            "error": "認証エラー",
-            "last_connection": "2025-01-17T08:00:00"
+            "total_connections": 0,
+            "max_connections": 5,
+            "active_connections": 0,
+            "connection_details": []
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service_di] = lambda: mock_service
+        app.dependency_overrides[get_query_executor_di] = lambda: mock_service
         
         try:
             response = client.get("/api/v1/connection/status")
             
             assert response.status_code == 200
             data = response.json()
-            assert data["connected"] is False
-            assert "認証エラー" in data["detail"]["error"]
+            assert data["connected"] is False  # total_connections == 0 なので False
+            assert data["detail"]["total_connections"] == 0
+            assert data["detail"]["active_connections"] == 0
         finally:
             app.dependency_overrides.clear()
 

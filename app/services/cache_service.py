@@ -2,6 +2,7 @@
 """
 キャッシュサービス
 SQL実行結果をローカルにキャッシュする機能を提供
+統一セッションライフサイクル管理を使用
 """
 import sqlite3
 import hashlib
@@ -9,7 +10,7 @@ import uuid
 import time
 import threading
 from typing import Optional, Dict, Any, List, Tuple
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from decimal import Decimal
 from app.logger import get_logger
 from app.config_simplified import settings
@@ -17,13 +18,17 @@ from app.config_simplified import settings
 logger = get_logger("CacheService")
 
 class CacheService:
-    """ローカルキャッシュ管理サービス"""
+    """ローカルキャッシュ管理サービス（改良ハイブリッド管理）"""
     
     def __init__(self, cache_db_path: str = "cache_data.db"):
         self.cache_db_path = cache_db_path
         self._lock = threading.Lock()
-        self._active_sessions = {}  # セッションID -> セッション情報
+        self._active_sessions = {}  # セッションID -> セッション情報（メモリ復活）
         self._max_concurrent_sessions = 5
+        self._last_sync_time = {}   # セッションID -> 最終同期時刻
+        self._init_cache_db()
+        self._restore_sessions_from_db()  # 起動時にDB→メモリ復旧
+        
         self._init_cache_db()
 
     def _get_table_name_from_session_id(self, session_id: str) -> str:
@@ -70,6 +75,67 @@ class CacheService:
                 cursor.execute("ALTER TABLE cache_sessions ADD COLUMN execution_time REAL DEFAULT NULL")
             
             conn.commit()
+    
+    def _restore_sessions_from_db(self):
+        """DB からアクティブセッションをメモリに復旧"""
+        with self._lock:
+            logger.info("DBからセッション情報を復旧中...")
+            
+            try:
+                with sqlite3.connect(self.cache_db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        SELECT session_id, user_id, created_at, last_accessed, 
+                               status, total_rows, processed_rows, is_complete, execution_time
+                        FROM cache_sessions 
+                        WHERE is_complete = 0 AND status = 'active'
+                    """)
+                    
+                    restored_count = 0
+                    now = datetime.now()
+                    
+                    for row in cursor.fetchall():
+                        session_id = row[0]
+                        
+                        # 30分以上古いセッションはタイムアウト処理
+                        created_at = datetime.fromisoformat(row[2]) if row[2] else now
+                        if now - created_at > timedelta(minutes=30):
+                            logger.warning(f"古いセッションをタイムアウト処理: {session_id}")
+                            self._mark_session_timeout_in_db(session_id)
+                            continue
+                        
+                        session_info = {
+                            'user_id': row[1],
+                            'created_at': created_at,
+                            'last_accessed': datetime.fromisoformat(row[3]) if row[3] else now,
+                            'status': row[4] or 'active',
+                            'total_rows': row[5] or 0,
+                            'processed_rows': row[6] or 0,
+                            'is_complete': bool(row[7]),
+                            'execution_time': row[8]
+                        }
+                        
+                        self._active_sessions[session_id] = session_info
+                        restored_count += 1
+                    
+                    logger.info(f"セッション復旧完了: {restored_count}件")
+                    
+            except Exception as e:
+                logger.error(f"セッション復旧エラー: {e}")
+    
+    def _mark_session_timeout_in_db(self, session_id: str):
+        """DBでセッションをタイムアウト状態にマーク"""
+        try:
+            with sqlite3.connect(self.cache_db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    UPDATE cache_sessions 
+                    SET status = 'timeout', is_complete = 1 
+                    WHERE session_id = ?
+                """, (session_id,))
+                conn.commit()
+        except Exception as e:
+            logger.error(f"タイムアウトマークエラー: {e}")
     
     def generate_session_id(self, user_id: str) -> str:
         """セッションIDを生成（テーブル名と同じ形式にして変換を不要にする）"""
@@ -123,130 +189,195 @@ class CacheService:
             return len(data)
     
     def get_session_info(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """セッション情報を取得"""
-        with sqlite3.connect(self.cache_db_path) as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT session_id, user_id, created_at, last_accessed, 
-                       status, total_rows, processed_rows, is_complete, execution_time
-                FROM cache_sessions 
-                WHERE session_id = ?
-            """, (session_id,))
-            
-            row = cursor.fetchone()
-            if row:
-                return {
-                    'session_id': row[0],
-                    'user_id': row[1],
-                    'created_at': row[2],
-                    'last_accessed': row[3],
-                    'status': row[4],
-                    'total_rows': row[5],
-                    'processed_rows': row[6],
-                    'is_complete': bool(row[7]),
-                    'execution_time': row[8] if len(row) > 8 else None
-                }
-        return None
-    
-    def update_session_progress(self, session_id: str, processed_rows: int, is_complete: bool = False, execution_time: Optional[float] = None):
-        """セッションの進捗を更新"""
-        with sqlite3.connect(self.cache_db_path) as conn:
-            cursor = conn.cursor()
-            if execution_time is not None:
-                cursor.execute("""
-                    UPDATE cache_sessions 
-                    SET processed_rows = ?, last_accessed = CURRENT_TIMESTAMP, is_complete = ?, execution_time = ?
-                    WHERE session_id = ?
-                """, (processed_rows, is_complete, execution_time, session_id))
-            else:
-                cursor.execute("""
-                    UPDATE cache_sessions 
-                    SET processed_rows = ?, last_accessed = CURRENT_TIMESTAMP, is_complete = ?
-                    WHERE session_id = ?
-                """, (processed_rows, is_complete, session_id))
-            conn.commit()
-    
-    def register_session(self, session_id: str, user_id: str, total_rows: int = 0) -> bool:
-        """セッションを登録（同時実行制限チェック付き）"""
+        """セッション情報を取得（メモリ優先の高速アクセス）"""
         with self._lock:
-            logger.info(f"---[REGISTER_SESSION: START] (Session: {session_id})---")
-            logger.info(f"現在のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
-
-            # DB上のアクティブセッション数をチェック（is_complete=0のもののみ）
+            # メモリから取得（高速）
+            if session_id in self._active_sessions:
+                return self._active_sessions[session_id].copy()
+            
+            # メモリにない場合はDBから取得（復旧のため）
             try:
                 with sqlite3.connect(self.cache_db_path) as conn:
                     cursor = conn.cursor()
-                    cursor.execute("SELECT COUNT(*) FROM cache_sessions WHERE is_complete = 0")
-                    db_active_count = cursor.fetchone()[0]
+                    cursor.execute("""
+                        SELECT session_id, user_id, created_at, last_accessed, 
+                               status, total_rows, processed_rows, is_complete, execution_time
+                        FROM cache_sessions 
+                        WHERE session_id = ?
+                    """, (session_id,))
                     
-                    # メモリ上のアクティブセッション数もチェック
-                    memory_active_count = len([s for s in self._active_sessions.values() if s['status'] == 'active'])
-                    
-                    # より大きい方を採用（整合性を保つため）
-                    active_count = max(db_active_count, memory_active_count)
-                    
-                    logger.info(f"DB上のアクティブセッション数: {db_active_count}, メモリ上のアクティブセッション数: {memory_active_count}")
-                    
-                    if active_count >= self._max_concurrent_sessions:
-                        logger.warning(f"同時実行制限に達しました: {active_count}/{self._max_concurrent_sessions}")
-                        logger.info(f"---[REGISTER_SESSION: END - BLOCKED] (Session: {session_id})---")
-                        return False
-                        
+                    row = cursor.fetchone()
+                    if row:
+                        return {
+                            'session_id': row[0],
+                            'user_id': row[1],
+                            'created_at': row[2],
+                            'last_accessed': row[3],
+                            'status': row[4],
+                            'total_rows': row[5],
+                            'processed_rows': row[6],
+                            'is_complete': bool(row[7]),
+                            'execution_time': row[8] if len(row) > 8 else None
+                        }
             except Exception as e:
-                logger.error(f"DBアクティブセッション数チェックエラー: {e}")
-                # エラーが発生した場合はメモリ上のチェックのみを使用
-                active_count = len([s for s in self._active_sessions.values() if s['status'] == 'active'])
-                if active_count >= self._max_concurrent_sessions:
-                    logger.warning(f"同時実行制限に達しました: {active_count}/{self._max_concurrent_sessions}")
-                    logger.info(f"---[REGISTER_SESSION: END - BLOCKED] (Session: {session_id})---")
-                    return False
+                logger.error(f"セッション情報取得エラー: {e}")
+                
+        return None
+    
+    def update_session_progress(self, session_id: str, processed_rows: int, is_complete: bool = False, execution_time: Optional[float] = None):
+        """セッションの進捗を更新（改良ハイブリッド管理）"""
+        with self._lock:
+            now = datetime.now()
             
-            # セッションを登録
-            with sqlite3.connect(self.cache_db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    INSERT INTO cache_sessions 
-                    (session_id, user_id, total_rows, processed_rows, status, is_complete)
-                    VALUES (?, ?, ?, 0, 'active', 0)
-                """, (session_id, user_id, total_rows))
-                conn.commit()
+            # メモリ更新（高速）
+            if session_id in self._active_sessions:
+                self._active_sessions[session_id]['processed_rows'] = processed_rows
+                self._active_sessions[session_id]['last_accessed'] = now
+                self._active_sessions[session_id]['is_complete'] = is_complete
+                if execution_time is not None:
+                    self._active_sessions[session_id]['execution_time'] = execution_time
             
-            self._active_sessions[session_id] = {
+            # 重要な変更の場合は即座にDB同期
+            should_sync = is_complete or execution_time is not None
+            
+            if should_sync:
+                try:
+                    with sqlite3.connect(self.cache_db_path) as conn:
+                        cursor = conn.cursor()
+                        if execution_time is not None:
+                            cursor.execute("""
+                                UPDATE cache_sessions 
+                                SET processed_rows = ?, last_accessed = CURRENT_TIMESTAMP, is_complete = ?, execution_time = ?
+                                WHERE session_id = ?
+                            """, (processed_rows, is_complete, execution_time, session_id))
+                        else:
+                            cursor.execute("""
+                                UPDATE cache_sessions 
+                                SET processed_rows = ?, last_accessed = CURRENT_TIMESTAMP, is_complete = ?
+                                WHERE session_id = ?
+                            """, (processed_rows, is_complete, session_id))
+                        conn.commit()
+                        self._last_sync_time[session_id] = now
+                except Exception as e:
+                    logger.error(f"進捗DB同期エラー: {e}")
+    
+    def register_session(self, session_id: str, user_id: str, total_rows: int = 0) -> bool:
+        """セッションを登録（改良ハイブリッド管理）"""
+        with self._lock:
+            logger.info(f"---[REGISTER_SESSION: START] (Session: {session_id})---")
+
+            # メモリでの同時実行制限チェック（高速）
+            memory_active_count = len([s for s in self._active_sessions.values() if s['status'] == 'active'])
+            
+            if memory_active_count >= self._max_concurrent_sessions:
+                logger.warning(f"同時実行制限に達しました: {memory_active_count}/{self._max_concurrent_sessions}")
+                logger.info(f"---[REGISTER_SESSION: END - BLOCKED] (Session: {session_id})---")
+                return False
+            
+            # メモリに登録
+            now = datetime.now()
+            session_info = {
                 'user_id': user_id,
+                'created_at': now,
+                'last_accessed': now,
                 'status': 'active',
                 'total_rows': total_rows,
-                'processed_rows': 0
+                'processed_rows': 0,
+                'is_complete': False,
+                'execution_time': None
             }
             
-            logger.info(f"セッション登録完了: {session_id}, ユーザー: {user_id}")
-            logger.info(f"---[REGISTER_SESSION: END - SUCCESS] (Session: {session_id})---")
-            return True
+            self._active_sessions[session_id] = session_info
+            self._last_sync_time[session_id] = now
+            
+            # DBに同期（即座同期）
+            try:
+                with sqlite3.connect(self.cache_db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        INSERT INTO cache_sessions 
+                        (session_id, user_id, total_rows, processed_rows, status, is_complete)
+                        VALUES (?, ?, ?, 0, 'active', 0)
+                    """, (session_id, user_id, total_rows))
+                    conn.commit()
+                
+                logger.info(f"セッション登録完了: {session_id}, ユーザー: {user_id}")
+                logger.info(f"---[REGISTER_SESSION: END - SUCCESS] (Session: {session_id})---")
+                return True
+                
+            except Exception as e:
+                # DB登録失敗時はメモリからも削除
+                self._active_sessions.pop(session_id, None)
+                self._last_sync_time.pop(session_id, None)
+                logger.error(f"セッション登録エラー: {e}")
+                return False
 
     def complete_active_session(self, session_id: str):
-        """メモリ上のアクティブセッションを完了状態にする（DBのキャッシュは消さない）"""
+        """アクティブセッションを完了状態にする（改良ハイブリッド管理）"""
         with self._lock:
             logger.info(f"---[COMPLETE_SESSION: START] (Session: {session_id})---")
-            logger.info(f"削除前のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
 
-            session = self._active_sessions.pop(session_id, None)
-
-            if session:
-                logger.info(f"アクティブセッションを完了しました: {session_id}")
+            # メモリ更新（高速）
+            if session_id in self._active_sessions:
+                self._active_sessions[session_id]['status'] = 'completed'
+                self._active_sessions[session_id]['is_complete'] = True
+                self._active_sessions[session_id]['last_accessed'] = datetime.now()
+                
+                logger.info(f"メモリセッション完了: {session_id}")
             else:
-                logger.warning(f"完了しようとしたセッションが見つかりません（既に削除済みか、存在しませんでした）: {session_id}")
+                logger.warning(f"メモリにセッションが見つかりません: {session_id}")
+
+            # DB同期（即座同期）
+            try:
+                with sqlite3.connect(self.cache_db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        UPDATE cache_sessions 
+                        SET is_complete = 1, status = 'completed'
+                        WHERE session_id = ? AND is_complete = 0
+                    """, (session_id,))
+                    rows_affected = cursor.rowcount
+                    conn.commit()
+                
+                if rows_affected > 0:
+                    logger.info(f"DBセッション完了: {session_id}")
+                else:
+                    logger.warning(f"DBでセッションが見つかりません: {session_id}")
+                    
+            except Exception as e:
+                logger.error(f"セッション完了エラー: {e}")
             
-            logger.info(f"削除後のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
             logger.info(f"---[COMPLETE_SESSION: END] (Session: {session_id})---")
     
     def cleanup_session(self, session_id: str):
-        """セッションをクリーンアップ"""
+        """セッションをクリーンアップ（改良ハイブリッド管理）"""
         with self._lock:
             logger.info(f"---[CLEANUP_SESSION: START] (Session: {session_id})---")
-            logger.info(f"クリーンアップ前のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
             
-            self._active_sessions.pop(session_id, None)
+            # 事前状態を記録
+            was_in_memory = session_id in self._active_sessions
+            db_exists = False
             
-            logger.info(f"クリーンアップ後のactive_sessions ({len(self._active_sessions)}件): {list(self._active_sessions.keys())}")
+            # DBでの存在確認
+            try:
+                with sqlite3.connect(self.cache_db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT COUNT(*) FROM cache_sessions WHERE session_id = ?", (session_id,))
+                    db_exists = cursor.fetchone()[0] > 0
+            except Exception as e:
+                logger.error(f"DB存在確認エラー: {e}")
+            
+            logger.info(f"クリーンアップ対象: メモリ={was_in_memory}, DB={db_exists}")
+            
+            # メモリからセッション削除
+            if was_in_memory:
+                session_info = self._active_sessions.pop(session_id, None)
+                logger.info(f"メモリからセッション削除: {session_id}")
+            else:
+                logger.warning(f"メモリにセッションが見つかりません: {session_id}")
+            
+            # 同期時刻情報も削除
+            self._last_sync_time.pop(session_id, None)
             
             # セッションIDがそのままテーブル名
             table_name = session_id
@@ -257,16 +388,64 @@ class CacheService:
                     cursor = conn.cursor()
                     cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
                     conn.commit()
+                    logger.info(f"キャッシュテーブル削除: {table_name}")
             except Exception as e:
                 logger.error(f"キャッシュテーブル削除エラー: {e}")
             
             # セッション情報を削除
-            with sqlite3.connect(self.cache_db_path) as conn:
-                cursor = conn.cursor()
-                cursor.execute("DELETE FROM cache_sessions WHERE session_id = ?", (session_id,))
-                conn.commit()
+            try:
+                with sqlite3.connect(self.cache_db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("DELETE FROM cache_sessions WHERE session_id = ?", (session_id,))
+                    rows_deleted = cursor.rowcount
+                    conn.commit()
+                    
+                    if rows_deleted > 0:
+                        logger.info(f"DBセッション情報削除: {session_id} ({rows_deleted}行)")
+                    else:
+                        logger.warning(f"DBにセッション情報が見つかりません: {session_id}")
+                    
+            except Exception as e:
+                logger.error(f"セッション情報削除エラー: {e}")
             
-            logger.info(f"---[CLEANUP_SESSION: END] (Session: {session_id})---")
+            # 現在のアクティブセッション数
+            active_count = len([s for s in self._active_sessions.values() if s.get('status') == 'active'])
+            logger.info(f"---[CLEANUP_SESSION: END] (Session: {session_id}) アクティブセッション数: {active_count}---")
+    
+    def error_session(self, session_id: str, error_message: str):
+        """セッションをエラー状態にマーク（改良ハイブリッド管理）"""
+        with self._lock:
+            logger.info(f"---[ERROR_SESSION: START] (Session: {session_id})---")
+            
+            # メモリ更新
+            if session_id in self._active_sessions:
+                self._active_sessions[session_id]['status'] = 'error'
+                self._active_sessions[session_id]['is_complete'] = True
+                self._active_sessions[session_id]['last_accessed'] = datetime.now()
+                logger.info(f"メモリセッションエラー設定: {session_id}")
+            
+            # DB同期（即座同期）
+            try:
+                with sqlite3.connect(self.cache_db_path) as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("""
+                        UPDATE cache_sessions 
+                        SET status = 'error', is_complete = 1, last_accessed = CURRENT_TIMESTAMP
+                        WHERE session_id = ?
+                    """, (session_id,))
+                    rows_affected = cursor.rowcount
+                    conn.commit()
+                    
+                    if rows_affected > 0:
+                        logger.info(f"DBセッションエラー設定: {session_id}")
+                    else:
+                        logger.warning(f"DBでセッションが見つかりません: {session_id}")
+                        
+            except Exception as e:
+                logger.error(f"セッションエラー設定失敗: {e}")
+            
+            logger.error(f"セッションエラー: {session_id} - {error_message}")
+            logger.info(f"---[ERROR_SESSION: END] (Session: {session_id})---")
 
     def cleanup_user_sessions(self, user_id: str):
         """ユーザーの全セッションをクリーンアップ（効率化版）"""
@@ -300,18 +479,6 @@ class CacheService:
                 
                 conn.commit()
                 logger.info(f"ユーザー({user_id})のDBクリーンアップが完了しました。")
-
-            # メモリ上のアクティブセッション情報もクリア
-            with self._lock:
-                active_sessions_before = len(self._active_sessions)
-                sessions_to_remove_from_memory = [
-                    sid for sid, info in self._active_sessions.items() if info.get('user_id') == user_id
-                ]
-                for sid in sessions_to_remove_from_memory:
-                    if sid in self._active_sessions:
-                        del self._active_sessions[sid]
-                active_sessions_after = len(self._active_sessions)
-                logger.info(f"ユーザー({user_id})のメモリ上のセッションをクリアしました。({active_sessions_before} -> {active_sessions_after})")
 
         except sqlite3.Error as e:
             # sqlite3.OperationalError: database is locked などのエラーを捕捉

@@ -82,8 +82,15 @@ class HybridSQLService:
 
                 # CSVダウンロードも不可な場合
                 if total_count > max_records_for_csv_download:
+                    # 大容量すぎる場合はセッションクリーンアップ
+                    logger.warning(f"データ大容量すぎるためセッションクリーンアップ: {session_id}")
+                    self.cache_service.cleanup_session(session_id)
                     raise SQLExecutionError(f"データが大きすぎます（{total_count:,}件）。クエリを制限してから再実行してください。")
 
+                # 確認要求の場合はセッションを一旦クリーンアップ（ユーザー確認後に再実行）
+                logger.info(f"大容量データ確認要求のためセッションクリーンアップ: {session_id}")
+                self.cache_service.cleanup_session(session_id)
+                
                 # 確認要求のレスポンスを返す（テスト期待の文言）
                 return {
                     'status': 'requires_confirmation',
@@ -95,6 +102,11 @@ class HybridSQLService:
             validation_result = self.validator.validate_sql(sql)
             if not validation_result.is_valid:
                 error_message = "; ".join(validation_result.errors)
+                
+                # バリデーションエラーの場合、セッションをクリーンアップ
+                logger.warning(f"SQLバリデーションエラー: {error_message}, セッション: {session_id}")
+                self.cache_service.cleanup_session(session_id)
+                
                 return {
                     'success': False,
                     'error_message': error_message,
@@ -141,20 +153,44 @@ class HybridSQLService:
 
         except Exception as e:
             logger.error(f"SQL実行エラー: {e}", exc_info=True)
+            
             if session_id:
-                # エラーが発生した場合、セッションをクリーンアップする
-                logger.info(f"エラー発生のためセッションをクリーンアップします: {session_id}")
-                self.cache_service.cleanup_session(session_id)
+                # エラーの種類に応じた処理
+                error_message = str(e)
+                
+                # 設定可能: エラー時の動作（即座削除 or エラーマーク）
+                cleanup_on_error = getattr(settings, 'cleanup_session_on_error', True)
+                
+                if cleanup_on_error:
+                    # 即座クリーンアップ（デフォルト）
+                    logger.info(f"エラー発生のためセッションを即座クリーンアップ: {session_id}")
+                    self.cache_service.cleanup_session(session_id)
+                else:
+                    # エラー状態でマーク（デバッグ・履歴保持用）
+                    logger.info(f"エラー発生のためセッションをエラー状態にマーク: {session_id}")
+                    self.cache_service.error_session(session_id, error_message)
+                
+                # 関連サービスのクリーンアップ
                 if self.session_service:
                     try:
                         self.session_service.delete_session(session_id)
                     except Exception:
                         logger.debug("session_service.delete_session で例外を無視")
+                        
                 if self.streaming_state_service:
-                    self.streaming_state_service.error_streaming(session_id, str(e))
+                    self.streaming_state_service.error_streaming(session_id, error_message)
 
             # 元の例外メッセージを維持しつつ、エラーを再発生させる
             raise SQLExecutionError(f"SQL実行に失敗しました: {str(e)}")
+        
+        finally:
+            # finally句で確実なクリーンアップ保証
+            if session_id:
+                # セッションがまだアクティブな場合のみクリーンアップ
+                session_info = self.cache_service.get_session_info(session_id)
+                if session_info and not session_info.get('is_complete', False):
+                    logger.warning(f"finally句: 未完了セッションを強制クリーンアップ: {session_id}")
+                    self.cache_service.cleanup_session(session_id)
 
     def _get_total_count(self, sql: str) -> int:
         """SQLの総件数を取得"""

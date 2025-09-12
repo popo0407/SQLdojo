@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 import json
 from app.dependencies import (
-    get_sql_service_di, get_hybrid_sql_service_di, get_current_user,
+    get_hybrid_sql_service_di, get_current_user,
     get_sql_log_service_di, get_metadata_service_di, get_export_service_di,
     get_visibility_control_service_di
 )
@@ -65,7 +65,7 @@ class TestSQLExecutionWorkflow:
         ])
         
         app = client.app
-        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        # get_sql_service_di は削除されました。hybrid_sql_service を使用
         app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         app.dependency_overrides[get_sql_log_service_di] = lambda: mock_log_service
@@ -74,16 +74,10 @@ class TestSQLExecutionWorkflow:
         try:
             sql_query = "SELECT * FROM test_table"
             
-            # 1. SQLバリデーション
-            validate_response = client.post(
-                "/api/v1/sql/validate",
-                json={"sql": sql_query}
-            )
-            assert validate_response.status_code == 200
-            validate_data = validate_response.json()
-            assert validate_data["is_valid"] is True
+            # /sql/validate エンドポイントは削除されました。
+            # SQL検証機能は /sql/cache/execute に統合されています。
             
-            # 2. キャッシュSQL実行
+            # SQL実行とキャッシュ（検証も内部で実行される）
             execute_response = client.post(
                 "/api/v1/sql/cache/execute",
                 json={"sql": sql_query, "limit": 10000}
@@ -131,7 +125,7 @@ class TestSQLExecutionWorkflow:
         mock_hybrid_service.execute_sql_with_cache.side_effect = Exception("テーブルが見つかりません")
         
         app = client.app
-        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
+        # get_sql_service_di は削除されました。hybrid_sql_service を使用
         app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_hybrid_service
         app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
         app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
@@ -139,17 +133,10 @@ class TestSQLExecutionWorkflow:
         try:
             invalid_sql = "SELECT *"
             
-            # 1. SQLバリデーション（エラー）
-            validate_response = client.post(
-                "/api/v1/sql/validate",
-                json={"sql": invalid_sql}
-            )
-            assert validate_response.status_code == 200
-            validate_data = validate_response.json()
-            assert validate_data["is_valid"] is False
-            assert "FROM句が必要です" in validate_data["errors"]
+            # /sql/validate エンドポイントは削除されました。
+            # SQL検証はSQL実行時にエラーとして検出されます。
             
-            # 2. SQL実行（エラー）
+            # SQL実行（エラー）
             execute_response = client.post(
                 "/api/v1/sql/cache/execute",
                 json={"sql": "SELECT * FROM non_existent_table"}
@@ -407,17 +394,29 @@ class TestErrorRecoveryWorkflow:
     
     def test_connection_error_recovery_workflow(self, client: TestClient, mock_user):
         """接続エラーからの回復テスト"""
-        mock_sql_service = Mock()
+        from app.dependencies import get_query_executor_di, get_performance_service_di
+        from unittest.mock import Mock
         
-        # 最初は接続エラー
-        mock_sql_service.get_connection_status.return_value = {
-            "is_connected": False,
-            "error": "データベース接続エラー"
+        # モックの接続マネージャーを設定
+        mock_connection_manager = Mock()
+        mock_query_executor = Mock()
+        
+        # 最初は接続エラー状態
+        mock_connection_manager.get_pool_status.return_value = {
+            'total_connections': 0,
+            'max_connections': 5,
+            'active_connections': 0,
+            'connection_details': []
+        }
+        mock_query_executor.get_connection_status.return_value = {
+            'total_connections': 0,
+            'max_connections': 5,
+            'active_connections': 0,
+            'connection_details': []
         }
         
         app = client.app
-        app.dependency_overrides[get_sql_service_di] = lambda: mock_sql_service
-        from app.dependencies import get_performance_service_di
+        app.dependency_overrides[get_query_executor_di] = lambda: mock_query_executor
         app.dependency_overrides[get_performance_service_di] = lambda: Mock(get_metrics=Mock(return_value={}))
         
         try:
@@ -425,26 +424,59 @@ class TestErrorRecoveryWorkflow:
             health_response = client.get("/api/v1/health")
             assert health_response.status_code == 200
             health_data = health_response.json()
-            assert health_data["connection_status"]["is_connected"] is False
+            # ヘルスチェックレスポンスの基本フィールドを確認
+            assert "status" in health_data
+            assert "connection_status" in health_data
+            assert "performance_metrics" in health_data
             
             # 2. 接続状態チェック
             connection_response = client.get("/api/v1/connection/status")
             assert connection_response.status_code == 200
             connection_data = connection_response.json()
-            assert connection_data["connected"] is False
+            assert connection_data["connected"] is False  # 接続プールが空なので False
             
             # 3. 接続回復をシミュレート
-            mock_sql_service.get_connection_status.return_value = {
-                "is_connected": True,
-                "connection_type": "snowflake",
-                "database": "test_db"
+            mock_connection_manager.get_pool_status.return_value = {
+                'total_connections': 1,
+                'max_connections': 5,
+                'active_connections': 1,
+                'connection_details': [
+                    {
+                        'id': 'conn_1',
+                        'created_at': '2024-01-01T00:00:00',
+                        'last_used': '2024-01-01T00:00:00',
+                        'query_count': 1,
+                        'is_active': True
+                    }
+                ]
+            }
+            mock_query_executor.get_connection_status.return_value = {
+                'total_connections': 1,
+                'max_connections': 5,
+                'active_connections': 1,
+                'connection_details': [
+                    {
+                        'id': 'conn_1',
+                        'created_at': '2024-01-01T00:00:00',
+                        'last_used': '2024-01-01T00:00:00',
+                        'query_count': 1,
+                        'is_active': True
+                    }
+                ]
             }
             
             # 4. 再度ヘルスチェック（回復後）
             health_response_recovered = client.get("/api/v1/health")
             assert health_response_recovered.status_code == 200
             health_data_recovered = health_response_recovered.json()
-            assert health_data_recovered["connection_status"]["is_connected"] is True
+            assert "connection_status" in health_data_recovered
+            assert health_data_recovered["connection_status"]["total_connections"] == 1
+            
+            # 5. 接続状態チェック（回復後）
+            connection_response_recovered = client.get("/api/v1/connection/status")
+            assert connection_response_recovered.status_code == 200
+            connection_data_recovered = connection_response_recovered.json()
+            assert connection_data_recovered["connected"] is True  # 接続プールに接続があるので True
             
         finally:
             app.dependency_overrides.clear()

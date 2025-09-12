@@ -10,126 +10,13 @@ from datetime import datetime
 import tempfile
 import os
 
-from app.services.sql_service import SQLService, SQLExecutionResult
+# from app.services.sql_service import SQLService, SQLExecutionResult  # 削除
 from app.services.metadata_service import MetadataService
 from app.services.export_service import ExportService
 from app.services.hybrid_sql_service import HybridSQLService
 
 
-class TestSQLService:
-    """SQLServiceのテスト"""
-    
-    def test_execute_sql_success(self):
-        """正常なSQL実行のテスト"""
-        mock_query_executor = Mock()
-        mock_query_executor.execute_query.return_value = Mock(
-            success=True,
-            data=[{"column1": "value1", "column2": "value2"}],
-            columns=["column1", "column2"],
-            row_count=1,
-            execution_time=0.1,
-            error_message=None,
-            query_id="test_query_123"
-        )
-        
-        service = SQLService(mock_query_executor)
-        
-        # バリデーションをモック
-        with patch.object(service, 'validate_sql') as mock_validate:
-            mock_validate.return_value = Mock(is_valid=True, errors=[])
-            
-            result = service.execute_sql("SELECT * FROM test_table", limit=1000)
-            
-            assert result.success is True
-            assert result.data == [{"column1": "value1", "column2": "value2"}]
-            assert result.columns == ["column1", "column2"]
-            assert result.row_count == 1
-            assert result.execution_time == 0.1
-    
-    def test_execute_sql_validation_error(self):
-        """SQLバリデーションエラーのテスト"""
-        mock_query_executor = Mock()
-        service = SQLService(mock_query_executor)
-        
-        # バリデーションでエラーを返す
-        with patch.object(service, 'validate_sql') as mock_validate:
-            mock_validate.return_value = Mock(
-                is_valid=False,
-                errors=["FROM句が必要です", "WHERE句が必要です"]
-            )
-            
-            result = service.execute_sql("SELECT *", limit=1000)
-            
-            assert result.success is False
-            assert "FROM句が必要です" in result.error_message
-            assert "WHERE句が必要です" in result.error_message
-    
-    def test_execute_sql_query_error(self):
-        """クエリ実行エラーのテスト"""
-        mock_query_executor = Mock()
-        mock_query_executor.execute_query.return_value = Mock(
-            success=False,
-            data=None,
-            columns=None,
-            row_count=0,
-            execution_time=0.0,
-            error_message="テーブルが見つかりません",
-            query_id=None
-        )
-        
-        service = SQLService(mock_query_executor)
-        
-        with patch.object(service, 'validate_sql') as mock_validate:
-            mock_validate.return_value = Mock(is_valid=True, errors=[])
-            
-            result = service.execute_sql("SELECT * FROM non_existent_table")
-            
-            assert result.success is False
-            assert result.error_message == "テーブルが見つかりません"
-    
-    def test_validate_sql_success(self):
-        """正常なSQLバリデーションのテスト"""
-        mock_query_executor = Mock()
-        service = SQLService(mock_query_executor)
-        
-        with patch.object(service.validator, 'validate_sql') as mock_validate:
-            mock_validate.return_value = Mock(
-                is_valid=True,
-                errors=[],
-                warnings=[],
-                suggestions=[]
-            )
-            
-            result = service.validate_sql("SELECT * FROM test_table")
-            
-            assert result.is_valid is True
-            assert result.errors == []
-    
-    def test_format_sql_success(self):
-        """正常なSQL整形のテスト"""
-        mock_query_executor = Mock()
-        service = SQLService(mock_query_executor)
-        
-        with patch.object(service.validator, 'format_sql') as mock_format:
-            mock_format.return_value = "SELECT *\nFROM test_table"
-            
-            result = service.format_sql("select * from test_table")
-            
-            assert result.success is True
-            assert "SELECT *\nFROM test_table" in result.formatted_sql
-    
-    def test_format_sql_error(self):
-        """SQL整形エラーのテスト"""
-        mock_query_executor = Mock()
-        service = SQLService(mock_query_executor)
-        
-        with patch.object(service.validator, 'format_sql') as mock_format:
-            mock_format.side_effect = Exception("フォーマットエラー")
-            
-            result = service.format_sql("INVALID SQL;;;")
-            
-            assert result.success is False
-            assert "フォーマットエラー" in result.error_message
+# TestSQLService クラスは削除されました（sql_service.py削除に伴い）
 
 
 class TestMetadataService:
