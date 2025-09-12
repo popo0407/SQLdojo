@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { useTabStore } from './useTabStore';
 import { useUIStore } from './useUIStore';
-import { useEditorStore } from './useEditorStore';
 import { downloadSqlCsv, formatSql } from '../api/sqlService';
 
 // タブごとのエディタインスタンス管理
@@ -48,7 +47,7 @@ interface TabPageState {
 
 /**
  * タブエディタ専用の統合管理ストア
- * 元エディタのuseSqlPageStoreに相当する機能をタブ対応で提供
+ * 元エディタの機能をタブ対応で提供
  */
 export const useTabPageStore = create<TabPageState>((_, get) => ({
   // タブエディタインスタンス登録・削除
@@ -339,18 +338,10 @@ export const useTabPageStore = create<TabPageState>((_, get) => ({
     }
   },
 
-  // サイドバーからのSQL挿入監視（元エディタのuseEditorOperations相当）
+  // サイドバーからのSQL挿入監視（廃止予定：タブ対応ではSidebarが直接挿入）
   monitorSqlToInsert: (tabId: string) => {
-    const editorStore = useEditorStore.getState();
-    const sqlToInsert = editorStore.sqlToInsert;
-    
-    if (sqlToInsert) {
-      // タブのエディタにテキストを挿入
-      get().insertTextToTab(tabId, sqlToInsert);
-      
-      // 挿入後はクリア
-      editorStore.clearSqlToInsert();
-    }
+    // タブ対応では不要：Sidebarが直接タブにテキストを挿入
+    console.log('monitorSqlToInsert is deprecated for tab editor:', tabId);
   },
 
   // サイドバー選択の適用

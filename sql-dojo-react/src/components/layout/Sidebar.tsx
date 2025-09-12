@@ -1,8 +1,8 @@
 import React from 'react';
 import { useMetadata } from '../../hooks/useMetadata';
 import MetadataTree from '../../features/metadata/MetadataTree';
-import { useEditorStore } from '../../stores/useEditorStore';
 import { useTabStore } from '../../stores/useTabStore';
+import { useSidebarStore } from '../../stores/useSidebarStore';
 import { ParameterContainer } from '../../features/parameters/ParameterContainer';
 import styles from '../../styles/Layout.module.css';
 import type { Schema } from '../../types/api';
@@ -10,6 +10,8 @@ import type { Schema } from '../../types/api';
 const Sidebar: React.FC = () => {
   // アクティブなタブIDを取得
   const { activeTabId } = useTabStore();
+  const { applySelectionToEditor } = useSidebarStore();
+  
   // MetadataProviderが存在しない場合のフォールバック
   let schemas: Schema[] = [];
   let loading = false;
@@ -26,10 +28,12 @@ const Sidebar: React.FC = () => {
     loading = false;
     error = null;
   }
-  
-  const applySelectionToEditor = useEditorStore((state) => state.applySelectionToEditor);
 
   const handleApplySelection = () => {
+    if (!activeTabId) {
+      alert('アクティブなタブがありません。');
+      return;
+    }
     applySelectionToEditor();
   };
 

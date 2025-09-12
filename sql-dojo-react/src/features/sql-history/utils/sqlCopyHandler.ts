@@ -1,13 +1,12 @@
 /**
  * エディタへのSQLコピー機能
- * Zustandストアを使用した直接的なSQL設定
+ * タブエディタに対応した直接的なSQL設定
  */
 
-import { useEditorStore } from '../../../stores/useEditorStore';
+import { useTabStore } from '../../../stores/useTabStore';
 
 /**
- * SQLをメインエディタにコピーする
- * Reactの状態管理を使用してエディタに直接設定
+ * SQLをアクティブなタブエディタにコピーする
  * @param sql コピーするSQL文
  */
 export const copyToEditor = (sql: string): void => {
@@ -16,9 +15,16 @@ export const copyToEditor = (sql: string): void => {
       return;
     }
     
-    // Zustandストアを使ってエディタに直接SQL設定
-    const editorStore = useEditorStore.getState();
-    editorStore.setSql(sql);
+    // アクティブなタブにSQLを設定
+    const tabStore = useTabStore.getState();
+    const activeTabId = tabStore.activeTabId;
+    
+    if (!activeTabId) {
+      alert('アクティブなタブがありません。');
+      return;
+    }
+    
+    tabStore.updateTabSql(activeTabId, sql);
     
     // バックアップとしてlocalStorageにも保存（ページリロード対応）
     localStorage.setItem('sqlToCopy', sql);

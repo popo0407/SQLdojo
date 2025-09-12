@@ -1,52 +1,64 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useSqlPageStore } from '../stores/useSqlPageStore';
-import { useEditorStore } from '../stores/useEditorStore';
+import { useTabStore } from '../stores/useTabStore';
+import { useTabPageStore } from '../stores/useTabPageStore';
 import { useUIStore } from '../stores/useUIStore';
 
 export function useGlobalShortcuts() {
   const location = useLocation();
-  const executeSql = useSqlPageStore((s) => s.executeSql);
-  const formatSql = useSqlPageStore((s) => s.formatSql);
-  const clearSql = useEditorStore((s) => s.clearSql);
-  const isPending = useSqlPageStore((s) => s.isPending);
   const { setShowShortcutHelp } = useUIStore();
+  
+  // タブ関連のストア
+  const { activeTabId, updateTabSql, hasExecutingTab } = useTabStore();
+  const { executeTabSql, formatTabSql } = useTabPageStore();
+
+  const clearSql = useCallback(() => {
+    if (activeTabId) {
+      updateTabSql(activeTabId, '');
+    }
+  }, [activeTabId, updateTabSql]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (isPending) return;
+      // 実行中タブがある場合はショートカットを無効化
+      if (hasExecutingTab()) return;
 
       const isCtrl = e.ctrlKey || e.metaKey; // macOS 対応
       const code = e.code; // 'Enter', 'KeyF', 'KeyL'
 
-      // タブページ（ホームページ「/」）ではCtrl+Enterをタブエディタに任せる
+      // タブページ（ホームページ「/」）での処理
       const isTabPage = location.pathname === '/';
 
-  // Ctrl + Enter: 実行（テンキーEnter含む）
-  if (isCtrl && !e.shiftKey && (code === 'Enter' || code === 'NumpadEnter')) {
-        // タブページではCtrl+Enterを無効化（タブエディタが処理）
-        if (isTabPage) {
+      // Ctrl + Enter: タブでSQLを実行
+      if (isCtrl && !e.shiftKey && (code === 'Enter' || code === 'NumpadEnter')) {
+        if (isTabPage && activeTabId) {
+          e.preventDefault();
+          e.stopPropagation();
+          executeTabSql(activeTabId);
           return;
         }
-        e.preventDefault();
-        e.stopPropagation();
-        executeSql();
-        return;
       }
-      // Ctrl + Shift + F: 整形
+      
+      // Ctrl + Shift + F: タブでSQL整形
       if (isCtrl && e.shiftKey && code === 'KeyF') {
-        e.preventDefault();
-        e.stopPropagation();
-        formatSql();
-        return;
+        if (isTabPage && activeTabId) {
+          e.preventDefault();
+          e.stopPropagation();
+          formatTabSql(activeTabId);
+          return;
+        }
       }
-      // Ctrl + L: クリア（ブラウザのアドレスバー選択を抑止）
+      
+      // Ctrl + L: タブでSQLクリア（ブラウザのアドレスバー選択を抑止）
       if (isCtrl && !e.shiftKey && code === 'KeyL') {
-        e.preventDefault();
-        e.stopPropagation();
-        clearSql();
-        return;
+        if (isTabPage && activeTabId) {
+          e.preventDefault();
+          e.stopPropagation();
+          clearSql();
+          return;
+        }
       }
+      
       // F1: ヘルプ
       if (!isCtrl && !e.shiftKey && code === 'F1') {
         e.preventDefault();
@@ -63,5 +75,5 @@ export function useGlobalShortcuts() {
       window.removeEventListener('keydown', handler, true);
       document.removeEventListener('keydown', handler, true);
     };
-  }, [executeSql, formatSql, clearSql, isPending, setShowShortcutHelp, location.pathname]);
+  }, [executeTabSql, formatTabSql, clearSql, hasExecutingTab, setShowShortcutHelp, location.pathname, activeTabId]);
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { useEditorStore } from './useEditorStore';
+import { useTabPageStore } from './useTabPageStore';
+import { useTabStore } from './useTabStore';
 
 interface SidebarState {
   // 選択状態
@@ -87,10 +88,17 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
     });
   },
   
-  // エディタへの反映
+  // エディタへの反映（タブ対応）
   applySelectionToEditor: () => {
     const { selectedTable, selectedColumns, columnSelectionOrder } = get();
-    const editorStore = useEditorStore.getState();
+    const tabStore = useTabStore.getState();
+    const tabPageStore = useTabPageStore.getState();
+    const activeTabId = tabStore.activeTabId;
+    
+    if (!activeTabId) {
+      console.warn('No active tab found');
+      return;
+    }
     
     let newSql = '';
 
@@ -107,7 +115,8 @@ export const useSidebarStore = create<SidebarState>((set, get) => ({
     }
 
     if (newSql) {
-      editorStore.setSqlToInsert(newSql);
+      // タブエディタにテキストを挿入
+      tabPageStore.insertTextToTab(activeTabId, newSql);
     }
   },
   

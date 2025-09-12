@@ -3,11 +3,10 @@ import Editor from '@monaco-editor/react';
 import type * as monaco from 'monaco-editor';
 import { Selection } from 'monaco-editor';
 import { Stack } from 'react-bootstrap';
-import styles from '../../features/editor/SQLEditor.module.css';
+import styles from './TabSQLEditor.module.css';
 import { useTabStore } from '../../stores/useTabStore';
 import { useTabPageStore } from '../../stores/useTabPageStore';
 import { useProgressStore } from '../../stores/useProgressStore';
-// import { useMonacoEditor } from '../../hooks/useMonacoEditor'; // タブエディタでは使用しない
 import { useTabMonacoEditor } from '../../hooks/useTabMonacoEditor';
 import { useLayoutControl } from '../../hooks/useLayoutControl';
 import { EditorToolbar } from '../../components/editor/EditorToolbar';
@@ -40,8 +39,7 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
   const { 
     executeTabSql: executeTabSqlIntegrated,
     formatTabSql,
-    downloadTabCsv,
-    monitorSqlToInsert
+    downloadTabCsv
   } = tabPageStore;
   
   const tab = getTab(tabId);
@@ -56,7 +54,6 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
   } = useProgressStore();
   
   // カスタムフックを使用（タブエディタ専用）
-  // const { handleEditorDidMount } = useMonacoEditor(); // 無効化：元エディタとの競合を回避
   const { 
     handleEditorDidMount: handleTabEditorDidMount,
     handleTabActivated,
@@ -78,15 +75,6 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
   useEffect(() => {
     initializeTemplates();
   }, [initializeTemplates]);
-
-  // サイドバーからのSQL挿入監視（元エディタのuseEditorOperations相当）
-  useEffect(() => {
-    const interval = setInterval(() => {
-      monitorSqlToInsert(tabId);
-    }, 500); // 500msごとにチェック
-
-    return () => clearInterval(interval);
-  }, [tabId, monitorSqlToInsert]);
 
   // SQL変更時にプレースホルダーを更新
   useEffect(() => {
@@ -283,8 +271,7 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
     setEditorInstance(editor);
     console.log('🔍 TabSQLEditor: editorInstance saved for tabId:', tabId);
     
-    // タブエディタ専用の処理のみを実行（元エディタ処理は無効化）
-    // handleEditorDidMount(editor, monaco); // 無効化：元エディタとの競合を回避
+    // タブエディタ専用の処理のみを実行
     console.log('🔍 TabSQLEditor: About to call handleTabEditorDidMount for tabId:', tabId);
     try {
       handleTabEditorDidMount(editor, monacoApi);

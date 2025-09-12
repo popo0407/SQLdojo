@@ -3,8 +3,6 @@ import type * as monaco from 'monaco-editor';
 import { useEditorStore } from '../stores/useEditorStore';
 import { useSqlPageStore } from '../stores/useSqlPageStore';
 import { useUIStore } from '../stores/useUIStore';
-import { getSqlSuggestions } from '../api/sqlService';
-import type { SqlCompletionItem } from '../types/api';
 
 /**
  * Monaco Editorのカスタムフック
@@ -47,115 +45,10 @@ export const useMonacoEditor_DISABLED = () => {
       });
     }
     
-    // SQL補完機能を設定（タブエディタ移行のため一時無効化）
-    if (false && monacoApi) { // 元エディタの補完を完全に無効化
-      monacoApi.languages.registerCompletionItemProvider('sql', {
-        provideCompletionItems: async (model: monaco.editor.ITextModel, position: monaco.Position) => {
-          console.log('🔴 元エディタ: useMonacoEditor の補完プロバイダーが呼び出されました', {
-            modelId: model.id,
-            editorModelId: editor.getModel()?.id,
-            position: `${position.lineNumber}:${position.column}`,
-            isExactModel: model === editor.getModel()
-          });
-          
-          // このエディタのモデルかチェック（厳密に）
-          const isThisEditorsModel = model === editor.getModel();
-          if (!isThisEditorsModel) {
-            console.log('🔴 元エディタ: 他のエディタからの呼び出しのため空の候補を返します', {
-              modelId: model.id,
-              editorModelId: editor.getModel()?.id,
-              isTabEditor: model.id.includes('tab-') || model.id.startsWith('tab-'),
-              reason: '元エディタのモデルではない'
-            });
-            return { suggestions: [] };
-          }
-          
-          console.log('🔴 元エディタ: 元エディタからの正当な呼び出しを確認');
-          
-          // 補完リクエスト開始
-          
-          try {
-            const sql = model.getValue();
-            const offset = model.getOffsetAt(position);
-            
-            // SQL補完API呼び出し
-            
-            // バックエンドから補完候補を取得
-            const response = await getSqlSuggestions({
-              sql,
-              position: offset,
-              context: {}
-            });
-            
-            // SQL補完APIレスポンス
-            
-            // Monaco Editorの補完アイテム形式に変換
-            const suggestions = response.suggestions.map((item: SqlCompletionItem) => {
-              // kindの変換
-              let kind = monacoApi.languages.CompletionItemKind.Text;
-              switch (item.kind.toLowerCase()) {
-                case 'table':
-                case 'view':
-                  kind = monacoApi.languages.CompletionItemKind.Class;
-                  break;
-                case 'function':
-                  kind = monacoApi.languages.CompletionItemKind.Function;
-                  break;
-                case 'keyword':
-                  kind = monacoApi.languages.CompletionItemKind.Keyword;
-                  break;
-                case 'column':
-                  kind = monacoApi.languages.CompletionItemKind.Field;
-                  break;
-                default:
-                  kind = monacoApi.languages.CompletionItemKind.Text;
-              }
-              
-              // 現在の単語の範囲を計算
-              const currentText = model.getValue();
-              const currentOffset = model.getOffsetAt(position);
-              let wordStart = currentOffset;
-              
-              // 単語の開始位置を見つける
-              while (wordStart > 0) {
-                const char = currentText.charAt(wordStart - 1);
-                if (!char.match(/[a-zA-Z0-9_]/)) {
-                  break;
-                }
-                wordStart--;
-              }
-              
-              const wordStartPosition = model.getPositionAt(wordStart);
-              
-              return {
-                label: item.label,
-                kind: kind,
-                detail: item.detail,
-                documentation: item.documentation,
-                insertText: item.insert_text || item.label,
-                sortText: item.sort_text || item.label,
-                range: {
-                  startLineNumber: wordStartPosition.lineNumber,
-                  startColumn: wordStartPosition.column,
-                  endLineNumber: position.lineNumber,
-                  endColumn: position.column,
-                }
-              };
-            });
-            
-            // Monaco Editor補完アイテム
-            
-            return {
-              suggestions: suggestions
-            };
-          } catch (error) {
-            console.error('SQL補完エラー:', error);
-            return { suggestions: [] };
-          }
-        },
-        triggerCharacters: [' ', '.', ',', '(', ')', '\n', '\t']
-      });
-    }
+    // SQL補完機能を設定（元エディタは無効化）
+    // if (monacoApi) { // 削除：元エディタの補完は完全に無効化
+    //   ... 削除されたコード
+    // }
     
     // 選択状態の変更を監視
     editor.onDidChangeCursorSelection(() => {

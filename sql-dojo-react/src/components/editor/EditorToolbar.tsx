@@ -13,8 +13,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useLayoutStore } from '../../stores/useLayoutStore';
 import { useTabStore } from '../../stores/useTabStore';
-import { downloadSqlCsv } from '../../api/sqlService';
-import { useEditorStore } from '../../stores/useEditorStore';
 import { SqlProgressIndicator } from '../common/SqlProgressIndicator';
 import styles from './EditorToolbar.module.css';
 
@@ -74,16 +72,14 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
     }
   };
 
-  const { sql } = useEditorStore.getState();
-
   const handleDownloadCsv = () => {
     if (hasSql) {
       if (onDownloadCsv) {
         // タブエディタの場合は統合管理経由
         onDownloadCsv();
       } else {
-        // 元エディタの場合は従来通り
-        downloadSqlCsv(sql);
+        // 元エディタの場合は廃止予定（レガシー対応）
+        console.warn('Legacy editor download not supported');
       }
     }
   };

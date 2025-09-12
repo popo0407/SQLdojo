@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import type { Schema, Table, Column } from '../../types/api';
-import { useEditorStore } from '../../stores/useEditorStore';
+import { useTabStore } from '../../stores/useTabStore';
+import { useTabPageStore } from '../../stores/useTabPageStore';
 import { useSidebarStore } from '../../stores/useSidebarStore';
 
 interface TreeNodeProps {
@@ -12,11 +13,21 @@ interface TreeNodeProps {
 
 const TreeNode: React.FC<TreeNodeProps> = ({ item, level = 0, parentTableName }) => {
   const [expanded, setExpanded] = useState(false);
-  const insertText = useEditorStore((state) => state.insertText);
+  const { activeTabId } = useTabStore();
+  const { insertTextToTab } = useTabPageStore();
   const selectedTable = useSidebarStore((state) => state.selectedTable);
   const selectedColumns = useSidebarStore((state) => state.selectedColumns);
   const toggleTableSelection = useSidebarStore((state) => state.toggleTableSelection);
   const toggleColumnSelection = useSidebarStore((state) => state.toggleColumnSelection);
+
+  // タブ対応のテキスト挿入関数
+  const insertText = (text: string) => {
+    if (activeTabId) {
+      insertTextToTab(activeTabId, text);
+    } else {
+      alert('アクティブなタブがありません。');
+    }
+  };
 
   // スキーマ
   if ('tables' in item) {
