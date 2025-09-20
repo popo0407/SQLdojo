@@ -30,7 +30,7 @@ class OracleLogHandler(BaseLogHandler):
             log_sql = f"""
             INSERT INTO HF3J8M01 (
                 MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                SYSTEM_WORK_TIME, FROM_DATE, TO_DATE, TOOL_VER
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
             ) VALUES (
                 '{mk_date}', '{user_id}', 'SQLDOJOWEB', '{truncated_sql}',
                 {int(execution_time)}, '{from_date}', '{mk_date}', {version_number}
@@ -60,7 +60,7 @@ class OracleLogHandler(BaseLogHandler):
             total_count = count_result.data[0]['total_count'] if count_result.success and count_result.data else 0
 
             data_sql = f"""
-            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORK_TIME
+            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER
             {base_sql} ORDER BY MK_DATE DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
             """
             params.extend([offset, limit])
@@ -75,7 +75,7 @@ class OracleLogHandler(BaseLogHandler):
                 "log_id": str(uuid.uuid4()),
                 "user_id": row.get("ope_code"),
                 "sql": row.get("option_no"),
-                "execution_time": row.get("system_work_time"),
+                "execution_time": row.get("system_worknumber"),
                 "row_count": None,  # テーブルに存在しないためNone
                 "success": True,     # テーブルに存在しないためデフォルト値
                 "error_message": None,  # テーブルに存在しないためNone
