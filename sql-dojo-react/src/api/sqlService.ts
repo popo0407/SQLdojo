@@ -162,4 +162,13 @@ export const getSqlSuggestions = async ({ sql, position, context }: {
  */
 export const getSessionStatus = async (sessionId: string): Promise<SessionStatusResponse> => {
   return apiClient.get<SessionStatusResponse>(`/sql/cache/status/${sessionId}`);
+};
+
+/**
+ * ダミーデータを生成してキャッシュに保存
+ */
+export const generateDummyData = async ({ rowCount }: { rowCount?: number } = {}): Promise<ExecuteSqlResponse> => {
+  return apiClient.post<ExecuteSqlResponse>('/sql/cache/dummy-data', { 
+    row_count: rowCount || 50 
+  });
 }; 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faDownload, faChartLine } from '@fortawesome/free-solid-svg-icons';
 import styles from '../common/ResultTable.module.css';
 
 interface ResultsStatsProps {
@@ -11,6 +11,7 @@ interface ResultsStatsProps {
   filters: Record<string, string[]>;
   sessionId?: string;
   onDownloadCsv?: () => void;
+  onCreateChart?: () => void;
   isDownloading?: boolean;
   rightExtras?: React.ReactNode;
 }
@@ -25,6 +26,7 @@ export const ResultsStats: React.FC<ResultsStatsProps> = ({
   filters,
   sessionId,
   onDownloadCsv,
+  onCreateChart,
   isDownloading = false,
   rightExtras,
 }) => {
@@ -48,7 +50,7 @@ export const ResultsStats: React.FC<ResultsStatsProps> = ({
         <span><i className="fas fa-filter me-1"></i> {filterInfo}</span>
         {sessionId && <span><i className="fas fa-database me-1"></i> セッション: {sessionId}</span>}
       </div>
-      {(onDownloadCsv || rightExtras) && (
+      {(onDownloadCsv || onCreateChart || rightExtras) && (
         <div className="statsActions" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {onDownloadCsv && (
             <Button
@@ -62,9 +64,20 @@ export const ResultsStats: React.FC<ResultsStatsProps> = ({
               {isDownloading ? "ダウンロード中..." : "CSV"}
             </Button>
           )}
+          {onCreateChart && (
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={onCreateChart}
+              title="グラフ設定"
+            >
+              <FontAwesomeIcon icon={faChartLine} className="me-1" />
+              グラフ設定
+            </Button>
+          )}
           {rightExtras}
         </div>
       )}
     </div>
   );
-}; 
+};

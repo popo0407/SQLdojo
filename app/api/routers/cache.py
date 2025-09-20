@@ -10,7 +10,8 @@ import inspect
 from app.config_simplified import get_settings
 from app.api.models import (
     CacheSQLRequest, CacheSQLResponse, CacheReadRequest, CacheReadResponse,
-    SessionStatusResponse, CancelRequest, CancelResponse, CacheUniqueValuesRequest, CacheUniqueValuesResponse
+    SessionStatusResponse, CancelRequest, CancelResponse, CacheUniqueValuesRequest, CacheUniqueValuesResponse,
+    DummyDataRequest, DummyDataResponse
 )
 from app.dependencies import (
     HybridSQLServiceDep, CurrentUserDep, SQLLogServiceDep,
@@ -217,3 +218,153 @@ async def manual_cache_cleanup():
     except Exception as e:
         logger.error(f"手動キャッシュクリーンアップエラー: {e}")
         raise HTTPException(status_code=500, detail=f"クリーンアップに失敗しました: {str(e)}")
+
+
+@router.post("/dummy-data", response_model=DummyDataResponse)
+async def generate_dummy_data_endpoint(
+    request: DummyDataRequest,
+    hybrid_sql_service: HybridSQLServiceDep,
+    current_user: CurrentUserDep,
+    sql_log_service: SQLLogServiceDep,
+):
+    """グラフテスト用ダミーデータを生成してキャッシュに保存"""
+    import uuid
+    import random
+    from datetime import datetime, timedelta
+    
+    start_time = datetime.now()
+    
+    try:
+        # ダミーデータを生成
+        row_count = min(request.row_count or 50, 1000)  # 最大1000行に制限
+        
+        # 日付・日時データ（過去から未来まで幅広い範囲 + テスト用データ）
+        base_date = datetime.now() - timedelta(days=60)  # 60日前から開始
+        dates = []
+        datetimes = []
+        
+        # 基本データ（時系列順）
+        for i in range(row_count - 5):  # 最後の5つは特別なテストデータ用に予約
+            # 日付を順次進める（1日に4レコード）
+            current_date = base_date + timedelta(days=i // 4)
+            current_time = current_date.replace(
+                hour=6 + (i % 4) * 4,  # 6時, 10時, 14時, 18時
+                minute=random.randint(0, 59),  # ランダムな分
+                second=random.randint(0, 59)   # ランダムな秒
+            )
+            
+            dates.append(current_date.strftime('%Y-%m-%d'))
+            # Snowflake形式の日時文字列（YYYYMMDDhhmmss）
+            datetimes.append(current_time.strftime('%Y%m%d%H%M%S'))
+        
+        # テスト用の特別なデータ（時系列順序テスト）
+        test_dates_times = [
+            (datetime(2025, 11, 1, 0, 0, 0), '20251101000000'),  # 未来の日付
+            (datetime(2023, 1, 15, 12, 30, 0), '20230115123000'),  # 過去の日付
+            (datetime(2024, 12, 31, 23, 59, 59), '20241231235959'),  # 年末
+            (datetime(2025, 1, 1, 0, 0, 1), '20250101000001'),  # 年始
+            (datetime(2024, 6, 15, 12, 0, 0), '20240615120000'),  # 真ん中の日付
+        ]
+        
+        for test_date, test_datetime in test_dates_times:
+            dates.append(test_date.strftime('%Y-%m-%d'))
+            datetimes.append(test_datetime)
+        
+        # 数値データ（波形変動を追加）
+        sales = []
+        profits = []
+        for i in range(row_count):
+            import math
+            base_sales = random.randint(100000, 5000000)
+            sales_variation = math.sin(i * 0.1) * 500000
+            final_sales = int(base_sales + sales_variation)
+            sales.append(max(final_sales, 100000))  # 最小10万円
+            
+            profit_rate = random.uniform(0.1, 0.3)  # 10-30%
+            profits.append(int(final_sales * profit_rate))
+        
+        # 文字列データ
+        regions = ['東京', '大阪', '名古屋', '福岡', '札幌']
+        categories = ['電子機器', '衣料品', '食品', '書籍', '雑貨']
+        
+        region_data = [random.choice(regions) for _ in range(row_count)]
+        category_data = [random.choice(categories) for _ in range(row_count)]
+        
+        # 辞書形式でデータを作成（フロントエンドと同じカラム名）
+        data_list = []
+        for i in range(row_count):
+            data_list.append({
+                '日付': dates[i],
+                '日時': datetimes[i],
+                '売上高': sales[i],
+                '利益': profits[i],
+                '地域': region_data[i],
+                '商品カテゴリ': category_data[i]
+            })
+        
+        columns = ['日付', '日時', '売上高', '利益', '地域', '商品カテゴリ']
+        
+        # セッションIDを生成（既存のキャッシュ命名規則に合わせる）
+        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+        session_id = f"cache_dummy_{timestamp}_000"
+        
+        # キャッシュサービスを使ってデータを保存
+        cache_service = hybrid_sql_service.cache_service
+        
+        # セッションを登録
+        cache_service.register_session(session_id, current_user["user_id"], row_count)
+        
+        # キャッシュテーブルを作成
+        table_name = cache_service.create_cache_table(session_id, columns)
+        
+        # データをリスト形式に変換してチャンク挿入
+        data_rows = []
+        for item in data_list:
+            row = [item[col] for col in columns]
+            data_rows.append(row)
+        
+        # データを挿入
+        inserted_count = cache_service.insert_chunk(table_name, data_rows)
+        
+        # セッションを完了状態に更新
+        execution_time = (datetime.now() - start_time).total_seconds()
+        cache_service.update_session_progress(session_id, inserted_count, True, execution_time)
+        cache_service.complete_active_session(session_id)
+        
+        # SQL実行ログを記録（ダミーデータ生成として記録）
+        dummy_sql = f"-- ダミーデータ生成 ({row_count}行)"
+        maybe_log = sql_log_service.add_log_to_db(
+            current_user["user_id"], 
+            dummy_sql, 
+            execution_time, 
+            start_time, 
+            row_count, 
+            True, 
+            None
+        )
+        if inspect.isawaitable(maybe_log):
+            await maybe_log
+        
+        return DummyDataResponse(
+            success=True,
+            session_id=session_id,
+            total_count=row_count,
+            processed_rows=row_count,
+            execution_time=execution_time,
+            message=f"ダミーデータ（{row_count}行）を生成しました",
+            error_message=None
+        )
+        
+    except Exception as e:
+        logger.error(f"ダミーデータ生成エラー: {e}")
+        execution_time = (datetime.now() - start_time).total_seconds()
+        
+        return DummyDataResponse(
+            success=False,
+            session_id=None,
+            total_count=0,
+            processed_rows=0,
+            execution_time=execution_time,
+            message=None,
+            error_message=f"ダミーデータ生成に失敗しました: {str(e)}"
+        )

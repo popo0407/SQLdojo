@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import type * as monaco from 'monaco-editor';
-import { useEditorStore } from '../stores/useEditorStore';
-import { useSqlPageStore } from '../stores/useSqlPageStore';
+// import { useEditorStore } from '../stores/useEditorStore';
+// import { useSqlPageStore } from '../stores/useSqlPageStore';
 import { useUIStore } from '../stores/useUIStore';
 
 /**
@@ -9,33 +9,33 @@ import { useUIStore } from '../stores/useUIStore';
  * エディタの初期化とイベントハンドリングを管理
  */
 export const useMonacoEditor_DISABLED = () => {
-  const { setEditor } = useEditorStore();
+  // const { setEditor } = useEditorStore();
 
   const handleEditorDidMount = useCallback((editor: monaco.editor.IStandaloneCodeEditor, monacoApi?: typeof monaco) => {
     // Monaco Editor初期化開始
     console.log('🔴 元エディタ: handleEditorDidMount called, model ID:', editor.getModel()?.id);
     
     // エディタインスタンスをストアに保存
-    setEditor(editor);
+    // setEditor(editor);
     
     // エディタ内ショートカット（Monaco）
     if (monacoApi) {
       // Ctrl/Cmd + Enter: 実行
       editor.addCommand(monacoApi.KeyMod.CtrlCmd | monacoApi.KeyCode.Enter, async () => {
-        const { executeSql } = useSqlPageStore.getState();
-        await executeSql();
+        // const { executeSql } = useSqlPageStore.getState();
+        // await executeSql();
       });
 
       // Ctrl/Cmd + Shift + F: 整形
       editor.addCommand(monacoApi.KeyMod.CtrlCmd | monacoApi.KeyMod.Shift | monacoApi.KeyCode.KeyF, async () => {
-        const { formatSql } = useSqlPageStore.getState();
-        await formatSql();
+        // const { formatSql } = useSqlPageStore.getState();
+        // await formatSql();
       });
 
       // Ctrl/Cmd + L: クリア（ブラウザのアドレスバー選択を防ぐ目的でエディタ側にもバインド）
       editor.addCommand(monacoApi.KeyMod.CtrlCmd | monacoApi.KeyCode.KeyL, () => {
-        const { clearSql } = useEditorStore.getState();
-        clearSql();
+        // const { clearSql } = useEditorStore.getState();
+        // clearSql();
       });
 
       // F1: ショートカットヘルプ（Monacoのコマンドパレットより先に自前のヘルプを開く）
@@ -60,7 +60,7 @@ export const useMonacoEditor_DISABLED = () => {
     editor.focus();
     
     // Monaco Editor初期化完了
-  }, [setEditor]);
+  }, []);
 
   return {
     handleEditorDidMount,

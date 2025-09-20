@@ -404,6 +404,23 @@ class CacheSQLResponse(BaseModel):
     error_message: Optional[str] = Field(default=None, description="エラーメッセージ")
 
 
+class DummyDataRequest(BaseModel):
+    """ダミーデータ生成リクエスト"""
+    row_count: Optional[int] = Field(default=50, description="生成する行数")
+    editor_id: Optional[str] = Field(default=None, description="エディタID")
+
+
+class DummyDataResponse(BaseModel):
+    """ダミーデータ生成レスポンス"""
+    success: bool = Field(..., description="実行成功フラグ")
+    session_id: Optional[str] = Field(default=None, description="セッションID")
+    total_count: Optional[int] = Field(default=None, description="総件数")
+    processed_rows: Optional[int] = Field(default=None, description="処理済み件数")
+    execution_time: Optional[float] = Field(default=None, description="実行時間（秒）")
+    message: Optional[str] = Field(default=None, description="メッセージ")
+    error_message: Optional[str] = Field(default=None, description="エラーメッセージ")
+
+
 class CacheReadRequest(BaseModel):
     """キャッシュ読み出しリクエスト"""
     session_id: str = Field(..., description="セッションID")

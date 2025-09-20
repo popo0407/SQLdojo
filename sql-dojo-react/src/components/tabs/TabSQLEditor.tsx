@@ -14,6 +14,7 @@ import { getTabEditorOptions } from '../../config/editorConfig';
 import { TemplateSaveModal } from '../../features/templates/components/TemplateSaveModal';
 import { useTemplates, useTemplateModals } from '../../features/templates/hooks/useTemplates';
 import type { TemplateDropdownItem, TemplateWithPreferences } from '../../features/templates/types/template';
+import { generateDummyData } from '../../api/sqlService';
 
 interface TabSQLEditorProps {
   tabId: string;
@@ -248,6 +249,114 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
     openSaveModal();
   };
 
+  // ダミーデータ生成ハンドラ
+  const handleGenerateDummyData = async () => {
+    try {
+      console.log('ダミーデータ生成開始...');
+      
+      // ダミーデータAPIを呼び出し（SQL実行と同じ流れ）
+      const response = await generateDummyData({ rowCount: 50 });
+      
+      console.log('ダミーデータAPI レスポンス:', response);
+      
+      if (response.success && response.session_id) {
+        // タブのSQL実行成功時と同じ処理を行う
+        const { setTabSessionId, setTabExecuting, updateTabResults } = useTabStore.getState();
+        
+        // セッションIDを設定
+        setTabSessionId(tabId, response.session_id);
+        setTabExecuting(tabId, false);
+        
+        // ダミーデータをキャッシュから読み込む（少し待ってから）
+        try {
+          // データベースへの書き込み完了を待つ
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const { readSqlCache } = await import('../../api/sqlService');
+          const cacheResult = await readSqlCache({
+            session_id: response.session_id,
+            page: 1,
+            page_size: 100
+          });
+          
+          console.log('キャッシュ読み込み結果:', cacheResult);
+          console.log('データサンプル:', cacheResult.data?.slice(0, 3));
+          console.log('カラム情報:', cacheResult.columns);
+          console.log('データの最初の行:', cacheResult.data?.[0]);
+          console.log('データの形式確認:', typeof cacheResult.data?.[0], Array.isArray(cacheResult.data?.[0]));
+          
+          if (cacheResult.success && cacheResult.data && cacheResult.data.length > 0) {
+            // データ形式を確認して必要に応じて変換
+            let processedData = cacheResult.data;
+            
+            // データが配列の配列の場合、オブジェクト形式に変換
+            if (Array.isArray(cacheResult.data[0])) {
+              console.log('配列形式のデータを検出、オブジェクト形式に変換中...');
+              const rawData = cacheResult.data as any;
+              processedData = rawData.map((row: any) => {
+                const obj: any = {};
+                cacheResult.columns?.forEach((column, index) => {
+                  obj[column] = row[index];
+                });
+                return obj;
+              });
+              console.log('変換後のデータサンプル:', processedData.slice(0, 2));
+            }
+            
+            // 取得したデータをタブの結果に設定
+            updateTabResults(tabId, {
+              data: processedData,
+              columns: cacheResult.columns || [],
+              totalCount: cacheResult.total_count || 0,
+              executionTime: response.execution_time || 0,
+              lastExecutedSql: `-- ダミーデータ生成 (${response.total_count}行)`,
+              hasMore: (cacheResult.total_count || 0) > (cacheResult.data?.length || 0),
+              error: null,
+            });
+            
+            console.log('タブ結果データ設定完了:', {
+              dataLength: cacheResult.data.length,
+              columns: cacheResult.columns,
+              totalCount: cacheResult.total_count
+            });
+          } else {
+            // キャッシュ読み込みに失敗した場合
+            updateTabResults(tabId, {
+              data: null,
+              executionTime: response.execution_time || 0,
+              lastExecutedSql: `-- ダミーデータ生成 (${response.total_count}行)`,
+              error: cacheResult.error_message || 'データの読み込みに失敗しました',
+            });
+          }
+        } catch (error) {
+          console.error('キャッシュデータ読み込みエラー:', error);
+          updateTabResults(tabId, {
+            data: null,
+            executionTime: response.execution_time || 0,
+            lastExecutedSql: `-- ダミーデータ生成 (${response.total_count}行)`,
+            error: 'データの読み込みに失敗しました',
+          });
+        }
+        
+        console.log('ダミーデータ生成成功:', {
+          session_id: response.session_id,
+          total_count: response.total_count,
+          message: response.message
+        });
+        
+      } else {
+        // エラー処理
+        console.error('ダミーデータ生成に失敗:', response.error_message);
+        alert(response.error_message || 'ダミーデータ生成に失敗しました');
+      }
+    } catch (error) {
+      console.error('ダミーデータ生成エラー:', error);
+      console.error('エラータイプ:', typeof error);
+      console.error('エラー詳細:', JSON.stringify(error, null, 2));
+      alert('ダミーデータ生成中にエラーが発生しました');
+    }
+  };
+
   // テンプレート変換ユーティリティ
   const convertToDropdownItems = (templates: TemplateWithPreferences[]): TemplateDropdownItem[] => {
     const converted = templates.map(template => ({
@@ -301,6 +410,7 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
         onExecute={handleExecuteSql}
         onSelectTemplate={handleSelectTemplateFromToolbar}
         onSaveTemplate={handleSaveTemplate}
+        onGenerateDummyData={handleGenerateDummyData}
         isPending={tab.isExecuting}
         hasSql={!!tab.sql.trim()}
         hasSelection={hasTabSelection()} // useTabPageStoreの関数を使用

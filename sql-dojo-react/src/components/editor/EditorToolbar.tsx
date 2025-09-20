@@ -9,7 +9,8 @@ import {
   faCompress,
   faFileCode,
   faSave,
-  faDownload
+  faDownload,
+  faDatabase
 } from '@fortawesome/free-solid-svg-icons';
 import { useLayoutStore } from '../../stores/useLayoutStore';
 import { useTabStore } from '../../stores/useTabStore';
@@ -23,6 +24,7 @@ interface EditorToolbarProps {
   onSelectTemplate: (templateSql: string) => void;
   onSaveTemplate: () => void;
   onDownloadCsv?: () => void; // CSV直接ダウンロード用（オプション）
+  onGenerateDummyData?: () => void; // ダミーデータ生成用（オプション）
   isPending: boolean;
   hasSql: boolean;
   hasSelection: boolean;
@@ -46,6 +48,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   onSelectTemplate,
   onSaveTemplate,
   onDownloadCsv,
+  onGenerateDummyData,
   isPending,
   hasSql,
   hasSelection,
@@ -175,6 +178,15 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             >
               <FontAwesomeIcon icon={faDownload} className="me-1" />
               CSVダウンロード
+            </Button>
+
+            <Button
+              variant="outline-info"
+              onClick={onGenerateDummyData}
+              title="グラフテスト用のダミーデータを生成"
+            >
+              <FontAwesomeIcon icon={faDatabase} className="me-1" />
+              ダミーデータ生成
             </Button>
           </ButtonGroup>
         </div>
