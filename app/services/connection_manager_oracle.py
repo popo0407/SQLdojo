@@ -25,7 +25,8 @@ class ConnectionManagerOracle:
         self._connection_info: Dict[str, ConnectionInfo] = {}
         self._lock = threading.Lock()
         self._max_connections = 5
-        self._connection_timeout = 30
+        self._connection_timeout = getattr(self.config, 'connection_timeout_seconds', 30)
+        self._query_timeout = getattr(self.config, 'query_timeout_seconds', 300)
 
     def _create_connection(self) -> Tuple[str, pyodbc.Connection]:
         try:

@@ -247,15 +247,15 @@ class SQLValidator:
                             'length': len(clean_content)
                         })
                         
-                        # 1つでも20文字を超えていればOK
-                        if len(clean_content) > 20:
+                        # 1つでも5文字を超えていればOK
+                        if len(clean_content) > 5:
                             all_conditions_valid = True
-                            self.logger.debug(f"20文字を超える条件を発見: {clean_content}")
+                            self.logger.debug(f"5文字を超える条件を発見: {clean_content}")
                             break
-                    
-                    # 全ての条件が20文字以下の場合のみエラー
+
+                    # 全ての条件が5文字以下の場合のみエラー
                     if where_clauses_checked and not all_conditions_valid:
-                        self.logger.debug(f"全てのWHERE句条件が20文字以下: {where_clauses_checked}")
+                        self.logger.debug(f"全てのWHERE句条件が5文字以下: {where_clauses_checked}")
                         errors.append("WHERE句の内容が短すぎます。より具体的な条件を指定してください。")
                         return False
             

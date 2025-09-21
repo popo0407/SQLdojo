@@ -32,7 +32,8 @@ class ConnectionManagerODBC:
         self._connection_info: Dict[str, ConnectionInfo] = {}
         self._lock = threading.Lock()
         self._max_connections = 10
-        self._connection_timeout = 30
+        self._connection_timeout = getattr(self.config, 'connection_timeout_seconds', 30)
+        self._query_timeout = getattr(self.config, 'query_timeout_seconds', 300)
         self._monitor_thread = None
         self._stop_monitoring = False
         
@@ -114,6 +115,8 @@ class ConnectionManagerODBC:
                 f"DATABASE={self.config.snowflake_database};"
                 f"SCHEMA={self.config.snowflake_schema};"
                 f"ROLE={self.config.snowflake_role};"
+                f"LOGIN_TIMEOUT={self._connection_timeout};"
+                f"QUERY_TIMEOUT={self._query_timeout};"
             )
             
             # プロキシ設定が有効な場合のみ追加
@@ -203,6 +206,10 @@ class ConnectionManagerODBC:
         try:
             conn_id, connection = self.get_connection()
             cursor = connection.cursor()
+            
+            # クエリタイムアウトを設定（カーソルレベル）
+            if hasattr(cursor, 'timeout'):
+                cursor.timeout = self._query_timeout
             
             if params:
                 cursor.execute(sql, params)

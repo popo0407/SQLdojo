@@ -137,5 +137,9 @@ if __name__ == "__main__":
         host=settings.app_host,
         port=settings.app_port,
         reload=False, 
-        log_level="info"
+        log_level="info",
+        timeout_keep_alive=getattr(settings, 'api_timeout_seconds', 900),
+        timeout_notify=30,
+        limit_concurrency=1000,
+        limit_max_requests=10000
     )

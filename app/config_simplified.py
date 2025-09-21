@@ -100,31 +100,81 @@ class Settings(BaseSettings):
     admin_password: str = Field(..., description="管理者パスワード")
     
     # ページネーション設定
-    default_page_size: int = Field(default=100, description="デフォルトのページサイズ（表示件数）")
+    default_page_size: int = Field(
+        default=100, 
+        description="デフォルトのページサイズ（表示件数）",
+        validation_alias=AliasChoices('DEFAULT_PAGE_SIZE', 'default_page_size')
+    )
     max_page_size: int = Field(default=1000, description="最大ページサイズ")
     
     # カーソル方式設定
-    cursor_chunk_size: int = Field(default=1000, description="カーソル方式での一度に取得する行数")
+    cursor_chunk_size: int = Field(
+        default=1000, 
+        description="カーソル方式での一度に取得する行数",
+        validation_alias=AliasChoices('CURSOR_CHUNK_SIZE', 'cursor_chunk_size')
+    )
+    
+    # タイムアウト設定
+    query_timeout_seconds: int = Field(default=1200, description="SQLクエリ実行タイムアウト（秒）- 20分")
+    connection_timeout_seconds: int = Field(default=30, description="データベース接続タイムアウト（秒）")
+    api_timeout_seconds: int = Field(default=1320, description="API応答タイムアウト（秒）- 22分（クエリタイムアウト+2分）")
+    http_client_timeout_seconds: int = Field(default=1320, description="HTTPクライアントタイムアウト（秒）- 22分")
     
     # 無限スクロール設定
     infinite_scroll_threshold: int = Field(default=200, description="無限スクロールで表示する最大件数")
     
     # 大容量データ処理設定
-    max_records_for_display: int = Field(default=1000000, description="画面表示を試みる最大レコード数の閾値")
-    max_records_for_csv_download: int = Field(default=10000000, description="CSVダウンロードを許可する最大レコード数の閾値")
+    max_records_for_display: int = Field(
+        default=1000000, 
+        description="画面表示を試みる最大レコード数の閾値",
+        validation_alias=AliasChoices('MAX_RECORDS_FOR_DISPLAY', 'max_records_for_display')
+    )
+    max_records_for_csv_download: int = Field(
+        default=10000000, 
+        description="CSVダウンロードを許可する最大レコード数の閾値",
+        validation_alias=AliasChoices('MAX_RECORDS_FOR_CSV_DOWNLOAD', 'max_records_for_csv_download')
+    )
     # 追加: Excel / Clipboard / Chart 関連設定
-    max_records_for_excel_download: int = Field(default=1000000, description="Excelダウンロードを許可する最大レコード数の閾値")
-    max_records_for_clipboard_copy: int = Field(default=50000, description="クリップボードコピーを許可する最大レコード数の閾値")
+    max_records_for_excel_download: int = Field(
+        default=1000000, 
+        description="Excelダウンロードを許可する最大レコード数の閾値",
+        validation_alias=AliasChoices('MAX_RECORDS_FOR_EXCEL_DOWNLOAD', 'max_records_for_excel_download')
+    )
+    max_records_for_clipboard_copy: int = Field(
+        default=50000, 
+        description="クリップボードコピーを許可する最大レコード数の閾値",
+        validation_alias=AliasChoices('MAX_RECORDS_FOR_CLIPBOARD_COPY', 'max_records_for_clipboard_copy')
+    )
     max_rows_for_excel_chart: int = Field(default=100000, description="グラフ付きExcelを許容する最大行数（将来オプション）")
     
     # 履歴関連設定
-    max_history_logs: int = Field(default=1000, description="SQL履歴表示の最大件数")
+    max_history_logs: int = Field(
+        default=1000, 
+        description="SQL履歴表示の最大件数",
+        validation_alias=AliasChoices('MAX_HISTORY_LOGS', 'max_history_logs')
+    )
     
     # キャッシュセッション自動クリーンアップ設定
-    cache_cleanup_enabled: bool = Field(default=True, description="キャッシュセッション自動クリーンアップの有効/無効")
-    cache_cleanup_interval_minutes: int = Field(default=15, description="キャッシュクリーンアップの実行間隔（分）")
-    cache_session_timeout_minutes: int = Field(default=30, description="セッションタイムアウト時間（分）")
-    cache_session_cleanup_hours: int = Field(default=12, description="セッション削除までの時間（時間）")
+    cache_cleanup_enabled: bool = Field(
+        default=True, 
+        description="キャッシュセッション自動クリーンアップの有効/無効",
+        validation_alias=AliasChoices('CACHE_CLEANUP_ENABLED', 'cache_cleanup_enabled')
+    )
+    cache_cleanup_interval_minutes: int = Field(
+        default=15, 
+        description="キャッシュクリーンアップの実行間隔（分）",
+        validation_alias=AliasChoices('CACHE_CLEANUP_INTERVAL_MINUTES', 'cache_cleanup_interval_minutes')
+    )
+    cache_session_timeout_minutes: int = Field(
+        default=30, 
+        description="セッションタイムアウト時間（分）",
+        validation_alias=AliasChoices('CACHE_SESSION_TIMEOUT_MINUTES', 'cache_session_timeout_minutes')
+    )
+    cache_session_cleanup_hours: int = Field(
+        default=12, 
+        description="セッション削除までの時間（時間）",
+        validation_alias=AliasChoices('CACHE_SESSION_CLEANUP_HOURS', 'cache_session_cleanup_hours')
+    )
 
     @field_validator('snowflake_account')
     @classmethod
@@ -233,7 +283,7 @@ def get_database_config():
         'database': settings.snowflake_database,
         'db_schema': settings.snowflake_schema,
         'role': settings.snowflake_role,
-        'timeout': 30,
+        'timeout': settings.connection_timeout_seconds,
         'max_connections': 10
     })()
 
