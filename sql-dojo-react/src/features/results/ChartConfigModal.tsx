@@ -217,55 +217,56 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
           <Card.Header><strong>X軸</strong></Card.Header>
           <Card.Body>
             <Row>
-              <Col md={4}>
+              <Col md={8}>
                 <Form.Group className="mb-3">
-                  <Form.Label>X軸カラム</Form.Label>
-                  <Form.Select
-                    value={config.xAxisColumn}
-                    onChange={(e) => setConfig(prev => ({ 
-                      ...prev, 
-                      xAxisColumn: e.target.value,
-                      xAxisLabel: e.target.value || prev.xAxisLabel // カラム選択時にラベルも自動設定
-                    }))}
-                  >
-                    <option value="">選択してください</option>
-                    {xAxisColumns.map(col => (
-                      <option key={col} value={col}>{col}</option>
-                    ))}
-                  </Form.Select>
-                  {config.xAxisColumn && (
-                    <div className="mt-2">
-                      <Form.Label className="text-muted small">
-                        データ型
-                      </Form.Label>
+                  <Row>
+                    <Col md={6}>
+                      <Form.Label>X軸カラム</Form.Label>
                       <Form.Select
-                        size="sm"
-                        value={config.columnDataTypes[config.xAxisColumn] || getColumnDataType(data, config.xAxisColumn)}
-                        onChange={(e) => setConfig(prev => ({
-                          ...prev,
-                          columnDataTypes: {
-                            ...prev.columnDataTypes,
-                            [config.xAxisColumn]: e.target.value as ColumnDataType
-                          }
+                        value={config.xAxisColumn}
+                        onChange={(e) => setConfig(prev => ({ 
+                          ...prev, 
+                          xAxisColumn: e.target.value,
+                          xAxisLabel: e.target.value || prev.xAxisLabel // カラム選択時にラベルも自動設定
                         }))}
                       >
-                        <option value="number">数値</option>
-                        <option value="date">日付</option>
-                        <option value="string">文字列</option>
+                        <option value="">選択してください</option>
+                        {xAxisColumns.map(col => (
+                          <option key={col} value={col}>{col}</option>
+                        ))}
                       </Form.Select>
-                    </div>
-                  )}
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>X軸ラベル</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={config.xAxisLabel}
-                    onChange={(e) => setConfig(prev => ({ ...prev, xAxisLabel: e.target.value }))}
-                    placeholder="X軸のラベル"
-                  />
+                    </Col>
+                    {config.xAxisColumn && (
+                      <Col md={6}>
+                        <Form.Label>データ型</Form.Label>
+                        <Form.Select
+                          value={config.columnDataTypes[config.xAxisColumn] || getColumnDataType(data, config.xAxisColumn)}
+                          onChange={(e) => setConfig(prev => ({
+                            ...prev,
+                            columnDataTypes: {
+                              ...prev.columnDataTypes,
+                              [config.xAxisColumn]: e.target.value as ColumnDataType
+                            }
+                          }))}
+                        >
+                          <option value="number">数値</option>
+                          <option value="date">日付</option>
+                          <option value="string">文字列</option>
+                        </Form.Select>
+                      </Col>
+                    )}
+                  </Row>
+                  <Row className="mt-2">
+                    <Col md={6}>
+                      <Form.Label>X軸ラベル</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={config.xAxisLabel}
+                        onChange={(e) => setConfig(prev => ({ ...prev, xAxisLabel: e.target.value }))}
+                        placeholder="X軸のラベル"
+                      />
+                    </Col>
+                  </Row>
                 </Form.Group>
               </Col>
             </Row>
@@ -414,7 +415,7 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                   </Form.Group>
                 </Col>
               )}
-              <Col md={3}>
+              <Col md={6}>
                 <Form.Group>
                   <Form.Label>Y軸範囲（左軸）</Form.Label>
                   <Row>
