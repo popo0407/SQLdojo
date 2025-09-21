@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form, Row, Col, Card, Badge } from 'react-bootstrap';
+import { Modal, Button, Form, Row, Col, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faTimes } from '@fortawesome/free-solid-svg-icons';
 import type { 
   ChartConfig, 
   ChartType, 
   YAxisSide, 
-  LegendPosition
+  LegendPosition,
+  DataScope,
+  ColumnDataType
 } from '../../utils/chartUtils';
 import {
   getNumericColumns,
   getXAxisColumns,
   createDefaultChartConfig,
   assignColors,
-  EXCEL_COLOR_PALETTE
+  EXCEL_COLOR_PALETTE,
+  getColumnDataType
 } from '../../utils/chartUtils';
 
 interface ChartConfigModalProps {
@@ -36,9 +39,11 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
   columns,
   initialConfig,
 }) => {
-  // 利用可能なカラム
+  // 利用可能なカラム（基本）
   const xAxisColumns = getXAxisColumns(data, columns);
-  const numericColumns = getNumericColumns(data, columns);
+  
+  // 動的な数値カラム（手動データ型設定を考慮）
+  const [availableNumericColumns, setAvailableNumericColumns] = useState<string[]>([]);
 
   // フォーム状態
   const [config, setConfig] = useState<ChartConfig>(() => {
@@ -54,6 +59,8 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
       legendVisible: initialConfig?.legendVisible ?? defaultConfig.legendVisible ?? true,
       chartType: initialConfig?.chartType || defaultConfig.chartType || 'bar',
       yAxisRanges: initialConfig?.yAxisRanges || defaultConfig.yAxisRanges || { left: {}, right: {} },
+      dataScope: initialConfig?.dataScope || defaultConfig.dataScope || 'displayed',
+      columnDataTypes: initialConfig?.columnDataTypes || defaultConfig.columnDataTypes || {},
     };
   });
 
@@ -72,9 +79,17 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
         legendVisible: initialConfig?.legendVisible ?? defaultConfig.legendVisible ?? true,
         chartType: initialConfig?.chartType || defaultConfig.chartType || 'bar',
         yAxisRanges: initialConfig?.yAxisRanges || defaultConfig.yAxisRanges || { left: {}, right: {} },
+        dataScope: initialConfig?.dataScope || defaultConfig.dataScope || 'displayed',
+        columnDataTypes: initialConfig?.columnDataTypes || defaultConfig.columnDataTypes || {},
       });
     }
   }, [show, data, columns, initialConfig]);
+
+  // データ型設定の変更時に利用可能な数値カラムを更新
+  useEffect(() => {
+    const newAvailableColumns = getNumericColumns(data, columns, config.columnDataTypes);
+    setAvailableNumericColumns(newAvailableColumns);
+  }, [data, columns, config.columnDataTypes]);
 
   // Y軸カラムの追加
   const handleAddYAxisColumn = (column: string) => {
@@ -168,6 +183,35 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
           </Card.Body>
         </Card>
 
+        {/* セクション1.5: データ範囲設定 */}
+        <Card className="mb-3">
+          <Card.Header><strong>データ範囲</strong></Card.Header>
+          <Card.Body>
+            <Form.Group className="mb-0">
+              <Form.Label>グラフ化するデータ範囲</Form.Label>
+              <div className="mt-2">
+                <Form.Check
+                  type="radio"
+                  id="data-scope-displayed"
+                  name="dataScope"
+                  label="現在表示中のデータのみ"
+                  checked={config.dataScope === 'displayed'}
+                  onChange={() => setConfig(prev => ({ ...prev, dataScope: 'displayed' as DataScope }))}
+                  className="mb-2"
+                />
+                <Form.Check
+                  type="radio"
+                  id="data-scope-all"
+                  name="dataScope"
+                  label="すべてのデータ（読み込み可能な全件）"
+                  checked={config.dataScope === 'all'}
+                  onChange={() => setConfig(prev => ({ ...prev, dataScope: 'all' as DataScope }))}
+                />
+              </div>
+            </Form.Group>
+          </Card.Body>
+        </Card>
+
         {/* セクション2: X軸設定 */}
         <Card className="mb-3">
           <Card.Header><strong>X軸</strong></Card.Header>
@@ -189,6 +233,28 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                       <option key={col} value={col}>{col}</option>
                     ))}
                   </Form.Select>
+                  {config.xAxisColumn && (
+                    <div className="mt-2">
+                      <Form.Label className="text-muted small">
+                        データ型
+                      </Form.Label>
+                      <Form.Select
+                        size="sm"
+                        value={config.columnDataTypes[config.xAxisColumn] || getColumnDataType(data, config.xAxisColumn)}
+                        onChange={(e) => setConfig(prev => ({
+                          ...prev,
+                          columnDataTypes: {
+                            ...prev.columnDataTypes,
+                            [config.xAxisColumn]: e.target.value as ColumnDataType
+                          }
+                        }))}
+                      >
+                        <option value="number">数値</option>
+                        <option value="date">日付</option>
+                        <option value="string">文字列</option>
+                      </Form.Select>
+                    </div>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={4}>
@@ -224,7 +290,7 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                     }}
                   >
                     <option value="">カラムを選択</option>
-                    {numericColumns
+                    {availableNumericColumns
                       .filter(col => !config.yAxisColumns.includes(col))
                       .map(col => (
                         <option key={col} value={col}>{col}</option>
@@ -241,24 +307,41 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
               {config.yAxisColumns.length === 0 ? (
                 <p className="text-muted">カラムが選択されていません</p>
               ) : (
-                <Row>
+                <div className="d-flex flex-column gap-3">
                   {config.yAxisColumns.map(col => (
-                    <Col key={col} md={6} lg={4} className="mb-2">
-                      <div className="border rounded p-2">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <Badge bg="primary">{col}</Badge>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleRemoveYAxisColumn(col)}
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </Button>
+                    <div key={col} className="border rounded p-3">
+                      <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        {/* カラム名 */}
+                        <div className="d-flex align-items-center gap-2">
+                          <span className="fw-bold fs-6">{col}</span>
+
                         </div>
                         
-                        <Row>
-                          <Col xs={6}>
-                            <Form.Label className="small">軸配置</Form.Label>
+                        {/* 設定項目を横並び */}
+                        <div className="d-flex align-items-center gap-3 flex-wrap">
+                          {/* データ型 */}
+                          <div style={{ minWidth: '120px' }}>
+                            <Form.Label className="small mb-1">データ型</Form.Label>
+                            <Form.Select
+                              size="sm"
+                              value={config.columnDataTypes[col] || getColumnDataType(data, col)}
+                              onChange={(e) => setConfig(prev => ({
+                                ...prev,
+                                columnDataTypes: {
+                                  ...prev.columnDataTypes,
+                                  [col]: e.target.value as ColumnDataType
+                                }
+                              }))}
+                            >
+                              <option value="number">数値</option>
+                              <option value="date">日付</option>
+                              <option value="string">文字列</option>
+                            </Form.Select>
+                          </div>
+                          
+                          {/* 軸配置 */}
+                          <div style={{ minWidth: '100px' }}>
+                            <Form.Label className="small mb-1">軸配置</Form.Label>
                             <Form.Select
                               size="sm"
                               value={config.yAxisSides[col] || 'left'}
@@ -267,9 +350,11 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                               <option value="left">左軸</option>
                               <option value="right">右軸</option>
                             </Form.Select>
-                          </Col>
-                          <Col xs={6}>
-                            <Form.Label className="small">カラー</Form.Label>
+                          </div>
+                          
+                          {/* カラー */}
+                          <div style={{ minWidth: '120px' }}>
+                            <Form.Label className="small mb-1">カラー</Form.Label>
                             <Form.Select
                               size="sm"
                               value={config.seriesColors[col] || EXCEL_COLOR_PALETTE[0].value}
@@ -281,12 +366,19 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                                 </option>
                               ))}
                             </Form.Select>
-                          </Col>
-                        </Row>
+                          </div>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => handleRemoveYAxisColumn(col)}
+                          >
+                            <FontAwesomeIcon icon={faTimes} />
+                          </Button>
+                        </div>
                       </div>
-                    </Col>
+                    </div>
                   ))}
-                </Row>
+                </div>
               )}
             </div>
             

@@ -28,6 +28,12 @@ export type YAxisSide = 'left' | 'right';
 // 凡例位置の定義
 export type LegendPosition = 'top' | 'bottom' | 'left' | 'right';
 
+// データ範囲の定義
+export type DataScope = 'displayed' | 'all';
+
+// データ型の定義
+export type ColumnDataType = 'number' | 'date' | 'string';
+
 // 軸範囲設定の型定義
 export interface AxisRange {
   min?: number;
@@ -52,6 +58,8 @@ export interface ChartConfig {
   legendPosition: LegendPosition;
   legendVisible: boolean;
   chartType: ChartType;
+  dataScope: DataScope;
+  columnDataTypes: Record<string, ColumnDataType>;
 }
 
 // データ型の判定
@@ -66,67 +74,17 @@ export const getColumnDataType = (data: Record<string, unknown>[], columnName: s
     return 'string';
   }
 
-  // Snowflake形式の日時判定を最優先（数値判定より前）
-  const snowflakeValues = sampleValues.filter(val => {
-    const strVal = String(val);
-    
-    // Snowflake形式の日時判定（YYYYMMDDhhmmss - 14桁の数字）
-    if (/^\d{14}$/.test(strVal)) {
-      const year = parseInt(strVal.substring(0, 4));
-      const month = parseInt(strVal.substring(4, 6));
-      const day = parseInt(strVal.substring(6, 8));
-      const hour = parseInt(strVal.substring(8, 10));
-      const minute = parseInt(strVal.substring(10, 12));
-      const second = parseInt(strVal.substring(12, 14));
-      
-      // 有効な日時かチェック
-      if (year >= 1900 && year <= 2100 && 
-          month >= 1 && month <= 12 && 
-          day >= 1 && day <= 31 &&
-          hour >= 0 && hour <= 23 &&
-          minute >= 0 && minute <= 59 &&
-          second >= 0 && second <= 59) {
-        return true;
-      }
-    }
-    return false;
-  });
-  
-  if (snowflakeValues.length === sampleValues.length) {
-    return 'date';
-  }
-
   // 数値型の判定
   const numericValues = sampleValues.filter(val => !isNaN(Number(val)));
   if (numericValues.length === sampleValues.length) {
     return 'number';
   }
 
-  // 日付型の判定（ISO形式、一般的な日付形式、Snowflake形式）
+  // 日付型の判定（ISO形式、一般的な日付形式）
   const dateValues = sampleValues.filter(val => {
     const strVal = String(val);
     
-    // Snowflake形式の日時判定（YYYYMMDDhhmmss - 14桁の数字）
-    if (/^\d{14}$/.test(strVal)) {
-      const year = parseInt(strVal.substring(0, 4));
-      const month = parseInt(strVal.substring(4, 6));
-      const day = parseInt(strVal.substring(6, 8));
-      const hour = parseInt(strVal.substring(8, 10));
-      const minute = parseInt(strVal.substring(10, 12));
-      const second = parseInt(strVal.substring(12, 14));
-      
-      // 有効な日時かチェック
-      if (year >= 1900 && year <= 2100 && 
-          month >= 1 && month <= 12 && 
-          day >= 1 && day <= 31 &&
-          hour >= 0 && hour <= 23 &&
-          minute >= 0 && minute <= 59 &&
-          second >= 0 && second <= 59) {
-        return true;
-      }
-    }
-    
-    // 従来の日付形式判定
+    // 日付形式判定
     const dateValue = new Date(strVal);
     return !isNaN(dateValue.getTime());
   });
@@ -137,9 +95,31 @@ export const getColumnDataType = (data: Record<string, unknown>[], columnName: s
   return 'string';
 };
 
+// 手動設定されたデータ型を考慮してデータ型を取得
+export const getEffectiveColumnDataType = (
+  data: Record<string, unknown>[], 
+  columnName: string, 
+  manualDataTypes: Record<string, ColumnDataType>
+): 'number' | 'date' | 'string' => {
+  const manualType = manualDataTypes[columnName];
+  
+  // 手動設定がある場合は優先
+  if (manualType) {
+    return manualType;
+  }
+  
+  // 手動設定がない場合は従来の自動判定を使用
+  return getColumnDataType(data, columnName);
+};
+
 // Y軸用カラムのフィルタリング（数値型のみ）
-export const getNumericColumns = (data: Record<string, unknown>[], columns: string[]): string[] => {
-  return columns.filter(col => getColumnDataType(data, col) === 'number');
+export const getNumericColumns = (data: Record<string, unknown>[], columns: string[], manualDataTypes?: Record<string, ColumnDataType>): string[] => {
+  return columns.filter(col => {
+    const dataType = manualDataTypes 
+      ? getEffectiveColumnDataType(data, col, manualDataTypes)
+      : getColumnDataType(data, col);
+    return dataType === 'number';
+  });
 };
 
 // X軸用カラムのフィルタリング（全型対応）
@@ -175,5 +155,7 @@ export const createDefaultChartConfig = (): ChartConfig => {
     legendPosition: 'right',
     legendVisible: true,
     chartType: 'bar',
+    dataScope: 'displayed', // デフォルトは表示データのみ
+    columnDataTypes: {}, // デフォルトは自動判定
   };
 };

@@ -20,6 +20,7 @@ import ResultsHeaderExtras from '../../components/results/ResultsHeaderExtras';
 import ChartViewer from './ChartViewer';
 import ChartConfigModal from './ChartConfigModal';
 import { useChartStore } from '../../stores/useChartStore';
+import { readSqlCache } from '../../api/sqlService';
 
 import { createDefaultChartConfig, type ChartConfig } from '../../utils/chartUtils';
 
@@ -28,6 +29,10 @@ const ResultsViewer: React.FC = () => {
   const execTime = useResultsDataStore(state => state.execTime);
   const { sortConfig, filters, applySort } = useResultsFilterStore();
   const sessionId = useResultsSessionStore(state => state.sessionId);
+
+  // チャート用のデータ状態管理
+  const [chartData, setChartData] = React.useState<Record<string, unknown>[]>([]);
+  const [isLoadingChartData, setIsLoadingChartData] = React.useState(false);
 
   // UIストアから状態を取得
   const { isPending, isLoadingMore, filterModal, setFilterModal, error, isDownloading } = useUIStore();
@@ -71,8 +76,94 @@ const ResultsViewer: React.FC = () => {
   };
 
   // グラフ設定適用時のハンドラ
-  const handleApplyChartConfig = (config: ChartConfig) => {
+  const handleApplyChartConfig = async (config: ChartConfig) => {
     setChartConfig(config);
+    
+    // 新しい設定でチャートデータを準備
+    await prepareChartData(config);
+  };
+
+  // 表示中データの取得
+  const getDisplayedData = React.useCallback(() => {
+    // 現在のページサイズに基づいて表示されているデータのみを返す
+    const pageSize = sessionId ? 
+      (useResultsSessionStore.getState().configSettings?.default_page_size || 100) : 
+      100;
+    return displayData.data.slice(0, pageSize);
+  }, [displayData.data, sessionId]);
+
+  // 全フィルター済みデータの取得
+  const fetchAllFilteredData = React.useCallback(async () => {
+    if (!sessionId) {
+      // セッションIDがない場合は現在のdisplayDataを返す
+      return displayData.data;
+    }
+
+    try {
+      // 全件取得のために非常に大きなpage_sizeを指定
+      const readRes = await readSqlCache({
+        session_id: sessionId,
+        page: 1,
+        page_size: 1000000, // 100万件まで対応
+        filters: filters,
+        sort_by: sortConfig?.key,
+        sort_order: (sortConfig?.direction?.toUpperCase() || 'ASC') as 'ASC' | 'DESC'
+      });
+
+      if (readRes.success && readRes.data && readRes.columns) {
+        const allData = (readRes.data as unknown as unknown[][]).map((rowArr: unknown[]) => 
+          Object.fromEntries((readRes.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
+        );
+        return allData;
+      }
+    } catch (error) {
+      console.error('全データ取得に失敗:', error);
+    }
+    
+    // 失敗時は現在のデータを返す
+    return displayData.data;
+  }, [sessionId, displayData.data, filters, sortConfig]);
+
+  // チャート用データの決定
+  const getChartData = React.useCallback(async (config: ChartConfig) => {
+    if (!config) return displayData.data;
+    
+    if (config.dataScope === 'all') {
+      // 全データを取得（フィルター・ソート適用済みの全件）
+      return await fetchAllFilteredData();
+    } else {
+      // 表示データを使用（現在画面に表示されている範囲のみ）
+      return getDisplayedData();
+    }
+  }, [displayData.data, fetchAllFilteredData, getDisplayedData]);
+
+  // チャートデータの準備
+  const prepareChartData = React.useCallback(async (config: ChartConfig) => {
+    setIsLoadingChartData(true);
+    try {
+      const data = await getChartData(config);
+      setChartData(data);
+    } catch (error) {
+      console.error('チャートデータ準備に失敗:', error);
+      setChartData(displayData.data); // フォールバック
+    } finally {
+      setIsLoadingChartData(false);
+    }
+  }, [getChartData, displayData.data]);
+
+  // currentConfigが変更されたときもチャートデータを更新
+  React.useEffect(() => {
+    if (currentConfig) {
+      prepareChartData(currentConfig);
+    }
+  }, [currentConfig, prepareChartData]);
+
+  // チャート用カラムの決定
+  const getChartColumns = () => {
+    if (!currentConfig) return displayData.columns;
+    
+    // すべてのケースで同じカラムを使用
+    return displayData.columns;
   };
 
   // 表示切替ボタンのハンドラ
@@ -142,10 +233,14 @@ const ResultsViewer: React.FC = () => {
           />
         ) : (
           currentConfig && (
-            <ChartViewer
-              data={displayData.data}
-              config={currentConfig}
-            />
+            isLoadingChartData ? (
+              <LoadingSpinner message="チャートデータを準備中..." />
+            ) : (
+              <ChartViewer
+                data={chartData}
+                config={currentConfig}
+              />
+            )
           )
         )}
         {/* フィルターモーダルの表示 */}
@@ -162,7 +257,7 @@ const ResultsViewer: React.FC = () => {
             onHide={hideChartModal}
             onApply={handleApplyChartConfig}
             data={displayData.data}
-            columns={displayData.columns}
+            columns={getChartColumns()}
             initialConfig={modalState.config}
           />
         )}
