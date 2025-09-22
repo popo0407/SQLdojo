@@ -1,5 +1,6 @@
 import type { ExecuteSqlResponse, CacheReadResponse, SqlCompletionResult, SessionStatusResponse } from '../types/api';
 import type { FilterConfig } from '../types/common';
+import type { SimpleChartConfig } from '../utils/chartUtils';
 import { apiClient } from './apiClient';
 import { API_CONFIG } from '../config/api';
 
@@ -73,17 +74,19 @@ export const downloadExcelFromCache = async ({
   sort_by,
   sort_order,
   filename,
+  chart_config,
 }: {
   session_id: string;
   filters?: FilterConfig;
   sort_by?: string;
   sort_order?: string;
   filename?: string;
+  chart_config?: SimpleChartConfig;
 }): Promise<Blob> => {
   const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/download/excel`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ session_id, filters, sort_by, sort_order, filename }),
+    body: JSON.stringify({ session_id, filters, sort_by, sort_order, filename, chart_config }),
   });
   if (!response.ok) {
     const text = await response.text();

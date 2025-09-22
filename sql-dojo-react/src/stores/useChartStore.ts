@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ChartConfig } from '../utils/chartUtils';
+import type { SimpleChartConfig } from '../utils/chartUtils';
 import type { ChartState, ChartActions, ViewMode } from '../types/chart';
 
 interface ChartStore extends ChartState, ChartActions {}
@@ -21,14 +21,14 @@ export const useChartStore = create<ChartStore>((set) => ({
     set({ viewMode: mode });
   },
 
-  setChartConfig: (config: ChartConfig) => {
+  setChartConfig: (config: SimpleChartConfig) => {
     set({ 
       currentConfig: config,
       viewMode: 'chart' // グラフが生成されたらグラフ表示に切り替え
     });
   },
 
-  showChartModal: (initialConfig?: Partial<ChartConfig>) => {
+  showChartModal: (initialConfig?: Partial<SimpleChartConfig>) => {
     set({ 
       modalState: { 
         show: true, 

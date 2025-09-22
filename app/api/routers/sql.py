@@ -269,15 +269,16 @@ async def cache_clipboard_tsv_endpoint(
 
 @router.post("/cache/download/excel")
 async def cache_download_excel_endpoint(
-    request: dict,  # session_id, filters, sort_by, sort_order, filename(optional)
+    request: dict,  # session_id, filters, sort_by, sort_order, filename(optional), chart_config(optional)
     sql_service = Depends(get_hybrid_sql_service_di),
 ):
     """キャッシュ結果から Excel を生成
     - 必須: session_id
+    - オプション: chart_config (グラフ設定)
+    - 行数判定: max_rows_for_excel_chart 以下ならグラフ付き通常モード、超過ならwrite_only高速モード
     - 行数上限: settings.max_records_for_excel_download
     - 0件: 404 NO_DATA
     - 上限超過: 400 LIMIT_EXCEEDED
-    - write_only workbook
     """
     settings = get_settings()
     session_id = request.get("session_id")
@@ -287,6 +288,7 @@ async def cache_download_excel_endpoint(
     sort_by = request.get("sort_by")
     sort_order = request.get("sort_order")
     filename_raw = request.get("filename")
+    chart_config = request.get("chart_config")  # グラフ設定（SimpleChartConfig相当）
 
     page_size = settings.max_records_for_excel_download + 1
     data = sql_service.get_cached_data(session_id, page=1, page_size=page_size, filters=filters, sort_by=sort_by, sort_order=sort_order)
@@ -304,9 +306,25 @@ async def cache_download_excel_endpoint(
             total_count=total,
         )
 
+    # グラフ対応モード判定: 設定があり、データ量が閾値以下なら通常モード（グラフ生成可能）
+    use_chart_mode = (
+        chart_config is not None and 
+        total <= settings.max_rows_for_excel_chart
+    )
+
     def excel_stream():
         from io import BytesIO
-        wb = Workbook(write_only=True)
+        from openpyxl.chart import BarChart, ScatterChart
+        from openpyxl.chart.reference import Reference
+        
+        # モード判定に基づいてワークブック作成
+        if use_chart_mode:
+            # 通常モード: グラフ生成可能、但し大きなデータでは低速
+            wb = Workbook(write_only=False)
+        else:
+            # 高速モード: write_only、グラフなし
+            wb = Workbook(write_only=True)
+            
         ws = wb.create_sheet(title="sheet1")
         if 'Sheet' in wb.sheetnames and len(wb.sheetnames) > 1:
             try:
@@ -314,6 +332,8 @@ async def cache_download_excel_endpoint(
                 wb.remove(ws_default)
             except Exception:
                 pass
+        
+        # データ書き込み
         ws.append(columns)
         formula_prefix = re.compile(r'^[=+\-@]')
         for row in rows:
@@ -328,6 +348,16 @@ async def cache_download_excel_endpoint(
                         cell = "'" + cell
                 safe_row.append(cell)
             ws.append(safe_row)
+        
+        # グラフ生成（通常モードかつチャート設定がある場合）
+        if use_chart_mode and chart_config:
+            try:
+                _add_chart_to_worksheet(ws, chart_config, total, len(columns))
+            except Exception as e:
+                # グラフ生成失敗時はログ出力のみ、Excelファイル生成は継続
+                import logging
+                logging.warning(f"Excel chart generation failed: {e}")
+        
         bio = BytesIO(); wb.save(bio); bio.seek(0); data_bytes = bio.read(); yield data_bytes; bio.close()
 
     filename = _sanitize_filename(filename_raw, 'query_result', 'xlsx')
@@ -336,3 +366,92 @@ async def cache_download_excel_endpoint(
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename=\"{filename}\""}
     )
+
+
+def _add_chart_to_worksheet(worksheet, chart_config, data_rows, data_cols):
+    """
+    openpyxlワークシートにネイティブグラフを追加
+    
+    Args:
+        worksheet: openpyxl Worksheet オブジェクト
+        chart_config: dict - SimpleChartConfig相当のグラフ設定
+        data_rows: int - データ行数（ヘッダー除く）
+        data_cols: int - データ列数
+    """
+    from openpyxl.chart import BarChart, ScatterChart
+    from openpyxl.chart.reference import Reference
+    
+    if not chart_config:
+        return
+    
+    chart_type = chart_config.get('chartType', 'bar')
+    x_column = chart_config.get('xColumn')
+    y_columns = chart_config.get('yColumns', [])
+    title = chart_config.get('title', '')
+    x_axis_label = chart_config.get('xAxisLabel', '')
+    y_axis_label = chart_config.get('yAxisLabel', '')
+    
+    if not x_column or not y_columns:
+        return
+    
+    # ヘッダー行から列インデックスを取得
+    header_row = list(worksheet.iter_rows(min_row=1, max_row=1, values_only=True))[0]
+    if not header_row:
+        return
+    
+    try:
+        x_col_idx = header_row.index(x_column) + 1  # openpyxlは1ベース
+    except ValueError:
+        return  # x_columnが見つからない
+    
+    y_col_indices = []
+    for y_col in y_columns:
+        try:
+            y_col_idx = header_row.index(y_col) + 1
+            y_col_indices.append(y_col_idx)
+        except ValueError:
+            continue  # 見つからない列はスキップ
+    
+    if not y_col_indices:
+        return
+    
+    # チャートタイプに応じてグラフ作成
+    if chart_type == 'scatter':
+        chart = ScatterChart()
+        chart.scatterStyle = "lineMarker"
+    else:  # 'bar' または 'line'
+        chart = BarChart()
+        if chart_type == 'line':
+            chart.type = "line"
+    
+    chart.title = title
+    chart.x_axis.title = x_axis_label
+    chart.y_axis.title = y_axis_label
+    
+    # データ範囲設定（ヘッダー行を除く）
+    data_start_row = 2
+    data_end_row = data_rows + 1
+    
+    # X軸データ（カテゴリ）
+    categories = Reference(worksheet, 
+                          min_col=x_col_idx, max_col=x_col_idx,
+                          min_row=data_start_row, max_row=data_end_row)
+    
+    # Y軸データ系列
+    for i, y_col_idx in enumerate(y_col_indices):
+        values = Reference(worksheet,
+                          min_col=y_col_idx, max_col=y_col_idx,
+                          min_row=data_start_row, max_row=data_end_row)
+        
+        series_title = y_columns[i] if i < len(y_columns) else f"Series {i+1}"
+        series = chart.add_data(values, titles_from_data=False)
+        if hasattr(chart, 'series') and chart.series:
+            chart.series[-1].title = series_title
+    
+    # カテゴリを設定
+    chart.set_categories(categories)
+    
+    # グラフをワークシートに配置（データの右側）
+    chart_col = data_cols + 2  # データの右に2列空けて配置
+    chart_position = f"{chr(ord('A') + chart_col - 1)}2"  # 例: "H2"
+    worksheet.add_chart(chart, chart_position)

@@ -1,4 +1,4 @@
-import type { ChartConfig } from '../utils/chartUtils';
+import type { SimpleChartConfig } from '../utils/chartUtils';
 
 // 表示モード
 export type ViewMode = 'table' | 'chart';
@@ -12,12 +12,12 @@ export type LegendPosition = 'top' | 'bottom' | 'left' | 'right';
 // チャートモーダルの状態
 export interface ChartModalState {
   show: boolean;
-  config?: Partial<ChartConfig>;
+  config?: Partial<SimpleChartConfig>;
 }
 
 // チャート機能の状態
 export interface ChartState {
-  currentConfig: ChartConfig | null;
+  currentConfig: SimpleChartConfig | null;
   viewMode: ViewMode;
   modalState: ChartModalState;
 }
@@ -25,8 +25,8 @@ export interface ChartState {
 // チャート機能のアクション
 export interface ChartActions {
   setViewMode: (mode: ViewMode) => void;
-  setChartConfig: (config: ChartConfig) => void;
-  showChartModal: (initialConfig?: Partial<ChartConfig>) => void;
+  setChartConfig: (config: SimpleChartConfig) => void;
+    showChartModal: (initialConfig?: Partial<SimpleChartConfig>) => void;
   hideChartModal: () => void;
   clearChart: () => void;
 }

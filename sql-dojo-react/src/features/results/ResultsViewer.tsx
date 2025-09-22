@@ -22,7 +22,7 @@ import ChartConfigModal from './ChartConfigModal';
 import { useChartStore } from '../../stores/useChartStore';
 import { readSqlCache } from '../../api/sqlService';
 
-import { createDefaultChartConfig, type ChartConfig } from '../../utils/chartUtils';
+import { createDefaultChartConfig, type SimpleChartConfig } from '../../utils/chartUtils';
 
 const ResultsViewer: React.FC = () => {
   // 各ストアから状態とアクションを取得
@@ -76,7 +76,7 @@ const ResultsViewer: React.FC = () => {
   };
 
   // グラフ設定適用時のハンドラ
-  const handleApplyChartConfig = async (config: ChartConfig) => {
+  const handleApplyChartConfig = async (config: SimpleChartConfig) => {
     setChartConfig(config);
     
     // 新しい設定でチャートデータを準備
@@ -125,7 +125,7 @@ const ResultsViewer: React.FC = () => {
   }, [sessionId, displayData.data, filters, sortConfig]);
 
   // チャート用データの決定
-  const getChartData = React.useCallback(async (config: ChartConfig) => {
+  const getChartData = React.useCallback(async (config: SimpleChartConfig) => {
     if (!config) return displayData.data;
     
     if (config.dataScope === 'all') {
@@ -138,7 +138,7 @@ const ResultsViewer: React.FC = () => {
   }, [displayData.data, fetchAllFilteredData, getDisplayedData]);
 
   // チャートデータの準備
-  const prepareChartData = React.useCallback(async (config: ChartConfig) => {
+  const prepareChartData = React.useCallback(async (config: SimpleChartConfig) => {
     setIsLoadingChartData(true);
     try {
       const data = await getChartData(config);

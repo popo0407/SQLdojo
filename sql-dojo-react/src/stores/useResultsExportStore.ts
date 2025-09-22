@@ -9,6 +9,7 @@ import { useResultsDataStore } from './useResultsDataStore';
 import { useResultsFilterStore } from './useResultsFilterStore';
 import { useResultsSessionStore } from './useResultsSessionStore';
 import { useUIStore } from './useUIStore';
+import { useChartStore } from './useChartStore';
 import type { ResultsExportActions } from '../types/results';
 
 export const createResultsExportStore = () => create<ResultsExportActions>(() => ({
@@ -99,11 +100,14 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
     const uiStore = useUIStore.getState();
     const filterStore = useResultsFilterStore.getState();
     const sessionStore = useResultsSessionStore.getState();
+    const chartStore = useChartStore.getState();
     const filename = uiStore.exportFilename;
+    
     if (!sessionStore.sessionId) {
       uiStore.pushToast('セッションがありません。再実行してください', 'danger');
       return;
     }
+    
     uiStore.setIsDownloading(true);
     try {
       const blob = await downloadExcelFromCache({
@@ -112,6 +116,7 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
         sort_by: filterStore.sortConfig?.key,
         sort_order: (filterStore.sortConfig?.direction?.toUpperCase() || 'ASC'),
         filename,
+        chart_config: chartStore.currentConfig || undefined, // グラフ設定を追加
       });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
