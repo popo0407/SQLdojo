@@ -20,7 +20,7 @@ export const EXCEL_COLOR_PALETTE = [
 export const EXCEL_COLOR_VALUES = EXCEL_COLOR_PALETTE.map(color => color.value);
 
 // グラフタイプの定義
-export type ChartType = 'scatter' | 'bar' | 'horizontalBar' | 'combo';
+export type ChartType = 'scatter' | 'bar';
 
 // Y軸配置の定義
 export type YAxisSide = 'left' | 'right';
@@ -154,7 +154,7 @@ export const createDefaultChartConfig = (): ChartConfig => {
     seriesColors: {},
     legendPosition: 'right',
     legendVisible: true,
-    chartType: 'bar',
+    chartType: 'scatter',
     dataScope: 'displayed', // デフォルトは表示データのみ
     columnDataTypes: {}, // デフォルトは自動判定
   };

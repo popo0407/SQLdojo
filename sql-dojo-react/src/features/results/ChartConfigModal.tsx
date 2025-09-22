@@ -176,8 +176,6 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
               >
                 <option value="scatter">散布図</option>
                 <option value="bar">縦棒グラフ</option>
-                <option value="horizontalBar">横棒グラフ</option>
-                <option value="combo">組み合わせ（棒+線）</option>
               </Form.Select>
             </Form.Group>
           </Card.Body>
@@ -263,7 +261,7 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                         type="text"
                         value={config.xAxisLabel}
                         onChange={(e) => setConfig(prev => ({ ...prev, xAxisLabel: e.target.value }))}
-                        placeholder="X軸のラベル（空の場合はカラム名が使用されます）"
+                        placeholder="X軸のラベル"
                       />
                     </Col>
                   </Row>

@@ -5,8 +5,6 @@ import {
   Scatter,
   BarChart,
   Bar,
-  ComposedChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -134,7 +132,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
     };
   }, [config.yAxisRanges]);
 
-  // データの変換（ソート + 横棒グラフの場合はXとYを入れ替え + 日付を数値変換）
+  // データの変換（ソート + 日付を数値変換）
   const transformedData = React.useMemo(() => {
     const processedData = [...data];
 
@@ -197,20 +195,6 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
       
       return convertedData;
     }
-
-    if (config.chartType === 'horizontalBar') {
-      // 横棒グラフの場合、XとYを入れ替える
-      return processedData.map(row => {
-        const transformed: Record<string, unknown> = {};
-        // Y軸カラムを新しいX軸として設定
-        config.yAxisColumns.forEach(col => {
-          transformed[col] = row[col];
-        });
-        // 元のX軸カラムを新しいY軸として設定
-        transformed['category'] = row[config.xAxisColumn];
-        return transformed;
-      });
-    }
     return processedData;
   }, [data, config, xAxisDataType]);
 
@@ -228,104 +212,11 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
     ) as 'left' | 'center' | 'right',
   };
 
-  // 散布図
-  if (config.chartType === 'scatter') {
+  // 縦棒グラフ
+  if (config.chartType === 'bar') {
     return (
       <ResponsiveContainer width="100%" height={400}>
-        <ScatterChart data={transformedData} margin={{ top: 20, right: 120, left: 80, bottom: 60 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey={config.xAxisColumn} 
-            name={config.xAxisLabel}
-            type={xAxisDataType === 'date' ? 'number' : (xAxisDataType === 'number' ? 'number' : 'category')}
-            scale={xAxisDataType === 'date' ? 'time' : undefined}
-            domain={xAxisDataType === 'date' ? ['dataMin', 'dataMax'] : undefined}
-            tickFormatter={xAxisDataType === 'date' ? formatSnowflakeDateTime : undefined}
-            label={{ value: config.xAxisLabel || config.xAxisColumn, position: 'insideBottom', offset: -5 }}
-          />
-          {/* 左Y軸 */}
-          {config.yAxisColumns.filter(col => config.yAxisSides[col] === 'left').length > 0 && (
-            <YAxis 
-              yAxisId="left"
-              orientation="left"
-              domain={getAxisDomain.yLeftDomain}
-              allowDataOverflow={true}
-              label={{ value: config.yAxisLabels.left, angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: -30 }}
-            />
-          )}
-          {/* 右Y軸 */}
-          {config.yAxisColumns.filter(col => config.yAxisSides[col] === 'right').length > 0 && (
-            <YAxis 
-              yAxisId="right"
-              orientation="right"
-              domain={getAxisDomain.yRightDomain}
-              allowDataOverflow={true}
-              label={{ 
-                value: config.yAxisLabels.right, 
-                angle: 90, 
-                position: 'insideRight',
-                textAnchor: 'middle',
-                offset: -10
-              }}
-            />
-          )}
-          <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} xAxisLabel={config.xAxisLabel} />} />
-          {config.legendVisible && <Legend {...legendConfig} />}
-          {config.yAxisColumns.map((col) => (
-            <Scatter
-              key={col}
-              yAxisId={config.yAxisSides[col] || 'left'}
-              dataKey={col}
-              fill={config.seriesColors[col]}
-              name={col}
-            />
-          ))}
-        </ScatterChart>
-      </ResponsiveContainer>
-    );
-  }
-
-  // 横棒グラフ
-  if (config.chartType === 'horizontalBar') {
-    return (
-      <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={transformedData} layout="horizontal" margin={{ top: 20, right: 30, left: 100, bottom: 60 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            type="number" 
-            domain={getAxisDomain.yLeftDomain}
-            allowDataOverflow={true}
-            label={{ value: config.yAxisLabels.left || 'Value', position: 'insideBottom', offset: -5 }}
-          />
-          <YAxis 
-            dataKey="category" 
-            type="category"
-            label={{ value: config.xAxisLabel || config.xAxisColumn, angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: -30 }}
-          />
-          <Tooltip />
-          {config.legendVisible && <Legend {...legendConfig} />}
-          {config.yAxisColumns.map((col) => (
-            <Bar 
-              key={col}
-              dataKey={col} 
-              fill={config.seriesColors[col]}
-              name={col}
-            />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
-    );
-  }
-
-  // 組み合わせグラフ（棒 + 線）
-  if (config.chartType === 'combo') {
-    const halfIndex = Math.ceil(config.yAxisColumns.length / 2);
-    const barColumns = config.yAxisColumns.slice(0, halfIndex);
-    const lineColumns = config.yAxisColumns.slice(halfIndex);
-
-    return (
-      <ResponsiveContainer width="100%" height={400}>
-        <ComposedChart data={transformedData} margin={{ top: 20, right: 120, left: 80, bottom: 60 }}>
+        <BarChart data={transformedData} margin={{ top: 20, right: 120, left: 80, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             dataKey={config.xAxisColumn}
@@ -364,8 +255,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
           )}
           <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} xAxisLabel={config.xAxisLabel} />} />
           {config.legendVisible && <Legend {...legendConfig} />}
-          {/* 棒グラフ部分 */}
-          {barColumns.map((col) => (
+          {config.yAxisColumns.map((col) => (
             <Bar 
               key={col}
               yAxisId={config.yAxisSides[col] || 'left'}
@@ -374,30 +264,18 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
               name={col}
             />
           ))}
-          {/* 線グラフ部分 */}
-          {lineColumns.map((col) => (
-            <Line 
-              key={col}
-              yAxisId={config.yAxisSides[col] || 'left'}
-              type="monotone" 
-              dataKey={col} 
-              stroke={config.seriesColors[col]}
-              strokeWidth={2}
-              name={col}
-            />
-          ))}
-        </ComposedChart>
+        </BarChart>
       </ResponsiveContainer>
     );
   }
 
-  // デフォルト: 縦棒グラフ
+  // デフォルト: 散布図
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <BarChart data={transformedData} margin={{ top: 20, right: 120, left: 80, bottom: 60 }}>
+      <ScatterChart data={transformedData} margin={{ top: 20, right: 120, left: 80, bottom: 60 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
-          dataKey={config.xAxisColumn}
+          dataKey={config.xAxisColumn} 
           name={config.xAxisLabel}
           type={xAxisDataType === 'date' ? 'number' : (xAxisDataType === 'number' ? 'number' : 'category')}
           scale={xAxisDataType === 'date' ? 'time' : undefined}
@@ -434,15 +312,15 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
         <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} xAxisLabel={config.xAxisLabel} />} />
         {config.legendVisible && <Legend {...legendConfig} />}
         {config.yAxisColumns.map((col) => (
-          <Bar 
+          <Scatter
             key={col}
             yAxisId={config.yAxisSides[col] || 'left'}
-            dataKey={col} 
+            dataKey={col}
             fill={config.seriesColors[col]}
             name={col}
           />
         ))}
-      </BarChart>
+      </ScatterChart>
     </ResponsiveContainer>
   );
 };
