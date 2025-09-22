@@ -263,7 +263,7 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                         type="text"
                         value={config.xAxisLabel}
                         onChange={(e) => setConfig(prev => ({ ...prev, xAxisLabel: e.target.value }))}
-                        placeholder="X軸のラベル"
+                        placeholder="X軸のラベル（空の場合はカラム名が使用されます）"
                       />
                     </Col>
                   </Row>

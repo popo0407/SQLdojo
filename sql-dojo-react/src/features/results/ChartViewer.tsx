@@ -42,7 +42,7 @@ const formatSnowflakeDateTime = (value: string | number): string => {
   const hour = snowflakeStr.substring(8, 10);
   const minute = snowflakeStr.substring(10, 12);
   
-  // 短縮形式で表示（MM/DD HH:mm）
+  // 短縮形式で表示（M/DD HH:mm）
   return `${month}/${day} ${hour}:${minute}`;
 };
 
@@ -93,7 +93,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
     const getYDomain = (side: 'left' | 'right') => {
       const range = config.yAxisRanges?.[side];
       if (range && (range.min !== undefined || range.max !== undefined)) {
-        // 範囲指定がある場合は、数値のみで構成（dataMin/dataMaxは使わない）
+        // 範囲指定がある場合は、数値のみで構成し、dataMin/dataMaxは使わない
         const minVal = range.min;
         const maxVal = range.max;
         
@@ -102,7 +102,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
           return [minVal, maxVal] as [number, number];
         }
         
-        // 片方のみ指定の場合はdataMin/dataMaxと組み合わせ
+        // 片方のみ指定の場合、dataMin/dataMaxと組み合わせ
         return [
           minVal ?? 'dataMin',
           maxVal ?? 'dataMax'
@@ -131,7 +131,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
         
         // Snowflake形式の日時判定（YYYYMMDDhhmmss - 14桁の数字）
         if (/^\d{14}$/.test(strA) && /^\d{14}$/.test(strB)) {
-          // 文字列として比較（YYYYMMDDhhmmss形式は文字列比較で正しくソートされる）
+          // 文字列として比較（YYYYMMDDhhmmss形式の文字列比較で正しくソートされる）
           return strA.localeCompare(strB);
         }
         
@@ -215,7 +215,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
   if (config.chartType === 'scatter') {
     return (
       <ResponsiveContainer width="100%" height={400}>
-        <ScatterChart data={transformedData}>
+        <ScatterChart data={transformedData} margin={{ top: 20, right: 120, left: 80, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             dataKey={config.xAxisColumn} 
@@ -224,6 +224,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
             scale={xAxisDataType === 'date' ? 'time' : undefined}
             domain={xAxisDataType === 'date' ? ['dataMin', 'dataMax'] : undefined}
             tickFormatter={xAxisDataType === 'date' ? formatSnowflakeDateTime : undefined}
+            label={{ value: config.xAxisLabel || config.xAxisColumn, position: 'insideBottom', offset: -5 }}
           />
           {/* 左Y軸 */}
           {config.yAxisColumns.filter(col => config.yAxisSides[col] === 'left').length > 0 && (
@@ -232,7 +233,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
               orientation="left"
               domain={getAxisDomain.yLeftDomain}
               allowDataOverflow={true}
-              label={{ value: config.yAxisLabels.left, angle: -90, position: 'insideLeft' }}
+              label={{ value: config.yAxisLabels.left, angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: -30 }}
             />
           )}
           {/* 右Y軸 */}
@@ -242,7 +243,13 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
               orientation="right"
               domain={getAxisDomain.yRightDomain}
               allowDataOverflow={true}
-              label={{ value: config.yAxisLabels.right, angle: 90, position: 'insideRight' }}
+              label={{ 
+                value: config.yAxisLabels.right, 
+                angle: 90, 
+                position: 'insideRight',
+                textAnchor: 'middle',
+                offset: -10
+              }}
             />
           )}
           <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} />} />
@@ -265,17 +272,18 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
   if (config.chartType === 'horizontalBar') {
     return (
       <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={transformedData} layout="horizontal">
+        <BarChart data={transformedData} layout="horizontal" margin={{ top: 20, right: 30, left: 100, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             type="number" 
             domain={getAxisDomain.yLeftDomain}
             allowDataOverflow={true}
+            label={{ value: config.yAxisLabels.left || 'Value', position: 'insideBottom', offset: -5 }}
           />
           <YAxis 
             dataKey="category" 
             type="category"
-            label={{ value: config.xAxisLabel, angle: -90, position: 'insideLeft' }}
+            label={{ value: config.xAxisLabel || config.xAxisColumn, angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: -30 }}
           />
           <Tooltip />
           {config.legendVisible && <Legend {...legendConfig} />}
@@ -300,7 +308,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
 
     return (
       <ResponsiveContainer width="100%" height={400}>
-        <ComposedChart data={transformedData}>
+        <ComposedChart data={transformedData} margin={{ top: 20, right: 120, left: 80, bottom: 60 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             dataKey={config.xAxisColumn}
@@ -308,7 +316,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
             scale={xAxisDataType === 'date' ? 'time' : undefined}
             domain={xAxisDataType === 'date' ? ['dataMin', 'dataMax'] : undefined}
             tickFormatter={xAxisDataType === 'date' ? formatSnowflakeDateTime : undefined}
-            label={{ value: config.xAxisLabel, position: 'insideBottomRight', offset: -10 }}
+            label={{ value: config.xAxisLabel || config.xAxisColumn, position: 'insideBottom', offset: -5 }}
           />
           {/* 左Y軸 */}
           {config.yAxisColumns.filter(col => config.yAxisSides[col] === 'left').length > 0 && (
@@ -317,7 +325,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
               orientation="left"
               domain={getAxisDomain.yLeftDomain}
               allowDataOverflow={true}
-              label={{ value: config.yAxisLabels.left, angle: -90, position: 'insideLeft' }}
+              label={{ value: config.yAxisLabels.left, angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: -30 }}
             />
           )}
           {/* 右Y軸 */}
@@ -327,7 +335,13 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
               orientation="right"
               domain={getAxisDomain.yRightDomain}
               allowDataOverflow={true}
-              label={{ value: config.yAxisLabels.right, angle: 90, position: 'insideRight' }}
+              label={{ 
+                value: config.yAxisLabels.right, 
+                angle: 90, 
+                position: 'insideRight',
+                textAnchor: 'middle',
+                offset: -10
+              }}
             />
           )}
           <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} />} />
@@ -362,7 +376,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
   // デフォルト: 縦棒グラフ
   return (
     <ResponsiveContainer width="100%" height={400}>
-      <BarChart data={transformedData}>
+      <BarChart data={transformedData} margin={{ top: 20, right: 120, left: 80, bottom: 60 }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
           dataKey={config.xAxisColumn}
@@ -370,7 +384,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
           scale={xAxisDataType === 'date' ? 'time' : undefined}
           domain={xAxisDataType === 'date' ? ['dataMin', 'dataMax'] : undefined}
           tickFormatter={xAxisDataType === 'date' ? formatSnowflakeDateTime : undefined}
-          label={{ value: config.xAxisLabel, position: 'insideBottomRight', offset: -10 }}
+          label={{ value: config.xAxisLabel || config.xAxisColumn, position: 'insideBottom', offset: -5 }}
         />
         {/* 左Y軸 */}
         {config.yAxisColumns.filter(col => config.yAxisSides[col] === 'left').length > 0 && (
@@ -379,7 +393,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
             orientation="left"
             domain={getAxisDomain.yLeftDomain}
             allowDataOverflow={true}
-            label={{ value: config.yAxisLabels.left, angle: -90, position: 'insideLeft' }}
+            label={{ value: config.yAxisLabels.left, angle: -90, position: 'insideLeft', textAnchor: 'middle', offset: -30 }}
           />
         )}
         {/* 右Y軸 */}
@@ -389,7 +403,13 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
             orientation="right"
             domain={getAxisDomain.yRightDomain}
             allowDataOverflow={true}
-            label={{ value: config.yAxisLabels.right, angle: 90, position: 'insideRight' }}
+            label={{ 
+              value: config.yAxisLabels.right, 
+              angle: 90, 
+              position: 'insideRight',
+              textAnchor: 'middle',
+              offset: -10
+            }}
           />
         )}
         <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} />} />
