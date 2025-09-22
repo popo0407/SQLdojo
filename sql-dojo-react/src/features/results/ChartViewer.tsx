@@ -49,23 +49,40 @@ const formatSnowflakeDateTime = (value: string | number): string => {
 /**
  * カスタムツールチップ（日時フォーマット対応）
  */
-const CustomTooltip = ({ active, payload, label, xAxisDataType }: {
+const CustomTooltip = ({ active, payload, label, xAxisDataType, xAxisLabel }: {
   active?: boolean;
   payload?: Array<{ name: string; value: unknown; color: string }>;
   label?: string | number;
   xAxisDataType: string;
+  xAxisLabel?: string;
 }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white border border-gray-300 rounded p-2 shadow">
         <p className="font-semibold mb-1">
-          {xAxisDataType === 'date' ? formatSnowflakeDateTime(label!) : String(label)}
+          {xAxisLabel || 'データポイント'}
         </p>
-        {payload.map((entry, index: number) => (
-          <p key={index} style={{ color: entry.color }} className="text-sm">
-            {`${entry.name}: ${entry.value}`}
+        {/* X軸の値を表示 */}
+        {label !== undefined && (
+          <p className="text-sm mb-1">
+            {xAxisDataType === 'date' ? formatSnowflakeDateTime(label!) : String(label)}
           </p>
-        ))}
+        )}
+        {payload.map((entry, index: number) => {
+          // 日時データの場合は適切にフォーマット
+          let displayValue = entry.value;
+          if (entry.name === '日時' && typeof entry.value === 'number') {
+            displayValue = formatSnowflakeDateTime(entry.value);
+          } else if (entry.value === undefined || entry.value === null) {
+            displayValue = 'N/A';
+          }
+          
+          return (
+            <p key={index} style={{ color: entry.color }} className="text-sm">
+              {`${entry.name}: ${displayValue}`}
+            </p>
+          );
+        })}
       </div>
     );
   }
@@ -252,7 +269,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
               }}
             />
           )}
-          <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} />} />
+          <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} xAxisLabel={config.xAxisLabel} />} />
           {config.legendVisible && <Legend {...legendConfig} />}
           {config.yAxisColumns.map((col) => (
             <Scatter
@@ -312,6 +329,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             dataKey={config.xAxisColumn}
+            name={config.xAxisLabel}
             type={xAxisDataType === 'date' ? 'number' : (xAxisDataType === 'number' ? 'number' : 'category')}
             scale={xAxisDataType === 'date' ? 'time' : undefined}
             domain={xAxisDataType === 'date' ? ['dataMin', 'dataMax'] : undefined}
@@ -344,7 +362,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
               }}
             />
           )}
-          <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} />} />
+          <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} xAxisLabel={config.xAxisLabel} />} />
           {config.legendVisible && <Legend {...legendConfig} />}
           {/* 棒グラフ部分 */}
           {barColumns.map((col) => (
@@ -380,6 +398,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
           dataKey={config.xAxisColumn}
+          name={config.xAxisLabel}
           type={xAxisDataType === 'date' ? 'number' : (xAxisDataType === 'number' ? 'number' : 'category')}
           scale={xAxisDataType === 'date' ? 'time' : undefined}
           domain={xAxisDataType === 'date' ? ['dataMin', 'dataMax'] : undefined}
@@ -412,7 +431,7 @@ const ChartViewer: React.FC<ChartViewerProps> = ({ data, config }) => {
             }}
           />
         )}
-        <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} />} />
+        <Tooltip content={<CustomTooltip xAxisDataType={xAxisDataType} xAxisLabel={config.xAxisLabel} />} />
         {config.legendVisible && <Legend {...legendConfig} />}
         {config.yAxisColumns.map((col) => (
           <Bar 
