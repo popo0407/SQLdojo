@@ -236,10 +236,10 @@ async def generate_dummy_data_endpoint(
     
     try:
         # ダミーデータを生成
-        row_count = min(request.row_count or 50, 1000)  # 最大1000行に制限
+        row_count = min(request.row_count or 10000, 50000)  # 最大50000行に制限
         
         # 日付・日時データ（過去から未来まで幅広い範囲 + テスト用データ）
-        base_date = datetime.now() - timedelta(days=60)  # 60日前から開始
+        base_date = datetime(2023, 1, 1)  # 2023年1月1日から開始
         dates = []
         datetimes = []
         
@@ -250,20 +250,20 @@ async def generate_dummy_data_endpoint(
             current_time = current_date.replace(
                 hour=6 + (i % 4) * 4,  # 6時, 10時, 14時, 18時
                 minute=random.randint(0, 59),  # ランダムな分
-                second=random.randint(0, 59)   # ランダムな秒
+                second=0   # 秒は00に固定
             )
             
             dates.append(current_date.strftime('%Y-%m-%d'))
-            # Snowflake形式の日時文字列（YYYYMMDDhhmmss）
-            datetimes.append(current_time.strftime('%Y%m%d%H%M%S'))
+            # YYYY-MM-DDTHH:MM:SS形式の日時文字列
+            datetimes.append(current_time.strftime('%Y-%m-%dT%H:%M:%S'))
         
         # テスト用の特別なデータ（時系列順序テスト）
         test_dates_times = [
-            (datetime(2025, 11, 1, 0, 0, 0), '20251101000000'),  # 未来の日付
-            (datetime(2023, 1, 15, 12, 30, 0), '20230115123000'),  # 過去の日付
-            (datetime(2024, 12, 31, 23, 59, 59), '20241231235959'),  # 年末
-            (datetime(2025, 1, 1, 0, 0, 1), '20250101000001'),  # 年始
-            (datetime(2024, 6, 15, 12, 0, 0), '20240615120000'),  # 真ん中の日付
+            (datetime(2025, 11, 1, 0, 0, 0), '2025-11-01T00:00:00'),  # 未来の日付
+            (datetime(2023, 1, 15, 12, 30, 0), '2023-01-15T12:30:00'),  # 過去の日付
+            (datetime(2024, 12, 31, 23, 59, 0), '2024-12-31T23:59:00'),  # 年末
+            (datetime(2025, 1, 1, 0, 0, 0), '2025-01-01T00:00:00'),  # 年始
+            (datetime(2024, 6, 15, 12, 0, 0), '2024-06-15T12:00:00'),  # 真ん中の日付
         ]
         
         for test_date, test_datetime in test_dates_times:

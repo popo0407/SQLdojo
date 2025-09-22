@@ -13,32 +13,31 @@ export interface DummyDataRow {
 
 /**
  * グラフテスト用のダミーデータを生成
- * @param rowCount 生成するデータ行数（デフォルト: 50）
+ * @param rowCount 生成するデータ行数（デフォルト: 10000）
  * @returns ダミーデータの配列
  */
-export function generateDummyData(rowCount: number = 50): DummyDataRow[] {
+export function generateDummyData(rowCount: number = 10000): DummyDataRow[] {
   const regions = ['東京', '大阪', '名古屋', '福岡', '札幌'];
   const categories = ['電子機器', '衣料品', '食品', '書籍', '雑貨'];
   
   const data: DummyDataRow[] = [];
-  const startDate = new Date('2024-01-01');
   
   for (let i = 0; i < rowCount; i++) {
     // 日時を順次進める（数時間おきにランダムな時刻を追加）
-    const currentDate = new Date(startDate);
-    currentDate.setDate(startDate.getDate() + Math.floor(i / 4)); // 1日に4レコード
+    const currentDate = new Date('2023-01-01');
+    currentDate.setDate(currentDate.getDate() + Math.floor(i / 4)); // 1日に4レコード
     currentDate.setHours(6 + (i % 4) * 4); // 6時, 10時, 14時, 18時
     currentDate.setMinutes(Math.floor(Math.random() * 60)); // ランダムな分
-    currentDate.setSeconds(Math.floor(Math.random() * 60)); // ランダムな秒
+    currentDate.setSeconds(0); // 秒は00に固定
     
-    // Snowflake形式の日時文字列を生成（YYYYMMDDhhmmss）
+    // YYYY-MM-DDTHH:MM:SS形式の日時文字列を生成
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
     const hour = String(currentDate.getHours()).padStart(2, '0');
     const minute = String(currentDate.getMinutes()).padStart(2, '0');
     const second = String(currentDate.getSeconds()).padStart(2, '0');
-    const snowflakeDateTime = `${year}${month}${day}${hour}${minute}${second}`;
+    const formattedDateTime = `${year}-${month}-${day}T${hour}:${minute}:${second}`;
     
     // ランダムな売上高（10万〜500万）
     const baseSales = Math.random() * 4900000 + 100000;
@@ -55,7 +54,7 @@ export function generateDummyData(rowCount: number = 50): DummyDataRow[] {
     
     data.push({
       日付: currentDate.toISOString().split('T')[0], // YYYY-MM-DD形式
-      日時: snowflakeDateTime, // YYYYMMDDhhmmss形式（Snowflake対応）
+      日時: formattedDateTime, // YYYY-MM-DDTHH:MM:SS形式
       売上高: sales,
       利益: profit,
       地域: region,

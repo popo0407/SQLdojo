@@ -69,7 +69,7 @@ class ConnectionManagerSnowflakeLog:
             self.logger.info(f"ログ用ODBC接続文字列: {debug_conn_str}")
             
             # ODBC接続を作成
-            self.connection = pyodbc.connect(conn_str, timeout=30, autocommit=True)
+            self.connection = pyodbc.connect(conn_str, timeout=self.settings.connection_timeout_seconds, autocommit=True)
             
             self.logger.info("Snowflakeログ用ODBC接続を確立しました")
             return True

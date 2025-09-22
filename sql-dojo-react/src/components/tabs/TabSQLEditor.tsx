@@ -255,7 +255,7 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
       console.log('ダミーデータ生成開始...');
       
       // ダミーデータAPIを呼び出し（SQL実行と同じ流れ）
-      const response = await generateDummyData({ rowCount: 50 });
+      const response = await generateDummyData({ rowCount: 10000 });
       
       console.log('ダミーデータAPI レスポンス:', response);
       
