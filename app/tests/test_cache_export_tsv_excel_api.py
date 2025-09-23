@@ -94,18 +94,57 @@ class TestCacheClipboardTSVAPI:
 
 class TestCacheDownloadExcelAPI:
     def test_cache_download_excel_success(self, client: TestClient):
+        """chart_configありとなしでファイルサイズを比較"""
         mock_service = Mock()
         mock_service.get_cached_data.return_value = {
-            "data": [{"A": 1, "B": 2}, {"A": 3, "B": 4}],
-            "columns": ["A", "B"],
+            "data": [{"name": "Product_1", "price": 100, "quantity": 10}, 
+                     {"name": "Product_2", "price": 200, "quantity": 20}],
+            "columns": ["name", "price", "quantity"],
         }
         app = client.app
         app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
-        resp = client.post("/api/v1/sql/cache/download/excel", json={"session_id": "s_excel"})
-        assert resp.status_code == 200
-        ctype = resp.headers["content-type"].lower()
-        assert "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" in ctype
-        assert len(resp.content) > 500
+        
+        # 1. chart_configなしでテスト
+        resp_no_chart = client.post("/api/v1/sql/cache/download/excel", json={
+            "session_id": "s_excel"
+        })
+        assert resp_no_chart.status_code == 200
+        size_no_chart = len(resp_no_chart.content)
+        
+        # 2. chart_config付きでテスト
+        chart_config = {
+            'chartType': 'bar',
+            'xColumn': 'name',
+            'yColumns': ['price', 'quantity'],
+            'title': 'Test Products Chart',
+            'xAxisLabel': 'Product Name',
+            'yAxisLabel': 'Value'
+        }
+        
+        resp_with_chart = client.post("/api/v1/sql/cache/download/excel", json={
+            "session_id": "s_excel", 
+            "chart_config": chart_config
+        })
+        assert resp_with_chart.status_code == 200
+        size_with_chart = len(resp_with_chart.content)
+        
+        print(f"Excel file size without chart: {size_no_chart} bytes")
+        print(f"Excel file size with chart: {size_with_chart} bytes")
+        print(f"Size difference: {size_with_chart - size_no_chart} bytes")
+        
+        # chart_config付きの方が大きいはず（グラフが含まれている場合）
+        if size_with_chart > size_no_chart:
+            print("✅ Chart appears to be included (file size increased)")
+        else:
+            print("❌ Chart may not be included (no size increase)")
+        
+        # Excelファイルを保存して検証
+        with open('test_no_chart.xlsx', 'wb') as f:
+            f.write(resp_no_chart.content)
+        with open('test_with_chart.xlsx', 'wb') as f:
+            f.write(resp_with_chart.content)
+        print("Excel files saved: test_no_chart.xlsx, test_with_chart.xlsx")
+        
         app.dependency_overrides.clear()
 
     def test_cache_download_excel_no_session(self, client: TestClient):

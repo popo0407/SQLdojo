@@ -145,7 +145,11 @@ class Settings(BaseSettings):
         description="クリップボードコピーを許可する最大レコード数の閾値",
         validation_alias=AliasChoices('MAX_RECORDS_FOR_CLIPBOARD_COPY', 'max_records_for_clipboard_copy')
     )
-    max_rows_for_excel_chart: int = Field(default=100000, description="グラフ付きExcelを許容する最大行数（将来オプション）")
+    max_rows_for_excel_chart: int = Field(
+        default=100000, 
+        description="グラフ付きExcelを許容する最大行数（将来オプション）",
+        validation_alias=AliasChoices('MAX_ROWS_FOR_EXCEL_CHART', 'max_rows_for_excel_chart')
+    )
     
     # 履歴関連設定
     max_history_logs: int = Field(

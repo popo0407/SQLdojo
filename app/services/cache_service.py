@@ -149,8 +149,8 @@ class CacheService:
     
     def create_cache_table(self, session_id: str, columns: List[str]) -> str:
         """キャッシュテーブルを作成"""
-        # セッションIDがそのままテーブル名として使用可能になった
-        table_name = session_id
+        # セッションIDからテーブル名を生成
+        table_name = self._get_table_name_from_session_id(session_id)
         
         with sqlite3.connect(self.cache_db_path) as conn:
             cursor = conn.cursor()
@@ -379,8 +379,8 @@ class CacheService:
             # 同期時刻情報も削除
             self._last_sync_time.pop(session_id, None)
             
-            # セッションIDがそのままテーブル名
-            table_name = session_id
+            # セッションIDからテーブル名を生成
+            table_name = self._get_table_name_from_session_id(session_id)
             
             # キャッシュテーブルを削除
             try:
@@ -466,8 +466,8 @@ class CacheService:
                 logger.info(f"ユーザー({user_id})の{len(sessions_to_delete)}件のセッションを削除します。")
 
                 for (session_id,) in sessions_to_delete:
-                    # セッションIDがそのままテーブル名
-                    table_name = session_id
+                    # セッションIDからテーブル名を生成
+                    table_name = self._get_table_name_from_session_id(session_id)
                     
                     # キャッシュテーブルを削除
                     logger.debug(f"テーブルを削除します: {table_name}")
@@ -496,8 +496,8 @@ class CacheService:
         if page_size is None:
             page_size = settings.default_page_size
             
-        # セッションIDがそのままテーブル名
-        table_name = session_id
+        # セッションIDからテーブル名を生成
+        table_name = self._get_table_name_from_session_id(session_id)
         
         with sqlite3.connect(self.cache_db_path) as conn:
             cursor = conn.cursor()
