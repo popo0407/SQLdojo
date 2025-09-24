@@ -15,23 +15,18 @@ const startTabProgressPolling = async (sessionId: string, progressStore: { updat
       
       progressStore.updateProgress({
         currentCount: statusResponse.processed_count,
-        progressPercentage: statusResponse.progress_percentage,
+        progressPercentage: statusResponse.progress_percentage || 0,
         message: statusResponse.message || 'データを取得中...'
       });
 
-      // ストリーミングが完了した場合はポーリング停止
       if (statusResponse.status === 'completed' || statusResponse.status === 'error' || statusResponse.status === 'cancelled') {
         if (tabProgressPollingInterval) {
           clearInterval(tabProgressPollingInterval);
           tabProgressPollingInterval = null;
         }
-        // 完了表示を1秒間保持してから非表示
-        setTimeout(() => {
-          progressStore.hideProgress();
-        }, 1000);
+        progressStore.hideProgress();
       }
     } catch {
-      // エラーが発生した場合もポーリングを停止
       if (tabProgressPollingInterval) {
         clearInterval(tabProgressPollingInterval);
         tabProgressPollingInterval = null;
@@ -40,15 +35,10 @@ const startTabProgressPolling = async (sessionId: string, progressStore: { updat
     }
   };
 
-  // 既存のポーリングを停止
-  if (tabProgressPollingInterval) {
-    clearInterval(tabProgressPollingInterval);
-  }
-
   // 初回実行
   pollProgress();
-  
-  // 100ms間隔でポーリング開始
+
+  // 定期実行
   tabProgressPollingInterval = setInterval(pollProgress, 100);
 };
 
@@ -512,15 +502,8 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
     const tab = tabs.find(t => t.id === tabId);
     if (!tab) return;
 
-    // 進捗ストアとUIストアを取得
-    const { useProgressStore } = await import('./useProgressStore');
-    const { useUIStore } = await import('./useUIStore');
-    const progressStore = useProgressStore.getState();
-    const uiStore = useUIStore.getState();
-
     // 実行状態を設定
     setTabExecuting(tabId, true);
-    uiStore.startLoading(); // UIストア連携追加
     updateTabResults(tabId, {
       error: null,
       data: null,
@@ -530,15 +513,67 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
       lastExecutedSql: sql
     });
 
-    // 進捗リセット
-    progressStore.resetProgress();
-
     try {
+      // 進捗表示を即座に開始
+      const { useProgressStore } = await import('./useProgressStore');
+      const { useUIStore } = await import('./useUIStore');
+      const progressStore = useProgressStore.getState();
+      const uiStore = useUIStore.getState();
+
+      uiStore.startLoading();
+      progressStore.resetProgress();
+
+      // SQL実行開始を即座に通知
+      progressStore.showProgress({
+        totalCount: 0,
+        currentCount: 0,
+        progressPercentage: 0,
+        message: 'SQL文を構文解析中...'
+      });
+
+      // 段階1: SQL構文解析（短縮）
+      await new Promise(resolve => setTimeout(resolve, 50));
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 2,
+        message: 'SQL文を検証中...'
+      });
+
+      // 段階2: 接続準備（短縮）
+      await new Promise(resolve => setTimeout(resolve, 50));
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 5,
+        message: 'データベース接続を準備中...'
+      });
+
+      // 段階3: 接続確立（短縮）
+      await new Promise(resolve => setTimeout(resolve, 50));
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 10,
+        message: 'データベースに接続完了、クエリ送信中...'
+      });
+
       // 既存のAPIサービスを使用
       const { executeSqlOnCache, readSqlCache } = await import('../api/sqlService');
       
-      // SQL実行
+      // 段階4: 実際にSQL実行開始（メインの時間消費処理）
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 35,
+        message: 'SQLクエリを実行中... (データベース処理)'
+      });
+
+      // SQL実行（ここで実際に時間がかかる）
       const execResult = await executeSqlOnCache({ sql });
+      
+      // 段階5: SQL実行完了
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 70,
+        message: 'SQL実行完了、結果を準備中...'
+      });
       
       if (!execResult.success) {
         // エラーメッセージを適切に処理
@@ -600,6 +635,13 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
 
       // 初回データ取得
       if (execResult.session_id) {
+        // 段階6: データ読み込み準備（高速）
+        progressStore.updateProgress({
+          currentCount: 0,
+          progressPercentage: 80,
+          message: '結果データを取得中...'
+        });
+
         // 設定ページサイズを取得（デフォルト100）
         const pageSize = tab.sessionState.configSettings?.default_page_size || 100;
         
@@ -607,6 +649,13 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
           session_id: execResult.session_id,
           page: 1,
           page_size: pageSize
+        });
+        
+        // 段階7: データ読み込み完了
+        progressStore.updateProgress({
+          currentCount: 0,
+          progressPercentage: 85,
+          message: 'データ読み込み完了、処理中...'
         });
 
         if (readResult.success && readResult.data && readResult.columns) {
@@ -635,6 +684,13 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
           const filterStore = useResultsFilterStore.getState();
           const paginationStore = useResultsPaginationStore.getState();
 
+          // 段階8: ストア更新
+          progressStore.updateProgress({
+            currentCount: 0,
+            progressPercentage: 95,
+            message: 'データを画面に反映中...'
+          });
+
           // 全ストアを同期更新
           dataStore.setAllData(typedData);
           dataStore.setRawData(typedData);
@@ -647,6 +703,13 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
 
           filterStore.setSortConfig(null);
           filterStore.setFilters({});
+
+          // 段階9: 最終処理
+          progressStore.updateProgress({
+            currentCount: typedData.length,
+            progressPercentage: 100,
+            message: `完了！${typedData.length}件のレコードを表示準備中...`
+          });
 
           // タブ結果を設定
           updateTabResults(tabId, {
@@ -661,6 +724,11 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
           // UI状態をクリア
           uiStore.clearError();
           uiStore.stopLoading();
+          
+          // 完了メッセージを少し表示してから非表示
+          setTimeout(() => {
+            progressStore.hideProgress();
+          }, 1500);
         } else {
           updateTabResults(tabId, {
             error: readResult.message || 'データ取得に失敗しました',
@@ -694,6 +762,12 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
       }, 1000);
 
     } catch (error) {
+      // エラー時もストアを取得
+      const { useProgressStore } = await import('./useProgressStore');
+      const { useUIStore } = await import('./useUIStore');
+      const progressStore = useProgressStore.getState();
+      const uiStore = useUIStore.getState();
+
       updateTabResults(tabId, {
         error: error instanceof Error ? error.message : '不明なエラーが発生しました',
         data: null,

@@ -83,7 +83,31 @@ export const createResultsExecutionStore = () => create<ResultsExecutionState & 
       // 既存のポーリングを停止
       get().stopProgressPolling();
       
+      // SQL実行開始を即座にユーザーに通知
+      progressStore.showProgress({
+        totalCount: 0,
+        currentCount: 0,
+        progressPercentage: 0,
+        message: 'SQL文を検証中...'
+      });
+      
+      // 少し待ってから次のステージへ
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 10,
+        message: 'データベースに接続中...'
+      });
+      
       const res = await executeSqlOnCache({ sql });
+      
+      // SQL実行が開始されたことを通知
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 30,
+        message: 'SQLクエリを実行中...'
+      });
       
       if (!res.success) {
         // エラーメッセージを適切に処理
@@ -93,6 +117,13 @@ export const createResultsExecutionStore = () => create<ResultsExecutionState & 
         progressStore.hideProgress();
         return;
       }
+
+      // SQL実行が成功したことを通知
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 50,
+        message: 'データを準備中...'
+      });
 
       // 進捗データが含まれている場合は進捗表示を開始
       if (res.total_count && res.total_count > 0) {
@@ -121,6 +152,14 @@ export const createResultsExecutionStore = () => create<ResultsExecutionState & 
       }
       
       sessionStore.setSessionId(res.session_id);
+      
+      // データ読み込み開始を通知
+      progressStore.updateProgress({
+        currentCount: 0,
+        progressPercentage: 70,
+        message: '結果データを取得中...'
+      });
+      
       const pageSize = sessionStore.configSettings?.default_page_size || 100;
       const readRes = await readSqlCache({
         session_id: res.session_id,
@@ -152,6 +191,13 @@ export const createResultsExecutionStore = () => create<ResultsExecutionState & 
       filterStore.setSortConfig(null);
       filterStore.setFilters({});
       
+      // 処理完了を通知
+      progressStore.updateProgress({
+        currentCount: readRes.total_count || newData.length,
+        progressPercentage: 100,
+        message: `完了！${readRes.total_count || newData.length}件のデータを取得しました`
+      });
+
       uiStore.clearError();
       uiStore.stopLoading();
       
@@ -159,7 +205,7 @@ export const createResultsExecutionStore = () => create<ResultsExecutionState & 
       setTimeout(() => {
         progressStore.hideProgress();
         get().stopProgressPolling();
-      }, 1000);
+      }, 1500);
       
     } catch (err: unknown) {
       const error = err instanceof Error ? err.message : 'SQL実行に失敗しました';

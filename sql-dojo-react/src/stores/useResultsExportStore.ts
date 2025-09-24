@@ -10,6 +10,7 @@ import { useResultsFilterStore } from './useResultsFilterStore';
 import { useResultsSessionStore } from './useResultsSessionStore';
 import { useUIStore } from './useUIStore';
 import { useChartStore } from './useChartStore';
+import { useProgressStore } from './useProgressStore';
 import type { ResultsExportActions } from '../types/results';
 
 export const createResultsExportStore = () => create<ResultsExportActions>(() => ({
@@ -24,6 +25,10 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
     
   if (sessionStore.sessionId) {
       uiStore.setIsDownloading(true);
+      const progressStore = useProgressStore.getState();
+      progressStore.showProgress({
+        message: 'CSVファイルを生成中...'
+      });
       try {
         const blob = await downloadCsvFromCache({
           session_id: sessionStore.sessionId,
@@ -44,11 +49,16 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
         uiStore.pushToast('CSVダウンロードに失敗しました', 'danger');
       } finally {
         uiStore.setIsDownloading(false);
+        progressStore.hideProgress();
       }
     } else {
       // 直接SQL経路 (非キャッシュ) が使えるならサーバへ、なければローカル
       if (currentSql.trim()) {
         uiStore.setIsDownloading(true);
+        const progressStore = useProgressStore.getState();
+        progressStore.showProgress({
+          message: 'SQLを実行してCSVを生成中...'
+        });
         try {
           const blob = await downloadCsvDirect({ sql: currentSql, filename });
           const url = window.URL.createObjectURL(blob);
@@ -65,6 +75,7 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
           exportStore.downloadCsvLocal();
         } finally {
           uiStore.setIsDownloading(false);
+          progressStore.hideProgress();
         }
       } else {
         const exportStore = useResultsExportStore.getState();
@@ -109,6 +120,10 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
     }
     
     uiStore.setIsDownloading(true);
+    const progressStore = useProgressStore.getState();
+    progressStore.showProgress({
+      message: 'Excelファイルを生成中...'
+    });
     try {
       const blob = await downloadExcelFromCache({
         session_id: sessionStore.sessionId,
@@ -130,6 +145,7 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
       uiStore.pushToast('Excelダウンロードに失敗しました', 'danger');
     } finally {
       uiStore.setIsDownloading(false);
+      progressStore.hideProgress();
     }
   },
   copyTsvToClipboard: async () => {
@@ -148,6 +164,10 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
       
       if (sessionStore.sessionId) {
         // セッションがある場合はAPI経由で取得
+        const progressStore = useProgressStore.getState();
+        progressStore.showProgress({
+          message: 'データをクリップボード用に準備中...'
+        });
         tsv = await fetchClipboardTsvFromCache({
           session_id: sessionStore.sessionId,
           filters: filterStore.filters,
@@ -176,8 +196,20 @@ export const createResultsExportStore = () => create<ResultsExportActions>(() =>
       
       await navigator.clipboard.writeText(tsv);
       uiStore.pushToast('TSVをコピーしました', 'success');
+      
+      // セッション経由の場合は進捗表示を隠す
+      if (sessionStore.sessionId) {
+        const progressStore = useProgressStore.getState();
+        progressStore.hideProgress();
+      }
     } catch {
       uiStore.pushToast('TSVコピーに失敗しました', 'danger');
+      
+      // エラー時も進捗表示を隠す
+      if (sessionStore.sessionId) {
+        const progressStore = useProgressStore.getState();
+        progressStore.hideProgress();
+      }
     }
   },
 }));

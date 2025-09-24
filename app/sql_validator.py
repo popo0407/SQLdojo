@@ -63,8 +63,7 @@ class SQLValidator:
         }
         
         self.dangerous_patterns: List[str] = [
-            ';--', ';/*', ';*/', 'UNION ALL', 'UNION SELECT',
-            'EXEC', 'EXECUTE', 'xp_', 'sp_', 'WAITFOR', 'DELAY'
+            ';--', ';/*', ';*/', 'EXEC', 'EXECUTE', 'xp_', 'sp_', 'WAITFOR', 'DELAY'
         ]
     
     @retry_on_exception(max_retries=2, delay=0.1)

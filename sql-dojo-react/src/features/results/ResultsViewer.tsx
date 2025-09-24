@@ -9,6 +9,7 @@ import { useResultsDataStore } from '../../stores/useResultsDataStore';
 import { useResultsFilterStore } from '../../stores/useResultsFilterStore';
 import { useResultsSessionStore } from '../../stores/useResultsSessionStore';
 import { useUIStore } from '../../stores/useUIStore';
+import { useProgressStore } from '../../stores/useProgressStore';
 import FilterModal from './FilterModal';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { useResultsDisplay } from '../../hooks/useResultsDisplay';
@@ -32,7 +33,6 @@ const ResultsViewer: React.FC = () => {
 
   // チャート用のデータ状態管理
   const [chartData, setChartData] = React.useState<Record<string, unknown>[]>([]);
-  const [isLoadingChartData, setIsLoadingChartData] = React.useState(false);
 
   // UIストアから状態を取得
   const { isPending, isLoadingMore, filterModal, setFilterModal, error, isDownloading } = useUIStore();
@@ -139,15 +139,22 @@ const ResultsViewer: React.FC = () => {
 
   // チャートデータの準備
   const prepareChartData = React.useCallback(async (config: SimpleChartConfig) => {
-    setIsLoadingChartData(true);
+    const progressStore = useProgressStore.getState();
+    progressStore.showProgress({
+      message: 'チャートデータを準備中...'
+    });
     try {
       const data = await getChartData(config);
       setChartData(data);
+      
+      // 成功時は1秒後に進捗表示を隠す
+      setTimeout(() => {
+        progressStore.hideProgress();
+      }, 1000);
     } catch (error) {
       console.error('チャートデータ準備に失敗:', error);
       setChartData(displayData.data); // フォールバック
-    } finally {
-      setIsLoadingChartData(false);
+      progressStore.hideProgress();
     }
   }, [getChartData, displayData.data]);
 
@@ -233,14 +240,10 @@ const ResultsViewer: React.FC = () => {
           />
         ) : (
           currentConfig && (
-            isLoadingChartData ? (
-              <LoadingSpinner message="チャートデータを準備中..." />
-            ) : (
-              <ChartViewer
-                data={chartData}
-                config={currentConfig}
-              />
-            )
+            <ChartViewer
+              data={chartData}
+              config={currentConfig}
+            />
           )
         )}
         {/* フィルターモーダルの表示 */}
