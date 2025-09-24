@@ -136,15 +136,12 @@ $webConfigContent = @"
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <system.webServer>
+    <httpErrors errorMode="Detailed" />
     <rewrite>
       <rules>
         <rule name="API Proxy" stopProcessing="true">
           <match url="^api/(.*)" />
-          <action type="Rewrite" url="http://127.0.0.1:$BackendPort/api/{R:1}" />
-          <serverVariables>
-            <set name="HTTP_X_FORWARDED_HOST" value="{HTTP_HOST}" />
-            <set name="HTTP_X_FORWARDED_PROTO" value="{HTTPS}" />
-          </serverVariables>
+          <action type="Rewrite" url="http://127.0.0.1:$BackendPort/{R:0}" />
         </rule>
         <rule name="HTTPS Redirect" stopProcessing="true">
           <match url=".*" />

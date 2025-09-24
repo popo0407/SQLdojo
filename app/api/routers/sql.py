@@ -381,16 +381,10 @@ async def cache_download_excel_endpoint(
                 if v is None:
                     cell = ''
                 else:
-                    # デバッグ出力（最初の行のみ）
-                    if len(safe_row) == 0 and i < 4:  # 最初の行の最初の4カラムのみ
-                        print(f"[EXCEL_DEBUG] Processing value: '{v}' (type: {type(v).__name__})")
-                    
                     # 数値として解釈可能な場合は数値型で保存
                     if is_numeric(str(v)):
                         try:
                             cell = int(v) if str(v).isdigit() or (str(v).startswith('-') and str(v)[1:].isdigit()) else float(v)
-                            if len(safe_row) == 0 and i < 4:  # デバッグ
-                                print(f"[EXCEL_DEBUG] Converted to: {cell} (type: {type(cell).__name__})")
                         except (ValueError, TypeError):
                             cell = str(v)
                             cell = ILLEGAL_CHARACTERS_RE.sub('', cell)
@@ -400,8 +394,6 @@ async def cache_download_excel_endpoint(
                     elif is_datetime(str(v)):
                         try:
                             cell = datetime_to_excel_serial(str(v))
-                            if len(safe_row) == 0 and i < 4:  # デバッグ
-                                print(f"[EXCEL_DEBUG] DateTime '{v}' converted to Excel serial: {cell} (type: {type(cell).__name__})")
                         except:
                             cell = str(v)
                             cell = ILLEGAL_CHARACTERS_RE.sub('', cell)
@@ -418,16 +410,11 @@ async def cache_download_excel_endpoint(
         # グラフ生成（通常モードかつチャート設定がある場合）
         if use_chart_mode and chart_config:
             try:
-                print(f"[CHART_DEBUG] About to call _add_chart_to_worksheet")
                 _add_chart_to_worksheet(ws, chart_config, total, len(columns))
-                print(f"[CHART_DEBUG] _add_chart_to_worksheet completed successfully")
             except Exception as e:
                 # グラフ生成失敗時はログ出力のみ、Excelファイル生成は継続
                 import logging
-                print(f"[CHART_DEBUG] Excel chart generation failed: {e}")
                 logging.warning(f"Excel chart generation failed: {e}")
-                import traceback
-                print(f"[CHART_DEBUG] Traceback: {traceback.format_exc()}")
         
         bio = BytesIO(); wb.save(bio); bio.seek(0); data_bytes = bio.read(); yield data_bytes; bio.close()
 
@@ -452,10 +439,7 @@ def _add_chart_to_worksheet(worksheet, chart_config, data_rows, data_cols):
     from openpyxl.chart import BarChart, ScatterChart
     from openpyxl.chart.reference import Reference
     
-    print(f"[CHART_DEBUG] _add_chart_to_worksheet called with chart_config={chart_config}")
-    
     if not chart_config:
-        print("[CHART_DEBUG] No chart_config provided")
         return
     
     chart_type = chart_config.get('chartType', 'bar')
@@ -465,10 +449,7 @@ def _add_chart_to_worksheet(worksheet, chart_config, data_rows, data_cols):
     x_axis_label = chart_config.get('xAxisLabel', '')
     y_axis_label = chart_config.get('yAxisLabel', '')
     
-    print(f"[CHART_DEBUG] Chart params: type={chart_type}, x_column={x_column}, y_columns={y_columns}")
-    
     if not x_column or not y_columns:
-        print(f"[CHART_DEBUG] Missing required columns: x_column={x_column}, y_columns={y_columns}")
         return
     
     # ヘッダー行から列インデックスを取得
@@ -478,9 +459,7 @@ def _add_chart_to_worksheet(worksheet, chart_config, data_rows, data_cols):
     
     try:
         x_col_idx = header_row.index(x_column) + 1  # openpyxlは1ベース
-        print(f"[CHART_DEBUG] x_column '{x_column}' found at index {x_col_idx}")
     except ValueError:
-        print(f"[CHART_DEBUG] x_column '{x_column}' not found in header: {header_row}")
         return  # x_columnが見つからない
     
     y_col_indices = []
@@ -488,19 +467,16 @@ def _add_chart_to_worksheet(worksheet, chart_config, data_rows, data_cols):
         try:
             y_col_idx = header_row.index(y_col) + 1
             y_col_indices.append(y_col_idx)
-            print(f"[CHART_DEBUG] y_column '{y_col}' found at index {y_col_idx}")
         except ValueError:
-            print(f"[CHART_DEBUG] y_column '{y_col}' not found in header")
             continue  # 見つからない列はスキップ
     
     if not y_col_indices:
-        print("[CHART_DEBUG] No valid y_columns found")
         return
     
     # チャートタイプに応じてグラフ作成
     if chart_type == 'scatter':
         chart = ScatterChart()
-        chart.scatterStyle = "lineMarker"
+        chart.scatterStyle = "marker"  # マーカーのみ（線なし）
     else:  # 'bar' または 'line'
         chart = BarChart()
         if chart_type == 'line':
@@ -517,30 +493,15 @@ def _add_chart_to_worksheet(worksheet, chart_config, data_rows, data_cols):
         from openpyxl.chart.axis import DateAxis
         if hasattr(chart, 'x_axis'):
             chart.x_axis.number_format = 'yyyy-mm-dd'
-            print(f"[CHART_DEBUG] Set X-axis as datetime with format yyyy-mm-dd")
     
     # データ範囲設定（ヘッダー行を除く）
     data_start_row = 2
     data_end_row = data_rows + 1
     
-    print(f"[CHART_DEBUG] Data range: rows {data_start_row} to {data_end_row}, total data_rows={data_rows}")
-    
     # X軸データ（カテゴリ）
     categories = Reference(worksheet, 
                           min_col=x_col_idx, max_col=x_col_idx,
                           min_row=data_start_row, max_row=data_end_row)
-    
-    print(f"[CHART_DEBUG] Categories reference: col {x_col_idx}, rows {data_start_row}-{data_end_row}")
-    
-    # データの一部をサンプル確認
-    sample_data = []
-    for row_idx in range(data_start_row, min(data_start_row + 3, data_end_row + 1)):
-        row_values = []
-        for col_idx in [x_col_idx] + y_col_indices:
-            cell_value = worksheet.cell(row=row_idx, column=col_idx).value
-            row_values.append(f"{col_idx}:{cell_value}({type(cell_value).__name__})")
-        sample_data.append(f"Row{row_idx}: {', '.join(row_values)}")
-    print(f"[CHART_DEBUG] Sample data: {sample_data}")
     
     # Y軸データ系列
     for i, y_col_idx in enumerate(y_col_indices):
@@ -548,61 +509,36 @@ def _add_chart_to_worksheet(worksheet, chart_config, data_rows, data_cols):
                           min_col=y_col_idx, max_col=y_col_idx,
                           min_row=data_start_row, max_row=data_end_row)
         
-        print(f"[CHART_DEBUG] Y-series {i}: col {y_col_idx}, rows {data_start_row}-{data_end_row}")
-        
         series_title = y_columns[i] if i < len(y_columns) else f"Series {i+1}"
         
-        try:
-            if chart_type == 'scatter':
-                # 散布図の場合、X軸とY軸のデータを明示的に設定
-                x_ref = Reference(worksheet,
-                                min_col=x_col_idx, max_col=x_col_idx,
-                                min_row=data_start_row, max_row=data_end_row)
-                y_ref = Reference(worksheet,
-                                min_col=y_col_idx, max_col=y_col_idx,
-                                min_row=data_start_row, max_row=data_end_row)
-                
-                # 散布図用のシリーズ作成 - X軸はAxDataSource、Y軸はNumDataSource
-                from openpyxl.chart.series import XYSeries
-                from openpyxl.chart.data_source import AxDataSource, NumDataSource, NumRef
-                x_numref = NumRef(f=str(x_ref))
-                y_numref = NumRef(f=str(y_ref))
-                x_data = AxDataSource(numRef=x_numref)  # X軸用
-                y_data = NumDataSource(numRef=y_numref)  # Y軸用
-                series = XYSeries(xVal=x_data, yVal=y_data)
-                chart.series.append(series)
-                print(f"[CHART_DEBUG] Added scatter series with X and Y values for column {series_title}")
-            else:
-                # 通常のグラフの場合
-                chart.add_data(values, titles_from_data=False)
-                print(f"[CHART_DEBUG] Successfully added data series {i} for column {series_title}")
+        if chart_type == 'scatter':
+            # 散布図の場合、X軸とY軸のデータを明示的に設定
+            x_ref = Reference(worksheet,
+                            min_col=x_col_idx, max_col=x_col_idx,
+                            min_row=data_start_row, max_row=data_end_row)
+            y_ref = Reference(worksheet,
+                            min_col=y_col_idx, max_col=y_col_idx,
+                            min_row=data_start_row, max_row=data_end_row)
             
-            # 一旦シリーズタイトル設定はスキップ（基本グラフ生成を確認）
-            print(f"[CHART_DEBUG] Skipping series title setting for now")
-        except Exception as e:
-            print(f"[CHART_DEBUG] Failed to add series {i}: {e}")
-            raise
+            # 散布図用のシリーズ作成 - X軸はAxDataSource、Y軸はNumDataSource
+            from openpyxl.chart.series import XYSeries
+            from openpyxl.chart.data_source import AxDataSource, NumDataSource, NumRef
+            x_numref = NumRef(f=str(x_ref))
+            y_numref = NumRef(f=str(y_ref))
+            x_data = AxDataSource(numRef=x_numref)  # X軸用
+            y_data = NumDataSource(numRef=y_numref)  # Y軸用
+            series = XYSeries(xVal=x_data, yVal=y_data)
+            chart.series.append(series)
+        else:
+            # 通常のグラフの場合
+            chart.add_data(values, titles_from_data=False)
     
     # カテゴリを設定（散布図以外）
     if chart_type != 'scatter':
-        try:
-            chart.set_categories(categories)
-            print(f"[CHART_DEBUG] Categories set successfully")
-        except Exception as e:
-            print(f"[CHART_DEBUG] Failed to set categories: {e}")
-            raise
-    else:
-        print(f"[CHART_DEBUG] Skipping categories for scatter chart")
+        chart.set_categories(categories)
     
     # グラフをワークシートに配置（データの右側）
     chart_col = data_cols + 2  # データの右に2列空けて配置
     chart_position = f"{chr(ord('A') + chart_col - 1)}2"  # 例: "H2"
     
-    print(f"[CHART_DEBUG] Chart placement: position={chart_position}, data_cols={data_cols}")
-    
-    try:
-        worksheet.add_chart(chart, chart_position)
-        print(f"[CHART_DEBUG] Chart added successfully to position {chart_position}")
-    except Exception as e:
-        print(f"[CHART_DEBUG] Failed to add chart to worksheet: {e}")
-        raise
+    worksheet.add_chart(chart, chart_position)

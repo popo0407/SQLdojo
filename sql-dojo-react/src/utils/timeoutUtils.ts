@@ -12,18 +12,18 @@ import { API_CONFIG } from '../config/api';
  * - デフォルト：その他すべて
  */
 export const getTimeoutForEndpoint = (endpoint: string): number => {
-  // 重量処理：エディタからのSQL実行 + ダウンロード系
+  // 重量処理：SQL実行 + ダウンロード系 + 大容量キャッシュ処理
   if (endpoint === '/sql/execute' || 
       endpoint.includes('/download/') || 
-      endpoint.includes('/export')) {
+      endpoint.includes('/export') ||
+      endpoint.includes('/cache/read') ||
+      endpoint.includes('/cache/unique-values')) {
     return API_CONFIG.TIMEOUT_HEAVY_MS;
   }
   
-  // 中量処理：SQL履歴、管理者データ、キャッシュフィルター・ソート
+  // 中量処理：履歴・管理者系の一覧取得（軽量なもの）
   if (endpoint.includes('/logs/') ||
-      endpoint.includes('/admin/') ||
-      endpoint.includes('/cache/read') ||
-      endpoint.includes('/cache/unique-values')) {
+      endpoint.includes('/admin/')) {
     return API_CONFIG.TIMEOUT_MEDIUM_MS;
   }
   
@@ -38,10 +38,10 @@ export const getTimeoutCategory = (endpoint: string): string => {
   const timeout = getTimeoutForEndpoint(endpoint);
   
   if (timeout === API_CONFIG.TIMEOUT_HEAVY_MS) {
-    return 'HEAVY (エディタSQL実行・ダウンロード系)';
+    return 'HEAVY (SQL実行・ダウンロード・大容量キャッシュ処理)';
   }
   if (timeout === API_CONFIG.TIMEOUT_MEDIUM_MS) {
-    return 'MEDIUM (履歴・管理者・キャッシュ処理)';
+    return 'MEDIUM (履歴・管理者系一覧取得)';
   }
   return 'DEFAULT (軽量処理)';
 };
