@@ -503,38 +503,44 @@ def _add_chart_to_worksheet(worksheet, chart_config, data_rows, data_cols):
                           min_col=x_col_idx, max_col=x_col_idx,
                           min_row=data_start_row, max_row=data_end_row)
     
-    # Y軸データ系列
-    for i, y_col_idx in enumerate(y_col_indices):
-        values = Reference(worksheet,
-                          min_col=y_col_idx, max_col=y_col_idx,
-                          min_row=data_start_row, max_row=data_end_row)
+    if chart_type == 'scatter':
+        # 散布図は Series を自前で作る（add_dataは使わない）
+        from openpyxl.chart import Series
         
-        series_title = y_columns[i] if i < len(y_columns) else f"Series {i+1}"
-        
-        if chart_type == 'scatter':
-            # 散布図の場合、X軸とY軸のデータを明示的に設定
-            x_ref = Reference(worksheet,
-                            min_col=x_col_idx, max_col=x_col_idx,
-                            min_row=data_start_row, max_row=data_end_row)
-            y_ref = Reference(worksheet,
-                            min_col=y_col_idx, max_col=y_col_idx,
-                            min_row=data_start_row, max_row=data_end_row)
+        for i, y_col_idx in enumerate(y_col_indices):
+            x_values = Reference(worksheet, min_col=x_col_idx, min_row=data_start_row, max_row=data_end_row)
+            y_values = Reference(worksheet, min_col=y_col_idx, min_row=data_start_row, max_row=data_end_row)
             
-            # 散布図用のシリーズ作成 - X軸はAxDataSource、Y軸はNumDataSource
-            from openpyxl.chart.series import XYSeries
-            from openpyxl.chart.data_source import AxDataSource, NumDataSource, NumRef
-            x_numref = NumRef(f=str(x_ref))
-            y_numref = NumRef(f=str(y_ref))
-            x_data = AxDataSource(numRef=x_numref)  # X軸用
-            y_data = NumDataSource(numRef=y_numref)  # Y軸用
-            series = XYSeries(xVal=x_data, yVal=y_data)
+            series_title = y_columns[i] if i < len(y_columns) else f"Series {i+1}"
+            
+            # Seriesを作成（ここが重要 - XYSeriesではなくSeries）
+            series = Series(y_values, x_values, title=series_title)
+            
+            # 線を非表示にして点のみ表示
+            series.graphicalProperties.line.noFill = True
+            series.marker.symbol = "circle"
+            series.marker.size = 5
+            
             chart.series.append(series)
-        else:
-            # 通常のグラフの場合
-            chart.add_data(values, titles_from_data=False)
-    
-    # カテゴリを設定（散布図以外）
-    if chart_type != 'scatter':
+    else:
+        # Bar/Line系はadd_data + set_categoriesでOK
+        data = Reference(
+            worksheet,
+            min_col=min(y_col_indices),
+            max_col=max(y_col_indices),
+            min_row=1,
+            max_row=data_end_row
+        )
+        chart.add_data(data, titles_from_data=True)
+        
+        # カテゴリを設定（散布図以外のみ）
+        categories = Reference(
+            worksheet,
+            min_col=x_col_idx,
+            max_col=x_col_idx,
+            min_row=data_start_row,
+            max_row=data_end_row
+        )
         chart.set_categories(categories)
     
     # グラフをワークシートに配置（データの右側）
