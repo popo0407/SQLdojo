@@ -236,7 +236,7 @@ export const assignColors = (columns: string[]): Record<string, string> => {
 // デフォルトのグラフ設定を生成
 export const createDefaultChartConfig = (): SimpleChartConfig => {
   return {
-    chartType: 'bar',
+    chartType: 'scatter',
     xColumn: '',
     xColumnType: 'string',
     yColumns: [],
@@ -244,7 +244,7 @@ export const createDefaultChartConfig = (): SimpleChartConfig => {
     xAxisLabel: '',
     yAxisLabel: '',
     title: '',
-    dataScope: 'displayed',
+    dataScope: 'all',
     yAxisRange: {},
     colors: {},
   };
@@ -280,12 +280,8 @@ export const createSmartChartConfig = (
     color: EXCEL_COLORS[index % EXCEL_COLORS.length],
   }));
   
-  // 散布図の判定（X軸が数値または日時で、Y軸が数値の場合）
-  const shouldUseScatter = (xColumnType === 'number' || xColumnType === 'date' || xColumnType === 'datetime') && 
-                          yColumns.length > 0;
-  
   return {
-    chartType: shouldUseScatter ? 'scatter' : 'bar',
+    chartType: 'scatter',  // デフォルトで散布図を使用
     xColumn,
     xColumnType,
     yColumns,
@@ -293,7 +289,7 @@ export const createSmartChartConfig = (
     xAxisLabel: xColumn,
     yAxisLabel: yColumns.join(', '),
     title: `${xColumn} vs ${yColumns.join(', ')}`,
-    dataScope: 'displayed',
+    dataScope: 'all',  // すべてのデータをデフォルトに
     yAxisRange: {},
     colors: assignColors(yColumns),
   };
