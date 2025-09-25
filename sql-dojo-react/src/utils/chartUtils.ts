@@ -37,6 +37,15 @@ export const DATA_TYPE_NAMES = {
 // Excel互換グラフタイプ（openpyxlでサポートされる範囲）
 export type ChartType = 'bar' | 'scatter' | 'line';
 
+// 凡例の位置
+export type LegendPosition = 'top' | 'bottom' | 'left' | 'right';
+
+// グラフサイズの設定
+export interface ChartSize {
+  width?: number;
+  height?: number;
+}
+
 // データ範囲の定義
 export type DataScope = 'displayed' | 'all';
 
@@ -68,6 +77,9 @@ export interface SimpleChartConfig {
   yAxisRange?: YAxisRange;
   title?: string;
   dataScope: DataScope;
+  // 任意設定項目
+  chartSize?: ChartSize;
+  legendPosition?: LegendPosition;
   colors?: Record<string, string>;
 }
 
@@ -247,6 +259,8 @@ export const createDefaultChartConfig = (): SimpleChartConfig => {
     dataScope: 'all',
     yAxisRange: {},
     colors: {},
+    chartSize: { width: 800, height: 400 },
+    legendPosition: 'top',
   };
 };
 
@@ -292,5 +306,7 @@ export const createSmartChartConfig = (
     dataScope: 'all',  // すべてのデータをデフォルトに
     yAxisRange: {},
     colors: assignColors(yColumns),
+    chartSize: { width: 800, height: 400 },
+    legendPosition: 'top',
   };
 };

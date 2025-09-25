@@ -11,8 +11,16 @@
 }
 
 .resultsContainer {
-  padding: 16px;
+  padding: 8px; /* パディングを減らしてグラフ用のスペースを拡大 */
   width: 100%;
+  box-sizing: border-box;
+}
+
+/* チャート表示時の専用スタイル */
+.chartContainer {
+  width: 100%;
+  padding: 4px; /* チャート表示時はさらにパディングを最小化 */
+  margin: 0;
   box-sizing: border-box;
 }
 

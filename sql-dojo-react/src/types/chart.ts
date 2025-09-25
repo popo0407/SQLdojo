@@ -6,9 +6,6 @@ export type ViewMode = 'table' | 'chart';
 // Y軸の配置側
 export type YAxisSide = 'left' | 'right';
 
-// 凡例の位置
-export type LegendPosition = 'top' | 'bottom' | 'left' | 'right';
-
 // チャートモーダルの状態
 export interface ChartModalState {
   show: boolean;

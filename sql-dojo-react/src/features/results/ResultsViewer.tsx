@@ -212,7 +212,7 @@ const ResultsViewer: React.FC = () => {
 
   return (
     <div ref={containerRef} data-testid="results-viewer-root" style={{ width: '100%', height: '100%', overflowY: 'auto', flex: 1 }}>
-      <Stack gap={3} className={styles.resultsContainer}>
+      <Stack gap={3} className={styles.resultsContainer} style={viewMode === 'chart' ? { padding: '4px' } : {}}>
         <ResultsStats
           totalCount={actualTotalCount}
           execTime={execTime}

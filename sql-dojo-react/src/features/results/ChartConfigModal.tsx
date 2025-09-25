@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartBar, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faChartBar } from '@fortawesome/free-solid-svg-icons';
 import type { 
   SimpleChartConfig, 
   ChartType, 
-  DataScope,
   DataType,
-  ColumnConfig
+  ColumnConfig,
+  LegendPosition
 } from '../../utils/chartUtils';
 import {
   getNumericColumns,
@@ -59,12 +59,21 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
       return {
         ...defaultConfig,
         ...initialConfig,
+        dataScope: 'all', // 常にすべてのデータを使用
         yColumnConfigs: initialConfig.yColumnConfigs || [],
         colors: initialConfig.colors || {},
         yAxisRange: initialConfig.yAxisRange || {},
+        // Y軸ラベルを最初のY軸カラム名に設定（既存のラベルがない場合）
+        yAxisLabel: initialConfig.yAxisLabel || (initialConfig.yColumns && initialConfig.yColumns[0]) || defaultConfig.yAxisLabel,
       };
     } else {
-      return createSmartChartConfig(data, columns);
+      const smartConfig = createSmartChartConfig(data, columns);
+      return {
+        ...smartConfig,
+        dataScope: 'all', // 常にすべてのデータを使用
+        // Y軸ラベルを最初のY軸カラム名に設定
+        yAxisLabel: smartConfig.yColumns[0] || smartConfig.yAxisLabel,
+      };
     }
   });
 
@@ -76,12 +85,21 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
         setConfig({
           ...defaultConfig,
           ...initialConfig,
+          dataScope: 'all', // 常にすべてのデータを使用
           yColumnConfigs: initialConfig.yColumnConfigs || [],
           colors: initialConfig.colors || assignColors(initialConfig.yColumns || []),
           yAxisRange: initialConfig.yAxisRange || {},
+          // Y軸ラベルを最初のY軸カラム名に設定（既存のラベルがない場合）
+          yAxisLabel: initialConfig.yAxisLabel || (initialConfig.yColumns && initialConfig.yColumns[0]) || defaultConfig.yAxisLabel,
         });
       } else {
-        setConfig(createSmartChartConfig(data, columns));
+        const smartConfig = createSmartChartConfig(data, columns);
+        setConfig({
+          ...smartConfig,
+          dataScope: 'all', // 常にすべてのデータを使用
+          // Y軸ラベルを最初のY軸カラム名に設定
+          yAxisLabel: smartConfig.yColumns[0] || smartConfig.yAxisLabel,
+        });
       }
     }
   }, [show, initialConfig, data, columns]);
@@ -112,22 +130,7 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
     }
   };
 
-  // Y軸カラムの削除
-  const handleRemoveYColumn = (column: string) => {
-    const newYColumns = config.yColumns.filter(col => col !== column);
-    const newYColumnConfigs = config.yColumnConfigs.filter(conf => conf.name !== column);
-    const newColors = { ...config.colors };
-    delete newColors[column];
-    
-    setConfig(prev => ({
-      ...prev,
-      yColumns: newYColumns,
-      yColumnConfigs: newYColumnConfigs,
-      colors: newColors,
-      // Y軸カラムが変更されたので自動スケール値をリセット
-      yAxisRange: {}
-    }));
-  };
+
 
   // カラーの変更
   const handleColorChange = (column: string, color: string) => {
@@ -249,239 +252,125 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
   }, [show, autoRange, config.yColumns.length, config.yAxisRange, setConfig]);
 
   return (
-    <Modal show={show} onHide={onHide} size="lg">
-      <Modal.Header closeButton>
+    <Modal show={show} onHide={onHide} size="xl">
+      <Modal.Header>
         <Modal.Title>
           <FontAwesomeIcon icon={faChartBar} className="me-2" />
-          シンプルグラフ設定
+          グラフ設定
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {/* グラフタイプ */}
-        <Card className="mb-3">
-          <Card.Header><strong>グラフタイプ</strong></Card.Header>
-          <Card.Body>
-            <Form.Group>
-              <Form.Select
-                value={config.chartType}
-                onChange={(e) => setConfig(prev => ({ ...prev, chartType: e.target.value as ChartType }))}
-              >
-                <option value="bar">棒グラフ</option>
-                <option value="scatter">散布図</option>
-                <option value="line">折れ線グラフ</option>
-              </Form.Select>
-            </Form.Group>
-          </Card.Body>
-        </Card>
-
-        {/* データ範囲設定 */}
-        <Card className="mb-3">
-          <Card.Header><strong>データ範囲</strong></Card.Header>
-          <Card.Body>
-            <Form.Group>
-              <Form.Check
-                type="radio"
-                id="data-scope-displayed"
-                name="dataScope"
-                label="現在表示中のデータのみ"
-                checked={config.dataScope === 'displayed'}
-                onChange={() => setConfig(prev => ({ ...prev, dataScope: 'displayed' as DataScope }))}
-                className="mb-2"
-              />
-              <Form.Check
-                type="radio"
-                id="data-scope-all"
-                name="dataScope"
-                label="すべてのデータ"
-                checked={config.dataScope === 'all'}
-                onChange={() => setConfig(prev => ({ ...prev, dataScope: 'all' as DataScope }))}
-              />
-            </Form.Group>
-          </Card.Body>
-        </Card>
-
-        {/* X軸設定 */}
-        <Card className="mb-3">
-          <Card.Header><strong>X軸</strong></Card.Header>
-          <Card.Body>
-            <Row>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>X軸カラム</Form.Label>
+        <Row>
+          {/* 左側：グラフ全体設定 */}
+          <Col md={6}>
+            {/* グラフタイプ */}
+            <Card className="mb-3">
+              <Card.Header><strong>グラフタイプ</strong></Card.Header>
+              <Card.Body>
+                <Form.Group>
                   <Form.Select
-                    value={config.xColumn}
-                    onChange={(e) => {
-                      const selectedColumn = e.target.value;
-                      const detectedType = detectedTypes[selectedColumn] || 'string';
-                      setConfig(prev => ({ 
-                        ...prev, 
-                        xColumn: selectedColumn,
-                        xColumnType: detectedType,
-                        xAxisLabel: selectedColumn || prev.xAxisLabel
-                      }));
-                    }}
+                    value={config.chartType}
+                    onChange={(e) => setConfig(prev => ({ ...prev, chartType: e.target.value as ChartType }))}
                   >
-                    <option value="">選択してください</option>
-                    {columns.map(col => (
-                      <option key={col} value={col}>
-                        {col}
-                      </option>
-                    ))}
+                    <option value="bar">棒グラフ</option>
+                    <option value="scatter">散布図</option>
+                    <option value="line">折れ線グラフ</option>
                   </Form.Select>
                 </Form.Group>
-              </Col>
-              <Col md={4}>
+              </Card.Body>
+            </Card>
+
+
+
+            {/* 任意設定項目 */}
+            <Card className="mb-3">
+              <Card.Header><strong>任意設定項目</strong></Card.Header>
+              <Card.Body>
+                {/* グラフタイトル */}
                 <Form.Group className="mb-3">
-                  <Form.Label>データ型</Form.Label>
+                  <Form.Label>グラフタイトル</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={config.title}
+                    onChange={(e) => setConfig(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="グラフのタイトル（省略可）"
+                  />
+                </Form.Group>
+
+                {/* グラフサイズ */}
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>幅 (px)</Form.Label>
+                      <Form.Control
+                        type="number"
+                        value={config.chartSize?.width || ''}
+                        onChange={(e) => {
+                          const width = e.target.value === '' ? undefined : parseInt(e.target.value);
+                          setConfig(prev => ({
+                            ...prev,
+                            chartSize: {
+                              ...prev.chartSize,
+                              width
+                            }
+                          }));
+                        }}
+                        placeholder="800"
+                        min="200"
+                        max="2000"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>高さ (px)</Form.Label>
+                      <Form.Control
+                        type="number"
+                        value={config.chartSize?.height || ''}
+                        onChange={(e) => {
+                          const height = e.target.value === '' ? undefined : parseInt(e.target.value);
+                          setConfig(prev => ({
+                            ...prev,
+                            chartSize: {
+                              ...prev.chartSize,
+                              height
+                            }
+                          }));
+                        }}
+                        placeholder="400"
+                        min="200"
+                        max="1000"
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                {/* 凡例位置 */}
+                <Form.Group className="mb-3">
+                  <Form.Label>凡例位置</Form.Label>
                   <Form.Select
-                    value={config.xColumnType}
-                    onChange={(e) => handleDataTypeChange(config.xColumn, e.target.value as DataType)}
-                    disabled={!config.xColumn}
+                    value={config.legendPosition || 'top'}
+                    onChange={(e) => setConfig(prev => ({ 
+                      ...prev, 
+                      legendPosition: e.target.value as LegendPosition 
+                    }))}
                   >
-                    <option value="string">文字列</option>
-                    <option value="number">数値</option>
-                    <option value="date">日付</option>
-                    <option value="datetime">日時</option>
+                    <option value="top">上</option>
+                    <option value="bottom">下</option>
+                    <option value="left">左</option>
+                    <option value="right">右</option>
                   </Form.Select>
                 </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>X軸ラベル</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={config.xAxisLabel}
-                    onChange={(e) => setConfig(prev => ({ ...prev, xAxisLabel: e.target.value }))}
-                    placeholder="X軸のラベル"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
 
-        {/* Y軸設定 */}
-        <Card className="mb-3">
-          <Card.Header><strong>Y軸</strong></Card.Header>
-          <Card.Body>
-            <Form.Group className="mb-3">
-              <Form.Label>Y軸カラムを追加</Form.Label>
-              <Form.Select
-                onChange={(e) => {
-                  if (e.target.value) {
-                    handleAddYColumn(e.target.value);
-                    e.target.value = '';
-                  }
-                }}
-              >
-                <option value="">数値カラムを選択</option>
-                {numericColumns
-                  .filter(col => !config.yColumns.includes(col))
-                  .map(col => (
-                    <option key={col} value={col}>{col}</option>
-                  ))
-                }
-              </Form.Select>
-            </Form.Group>
-
-            {/* 選択されたY軸カラム一覧 */}
-            {config.yColumns.length > 0 && (
-              <div>
-                <Form.Label>選択されたY軸カラム</Form.Label>
-                {config.yColumns.map((col) => {
-                  const columnConfig = config.yColumnConfigs.find(conf => conf.name === col);
-                  const currentColor = columnConfig?.color || config.colors?.[col] || EXCEL_COLORS[0];
-                  const currentDataType = columnConfig?.dataType || detectedTypes[col] || 'number';
-                  
-                  return (
-                    <div key={col} className="mb-3 p-3 border rounded">
-                      <Row className="align-items-center">
-                        <Col md={3}>
-                          <strong>{col}</strong>
-                        </Col>
-                        <Col md={3}>
-                          <Form.Group>
-                            <Form.Label className="small">データ型</Form.Label>
-                            <Form.Select
-                              size="sm"
-                              value={currentDataType}
-                              onChange={(e) => handleDataTypeChange(col, e.target.value as DataType)}
-                            >
-                              <option value="number">数値</option>
-                              <option value="date">日付</option>
-                              <option value="datetime">日時</option>
-                              <option value="string">文字列</option>
-                            </Form.Select>
-                          </Form.Group>
-                        </Col>
-                        <Col md={4}>
-                          <Form.Group>
-                            <Form.Label className="small">
-                              色設定
-                              <span 
-                                className="ms-2 d-inline-block border rounded" 
-                                style={{
-                                  width: '20px',
-                                  height: '20px',
-                                  backgroundColor: currentColor,
-                                  verticalAlign: 'middle'
-                                }}
-                              ></span>
-                            </Form.Label>
-                            <Form.Select
-                              size="sm"
-                              value={currentColor}
-                              onChange={(e) => handleColorChange(col, e.target.value)}
-                            >
-                              {EXCEL_COLORS.map((color) => (
-                                <option key={color} value={color}>
-                                  {COLOR_NAMES[color as keyof typeof COLOR_NAMES] || color}
-                                </option>
-                              ))}
-                            </Form.Select>
-                          </Form.Group>
-                        </Col>
-                        <Col md={2}>
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleRemoveYColumn(col)}
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <Row className="mt-3">
-              <Col md={6}>
+                {/* Y軸範囲設定 */}
                 <Form.Group>
-                  <Form.Label>Y軸ラベル</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={config.yAxisLabel}
-                    onChange={(e) => setConfig(prev => ({ ...prev, yAxisLabel: e.target.value }))}
-                    placeholder="Y軸のラベル"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* Y軸範囲設定 */}
-            <Row className="mt-3">
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label>Y軸範囲設定（省略可）</Form.Label>
+                  <Form.Label>Y軸範囲設定</Form.Label>
                   <Row>
                     <Col md={6}>
                       <Form.Label className="small">最小値</Form.Label>
                       <Form.Control
                         type="number"
-                        placeholder={autoRange ? `自動: ${autoRange.min}` : "自動設定"}
+                        placeholder={autoRange ? `自動設定` : "自動設定"}
                         value={config.yAxisRange?.min !== undefined ? config.yAxisRange.min : ''}
                         onChange={(e) => {
                           const value = e.target.value === '' ? undefined : parseFloat(e.target.value);
@@ -499,7 +388,7 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                       <Form.Label className="small">最大値</Form.Label>
                       <Form.Control
                         type="number"
-                        placeholder={autoRange ? `自動: ${autoRange.max}` : "自動設定"}
+                        placeholder={autoRange ? `自動設定` : "自動設定"}
                         value={config.yAxisRange?.max !== undefined ? config.yAxisRange.max : ''}
                         onChange={(e) => {
                           const value = e.target.value === '' ? undefined : parseFloat(e.target.value);
@@ -514,29 +403,195 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                       />
                     </Col>
                   </Row>
-                  <Form.Text className="text-muted">
-
-                  </Form.Text>
                 </Form.Group>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+              </Card.Body>
+            </Card>
+          </Col>
 
-        {/* タイトル設定 */}
-        <Card className="mb-3">
-          <Card.Header><strong>グラフタイトル</strong></Card.Header>
-          <Card.Body>
-            <Form.Group>
-              <Form.Control
-                type="text"
-                value={config.title}
-                onChange={(e) => setConfig(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="グラフのタイトル（省略可）"
-              />
-            </Form.Group>
-          </Card.Body>
-        </Card>
+          {/* 右側：X軸・Y軸設定 */}
+          <Col md={6}>
+
+            {/* X軸設定 */}
+            <Card className="mb-3">
+              <Card.Header><strong>X軸</strong></Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>カラム</Form.Label>
+                      <Form.Select
+                        value={config.xColumn}
+                        onChange={(e) => {
+                          const selectedColumn = e.target.value;
+                          const detectedType = detectedTypes[selectedColumn] || 'string';
+                          setConfig(prev => ({ 
+                            ...prev, 
+                            xColumn: selectedColumn,
+                            xColumnType: detectedType,
+                            xAxisLabel: selectedColumn || prev.xAxisLabel
+                          }));
+                        }}
+                      >
+                        <option value="">選択</option>
+                        {columns.map(col => (
+                          <option key={col} value={col}>
+                            {col}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>データ型</Form.Label>
+                      <Form.Select
+                        value={config.xColumnType}
+                        onChange={(e) => handleDataTypeChange(config.xColumn, e.target.value as DataType)}
+                        disabled={!config.xColumn}
+                      >
+                        <option value="string">文字列</option>
+                        <option value="number">数値</option>
+                        <option value="date">日付</option>
+                        <option value="datetime">日時</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Form.Group>
+                  <Form.Label>ラベル</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={config.xAxisLabel}
+                    onChange={(e) => setConfig(prev => ({ ...prev, xAxisLabel: e.target.value }))}
+                    placeholder="X軸のラベル"
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+            {/* Y軸設定 */}
+            <Card className="mb-3">
+              <Card.Header><strong>Y軸</strong></Card.Header>
+              <Card.Body>
+                <Row>
+                  <Col md={4}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>カラム</Form.Label>
+                      <Form.Select
+                        value={config.yColumns[0] || ''}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            // 既存のY軸カラムをクリアして新しいものを設定
+                            const selectedColumn = e.target.value;
+                            const detectedType = detectedTypes[selectedColumn] || 'number';
+                            const color = EXCEL_COLORS[0];
+                            
+                            const newColumnConfig: ColumnConfig = {
+                              name: selectedColumn,
+                              dataType: detectedType,
+                              color: color,
+                            };
+                            
+                            setConfig(prev => ({
+                              ...prev,
+                              yColumns: [selectedColumn],
+                              yColumnConfigs: [newColumnConfig],
+                              colors: { [selectedColumn]: color },
+                              // Y軸カラムが選択された時にY軸ラベルを自動設定
+                              yAxisLabel: selectedColumn
+                            }));
+                          }
+                        }}
+                      >
+                        <option value="">選択</option>
+                        {numericColumns.map(col => (
+                          <option key={col} value={col}>{col}</option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={4}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>データ型</Form.Label>
+                      <Form.Select
+                        value={config.yColumnConfigs[0]?.dataType || 'number'}
+                        onChange={(e) => {
+                          if (config.yColumns[0]) {
+                            handleDataTypeChange(config.yColumns[0], e.target.value as DataType);
+                          }
+                        }}
+                        disabled={!config.yColumns[0]}
+                      >
+                        <option value="number">数値</option>
+                        <option value="date">日付</option>
+                        <option value="datetime">日時</option>
+                        <option value="string">文字列</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={4}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>色設定</Form.Label>
+                      <div className="d-flex align-items-center">
+                        <span 
+                          className="me-2 d-inline-block border rounded" 
+                          style={{
+                            width: '30px',
+                            height: '30px',
+                            backgroundColor: config.yColumnConfigs[0]?.color || EXCEL_COLORS[0],
+                          }}
+                        ></span>
+                        <Form.Select
+                          value={config.yColumnConfigs[0]?.color || EXCEL_COLORS[0]}
+                          onChange={(e) => {
+                            if (config.yColumns[0]) {
+                              handleColorChange(config.yColumns[0], e.target.value);
+                            }
+                          }}
+                          disabled={!config.yColumns[0]}
+                        >
+                          {EXCEL_COLORS.map((color) => (
+                            <option key={color} value={color}>
+                              {COLOR_NAMES[color as keyof typeof COLOR_NAMES] || color}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </div>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                
+                <Form.Group className="mb-3">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => {
+                      // 追加できる数値カラムがあるかチェック
+                      const availableColumns = numericColumns.filter(col => !config.yColumns.includes(col));
+                      if (availableColumns.length > 0) {
+                        handleAddYColumn(availableColumns[0]);
+                      }
+                    }}
+                    disabled={numericColumns.filter(col => !config.yColumns.includes(col)).length === 0}
+                  >
+                    カラムを追加
+                  </Button>
+                </Form.Group>
+
+                <Form.Group>
+                  <Form.Label>ラベル</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={config.yAxisLabel}
+                    onChange={(e) => setConfig(prev => ({ ...prev, yAxisLabel: e.target.value }))}
+                    placeholder="Y軸のラベル"
+                  />
+                </Form.Group>
+              </Card.Body>
+            </Card>
+
+          </Col>
+        </Row>
       </Modal.Body>
       
       <Modal.Footer>
