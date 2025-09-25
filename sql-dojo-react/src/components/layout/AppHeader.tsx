@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import LogoutButton from '../auth/LogoutButton';
 import AdminLoginModal from '../auth/AdminLoginModal';
+import logoImage from '../../assets/hint.png';
 
 const AppHeader: React.FC = () => {
   const { user, isAdmin } = useAuth();
@@ -19,7 +20,7 @@ const AppHeader: React.FC = () => {
         <Container fluid>
           <Navbar.Brand as={Link} to="/">
             <img
-              src="/src/assets/hint.png"
+              src={logoImage}
               width="64"
               height="32"
               className="d-inline-block align-top"
