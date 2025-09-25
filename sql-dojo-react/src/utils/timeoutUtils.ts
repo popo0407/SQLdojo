@@ -14,16 +14,17 @@ import { API_CONFIG } from '../config/api';
 export const getTimeoutForEndpoint = (endpoint: string): number => {
   // 重量処理：SQL実行 + ダウンロード系 + 大容量キャッシュ処理
   if (endpoint === '/sql/execute' || 
+      endpoint === '/sql/cache/execute' ||
       endpoint.includes('/download/') || 
       endpoint.includes('/export') ||
-      endpoint.includes('/cache/read') ||
       endpoint.includes('/cache/unique-values')) {
     return API_CONFIG.TIMEOUT_HEAVY_MS;
   }
   
-  // 中量処理：履歴・管理者系の一覧取得（軽量なもの）
+  // 中量処理：履歴・管理者系 + キャッシュデータ読み込み
   if (endpoint.includes('/logs/') ||
-      endpoint.includes('/admin/')) {
+      endpoint.includes('/admin/') ||
+      endpoint.includes('/cache/read')) {
     return API_CONFIG.TIMEOUT_MEDIUM_MS;
   }
   
@@ -41,7 +42,7 @@ export const getTimeoutCategory = (endpoint: string): string => {
     return 'HEAVY (SQL実行・ダウンロード・大容量キャッシュ処理)';
   }
   if (timeout === API_CONFIG.TIMEOUT_MEDIUM_MS) {
-    return 'MEDIUM (履歴・管理者系一覧取得)';
+    return 'MEDIUM (履歴・管理者系・キャッシュデータ読み込み)';
   }
   return 'DEFAULT (軽量処理)';
 };

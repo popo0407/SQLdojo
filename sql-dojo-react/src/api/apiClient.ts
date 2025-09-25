@@ -142,7 +142,9 @@ export const apiClient = {
     sortConfig?: import('../types/results').SortConfig | null
   ) => {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), API_CONFIG.TIMEOUT_MS);
+    const endpoint = '/sql/cache/read';
+    const timeoutMs = getTimeoutForEndpoint(endpoint);
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     
     try {
       const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/read`, {
