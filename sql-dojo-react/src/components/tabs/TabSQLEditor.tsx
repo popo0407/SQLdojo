@@ -231,6 +231,14 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
         // Excel出力の場合
         await handleExcelOutput(currentTab.sql);
         return;
+      } else {
+        // ブラウザ出力の場合：グラフ設定をチャートストアに反映
+        const chartConfig = extractChartConfigFromSQL(currentTab.sql);
+        if (chartConfig) {
+          const { setChartConfig } = useChartStore.getState();
+          setChartConfig(chartConfig);
+          console.log('🔍 TabSQLEditor: Chart config set for browser display:', chartConfig);
+        }
       }
     }
     
