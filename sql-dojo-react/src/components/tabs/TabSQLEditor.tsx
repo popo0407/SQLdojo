@@ -15,6 +15,8 @@ import { TemplateSaveModal } from '../../features/templates/components/TemplateS
 import { useTemplates, useTemplateModals } from '../../features/templates/hooks/useTemplates';
 import type { TemplateDropdownItem, TemplateWithPreferences } from '../../features/templates/types/template';
 import { generateDummyData } from '../../api/sqlService';
+import { useChartStore } from '../../stores/useChartStore';
+import { convertChartConfigToXML, hasOutputTag, extractChartConfigFromSQL } from '../../utils/templateUtils';
 
 interface TabSQLEditorProps {
   tabId: string;
@@ -71,6 +73,9 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
     saveTemplate,
     initializeTemplates
   } = useTemplates();
+
+  // チャートストア（グラフ表示状態の確認用）
+  const { currentConfig: chartConfig } = useChartStore();
 
   // テンプレートの初期化
   useEffect(() => {
@@ -212,7 +217,72 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
     console.log('🔍 TabSQLEditor: handleExecuteSql called for tabId:', tabId);
     const currentTab = getTab(tabId);
     console.log('🔍 TabSQLEditor: Current tab SQL before execution:', JSON.stringify(currentTab?.sql));
+    
+    if (!currentTab) return;
+
+    // SQLに<output>タグが含まれているかチェック
+    const hasChartConfig = hasOutputTag(currentTab.sql);
+    
+    if (hasChartConfig) {
+      // パラメータ値から出力方法を取得
+      const outputMethod = currentTab.parameterState.values['出力方法'] as string;
+      
+      if (outputMethod === 'Excel') {
+        // Excel出力の場合
+        await handleExcelOutput(currentTab.sql);
+        return;
+      }
+    }
+    
+    // 通常のSQL実行（ブラウザ表示）
     await executeTabSqlIntegrated(tabId);
+  };
+
+  // Excel出力処理
+  const handleExcelOutput = async (sql: string) => {
+    try {
+      // Excel出力時は直接SQL実行（タブ状態は更新しない）
+      const { executeSqlOnCache } = await import('../../api/sqlService');
+      const response = await executeSqlOnCache({ sql });
+      
+      if (!response.success || !response.session_id) {
+        console.error('SQL実行に失敗しました:', response.error_message);
+        return;
+      }
+
+      // グラフ設定を抽出
+      const chartConfig = extractChartConfigFromSQL(sql);
+      
+      if (!chartConfig) {
+        console.error('グラフ設定が見つかりません');
+        return;
+      }
+
+      // Excel出力処理
+      console.log('Excelファイルを生成中...');
+      
+      const { downloadExcelFromCache } = await import('../../api/sqlService');
+      const blob = await downloadExcelFromCache({
+        session_id: response.session_id,
+        chart_config: chartConfig,
+        filename: 'query_result_with_chart.xlsx'
+      });
+
+      // ファイルダウンロード
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'query_result_with_chart.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+
+      console.log('Excelファイルのダウンロードが完了しました');
+    } catch (error) {
+      console.error('Excel出力エラー:', error);
+      // エラー表示の処理を追加
+    }
   };
 
   // SQL更新ハンドラー
@@ -290,16 +360,25 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
             let processedData = cacheResult.data;
             
             // データが配列の配列の場合、オブジェクト形式に変換
-            if (Array.isArray(cacheResult.data[0])) {
+            if (Array.isArray(cacheResult.data) && cacheResult.data.length > 0 && Array.isArray(cacheResult.data[0])) {
               console.log('配列形式のデータを検出、オブジェクト形式に変換中...');
-              const rawData = cacheResult.data as any;
-              processedData = rawData.map((row: any) => {
-                const obj: any = {};
+              const rawData = cacheResult.data as unknown;
+              const arrayData = rawData as unknown[][];
+              processedData = arrayData.map((row: unknown[]) => {
+                const obj: Record<string, string | number | boolean | null> = {};
                 cacheResult.columns?.forEach((column, index) => {
-                  obj[column] = row[index];
+                  const value = row[index];
+                  // 型を適切に変換
+                  if (value === null || value === undefined) {
+                    obj[column] = null;
+                  } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+                    obj[column] = value;
+                  } else {
+                    obj[column] = String(value);
+                  }
                 });
                 return obj;
-              });
+              }) as Array<Record<string, string | number | boolean | null>>;
               console.log('変換後のデータサンプル:', processedData.slice(0, 2));
             }
             
@@ -425,6 +504,7 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
           message: message,
         }}
         showProgress={showProgress && isActiveTab}
+        hasChart={!!chartConfig}
       />
 
       {/* Monaco Editor 本体 */}
@@ -444,7 +524,15 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
       <TemplateSaveModal
         isOpen={isSaveModalOpen}
         onClose={closeSaveModal}
-        initialSql={tab.sql}
+        initialSql={(() => {
+          // グラフ設定がある場合はXMLタグを追加
+          let sql = tab.sql;
+          if (chartConfig) {
+            const chartXML = convertChartConfigToXML(chartConfig);
+            sql = sql + '\n\n' + chartXML;
+          }
+          return sql;
+        })()}
         onSave={async (name: string, sqlContent: string) => {
           await saveTemplate(name, sqlContent);
           closeSaveModal();

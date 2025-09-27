@@ -27,16 +27,16 @@ class OracleLogHandler(BaseLogHandler):
             version_parts = __version__.split('.')
             version_number = int(version_parts[0]) + int(version_parts[1]) * 0.1 + int(version_parts[2]) *0.01
 
-            log_sql = f"""
+            log_sql = """
             INSERT INTO HF3J8M01 (
                 MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+                SYSTEM_WORK_TIME, FROM_DATE, TO_DATE, TOOL_VER
             ) VALUES (
-                '{mk_date}', '{user_id}', 'SQLDOJOWEB', '{truncated_sql}',
-                {int(execution_time)}, '{from_date}', '{mk_date}', {version_number}
+                ?, ?, 'SQLDOJOWEB', ?,
+                ?, ?, ?, ?
             )
             """
-            params = None
+            params = (mk_date, user_id, truncated_sql, int(execution_time), from_date, mk_date, version_number)
 
             result = self.query_executor.execute_query(log_sql, params)
             if not result.success:
@@ -60,7 +60,7 @@ class OracleLogHandler(BaseLogHandler):
             total_count = count_result.data[0]['total_count'] if count_result.success and count_result.data else 0
 
             data_sql = f"""
-            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER
+            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORK_TIME
             {base_sql} ORDER BY MK_DATE DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
             """
             params.extend([offset, limit])
@@ -75,7 +75,7 @@ class OracleLogHandler(BaseLogHandler):
                 "log_id": str(uuid.uuid4()),
                 "user_id": row.get("ope_code"),
                 "sql": row.get("option_no"),
-                "execution_time": row.get("system_worknumber"),
+                "execution_time": row.get("system_work_time"),
                 "row_count": None,  # テーブルに存在しないためNone
                 "success": True,     # テーブルに存在しないためデフォルト値
                 "error_message": None,  # テーブルに存在しないためNone

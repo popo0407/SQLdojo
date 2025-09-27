@@ -50,6 +50,36 @@ if (!(Get-Module -ListAvailable -Name WebAdministration)) {
 }
 Import-Module WebAdministration
 
+# IIS機能とARRの確認
+Write-ColorOutput Yellow "  - IIS機能とApplication Request Routingの確認..."
+$iisFeatures = @(
+    "IIS-WebServerRole",
+    "IIS-WebServer", 
+    "IIS-CommonHttpFeatures",
+    "IIS-HttpRedirect",
+    "IIS-NetFxExtensibility45",
+    "IIS-ISAPIExtensions",
+    "IIS-ISAPIFilter",
+    "IIS-RequestFiltering"
+)
+
+foreach ($feature in $iisFeatures) {
+    $featureState = Get-WindowsOptionalFeature -Online -FeatureName $feature -ErrorAction SilentlyContinue
+    if ($featureState -and $featureState.State -eq "Enabled") {
+        Write-ColorOutput Green "    ✓ $feature が有効"
+    } else {
+        Write-ColorOutput Yellow "    ⚠ $feature が無効または未確認"
+    }
+}
+
+# URL Rewrite モジュールの確認
+$urlRewriteModule = Get-WebGlobalModule -Name "RewriteModule" -ErrorAction SilentlyContinue
+if ($urlRewriteModule) {
+    Write-ColorOutput Green "    ✓ URL Rewrite モジュールが利用可能"
+} else {
+    Write-ColorOutput Yellow "    ⚠ URL Rewrite モジュールが見つかりません（HTTPSリダイレクトが動作しない可能性）"
+}
+
 # 3. デプロイディレクトリの確認
 Write-ColorOutput Yellow "ステップ 2: デプロイディレクトリの確認..."
 Write-ColorOutput Yellow "検出: DeployPath = $DeployPath"
@@ -141,7 +171,7 @@ $webConfigContent = @"
       <rules>
         <rule name="API Proxy" stopProcessing="true">
           <match url="^api/(.*)" />
-          <action type="Rewrite" url="http://127.0.0.1:$BackendPort/{R:0}" />
+          <action type="Rewrite" url="http://127.0.0.1:$BackendPort/api/{R:1}" />
         </rule>
         <rule name="HTTPS Redirect" stopProcessing="true">
           <match url=".*" />
@@ -160,7 +190,7 @@ $webConfigContent = @"
         </rule>
       </rules>
     </rewrite>
-    <proxy enabled="true" preserveHostHeader="false" />
+    <proxy enabled="true" preserveHostHeader="false" reverseRewriteHostInResponseHeaders="false" />
     <defaultDocument>
       <files>
         <clear />
@@ -181,6 +211,23 @@ $webConfigContent = @"
 
 Write-Output $webConfigContent | Out-File -FilePath $webConfigPath -Encoding UTF8
 Write-ColorOutput Green "  - web.config 作成完了: $webConfigPath"
+
+# Application Request Routing のタイムアウト設定
+Write-ColorOutput Yellow "  - Application Request Routing タイムアウト設定..."
+try {
+    # ARR の Proxy 設定を PowerShell で直接設定
+    Import-Module WebAdministration -ErrorAction SilentlyContinue
+    
+    # タイムアウト設定 (25分 = 1500秒)
+    Set-WebConfigurationProperty -Filter "system.webServer/proxy" -Name "timeout" -Value "00:25:00" -PSPath "IIS:\" -ErrorAction SilentlyContinue
+    Set-WebConfigurationProperty -Filter "system.webServer/proxy" -Name "connectionTimeout" -Value "00:00:30" -PSPath "IIS:\" -ErrorAction SilentlyContinue
+    Set-WebConfigurationProperty -Filter "system.webServer/proxy" -Name "responseBufferLimit" -Value "0" -PSPath "IIS:\" -ErrorAction SilentlyContinue
+    
+    Write-ColorOutput Green "    ✓ ARR タイムアウト設定完了"
+} catch {
+    Write-ColorOutput Yellow "    ⚠ ARR タイムアウト設定をスキップ: $_"
+    Write-ColorOutput Yellow "    　※手動でIISマネージャーから設定してください"
+}
 
 # 7. Windowsサービスとしてバックエンドを登録
 Write-ColorOutput Yellow "ステップ 6: バックエンドサービスの設定..."
@@ -337,7 +384,7 @@ if ($nssmInstall.ExitCode -eq 0) {
     & $nssmPath set $ServiceName DisplayName $ServiceDisplayName
     & $nssmPath set $ServiceName Description $ServiceDescription
     & $nssmPath set $ServiceName AppDirectory $BackendDeploy
-    & $nssmPath set $ServiceName AppParameters "-m uvicorn app.main:app --host 0.0.0.0 --port $BackendPort --workers 1"
+    & $nssmPath set $ServiceName AppParameters "-m uvicorn app.main:app --host 0.0.0.0 --port $BackendPort --workers 4"
     & $nssmPath set $ServiceName Start SERVICE_AUTO_START
     
     # 環境変数を明示的に設定（NSSSMの形式に合わせて）

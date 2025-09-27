@@ -1,6 +1,35 @@
 import type { Placeholder } from '../../types/parameters';
 
 /**
+ * 内容がJSON形式かどうかを判定
+ * @param content - 判定対象の文字列
+ * @returns JSON形式の場合true
+ */
+function isJsonContent(content: string): boolean {
+  // JSON配列の判定: [で始まり]で終わる
+  if (content.trim().startsWith('[') && content.trim().endsWith(']')) {
+    try {
+      JSON.parse(content.trim());
+      return true;
+    } catch {
+      // JSONとしてパースできない場合はfalse
+    }
+  }
+  
+  // JSONオブジェクトの判定: "で始まる（キー名が引用符で囲まれている）
+  if (content.includes('"') && (content.includes(':') || content.includes(','))) {
+    try {
+      JSON.parse(`{${content}}`);
+      return true;
+    } catch {
+      // JSONとしてパースできない場合はfalse
+    }
+  }
+  
+  return false;
+}
+
+/**
  * SQLからプレースホルダーを解析
  * @param sql - 解析対象のSQL
  * @returns プレースホルダー情報の配列
@@ -13,6 +42,11 @@ export function parsePlaceholders(sql: string): Placeholder[] {
   while ((match = placeholderRegex.exec(sql)) !== null) {
     const fullMatch = match[0]; // {入力欄の説明} または {入力欄の説明[選択肢1,選択肢2]}
     const content = match[1]; // 入力欄の説明 または 入力欄の説明[選択肢1,選択肢2,選択肢3]
+    
+    // JSON配列やオブジェクトを除外（[{...}] や {"key": "value"} 形式）
+    if (isJsonContent(content)) {
+      continue;
+    }
     
     // 複数項目入力（引用符付き）の判定
     const quotedMultiMatch = content.match(/^(.+?)\[''\]$/);

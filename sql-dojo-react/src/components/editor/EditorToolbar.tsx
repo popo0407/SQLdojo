@@ -31,6 +31,7 @@ interface EditorToolbarProps {
   templates?: Array<{ id: string; name: string; sql: string; type: string }>;
   isTemplatesLoading?: boolean;
   tabId?: string; // タブ固有のレイアウト状態管理用
+  hasChart?: boolean; // グラフが表示されているかどうか
   // 進捗表示用のprops
   progressData?: {
     total_count?: number;
@@ -56,7 +57,8 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   isTemplatesLoading = false,
   progressData,
   showProgress = false,
-  tabId
+  tabId,
+  hasChart = false
 }) => {
   // タブIDが提供されている場合はタブ固有の状態、そうでなければグローバル状態
   const globalLayoutStore = useLayoutStore();
@@ -151,7 +153,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
             </Dropdown>
             
             <Button
-              variant="outline-success"
+              variant={hasChart ? "primary" : "outline-success"}
               onClick={onSaveTemplate}
               disabled={!hasSql}
               title="テンプレート保存"

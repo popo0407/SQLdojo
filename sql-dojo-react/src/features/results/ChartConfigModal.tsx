@@ -7,7 +7,8 @@ import type {
   ChartType, 
   DataType,
   ColumnConfig,
-  LegendPosition
+  LegendPosition,
+  OutputMethod
 } from '../../utils/chartUtils';
 import {
   getNumericColumns,
@@ -403,6 +404,21 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                       />
                     </Col>
                   </Row>
+                </Form.Group>
+
+                {/* 出力方法設定 */}
+                <Form.Group className="mb-3">
+                  <Form.Label>出力方法</Form.Label>
+                  <Form.Select
+                    value={config.outputMethod || 'browser'}
+                    onChange={(e) => setConfig(prev => ({ 
+                      ...prev, 
+                      outputMethod: e.target.value as OutputMethod 
+                    }))}
+                  >
+                    <option value="browser">ブラウザ</option>
+                    <option value="excel">Excel</option>
+                  </Form.Select>
                 </Form.Group>
               </Card.Body>
             </Card>

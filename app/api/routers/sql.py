@@ -412,9 +412,14 @@ async def cache_download_excel_endpoint(
             try:
                 _add_chart_to_worksheet(ws, chart_config, total, len(columns))
             except Exception as e:
-                # グラフ生成失敗時はログ出力のみ、Excelファイル生成は継続
+                # グラフ生成失敗時はエラーとしてExcel作成を中止
                 import logging
-                logging.warning(f"Excel chart generation failed: {e}")
+                logging.error(f"Excel chart generation failed: {e}")
+                raise unified_error(
+                    400,
+                    "CHART_GENERATION_FAILED",
+                    f"グラフ生成に失敗しました: {e}"
+                )
         
         bio = BytesIO(); wb.save(bio); bio.seek(0); data_bytes = bio.read(); yield data_bytes; bio.close()
 

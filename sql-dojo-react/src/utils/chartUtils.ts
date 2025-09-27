@@ -65,6 +65,9 @@ export interface ColumnConfig {
   color: string;
 }
 
+// 出力方法の型定義
+export type OutputMethod = 'browser' | 'excel';
+
 // シンプルなグラフ設定（Excel互換）
 export interface SimpleChartConfig {
   chartType: ChartType;
@@ -81,6 +84,7 @@ export interface SimpleChartConfig {
   chartSize?: ChartSize;
   legendPosition?: LegendPosition;
   colors?: Record<string, string>;
+  outputMethod?: OutputMethod;
 }
 
 // データ型を自動検出する関数（10レコードサンプル）
@@ -261,6 +265,7 @@ export const createDefaultChartConfig = (): SimpleChartConfig => {
     colors: {},
     chartSize: { width: 800, height: 400 },
     legendPosition: 'top',
+    outputMethod: 'browser',
   };
 };
 
@@ -308,5 +313,6 @@ export const createSmartChartConfig = (
     colors: assignColors(yColumns),
     chartSize: { width: 800, height: 400 },
     legendPosition: 'top',
+    outputMethod: 'browser',
   };
 };
