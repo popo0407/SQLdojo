@@ -341,9 +341,14 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
     // SQLからプレースホルダーを解析
     const placeholders = parsePlaceholders(sql);
     
+    // 重複するパラメータを除去（同じdisplayNameの場合は最初の1つだけを保持）
+    const uniquePlaceholders = placeholders.filter((placeholder, index, array) => {
+      return array.findIndex(p => p.displayName === placeholder.displayName) === index;
+    });
+    
     // プレースホルダー情報をストアに保存
     const placeholderInfo: { [key: string]: { type: ParameterType; options?: string[] } } = {};
-    placeholders.forEach(placeholder => {
+    uniquePlaceholders.forEach(placeholder => {
       placeholderInfo[placeholder.displayName] = {
         type: placeholder.type,
         options: placeholder.choices
@@ -356,7 +361,7 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
             ...tab, 
             parameterState: {
               ...tab.parameterState,
-              currentPlaceholders: placeholders,
+              currentPlaceholders: uniquePlaceholders,
               placeholders: placeholderInfo,
               // 既存のvaluesは保持する
               values: tab.parameterState.values
