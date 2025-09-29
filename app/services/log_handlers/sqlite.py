@@ -36,9 +36,21 @@ class SqliteLogHandler(BaseLogHandler):
                     SYSTEM_WORKNUMBER REAL NOT NULL,
                     FROM_DATE TEXT NOT NULL,
                     TO_DATE TEXT NOT NULL,
-                    TOOL_VER INTEGER NOT NULL
+                    TOOL_VER INTEGER NOT NULL,
+                    CONNSERVER TEXT NOT NULL DEFAULT '98'
                 )
                 """)
+                
+                # 既存のテーブルにCONNSERVERカラムが存在しない場合は追加
+                try:
+                    conn.execute("ALTER TABLE TOOL_LOG ADD COLUMN CONNSERVER TEXT NOT NULL DEFAULT '98'")
+                    self.logger.info("CONNSERVERカラムを既存のTOOL_LOGテーブルに追加しました")
+                except sqlite3.OperationalError as e:
+                    if "duplicate column name" in str(e).lower():
+                        self.logger.debug("CONNSERVERカラムは既に存在します")
+                    else:
+                        self.logger.warning(f"CONNSERVERカラムの追加で警告: {e}")
+                
                 conn.commit()
                 self.logger.info(f"SQLiteログデータベースを初期化しました: {self.db_path}")
         except Exception as e:
@@ -60,8 +72,8 @@ class SqliteLogHandler(BaseLogHandler):
                     """
                     INSERT INTO TOOL_LOG (
                         MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO,
-                        SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER, CONNSERVER
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         mk_date,
@@ -72,6 +84,7 @@ class SqliteLogHandler(BaseLogHandler):
                         from_date,
                         mk_date,
                         version_number,
+                        '98',
                     ),
                 )
                 conn.commit()
@@ -103,10 +116,10 @@ class SqliteLogHandler(BaseLogHandler):
                 
                 # ログデータを取得
                 if self.settings.sqlite_tool_name:
-                    data_sql = "SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER FROM TOOL_LOG WHERE TOOL_NAME = ?"
+                    data_sql = "SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER, CONNSERVER FROM TOOL_LOG WHERE TOOL_NAME = ?"
                     data_params = [self.settings.sqlite_tool_name]
                 else:
-                    data_sql = "SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER FROM TOOL_LOG"
+                    data_sql = "SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER, CONNSERVER FROM TOOL_LOG"
                     data_params = []
                 if user_id:
                     if self.settings.sqlite_tool_name:
@@ -125,6 +138,7 @@ class SqliteLogHandler(BaseLogHandler):
                     "user_id": row['OPE_CODE'],
                     "sql": row['OPTION_NO'],
                     "execution_time": row['SYSTEM_WORKNUMBER'],
+                    "connserver": row.get('CONNSERVER', '98'),  # CONNSERVERカラムを追加
                     "row_count": None,  # テーブルに存在しないためNone
                     "success": True,     # テーブルに存在しないためデフォルト値
                     "error_message": None,  # テーブルに存在しないためNone

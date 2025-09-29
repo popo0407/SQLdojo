@@ -34,10 +34,10 @@ class SnowflakeLogHandler(BaseLogHandler):
             log_sql = f"""
             INSERT INTO Log.TOOL_LOG (
                 MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER
+                SYSTEM_WORKNUMBER, FROM_DATE, TO_DATE, TOOL_VER, CONNSERVER
             ) VALUES (
                 '{mk_date}', '{user_id}', 'SQLDOJOWEB', '{truncated_sql}',
-                {int(execution_time)}, '{from_date}', '{mk_date}', {version_number}
+                {int(execution_time)}, '{from_date}', '{mk_date}', {version_number}, '98'
             )
             """
             params = None
@@ -70,7 +70,7 @@ class SnowflakeLogHandler(BaseLogHandler):
             total_count = count_result['data'][0]['TOTAL_COUNT'] if count_result['success'] and count_result['data'] else 0
 
             data_sql = f"""
-            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER
+            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORKNUMBER, CONNSERVER
             {base_sql} ORDER BY MK_DATE DESC OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY
             """
             
@@ -84,6 +84,7 @@ class SnowflakeLogHandler(BaseLogHandler):
                 "user_id": row.get("OPE_CODE"),
                 "sql": row.get("OPTION_NO"),
                 "execution_time": row.get("SYSTEM_WORKNUMBER"),
+                "connserver": row.get("CONNSERVER", "98"),  # CONNSERVERカラムを追加
                 "row_count": None,  # テーブルに存在しないためNone
                 "success": True,     # テーブルに存在しないためデフォルト値
                 "error_message": None,  # テーブルに存在しないためNone
