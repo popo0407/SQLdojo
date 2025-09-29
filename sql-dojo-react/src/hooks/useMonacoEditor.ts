@@ -3,6 +3,7 @@ import type * as monaco from 'monaco-editor';
 // import { useEditorStore } from '../stores/useEditorStore';
 // import { useSqlPageStore } from '../stores/useSqlPageStore';
 import { useUIStore } from '../stores/useUIStore';
+import { MonacoParameterFormatter } from '../utils/monacoParameterFormatter';
 
 /**
  * Monaco Editorのカスタムフック
@@ -43,6 +44,10 @@ export const useMonacoEditor_DISABLED = () => {
         const { setShowShortcutHelp } = useUIStore.getState();
         setShowShortcutHelp(true);
       });
+      
+      // パラメータ（{}で囲まれた文字列）を保護するカスタムフォーマッタープロバイダーを登録
+      console.log('🔴 元エディタ: Registering parameter formatter');
+      MonacoParameterFormatter.registerFormattingProvider(monacoApi);
     }
     
     // SQL補完機能を設定（元エディタは無効化）

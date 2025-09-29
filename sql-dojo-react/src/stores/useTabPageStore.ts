@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { useTabStore } from './useTabStore';
 import { useUIStore } from './useUIStore';
-import { downloadSqlCsv, formatSql } from '../api/sqlService';
+import { downloadSqlCsv } from '../api/sqlService';
+import { MonacoParameterFormatter } from '../utils/monacoParameterFormatter';
 
 // タブごとのエディタインスタンス管理
 const tabEditorInstances = new Map<string, {
@@ -244,7 +245,8 @@ export const useTabPageStore = create<TabPageState>((_, get) => ({
     });
   },
 
-  // SQL整形アクション
+  // SQL整形アクション（クライアント側パラメータ保護フォーマッター使用）
+  // Monaco Editorのフォーマット機能（Shift+Alt+F）と統一された処理
   formatTabSql: async (tabId: string) => {
     const tabStore = useTabStore.getState();
     const tab = tabStore.getTab(tabId);
@@ -258,8 +260,8 @@ export const useTabPageStore = create<TabPageState>((_, get) => ({
     try {
       uiStore.startLoading();
       
-      // API経由で直接SQL整形（EditorStoreを使わない）
-      const formattedSql = await formatSql({ sql: tab.sql });
+      // クライアント側のパラメータ保護フォーマッターを使用
+      const formattedSql = MonacoParameterFormatter.formatSqlWithParameterProtection(tab.sql);
       
       // 整形されたSQLをタブに反映
       tabStore.updateTabSql(tabId, formattedSql);

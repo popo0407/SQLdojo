@@ -139,6 +139,8 @@ export const fetchClipboardTsvFromCache = async ({
 };
 
 // SQL整形API
+// @deprecated クライアント側のMonacoParameterFormatterを使用してください
+// パラメータ保護機能のため、このAPIの使用は推奨されません
 export const formatSql = async ({ sql }: { sql: string }): Promise<string> => {
   const response = await fetch(`${API_CONFIG.BASE_URL}/sql/format`, {
     method: 'POST',

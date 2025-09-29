@@ -3,6 +3,7 @@ import type * as monaco from 'monaco-editor';
 import { getSqlSuggestions } from '../api/sqlService';
 import type { SqlCompletionItem } from '../types/api';
 import { useAuth } from '../contexts/AuthContext';
+import { MonacoParameterFormatter } from '../utils/monacoParameterFormatter';
 
 /**
  * エディタ内容からコンテキスト補完候補を抽出
@@ -274,6 +275,10 @@ export const useTabMonacoEditor = (tabId: string) => {
       const uiStore = useUIStore.getState();
       uiStore.setShowShortcutHelp(true);
     });
+    
+    // パラメータ（{}で囲まれた文字列）を保護するカスタムフォーマッタープロバイダーを登録
+    console.log('🔍 useTabMonacoEditor: Registering parameter formatter for tabId:', tabId);
+    MonacoParameterFormatter.registerFormattingProvider(monacoApi);
     
     monacoApi.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: async (model: monaco.editor.ITextModel, position: monaco.Position) => {
