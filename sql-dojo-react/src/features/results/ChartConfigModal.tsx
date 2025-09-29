@@ -514,7 +514,9 @@ const ChartConfigModal: React.FC<ChartConfigModalProps> = ({
                               yColumnConfigs: [newColumnConfig],
                               colors: { [selectedColumn]: color },
                               // Y軸カラムが選択された時にY軸ラベルを自動設定
-                              yAxisLabel: selectedColumn
+                              yAxisLabel: selectedColumn,
+                              // Y軸カラムが変更されたので自動スケール値をリセット
+                              yAxisRange: {}
                             }));
                           }
                         }}
