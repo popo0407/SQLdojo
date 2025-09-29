@@ -249,9 +249,13 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
   // Excel出力処理
   const handleExcelOutput = async (sql: string) => {
     try {
-      // Excel出力時は直接SQL実行（タブ状態は更新しない）
+      // パラメータ置換処理を実行（ブラウザ出力と同様）
+      const replacedSql = getTab(tabId)?.sql ? 
+        useTabStore.getState().getTabReplacedSql(tabId, sql) : sql;
+      
+      // Excel出力時は置換済みSQLで実行（タブ状態は更新しない）
       const { executeSqlOnCache } = await import('../../api/sqlService');
-      const response = await executeSqlOnCache({ sql });
+      const response = await executeSqlOnCache({ sql: replacedSql });
       
       if (!response.success || !response.session_id) {
         console.error('SQL実行に失敗しました:', response.error_message);
