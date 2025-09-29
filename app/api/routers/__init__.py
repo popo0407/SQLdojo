@@ -16,6 +16,7 @@ from .cache import router as cache_router
 from .settings import router as settings_router
 from .health import router as health_router
 from .utils import router as utils_router
+from .master import router as master_router
 
 
 def build_api_router() -> APIRouter:
@@ -31,4 +32,5 @@ def build_api_router() -> APIRouter:
     router.include_router(settings_router)
     router.include_router(health_router)
     router.include_router(utils_router)
+    router.include_router(master_router)
     return router

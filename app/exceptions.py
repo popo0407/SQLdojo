@@ -239,4 +239,11 @@ class HealthCheckError(BaseAppException):
     """ヘルスチェックエラー"""
     error_code = ErrorCode.HEALTHCHECK_ERROR
     def __init__(self, message: str, detail: Optional[Dict[str, Any]] = None):
-        super().__init__(message, detail, HTTPStatus.SERVICE_UNAVAILABLE) 
+        super().__init__(message, detail, HTTPStatus.SERVICE_UNAVAILABLE)
+
+
+class SchedulerError(BaseAppException):
+    """スケジューリングエラー"""
+    error_code = ErrorCode.APP_ERROR
+    def __init__(self, message: str, detail: Optional[Dict[str, Any]] = None):
+        super().__init__(message, detail, HTTPStatus.INTERNAL_SERVER_ERROR) 

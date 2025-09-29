@@ -19,7 +19,7 @@ class MetadataCache:
         self.logger = get_logger(__name__)
         self._init_db()
 
-    def _get_conn(self):
+    def _get_conn(self) -> sqlite3.Connection:
         """DB接続を取得"""
         return sqlite3.connect(self.db_path)
 
@@ -131,6 +131,93 @@ class MetadataCache:
                     role_name TEXT NOT NULL,
                     is_visible INTEGER NOT NULL,
                     UNIQUE(object_name, role_name)
+                )
+                """)
+                
+                # ▼▼▼ マスターテーブル群 ▼▼▼
+                # STATION_MASTERテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS station_master (
+                    sta_no1 TEXT NOT NULL,
+                    place_name TEXT,
+                    sta_no2_first_digit TEXT,
+                    sta_no2 TEXT,
+                    line_name TEXT,
+                    sta_no3 TEXT,
+                    st_name TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (sta_no1, sta_no2, sta_no3)
+                )
+                """)
+                
+                # MEASURE_MASTERテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS measure_master (
+                    sta_no1 TEXT NOT NULL,
+                    sta_no2 TEXT NOT NULL,
+                    sta_no3 TEXT NOT NULL,
+                    step INTEGER NOT NULL,
+                    measure TEXT NOT NULL,
+                    item_name TEXT,
+                    division_figure INTEGER,
+                    measure_info TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (sta_no1, sta_no2, sta_no3, step, measure)
+                )
+                """)
+                
+                # SET_MASTERテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS set_master (
+                    sta_no1 TEXT NOT NULL,
+                    sta_no2 TEXT NOT NULL,
+                    sta_no3 TEXT NOT NULL,
+                    step INTEGER NOT NULL,
+                    setdata TEXT NOT NULL,
+                    item_name TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (sta_no1, sta_no2, sta_no3, step, setdata)
+                )
+                """)
+                
+                # FREE_MASTERテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS free_master (
+                    sta_no1 TEXT NOT NULL,
+                    sta_no2 TEXT NOT NULL,
+                    sta_no3 TEXT NOT NULL,
+                    step INTEGER NOT NULL,
+                    freedata TEXT NOT NULL,
+                    item_name TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (sta_no1, sta_no2, sta_no3, step, freedata)
+                )
+                """)
+                
+                # PARTS_MASTERテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS parts_master (
+                    sta_no1 TEXT NOT NULL,
+                    sta_no2 TEXT NOT NULL,
+                    sta_no3 TEXT NOT NULL,
+                    main_parts_name TEXT,
+                    sub_parts TEXT NOT NULL,
+                    sub_parts_name TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (sta_no1, sta_no2, sta_no3, sub_parts)
+                )
+                """)
+                
+                # TROUBLE_MASTERテーブル
+                cursor.execute("""
+                CREATE TABLE IF NOT EXISTS trouble_master (
+                    sta_no1 TEXT NOT NULL,
+                    sta_no2 TEXT NOT NULL,
+                    sta_no3 TEXT NOT NULL,
+                    code_no INTEGER NOT NULL,
+                    trouble_ng_info TEXT,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (sta_no1, sta_no2, sta_no3, code_no)
                 )
                 """)
                 
@@ -289,4 +376,293 @@ class MetadataCache:
                 return count > 0
         except Exception as e:
             self.logger.error("キャッシュ有効性チェックに失敗", exception=e)
-            return False 
+            return False
+
+    # ▼▼▼ マスターデータ操作メソッド ▼▼▼
+    
+    def save_station_master(self, data: List[Dict[str, Any]]) -> int:
+        try:
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM station_master")
+                
+                for i, row in enumerate(data):
+                    # デバッグ: 最初の行の詳細を出力
+                    if i == 0:
+                        self.logger.info(f"保存データサンプル: {row}")
+                        self.logger.info(f"使用可能なキー: {list(row.keys())}")
+                    
+                    # SQLクエリ結果の小文字キーに対応
+                    cursor.execute("""
+                        INSERT INTO station_master 
+                        (sta_no1, place_name, sta_no2_first_digit, sta_no2, line_name, sta_no3, st_name)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        row.get('sta_no1'),
+                        row.get('place_name'),
+                        row.get('sta_no2_first_digit'),
+                        row.get('sta_no2'),
+                        row.get('line_name'),
+                        row.get('sta_no3'),
+                        row.get('st_name')
+                    ))
+                conn.commit()
+                self.logger.info(f"STATION_MASTERデータを保存しました: {len(data)}件")
+                return len(data)
+        except Exception as e:
+            self.logger.error("STATION_MASTERデータの保存に失敗", exception=e)
+            raise
+
+    def save_measure_master(self, data: List[Dict[str, Any]]) -> int:
+        try:
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM measure_master")
+                
+                for row in data:
+                    cursor.execute("""
+                        INSERT INTO measure_master 
+                        (sta_no1, sta_no2, sta_no3, step, measure, item_name, division_figure, measure_info)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        row.get('sta_no1'),
+                        row.get('sta_no2'),
+                        row.get('sta_no3'),
+                        int(row.get('step')) if row.get('step') is not None else None,
+                        row.get('measure'),
+                        row.get('item_name'),
+                        int(row.get('division_figure')) if row.get('division_figure') is not None else None,
+                        row.get('measure_info')
+                    ))
+                conn.commit()
+                self.logger.info(f"MEASURE_MASTERデータを保存しました: {len(data)}件")
+                return len(data)
+        except Exception as e:
+            self.logger.error("MEASURE_MASTERデータの保存に失敗", exception=e)
+            raise
+
+    def save_set_master(self, data: List[Dict[str, Any]]):
+        """SET_MASTERデータを保存"""
+        try:
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM set_master")
+                
+                for row in data:
+                    cursor.execute("""
+                        INSERT INTO set_master 
+                        (sta_no1, sta_no2, sta_no3, step, setdata, item_name)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (
+                        row.get('sta_no1'),
+                        row.get('sta_no2'),
+                        row.get('sta_no3'),
+                        int(row.get('step')) if row.get('step') is not None else None,
+                        row.get('setdata'),
+                        row.get('item_name')
+                    ))
+                conn.commit()
+                self.logger.info(f"SET_MASTERデータを保存しました: {len(data)}件")
+                return len(data)
+        except Exception as e:
+            self.logger.error("SET_MASTERデータの保存に失敗", exception=e)
+            raise
+
+    def save_free_master(self, data: List[Dict[str, Any]]):
+        """FREE_MASTERデータを保存"""
+        try:
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM free_master")
+                
+                for row in data:
+                    cursor.execute("""
+                        INSERT INTO free_master 
+                        (sta_no1, sta_no2, sta_no3, step, freedata, item_name)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (
+                        row.get('sta_no1'),
+                        row.get('sta_no2'),
+                        row.get('sta_no3'),
+                        int(row.get('step')) if row.get('step') is not None else None,
+                        row.get('freedata'),
+                        row.get('item_name')
+                    ))
+                conn.commit()
+                self.logger.info(f"FREE_MASTERデータを保存しました: {len(data)}件")
+                return len(data)
+        except Exception as e:
+            self.logger.error("FREE_MASTERデータの保存に失敗", exception=e)
+            raise
+
+    def save_parts_master(self, data: List[Dict[str, Any]]):
+        """PARTS_MASTERデータを保存"""
+        try:
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM parts_master")
+                
+                for row in data:
+                    cursor.execute("""
+                        INSERT INTO parts_master 
+                        (sta_no1, sta_no2, sta_no3, main_parts_name, sub_parts, sub_parts_name)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, (
+                        row.get('sta_no1'),
+                        row.get('sta_no2'),
+                        row.get('sta_no3'),
+                        row.get('main_parts_name'),
+                        row.get('sub_parts'),
+                        row.get('sub_parts_name')
+                    ))
+                conn.commit()
+                self.logger.info(f"PARTS_MASTERデータを保存しました: {len(data)}件")
+                return len(data)
+        except Exception as e:
+            self.logger.error("PARTS_MASTERデータの保存に失敗", exception=e)
+            raise
+
+    def save_trouble_master(self, data: List[Dict[str, Any]]):
+        """TROUBLE_MASTERデータを保存"""
+        try:
+            with self._get_conn() as conn:
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM trouble_master")
+                
+                for row in data:
+                    cursor.execute("""
+                        INSERT INTO trouble_master 
+                        (sta_no1, sta_no2, sta_no3, code_no, trouble_ng_info)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (
+                        row.get('sta_no1'),
+                        row.get('sta_no2'),
+                        row.get('sta_no3'),
+                        int(row.get('code_no')) if row.get('code_no') is not None else None,
+                        row.get('trouble_ng_info')
+                    ))
+                conn.commit()
+                self.logger.info(f"TROUBLE_MASTERデータを保存しました: {len(data)}件")
+                return len(data)
+        except Exception as e:
+            self.logger.error("TROUBLE_MASTERデータの保存に失敗", exception=e)
+            raise
+
+    # マスターデータ取得メソッド
+    
+    def get_station_master_stations(self) -> List[Dict[str, Any]]:
+        """重複を排除したSTA_NO1,PLACE_NAMEの表を取得"""
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT DISTINCT sta_no1, place_name 
+                    FROM station_master 
+                    WHERE sta_no1 IS NOT NULL AND place_name IS NOT NULL
+                    ORDER BY sta_no1
+                """)
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error("STATION_MASTER駅一覧の取得に失敗", exception=e)
+            return []
+
+    def get_station_master_by_filter(self, **filters) -> List[Dict[str, Any]]:
+        """条件を指定してSTATION_MASTERデータを取得"""
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                
+                where_conditions = []
+                params = []
+                
+                if filters.get('sta_no1'):
+                    where_conditions.append("sta_no1 = ?")
+                    params.append(filters['sta_no1'])
+                if filters.get('place_name'):
+                    where_conditions.append("place_name = ?")
+                    params.append(filters['place_name'])
+                if filters.get('sta_no2_first_digit'):
+                    where_conditions.append("sta_no2_first_digit = ?")
+                    params.append(filters['sta_no2_first_digit'])
+                if filters.get('sta_no2'):
+                    where_conditions.append("sta_no2 = ?")
+                    params.append(filters['sta_no2'])
+                if filters.get('line_name'):
+                    where_conditions.append("line_name = ?")
+                    params.append(filters['line_name'])
+                if filters.get('sta_no3'):
+                    where_conditions.append("sta_no3 = ?")
+                    params.append(filters['sta_no3'])
+                if filters.get('st_name'):
+                    where_conditions.append("st_name = ?")
+                    params.append(filters['st_name'])
+                
+                where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
+                
+                sql = f"""
+                    SELECT DISTINCT sta_no1, place_name, sta_no2_first_digit, sta_no2, line_name, sta_no3, st_name
+                    FROM station_master 
+                    WHERE {where_clause}
+                    ORDER BY sta_no1, sta_no2, sta_no3
+                """
+                
+                cursor.execute(sql, params)
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error("STATION_MASTERフィルタ取得に失敗", exception=e)
+            return []
+
+    def get_master_data_by_station(self, master_type: str, sta_no1: str, sta_no2: str, sta_no3: str) -> List[Dict[str, Any]]:
+        """指定されたSTA_NO1,STA_NO2,STA_NO3でマスターデータを取得"""
+        try:
+            table_name = f"{master_type.lower()}_master"
+            
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                
+                if master_type.upper() == 'MEASURE':
+                    cursor.execute(f"""
+                        SELECT step, measure, item_name, division_figure, measure_info
+                        FROM {table_name}
+                        WHERE sta_no1 = ? AND sta_no2 = ? AND sta_no3 = ?
+                        ORDER BY step, measure
+                    """, (sta_no1, sta_no2, sta_no3))
+                elif master_type.upper() == 'SET':
+                    cursor.execute(f"""
+                        SELECT step, setdata, item_name
+                        FROM {table_name}
+                        WHERE sta_no1 = ? AND sta_no2 = ? AND sta_no3 = ?
+                        ORDER BY step, setdata
+                    """, (sta_no1, sta_no2, sta_no3))
+                elif master_type.upper() == 'FREE':
+                    cursor.execute(f"""
+                        SELECT step, freedata, item_name
+                        FROM {table_name}
+                        WHERE sta_no1 = ? AND sta_no2 = ? AND sta_no3 = ?
+                        ORDER BY step, freedata
+                    """, (sta_no1, sta_no2, sta_no3))
+                elif master_type.upper() == 'PARTS':
+                    cursor.execute(f"""
+                        SELECT main_parts_name, sub_parts, sub_parts_name
+                        FROM {table_name}
+                        WHERE sta_no1 = ? AND sta_no2 = ? AND sta_no3 = ?
+                        ORDER BY sub_parts
+                    """, (sta_no1, sta_no2, sta_no3))
+                elif master_type.upper() == 'TROUBLE':
+                    cursor.execute(f"""
+                        SELECT code_no, trouble_ng_info
+                        FROM {table_name}
+                        WHERE sta_no1 = ? AND sta_no2 = ? AND sta_no3 = ?
+                        ORDER BY code_no
+                    """, (sta_no1, sta_no2, sta_no3))
+                else:
+                    self.logger.error(f"不正なマスタータイプ: {master_type}")
+                    return []
+                
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error(f"{master_type}マスターデータの取得に失敗", exception=e)
+            return [] 

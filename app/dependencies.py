@@ -33,6 +33,8 @@ from app.services.cache_service import CacheService
 from app.services.hybrid_sql_service import HybridSQLService
 from app.services.session_service import SessionService
 from app.services.streaming_state_service import StreamingStateService
+from app.services.master_data_service import MasterDataService
+from app.services.scheduler_service import SchedulerService
 
 
 # 設定の依存性注入
@@ -334,3 +336,24 @@ VisibilityControlServiceDep = Annotated[VisibilityControlService, Depends(get_vi
 HybridSQLServiceDep = Annotated[HybridSQLService, Depends(get_hybrid_sql_service_di)]
 SessionServiceDep = Annotated[SessionService, Depends(get_session_service_di)]
 StreamingStateServiceDep = Annotated[StreamingStateService, Depends(get_streaming_state_service_di)]
+
+
+# MasterDataServiceの依存性注入
+def get_master_data_service_di(
+    query_executor: Annotated[QueryExecutor, Depends(get_query_executor_di)],
+    metadata_cache: Annotated[MetadataCache, Depends(get_metadata_cache_di)]
+) -> MasterDataService:
+    """マスターデータサービスを取得"""
+    return MasterDataService(query_executor, metadata_cache)
+
+
+# SchedulerServiceの依存性注入
+@lru_cache()
+def get_scheduler_service_di() -> SchedulerService:
+    """スケジューラーサービスを取得"""
+    return SchedulerService()
+
+
+# 型エイリアス追加
+MasterDataServiceDep = Annotated[MasterDataService, Depends(get_master_data_service_di)]
+SchedulerServiceDep = Annotated[SchedulerService, Depends(get_scheduler_service_di)]

@@ -183,6 +183,14 @@ class HealthCheckResponse(BaseModel):
     performance_metrics: Dict[str, Any] = Field(..., description="パフォーマンスメトリクス")
 
 
+class SuccessResponse(BaseModel):
+    """成功レスポンス"""
+    success: bool = Field(default=True, description="処理成功フラグ")
+    message: str = Field(..., description="成功メッセージ")
+    data: Optional[Dict[str, Any]] = Field(default=None, description="レスポンスデータ")
+    timestamp: float = Field(default_factory=time.time, description="処理時刻（UNIX時間）")
+
+
 class ErrorResponse(BaseModel):
     """エラーレスポンス"""
     error: str = Field(..., description="エラーメッセージ")

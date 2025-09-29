@@ -42,10 +42,27 @@ async def lifespan(app: FastAPI):
     cache_cleanup_service = CacheCleanupService()
     await cache_cleanup_service.start_cleanup_task()
     
+    # スケジューラーサービスを開始（一時的に無効化）
+    # try:
+    #     from app.api.routers._helpers import get_scheduler_service
+    #     scheduler_service = get_scheduler_service()
+    #     scheduler_service.start()
+    #     logger.info("スケジューラーサービスを開始しました")
+    # except Exception as e:
+    #     logger.error("スケジューラーサービスの開始に失敗", exception=e)
+    
     logger.info(f"アプリケーション起動 Ver: {__version__}")
     yield
     
-    # 終了時の処理
+    # 終了時の処理（スケジューラー停止は一時的に無効化）
+    # try:
+    #     from app.api.routers._helpers import get_scheduler_service
+    #     scheduler_service = get_scheduler_service()
+    #     scheduler_service.stop()
+    #     logger.info("スケジューラーサービスを停止しました")
+    # except Exception as e:
+    #     logger.error("スケジューラーサービスの停止に失敗", exception=e)
+    
     await cache_cleanup_service.stop_cleanup_task()
     connection_manager.close_all_connections()
     logger.info("アプリケーション終了")
@@ -98,10 +115,8 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 # --- ルーターと静的ファイルの設定 ---
-# ルーター登録は factory で実施済み。静的ファイルは React 移行済み
-
-
-# --- ルート定義 (エンドポイント) ---
+# APIルーターを登録
+app.include_router(router, prefix="/api")
 
 # HTMLテンプレートはReactに移行済みのため、APIエンドポイントのみ提供
 @app.get("/login")

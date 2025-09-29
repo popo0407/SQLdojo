@@ -29,6 +29,8 @@ xlsxwriter==3.1.9
 python-multipart==0.0.6
 itsdangerous
 python-jose
+# スケジューリング用
+apscheduler==3.10.4
 # テスト用
 pytest
 pytest-cov 
