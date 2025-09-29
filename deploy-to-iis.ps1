@@ -323,13 +323,44 @@ if (Test-Path $requirementsPath) {
     $pythonExe = $venvPythonExe
 }
 
-# ファイル権限の設定（仮想環境作成後）
+# ファイル権限の設定（仮想環境作成後）- 高速化版
 Write-ColorOutput Yellow "  - ファイル権限の設定..."
-Write-ColorOutput Yellow "  - IIS_IUSRSに読み取り権限を付与中..."
-icacls $DeployPath /grant "IIS_IUSRS:(OI)(CI)RX" /T
-Write-ColorOutput Yellow "  - バックエンドディレクトリに書き込み権限を付与中..."
-icacls $BackendDeploy /grant "IIS_IUSRS:(OI)(CI)F" /T
-Write-ColorOutput Green "  - ファイル権限設定完了"
+
+# 既存権限の確認（軽量チェック）
+Write-ColorOutput White "    - 既存権限をチェック中..."
+$deployPermCheck = icacls $DeployPath 2>$null | Select-String "IIS_IUSRS.*RX"
+$backendPermCheck = icacls $BackendDeploy 2>$null | Select-String "IIS_IUSRS.*F"
+
+$needsDeployPerm = $null -eq $deployPermCheck
+$needsBackendPerm = $null -eq $backendPermCheck
+
+if (-not $needsDeployPerm -and -not $needsBackendPerm) {
+    Write-ColorOutput Green "    権限は既に正しく設定されています。スキップします。"
+} else {
+    # 並列処理で権限設定を実行（高速化）
+    $jobs = @()
+    
+    if ($needsDeployPerm) {
+        Write-ColorOutput White "    - デプロイディレクトリの権限設定を並列実行中..."
+        $jobs += Start-Job -ScriptBlock {
+            icacls $args[0] /grant "IIS_IUSRS:(OI)(CI)RX" /T /Q 2>$null
+        } -ArgumentList $DeployPath
+    }
+    
+    if ($needsBackendPerm) {
+        Write-ColorOutput White "    - バックエンドディレクトリの権限設定を並列実行中..."
+        $jobs += Start-Job -ScriptBlock {
+            icacls $args[0] /grant "IIS_IUSRS:(OI)(CI)F" /T /Q 2>$null
+        } -ArgumentList $BackendDeploy
+    }
+    
+    # 並列ジョブの完了を待機
+    if ($jobs.Count -gt 0) {
+        Wait-Job $jobs | Out-Null
+        $jobs | Remove-Job
+        Write-ColorOutput Green "    権限設定が完了しました。（並列処理 + /Q高速化適用）"
+    }
+}
 
 # NSSMを使用してサービスを作成
 $nssmPath = $null
