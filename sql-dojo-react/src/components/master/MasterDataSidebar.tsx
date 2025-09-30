@@ -14,7 +14,7 @@ type MasterType = 'MEASURE' | 'SET' | 'FREE' | 'PARTS' | 'TROUBLE';
 
 interface StepData {
   step: number;
-  data: any[];
+  data: Record<string, string>[];
   selectedItems: string[];
 }
 
@@ -316,7 +316,7 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
       }
       case 'PARTS': {
         const partsColumns = checkedData.map(item => 
-          `${item.freedata} AS "${item.item_name}"`
+          `${item.sub_parts} AS "${item.sub_parts_name}"`
         ).join(',');
         const mainPartsName = checkedData[0]?.main_parts_name || '';
         sql = `SELECT MK_DATE,M_SERIAL,OPEFIN_RESULT,'${mainPartsName}',${partsColumns} FROM HF1REM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
@@ -482,13 +482,13 @@ const MasterDataTable: React.FC<MasterDataTableProps> = ({ type, data, checkedIt
   const getColumns = () => {
     switch (type) {
       case 'MEASURE':
-        return ['ITEM_NAME', 'MEASURE_INFO', 'MEASURE', 'DIVISION_FIGURE'];
+        return ['MEASURE', 'ITEM_NAME', 'DIVISION_FIGURE', 'MEASURE_INFO'];
       case 'SET':
-        return ['ITEM_NAME', 'SETDATA'];
+        return ['SETDATA', 'ITEM_NAME'];
       case 'FREE':
-        return ['ITEM_NAME', 'FREEDATA'];
+        return ['FREEDATA', 'ITEM_NAME'];
       case 'PARTS':
-        return ['MAIN_PARTS_NAME', 'ITEM_NAME', 'FREEDATA'];
+        return ['MAIN_PARTS_NAME', 'SUB_PARTS', 'SUB_PARTS_NAME'];
       case 'TROUBLE':
         return ['CODE_NO', 'TROUBLE_NG_INFO'];
       default:

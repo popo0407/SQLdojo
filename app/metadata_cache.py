@@ -739,7 +739,7 @@ class MetadataCache:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute("""
-                    SELECT sta_no1, sta_no2, sta_no3, main_parts_name, sub_parts AS item_name, sub_parts_name AS freedata
+                    SELECT sta_no1, sta_no2, sta_no3, main_parts_name, sub_parts, sub_parts_name
                     FROM parts_master
                     ORDER BY sta_no1, sta_no2, sta_no3, sub_parts
                 """)

@@ -40,8 +40,8 @@ export interface PartsMaster {
   sta_no2: string;
   sta_no3: string;
   main_parts_name: string;
-  item_name: string;
-  freedata: string;
+  sub_parts: string;
+  sub_parts_name: string;
 }
 
 export interface TroubleMaster {
