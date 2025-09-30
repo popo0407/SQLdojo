@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { useSidebarMasterDataStore } from '../../stores/useSidebarMasterDataStore';
 import { useTabStore } from '../../stores/useTabStore';
-import { useSidebarStore } from '../../stores/useSidebarStore';
+import { useTabPageStore } from '../../stores/useTabPageStore';
 import styles from '../../styles/MasterDataSidebar.module.css';
 import type { StationMaster, MeasureMaster, SetMaster, FreeMaster, PartsMaster, TroubleMaster } from '../../types/masterData';
 
@@ -20,7 +20,7 @@ interface StepData {
 
 const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) => {
   const { activeTabId } = useTabStore();
-  const { insertTextAtCursor } = useSidebarStore();
+  const { insertTextToTab } = useTabPageStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [stepHistory, setStepHistory] = useState<StepData[]>([]);
   const [selectedStation, setSelectedStation] = useState<{
@@ -332,7 +332,7 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
       }
     }
 
-    insertTextAtCursor(activeTabId, sql);
+    insertTextToTab(activeTabId, sql);
   };
 
   if (loading) {
