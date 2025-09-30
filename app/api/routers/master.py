@@ -99,6 +99,55 @@ async def get_station_master_stations(
         )
 
 
+@router.get("/{table_name}")
+async def get_master_table_data(
+    table_name: str,
+    master_data_service=Depends(get_master_data_service)
+):
+    """
+    マスターテーブルの全データを取得
+    """
+    try:
+        logger.info("マスターテーブルデータ取得要求", table_name=table_name)
+        
+        # テーブル名のバリデーション
+        valid_tables = ['station', 'measure', 'set', 'free', 'parts', 'trouble']
+        if table_name.lower() not in valid_tables:
+            raise HTTPException(
+                status_code=400,
+                detail=f"無効なテーブル名です: {table_name}. 有効な値: {valid_tables}"
+            )
+        
+        # 対応するメソッドを呼び出し
+        table_methods = {
+            'station': master_data_service.get_all_station_master,
+            'measure': master_data_service.get_all_measure_master,
+            'set': master_data_service.get_all_set_master,
+            'free': master_data_service.get_all_free_master,
+            'parts': master_data_service.get_all_parts_master,
+            'trouble': master_data_service.get_all_trouble_master
+        }
+        
+        method = table_methods[table_name.lower()]
+        data = method()
+        
+        logger.info(f"取得したデータ: テーブル={table_name}, 件数={len(data)}, サンプル={data[:2] if data else '空'}")
+        
+        return SuccessResponse(
+            message=f"{table_name.upper()}_MASTERデータを取得しました",
+            data={"items": data, "count": len(data)}
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("マスターテーブルデータ取得エラー", exception=e, table_name=table_name)
+        raise HTTPException(
+            status_code=500,
+            detail=f"{table_name}テーブルのデータ取得に失敗しました: {str(e)}"
+        )
+
+
 @router.post("/station/filter")
 async def get_station_master_by_filter(
     filter_request: StationMasterFilterRequest,

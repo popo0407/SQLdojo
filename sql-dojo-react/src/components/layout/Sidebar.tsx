@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMetadata } from '../../hooks/useMetadata';
 import MetadataTree from '../../features/metadata/MetadataTree';
 import { useTabStore } from '../../stores/useTabStore';
 import { useSidebarStore } from '../../stores/useSidebarStore';
 import { ParameterContainer } from '../../features/parameters/ParameterContainer';
+import MasterDataSidebar from '../master/MasterDataSidebar';
+import { useSidebarWidth } from '../../hooks/useSidebarWidth';
 import styles from '../../styles/Layout.module.css';
 import type { Schema } from '../../types/api';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  width?: number;
+  onWidthChange?: (width: number) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ width = 400, onWidthChange }) => {
   // アクティブなタブIDを取得
   const { activeTabId } = useTabStore();
   const { applySelectionToEditor } = useSidebarStore();
+  const [activeTab, setActiveTab] = useState<'db' | 'master'>('db');
+  const [masterTabState, setMasterTabState] = useState<any>(null);
   
   // MetadataProviderが存在しない場合のフォールバック
   let schemas: Schema[] = [];
@@ -35,6 +44,20 @@ const Sidebar: React.FC = () => {
       return;
     }
     applySelectionToEditor();
+  };
+
+  const handleTabChange = (tab: 'db' | 'master') => {
+    setActiveTab(tab);
+    // タブ切り替え時に適切な幅を設定
+    if (onWidthChange) {
+      onWidthChange(tab === 'master' ? 1000 : 400);
+    }
+  };
+
+  const handleMasterWidthChange = (newWidth: number) => {
+    if (onWidthChange) {
+      onWidthChange(newWidth);
+    }
   };
 
   const renderContent = () => {
@@ -65,23 +88,51 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={styles.sidebar} style={{ width: width }}>
       <div className="p-2" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* パラメータ入力フォーム - アクティブタブ用 */}
         {activeTabId && <ParameterContainer tabId={activeTabId} />}
         
-        <h5><i className="fas fa-sitemap me-2"></i>DB情報</h5>
-        <div className={styles.sidebarAction}>
-          <button 
-            onClick={handleApplySelection} 
-            className={styles.applyButton}
-          >
-            エディタに反映
-          </button>
+        {/* タブナビゲーション */}
+        <div className="mb-2">
+          <div className="btn-group w-100" role="group">
+            <button
+              type="button"
+              className={`btn btn-sm ${activeTab === 'db' ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => handleTabChange('db')}
+            >
+              <i className="fas fa-sitemap me-1"></i>DB情報
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm ${activeTab === 'master' ? 'btn-primary' : 'btn-outline-primary'}`}
+              onClick={() => handleTabChange('master')}
+            >
+              <i className="fas fa-database me-1"></i>マスタ情報
+            </button>
+          </div>
         </div>
-        <div id="metadata-tree" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-          {renderContent()}
-        </div>
+
+        {/* タブコンテンツ */}
+        {activeTab === 'db' && (
+          <>
+            <div className={styles.sidebarAction}>
+              <button 
+                onClick={handleApplySelection} 
+                className={styles.applyButton}
+              >
+                エディタに反映
+              </button>
+            </div>
+            <div id="metadata-tree" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+              {renderContent()}
+            </div>
+          </>
+        )}
+
+        {activeTab === 'master' && (
+          <MasterDataSidebar onWidthChange={handleMasterWidthChange} />
+        )}
       </div>
     </aside>
   );

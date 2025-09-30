@@ -325,3 +325,28 @@ WHERE {' OR '.join(conditions)}
 ORDER BY 1"""
         
         return sql
+
+    # 個別マスターデータ取得メソッド
+    def get_all_station_master(self) -> List[Dict[str, Any]]:
+        """STATION_MASTERの全データを取得"""
+        return self.metadata_cache.get_station_master()
+        
+    def get_all_measure_master(self) -> List[Dict[str, Any]]:
+        """MEASURE_MASTERの全データを取得"""
+        return self.metadata_cache.get_measure_master()
+        
+    def get_all_set_master(self) -> List[Dict[str, Any]]:
+        """SET_MASTERの全データを取得"""
+        return self.metadata_cache.get_set_master()
+        
+    def get_all_free_master(self) -> List[Dict[str, Any]]:
+        """FREE_MASTERの全データを取得"""
+        return self.metadata_cache.get_free_master()
+        
+    def get_all_parts_master(self) -> List[Dict[str, Any]]:
+        """PARTS_MASTERの全データを取得"""
+        return self.metadata_cache.get_parts_master()
+        
+    def get_all_trouble_master(self) -> List[Dict[str, Any]]:
+        """TROUBLE_MASTERの全データを取得"""
+        return self.metadata_cache.get_trouble_master()

@@ -4,6 +4,7 @@ import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
 import TemplateManagementPage from './pages/TemplateManagementPage';
 import SqlLogPage from './pages/SqlLogPage';
+
 import { AuthProvider } from './contexts/AuthContext';
 import { MetadataProvider } from './contexts/MetadataContext';
 import PrivateRoute from './components/auth/PrivateRoute';
@@ -21,6 +22,7 @@ function App() {
   {/* /user ルート削除: テンプレート管理とSQL実行履歴へはヘッダーから直接遷移 */}
       <Route path="/manage-templates" element={<PrivateRoute><TemplateManagementPage /></PrivateRoute>} />
       <Route path="/sql-log" element={<PrivateRoute><SqlLogPage /></PrivateRoute>} />
+
       <Route path="/admin" element={<PrivateRoute requireAdmin><AdminPage /></PrivateRoute>} />
       <Route path="/login" element={<LoginPage />} />
     </Routes>

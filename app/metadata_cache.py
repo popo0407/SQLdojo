@@ -665,4 +665,101 @@ class MetadataCache:
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
             self.logger.error(f"{master_type}マスターデータの取得に失敗", exception=e)
+            return []
+
+    # 個別マスターデータ取得メソッド
+    def get_station_master(self) -> List[Dict[str, Any]]:
+        """STATION_MASTERの全データを取得"""
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT sta_no1, place_name, sta_no2, line_name, sta_no3, st_name
+                    FROM station_master
+                    ORDER BY sta_no1, sta_no2, sta_no3
+                """)
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error("STATION_MASTERデータの取得に失敗", exception=e)
+            return []
+            
+    def get_measure_master(self) -> List[Dict[str, Any]]:
+        """MEASURE_MASTERの全データを取得"""
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT sta_no1, sta_no2, sta_no3, item_name, measure_info, measure, division_figure
+                    FROM measure_master
+                    ORDER BY sta_no1, sta_no2, sta_no3, item_name
+                """)
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error("MEASURE_MASTERデータの取得に失敗", exception=e)
+            return []
+            
+    def get_set_master(self) -> List[Dict[str, Any]]:
+        """SET_MASTERの全データを取得"""
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT sta_no1, sta_no2, sta_no3, item_name, setdata
+                    FROM set_master
+                    ORDER BY sta_no1, sta_no2, sta_no3, item_name
+                """)
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error("SET_MASTERデータの取得に失敗", exception=e)
+            return []
+            
+    def get_free_master(self) -> List[Dict[str, Any]]:
+        """FREE_MASTERの全データを取得"""
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT sta_no1, sta_no2, sta_no3, item_name, freedata
+                    FROM free_master
+                    ORDER BY sta_no1, sta_no2, sta_no3, item_name
+                """)
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error("FREE_MASTERデータの取得に失敗", exception=e)
+            return []
+            
+    def get_parts_master(self) -> List[Dict[str, Any]]:
+        """PARTS_MASTERの全データを取得"""
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT sta_no1, sta_no2, sta_no3, main_parts_name, sub_parts AS item_name, sub_parts_name AS freedata
+                    FROM parts_master
+                    ORDER BY sta_no1, sta_no2, sta_no3, sub_parts
+                """)
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error("PARTS_MASTERデータの取得に失敗", exception=e)
+            return []
+            
+    def get_trouble_master(self) -> List[Dict[str, Any]]:
+        """TROUBLE_MASTERの全データを取得"""
+        try:
+            with self._get_conn() as conn:
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("""
+                    SELECT sta_no1, sta_no2, sta_no3, code_no, trouble_ng_info
+                    FROM trouble_master
+                    ORDER BY sta_no1, sta_no2, sta_no3, code_no
+                """)
+                return [dict(row) for row in cursor.fetchall()]
+        except Exception as e:
+            self.logger.error("TROUBLE_MASTERデータの取得に失敗", exception=e)
             return [] 
