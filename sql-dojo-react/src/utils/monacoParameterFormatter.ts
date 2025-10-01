@@ -69,8 +69,8 @@ export class MonacoParameterFormatter {
       // 括弧周りの空白調整
       .replace(/\(\s+/g, '(')
       .replace(/\s+\)/g, ')')
-      // 演算子周りの空白調整
-      .replace(/\s*(=|<>|!=|<=|>=|<|>|LIKE|IN|NOT\s+IN|IS|IS\s+NOT|BETWEEN)\s*/gi, ' $1 ');
+      // 演算子周りの空白調整（単語境界を考慮してカラム名を分割しないように）
+      .replace(/\s*(=|<>|!=|<=|>=|<|>|\bLIKE\b|\bIN\b|\bNOT\s+IN\b|\bIS\b|\bIS\s+NOT\b|\bBETWEEN\b)\s*/gi, ' $1 ');
 
     // 行毎に処理してインデントを調整
     const lines = formatted.split('\n');

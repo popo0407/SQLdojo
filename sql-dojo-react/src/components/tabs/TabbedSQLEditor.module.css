@@ -51,7 +51,7 @@
 }
 
 /* パネルの最小サイズ制限 */
-.editorPanel[data-panel-size="5"] {
+.tabEditorPanel[data-panel-size="5"] {
   min-height: 120px;
 }
 

@@ -49,7 +49,7 @@ export const TabbedSQLEditor: React.FC<TabbedSQLEditorProps> = ({ tabId }) => {
           defaultSize={tab.layoutState.editorHeight} 
           minSize={5}
           maxSize={95}
-          className={`${styles.editorPanel} ${tab.layoutState.isEditorMaximized ? styles.editorMaximized : ''}`}
+          className={`${styles.tabEditorPanel} ${tab.layoutState.isEditorMaximized ? styles.editorMaximized : ''}`}
         >
           <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <TabSQLEditor tabId={tabId} />

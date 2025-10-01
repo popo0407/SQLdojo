@@ -132,13 +132,10 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
   }, [editorInstance]);
 
   const hasTabSelection = useCallback(() => {
-    console.log('🔍 hasTabSelection called, editorInstance:', !!editorInstance);
     if (!editorInstance) return false;
 
     const selection = editorInstance.getSelection();
-    const result = selection ? !selection.isEmpty() : false;
-    console.log('🔍 hasTabSelection - result:', result, 'selection:', selection);
-    return result;
+    return selection ? !selection.isEmpty() : false;
   }, [editorInstance]);
 
   const insertTabText = useCallback((text: string) => {

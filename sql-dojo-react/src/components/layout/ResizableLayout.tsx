@@ -7,9 +7,19 @@ import styles from '../../styles/ResizableLayout.module.css';
 
 export const ResizableLayout: React.FC = () => {
   const [sidebarWidth, setSidebarWidth] = useState(400);
+  const [panelKey, setPanelKey] = useState(0); // パネル再マウント用
+  const [activeTab, setActiveTab] = useState<'db' | 'master'>('db'); // サイドバーのアクティブタブを管理
 
   const handleSidebarWidthChange = (width: number) => {
     setSidebarWidth(width);
+    // パネルを再マウントして新しいサイズを適用
+    setPanelKey(prev => prev + 1);
+  };
+
+  const handleTabChange = (tab: 'db' | 'master') => {
+    setActiveTab(tab);
+    const newWidth = tab === 'master' ? 1000 : 400;
+    handleSidebarWidthChange(newWidth);
   };
 
   // 画面幅に対するサイドバーのパーセンテージを計算
@@ -21,7 +31,7 @@ export const ResizableLayout: React.FC = () => {
   return (
     <div className={styles.layoutContainer}>
       {/* 水平レイアウト: サイドバー + メインエリア */}
-      <PanelGroup direction="horizontal" className={styles.horizontalGroup}>
+      <PanelGroup direction="horizontal" className={styles.horizontalGroup} key={panelKey}>
         {/* サイドバー */}
         <Panel 
           defaultSize={getSidebarPercentage()} 
@@ -29,7 +39,12 @@ export const ResizableLayout: React.FC = () => {
           maxSize={60}
           className={styles.sidebarPanel}
         >
-          <Sidebar width={sidebarWidth} onWidthChange={handleSidebarWidthChange} />
+          <Sidebar 
+            width={sidebarWidth} 
+            onWidthChange={handleSidebarWidthChange}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+          />
         </Panel>
         
         {/* サイドバーとメインエリアのリサイザー */}

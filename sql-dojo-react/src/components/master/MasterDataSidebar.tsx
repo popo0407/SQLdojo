@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { useSidebarMasterDataStore } from '../../stores/useSidebarMasterDataStore';
-import { useTabStore } from '../../stores/useTabStore';
 import { useTabPageStore } from '../../stores/useTabPageStore';
+import { useTabStore } from '../../stores/useTabStore';
 import styles from '../../styles/MasterDataSidebar.module.css';
 import type { StationMaster, MeasureMaster, SetMaster, FreeMaster, PartsMaster, TroubleMaster } from '../../types/masterData';
 
@@ -19,8 +19,8 @@ interface StepData {
 }
 
 const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) => {
-  const { activeTabId } = useTabStore();
-  const { insertTextToTab } = useTabPageStore();
+  const { activeTabId, createTab } = useTabStore();
+  const { insertTextToTab, formatTabSql } = useTabPageStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [stepHistory, setStepHistory] = useState<StepData[]>([]);
   const [selectedStation, setSelectedStation] = useState<{
@@ -50,14 +50,17 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
     fetchAllMasterData();
   }, [fetchAllMasterData]);
 
-  useEffect(() => {
-    // マスター情報表示時は幅を1000pxに設定
-    onWidthChange(1000);
-    return () => {
-      // クリーンアップ時は元の幅に戻す
-      onWidthChange(400);
-    };
-  }, [onWidthChange]);
+  // 注意: サイズ変更は Sidebar コンポーネントの handleTabChange で行う
+  // useEffect(() => {
+  //   // マスター情報表示時は幅を1000pxに設定
+  //   console.log('MasterDataSidebar - useEffect setting width to 1000');
+  //   onWidthChange(1000);
+  //   return () => {
+  //     // クリーンアップ時は元の幅に戻す
+  //     console.log('MasterDataSidebar - cleanup setting width to 400');
+  //     onWidthChange(400);
+  //   };
+  // }, [onWidthChange]);
 
   // ステップ1: 重複を除去したSTA_NO1, PLACE_NAMEの表
   const getStep1Data = () => {
@@ -275,8 +278,22 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
 
   // エディタに反映ハンドラー
   const handleApplyToEditor = () => {
-    if (!activeTabId || !selectedStation) {
-      alert('アクティブなタブまたは選択されたステーションがありません。');
+    console.log('Debug - activeTabId:', activeTabId);
+    console.log('Debug - selectedStation:', selectedStation);
+    console.log('Debug - checkedItems:', checkedItems);
+    
+    if (!activeTabId) {
+      // アクティブなタブがない場合、新しいタブを作成
+      createTab();
+      // 少し待ってから再試行（状態更新を待つ）
+      setTimeout(() => {
+        handleApplyToEditor();
+      }, 100);
+      return;
+    }
+    
+    if (!selectedStation) {
+      alert('選択されたステーションがありません。');
       return;
     }
 
@@ -333,6 +350,11 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
     }
 
     insertTextToTab(activeTabId, sql);
+    
+    // フォーマットを適用
+    setTimeout(() => {
+      formatTabSql(activeTabId);
+    }, 100);
   };
 
   if (loading) {

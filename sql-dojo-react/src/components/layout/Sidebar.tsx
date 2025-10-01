@@ -5,21 +5,33 @@ import { useTabStore } from '../../stores/useTabStore';
 import { useSidebarStore } from '../../stores/useSidebarStore';
 import { ParameterContainer } from '../../features/parameters/ParameterContainer';
 import MasterDataSidebar from '../master/MasterDataSidebar';
-import { useSidebarWidth } from '../../hooks/useSidebarWidth';
 import styles from '../../styles/Layout.module.css';
 import type { Schema } from '../../types/api';
 
 interface SidebarProps {
   width?: number;
   onWidthChange?: (width: number) => void;
+  activeTab?: 'db' | 'master';
+  onTabChange?: (tab: 'db' | 'master') => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ width = 400, onWidthChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  width = 400, 
+  onWidthChange,
+  activeTab: externalActiveTab,
+  onTabChange: externalOnTabChange
+}) => {
   // アクティブなタブIDを取得
   const { activeTabId } = useTabStore();
   const { applySelectionToEditor } = useSidebarStore();
-  const [activeTab, setActiveTab] = useState<'db' | 'master'>('db');
-  const [masterTabState, setMasterTabState] = useState<any>(null);
+  // 外部から activeTab が渡された場合はそれを使用、そうでなければ内部状態を使用
+  const [internalActiveTab, setInternalActiveTab] = useState<'db' | 'master'>('db');
+  const activeTab = externalActiveTab ?? internalActiveTab;
+  
+  // activeTabの変化をログに出力
+  useEffect(() => {
+    console.log('Sidebar - activeTab changed to:', activeTab);
+  }, [activeTab]);
   
   // MetadataProviderが存在しない場合のフォールバック
   let schemas: Schema[] = [];
@@ -47,10 +59,19 @@ const Sidebar: React.FC<SidebarProps> = ({ width = 400, onWidthChange }) => {
   };
 
   const handleTabChange = (tab: 'db' | 'master') => {
-    setActiveTab(tab);
-    // タブ切り替え時に適切な幅を設定
-    if (onWidthChange) {
-      onWidthChange(tab === 'master' ? 1000 : 400);
+    console.log('Sidebar - handleTabChange called with tab:', tab);
+    console.log('Sidebar - current activeTab before change:', activeTab);
+    
+    if (externalOnTabChange) {
+      // 外部から onTabChange が渡されている場合はそれを使用
+      externalOnTabChange(tab);
+    } else {
+      // 内部状態を使用
+      setInternalActiveTab(tab);
+      if (onWidthChange) {
+        const newWidth = tab === 'master' ? 1000 : 400;
+        onWidthChange(newWidth);
+      }
     }
   };
 

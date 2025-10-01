@@ -156,7 +156,7 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
     const newTab: TabState = {
       id: newTabId,
       name: `SQL${nextTabNumber}`,
-      sql: 'SELECT * FROM ',
+      sql: '',
       results: {
         data: null,
         columns: [],
@@ -241,7 +241,7 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
     const { tabs } = get();
     const updatedTabs = tabs.map(tab =>
       tab.id === tabId 
-        ? { ...tab, sql, hasUnsavedChanges: sql !== 'SELECT * FROM ' } 
+        ? { ...tab, sql, hasUnsavedChanges: sql !== '' } 
         : tab
     );
     set({ tabs: updatedTabs });
