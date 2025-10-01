@@ -22,10 +22,17 @@ class CacheService:
     
     def __init__(self, cache_db_path: str = "cache_data.db"):
         self.cache_db_path = cache_db_path
+        # 設定値からバッチサイズを取得
+        self.batch_size = settings.cache_batch_size
         self._lock = threading.Lock()
         self._active_sessions = {}  # セッションID -> セッション情報（メモリ復活）
         self._max_concurrent_sessions = 5
         self._last_sync_time = {}   # セッションID -> 最終同期時刻
+        
+        # バッチCOMMIT用の管理変数
+        self._batch_connections = {}  # セッションID -> 専用DB接続
+        self._batch_counters = {}     # セッションID -> 現在のバッチ内チャンク数
+        
         self._init_cache_db()
         self._restore_sessions_from_db()  # 起動時にDB→メモリ復旧
         
@@ -171,11 +178,16 @@ class CacheService:
         
         return table_name
     
-    def insert_chunk(self, table_name: str, data: List[List[Any]]) -> int:
-        """データチャンクを挿入"""
+    def insert_chunk(self, table_name: str, data: List[List[Any]], session_id: Optional[str] = None) -> int:
+        """データチャンクを挿入（バッチCOMMIT対応）"""
         if not data:
             return 0
         
+        # セッションIDが指定されている場合はバッチCOMMITを使用
+        if session_id:
+            return self._insert_chunk_with_batch(table_name, data, session_id)
+        
+        # 従来の即座COMMIT方式（後方互換性のため）
         with sqlite3.connect(self.cache_db_path) as conn:
             cursor = conn.cursor()
             
@@ -187,6 +199,51 @@ class CacheService:
             conn.commit()
             
             return len(data)
+    
+    def _insert_chunk_with_batch(self, table_name: str, data: List[List[Any]], session_id: str) -> int:
+        """バッチCOMMIT方式でデータチャンクを挿入"""
+        with self._lock:
+            # セッション専用の接続を取得または作成
+            if session_id not in self._batch_connections:
+                self._batch_connections[session_id] = sqlite3.connect(self.cache_db_path)
+                self._batch_counters[session_id] = 0
+                logger.info(f"バッチCOMMIT開始: session={session_id}, batch_size={self.batch_size}")
+            
+            conn = self._batch_connections[session_id]
+            cursor = conn.cursor()
+            
+            # データを挿入
+            placeholders = ','.join(['?' for _ in data[0]])
+            insert_sql = f"INSERT INTO {table_name} VALUES ({placeholders})"
+            cursor.executemany(insert_sql, data)
+            
+            # バッチカウンターを更新
+            self._batch_counters[session_id] += 1
+            
+            # バッチサイズに達したらCOMMIT
+            if self._batch_counters[session_id] >= self.batch_size:
+                conn.commit()
+                self._batch_counters[session_id] = 0
+                logger.debug(f"バッチCOMMIT実行: session={session_id}, {self.batch_size}チャンク処理完了")
+            
+            return len(data)
+    
+    def finalize_batch_session(self, session_id: str) -> None:
+        """セッション終了時の最終COMMIT"""
+        with self._lock:
+            if session_id in self._batch_connections:
+                conn = self._batch_connections[session_id]
+                
+                # 残りのデータをCOMMIT
+                if self._batch_counters[session_id] > 0:
+                    conn.commit()
+                    logger.info(f"最終バッチCOMMIT: session={session_id}, 残り{self._batch_counters[session_id]}チャンク")
+                
+                # 接続をクリーンアップ
+                conn.close()
+                del self._batch_connections[session_id]
+                del self._batch_counters[session_id]
+                logger.info(f"バッチセッション終了: session={session_id}")
     
     def get_session_info(self, session_id: str) -> Optional[Dict[str, Any]]:
         """セッション情報を取得（メモリ優先の高速アクセス）"""

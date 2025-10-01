@@ -114,6 +114,13 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices('CURSOR_CHUNK_SIZE', 'cursor_chunk_size')
     )
     
+    # バッチCOMMIT設定
+    cache_batch_size: int = Field(
+        default=5,
+        description="キャッシュ書き込み時のバッチサイズ（チャンク数単位）",
+        validation_alias=AliasChoices('CACHE_BATCH_SIZE', 'cache_batch_size')
+    )
+    
     # タイムアウト設定
     query_timeout_seconds: int = Field(default=1200, description="SQLクエリ実行タイムアウト（秒）- 20分")
     connection_timeout_seconds: int = Field(default=30, description="データベース接続タイムアウト（秒）")

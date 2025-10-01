@@ -286,8 +286,8 @@ class HybridSQLService:
                 if not is_valid:
                     raise SQLExecutionError(f"データ型エラー: {error_msg}")
                 
-                # キャッシュに挿入
-                inserted_count = self.cache_service.insert_chunk(table_name, chunk)
+                # キャッシュに挿入（バッチCOMMIT対応）
+                inserted_count = self.cache_service.insert_chunk(table_name, chunk, session_id)
                 processed_rows += inserted_count
                 
                 # 進捗を更新
@@ -312,6 +312,10 @@ class HybridSQLService:
                 logger.info(f"部分キャッシュを保持: {processed_rows}件")
             raise DatabaseError(f"データ取得に失敗しました: {str(e)}")
         finally:
+            # バッチセッションの最終COMMIT
+            if session_id:
+                self.cache_service.finalize_batch_session(session_id)
+            
             # 処理終了後、必ず接続を解放する
             if conn_id:
                 self.connection_manager.release_connection(conn_id)
