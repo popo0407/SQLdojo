@@ -436,7 +436,7 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
               <tr>
                 {currentStep >= 1 && <th>STA_NO1</th>}
                 {currentStep >= 1 && <th>PLACE_NAME</th>}
-                {currentStep >= 2 && <th>STA_NO2 (1桁目)</th>}
+                {currentStep === 2 && <th>STA_NO2 (1桁目)</th>}
                 {currentStep >= 3 && <th>STA_NO2</th>}
                 {currentStep >= 3 && <th>LINE_NAME</th>}
                 {currentStep >= 4 && <th>STA_NO3</th>}
@@ -453,7 +453,7 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
                 >
                   <td>{item.sta_no1}</td>
                   <td>{item.place_name}</td>
-                  {currentStep >= 2 && <td>{item.sta_no2_first}</td>}
+                  {currentStep === 2 && <td>{item.sta_no2_first}</td>}
                   {currentStep >= 3 && <td>{item.sta_no2}</td>}
                   {currentStep >= 3 && <td>{item.line_name}</td>}
                   {currentStep >= 4 && <td>{item.sta_no3}</td>}
