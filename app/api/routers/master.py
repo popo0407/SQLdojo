@@ -102,13 +102,17 @@ async def get_station_master_stations(
 @router.get("/{table_name}")
 async def get_master_table_data(
     table_name: str,
+    sta_no1: Optional[str] = Query(None, description="STA_NO1でフィルタ"),
+    sta_no2: Optional[str] = Query(None, description="STA_NO2でフィルタ"),
+    sta_no3: Optional[str] = Query(None, description="STA_NO3でフィルタ"),
     master_data_service=Depends(get_master_data_service)
 ):
     """
-    マスターテーブルの全データを取得
+    マスターテーブルのデータを取得（オプションでステーション条件でフィルタ）
     """
     try:
-        logger.info("マスターテーブルデータ取得要求", table_name=table_name)
+        logger.info("マスターテーブルデータ取得要求", 
+                   table_name=table_name, sta_no1=sta_no1, sta_no2=sta_no2, sta_no3=sta_no3)
         
         # テーブル名のバリデーション
         valid_tables = ['station', 'measure', 'set', 'free', 'parts', 'trouble']
@@ -118,18 +122,24 @@ async def get_master_table_data(
                 detail=f"無効なテーブル名です: {table_name}. 有効な値: {valid_tables}"
             )
         
-        # 対応するメソッドを呼び出し
-        table_methods = {
-            'station': master_data_service.get_all_station_master,
-            'measure': master_data_service.get_all_measure_master,
-            'set': master_data_service.get_all_set_master,
-            'free': master_data_service.get_all_free_master,
-            'parts': master_data_service.get_all_parts_master,
-            'trouble': master_data_service.get_all_trouble_master
-        }
-        
-        method = table_methods[table_name.lower()]
-        data = method()
+        # ステーション条件でのフィルタリングが指定されている場合
+        if sta_no1 and sta_no2 and sta_no3 and table_name.lower() != 'station':
+            data = master_data_service.get_master_data_by_station(
+                table_name.upper(), sta_no1, sta_no2, sta_no3
+            )
+        else:
+            # 対応するメソッドを呼び出し（全データ取得）
+            table_methods = {
+                'station': master_data_service.get_all_station_master,
+                'measure': master_data_service.get_all_measure_master,
+                'set': master_data_service.get_all_set_master,
+                'free': master_data_service.get_all_free_master,
+                'parts': master_data_service.get_all_parts_master,
+                'trouble': master_data_service.get_all_trouble_master
+            }
+            
+            method = table_methods[table_name.lower()]
+            data = method()
         
         logger.info(f"取得したデータ: テーブル={table_name}, 件数={len(data)}, サンプル={data[:2] if data else '空'}")
         

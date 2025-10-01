@@ -4,7 +4,7 @@ import { useSidebarMasterDataStore } from '../../stores/useSidebarMasterDataStor
 import { useTabPageStore } from '../../stores/useTabPageStore';
 import { useTabStore } from '../../stores/useTabStore';
 import styles from '../../styles/MasterDataSidebar.module.css';
-import type { StationMaster, MeasureMaster, SetMaster, FreeMaster, PartsMaster, TroubleMaster } from '../../types/masterData';
+import type { MeasureMaster, SetMaster, FreeMaster, PartsMaster, TroubleMaster } from '../../types/masterData';
 
 interface MasterDataSidebarProps {
   onWidthChange: (width: number) => void;
@@ -43,7 +43,8 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
     troubleMaster,
     loading,
     error,
-    fetchAllMasterData
+    fetchAllMasterData,
+    fetchMasterDataForStation
   } = useSidebarMasterDataStore();
 
   useEffect(() => {
@@ -170,22 +171,20 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
 
   // マスタータイプ別のデータを取得
   const getMasterTypeData = (type: MasterType) => {
-    if (!selectedStation || !selectedStation.sta_no1 || !selectedStation.sta_no2 || !selectedStation.sta_no3) {
-      return [];
-    }
-
-    const filter = (item: StationMaster | MeasureMaster | SetMaster | FreeMaster | PartsMaster | TroubleMaster) => 
-      item.sta_no1 === selectedStation.sta_no1 &&
-      item.sta_no2 === selectedStation.sta_no2 &&
-      item.sta_no3 === selectedStation.sta_no3;
-
+    // APIでステーション別にフィルタリング済みなので、取得したデータをそのまま返す
     switch (type) {
-      case 'MEASURE': return Array.isArray(measureMaster) ? measureMaster.filter(filter as (item: MeasureMaster) => boolean) : [];
-      case 'SET': return Array.isArray(setMaster) ? setMaster.filter(filter as (item: SetMaster) => boolean) : [];
-      case 'FREE': return Array.isArray(freeMaster) ? freeMaster.filter(filter as (item: FreeMaster) => boolean) : [];
-      case 'PARTS': return Array.isArray(partsMaster) ? partsMaster.filter(filter as (item: PartsMaster) => boolean) : [];
-      case 'TROUBLE': return Array.isArray(troubleMaster) ? troubleMaster.filter(filter as (item: TroubleMaster) => boolean) : [];
-      default: return [];
+      case 'MEASURE': 
+        return Array.isArray(measureMaster) ? measureMaster : [];
+      case 'SET': 
+        return Array.isArray(setMaster) ? setMaster : [];
+      case 'FREE': 
+        return Array.isArray(freeMaster) ? freeMaster : [];
+      case 'PARTS': 
+        return Array.isArray(partsMaster) ? partsMaster : [];
+      case 'TROUBLE': 
+        return Array.isArray(troubleMaster) ? troubleMaster : [];
+      default: 
+        return [];
     }
   };
 
@@ -221,11 +220,24 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
       }));
       setCurrentStep(4);
     } else if (step === 4) {
-      setSelectedStation(prev => ({
-        ...prev!,
-        sta_no3: item.sta_no3,
-        st_name: item.st_name
-      }));
+      setSelectedStation(prev => {
+        const newSelectedStation = {
+          ...prev!,
+          sta_no3: item.sta_no3,
+          st_name: item.st_name
+        };
+        
+        // ステーション選択完了時に、そのステーションの専用マスターデータを取得
+        if (newSelectedStation.sta_no1 && newSelectedStation.sta_no2 && newSelectedStation.sta_no3) {
+          fetchMasterDataForStation(
+            newSelectedStation.sta_no1,
+            newSelectedStation.sta_no2,
+            newSelectedStation.sta_no3
+          );
+        }
+        
+        return newSelectedStation;
+      });
       setCurrentStep(5);
     }
   };
