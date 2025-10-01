@@ -13,6 +13,7 @@ export interface MeasureMaster {
   sta_no1: string;
   sta_no2: string;
   sta_no3: string;
+  step: string;
   item_name: string;
   measure_info: string;
   measure: string;
@@ -23,6 +24,7 @@ export interface SetMaster {
   sta_no1: string;
   sta_no2: string;
   sta_no3: string;
+  step: string;
   item_name: string;
   setdata: string;
 }
@@ -31,6 +33,7 @@ export interface FreeMaster {
   sta_no1: string;
   sta_no2: string;
   sta_no3: string;
+  step: string;
   item_name: string;
   freedata: string;
 }

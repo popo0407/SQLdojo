@@ -324,23 +324,23 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
     switch (activeMasterType) {
       case 'MEASURE': {
         const measureColumns = checkedData.map(item => 
-          `${item.measure}/${item.division_figure} AS "${item.item_name}(${item.measure_info})"`
+          `CASE WHEN STEP =${item.step} THEN ${item.measure}/${item.division_figure} ELSE null END AS "${item.item_name}(${item.measure_info})"`
         ).join(',');
-        sql = `SELECT MK_DATE,M_SERIAL,OPEFIN_RESULT,${measureColumns} FROM HF1RFM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${measureColumns} FROM HF1RFM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
         break;
       }
       case 'SET': {
         const setColumns = checkedData.map(item => 
-          `${item.setdata} AS "${item.item_name}"`
+          `CASE WHEN STEP =${item.step} THEN ${item.setdata} ELSE null END AS "${item.item_name}"`
         ).join(',');
-        sql = `SELECT MK_DATE,M_SERIAL,OPEFIN_RESULT,${setColumns} FROM HF1RFM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${setColumns} FROM HF1RFM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
         break;
       }
       case 'FREE': {
         const freeColumns = checkedData.map(item => 
-          `${item.freedata} AS "${item.item_name}"`
+          `CASE WHEN STEP =${item.step} THEN ${item.freedata} ELSE null END AS "${item.item_name}"`
         ).join(',');
-        sql = `SELECT MK_DATE,M_SERIAL,OPEFIN_RESULT,${freeColumns} FROM HF1RXM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${freeColumns} FROM HF1RXM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
         break;
       }
       case 'PARTS': {
@@ -348,7 +348,7 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
           `${item.sub_parts} AS "${item.sub_parts_name}"`
         ).join(',');
         const mainPartsName = checkedData[0]?.main_parts_name || '';
-        sql = `SELECT MK_DATE,M_SERIAL,OPEFIN_RESULT,'${mainPartsName}',${partsColumns} FROM HF1REM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,'${mainPartsName}',${partsColumns} FROM HF1REM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
         break;
       }
       case 'TROUBLE': {
@@ -356,7 +356,7 @@ const MasterDataSidebar: React.FC<MasterDataSidebarProps> = ({ onWidthChange }) 
         const troubleCases = checkedData.map(item => 
           `WHEN CODE_NO ='${item.code_no}' THEN ${item.trouble_ng_info}`
         ).join(' ');
-        sql = `SELECT MK_DATE,M_SERIAL,CODE_NO,CASE ${troubleCases} ELSE null END AS TROUBLE_NG_INFO FROM HF1RGM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959' AND CODE_NO in(${codeNos})`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,CODE_NO,CASE ${troubleCases} ELSE null END AS TROUBLE_NG_INFO FROM HF1RGM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959' AND CODE_NO in(${codeNos})`;
         break;
       }
     }
@@ -516,11 +516,11 @@ const MasterDataTable: React.FC<MasterDataTableProps> = ({ type, data, checkedIt
   const getColumns = () => {
     switch (type) {
       case 'MEASURE':
-        return ['MEASURE', 'ITEM_NAME', 'DIVISION_FIGURE', 'MEASURE_INFO'];
+        return ['STEP', 'MEASURE', 'ITEM_NAME', 'DIVISION_FIGURE', 'MEASURE_INFO'];
       case 'SET':
-        return ['SETDATA', 'ITEM_NAME'];
+        return ['STEP', 'SETDATA', 'ITEM_NAME'];
       case 'FREE':
-        return ['FREEDATA', 'ITEM_NAME'];
+        return ['STEP', 'FREEDATA', 'ITEM_NAME'];
       case 'PARTS':
         return ['MAIN_PARTS_NAME', 'SUB_PARTS', 'SUB_PARTS_NAME'];
       case 'TROUBLE':

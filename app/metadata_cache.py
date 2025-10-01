@@ -691,9 +691,9 @@ class MetadataCache:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute("""
-                    SELECT sta_no1, sta_no2, sta_no3, item_name, measure_info, measure, division_figure
+                    SELECT sta_no1, sta_no2, sta_no3, step, item_name, measure_info, measure, division_figure
                     FROM measure_master
-                    ORDER BY sta_no1, sta_no2, sta_no3, item_name
+                    ORDER BY sta_no1, sta_no2, sta_no3, step, item_name
                 """)
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
@@ -707,9 +707,9 @@ class MetadataCache:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute("""
-                    SELECT sta_no1, sta_no2, sta_no3, item_name, setdata
+                    SELECT sta_no1, sta_no2, sta_no3, step, item_name, setdata
                     FROM set_master
-                    ORDER BY sta_no1, sta_no2, sta_no3, item_name
+                    ORDER BY sta_no1, sta_no2, sta_no3, step, item_name
                 """)
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
@@ -723,9 +723,9 @@ class MetadataCache:
                 conn.row_factory = sqlite3.Row
                 cursor = conn.cursor()
                 cursor.execute("""
-                    SELECT sta_no1, sta_no2, sta_no3, item_name, freedata
+                    SELECT sta_no1, sta_no2, sta_no3, step, item_name, freedata
                     FROM free_master
-                    ORDER BY sta_no1, sta_no2, sta_no3, item_name
+                    ORDER BY sta_no1, sta_no2, sta_no3, step, item_name
                 """)
                 return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
