@@ -326,21 +326,21 @@ const MasterDataSidebar: React.FC = () => {
         const measureColumns = (checkedData as MeasureMaster[]).map(item => 
           `CASE WHEN STEP =${item.step} THEN ${item.measure}/${item.division_figure} ELSE null END AS "${item.item_name}(${item.measure_info})"`
         ).join(',');
-        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${measureColumns} FROM HF1RFM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${measureColumns} FROM HF1RGM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
         break;
       }
       case 'SET': {
         const setColumns = (checkedData as SetMaster[]).map(item => 
           `CASE WHEN STEP =${item.step} THEN ${item.setdata} ELSE null END AS "${item.item_name}"`
         ).join(',');
-        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${setColumns} FROM HF1RFM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${setColumns} FROM HF1RGM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
         break;
       }
       case 'FREE': {
         const freeColumns = (checkedData as FreeMaster[]).map(item => 
           `CASE WHEN STEP =${item.step} THEN ${item.freedata} ELSE null END AS "${item.item_name}"`
         ).join(',');
-        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${freeColumns} FROM HF1RXM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,${freeColumns} FROM HF1RGM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
         break;
       }
       case 'PARTS': {
@@ -348,7 +348,7 @@ const MasterDataSidebar: React.FC = () => {
           `${item.sub_parts} AS "${item.sub_parts_name}"`
         ).join(',');
         const mainPartsName = (checkedData as PartsMaster[])[0]?.main_parts_name || '';
-        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,'${mainPartsName}',${partsColumns} FROM HF1REM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,OPEFIN_RESULT,'${mainPartsName}' AS MAIN_PARTS_NAME,${partsColumns} FROM HF1REM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959'`;
         break;
       }
       case 'TROUBLE': {
@@ -356,7 +356,7 @@ const MasterDataSidebar: React.FC = () => {
         const troubleCases = (checkedData as TroubleMaster[]).map(item => 
           `WHEN CODE_NO ='${item.code_no}' THEN ${item.trouble_ng_info}`
         ).join(' ');
-        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,CODE_NO,CASE ${troubleCases} ELSE null END AS TROUBLE_NG_INFO FROM HF1RGM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959' AND CODE_NO in(${codeNos})`;
+        sql = `SELECT TO_TIMESTAMP(MK_DATE, 'YYYYMMDDHH24MISS') AS MK_DATE,M_SERIAL,CODE_NO,CASE ${troubleCases} ELSE null END AS "TROUBLE_NG_INFO" FROM HF1RFM01 WHERE STA_NO1 = '${sta_no1}' AND STA_NO2 = '${sta_no2}' AND STA_NO3 = '${sta_no3}' AND MK_DATE >= '{開始日YYYYMMDD}000000' AND MK_DATE <= '{終了日YYYYMMDD}235959' AND CODE_NO in(${codeNos})`;
         break;
       }
     }
