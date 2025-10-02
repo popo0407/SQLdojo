@@ -13,9 +13,4 @@ class BaseLogHandler(ABC):
     @abstractmethod
     def get_logs(self, user_id: Optional[str] = None, limit: int = 100, offset: int = 0) -> Dict[str, Any]:
         """SQL実行ログを取得する"""
-        pass
-    
-    @abstractmethod
-    def clear_logs(self, user_id: Optional[str] = None):
-        """SQL実行ログをクリアする"""
         pass 

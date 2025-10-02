@@ -75,12 +75,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const handleMasterWidthChange = (newWidth: number) => {
-    if (onWidthChange) {
-      onWidthChange(newWidth);
-    }
-  };
-
   const renderContent = () => {
     if (loading) {
       return (
@@ -152,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {activeTab === 'master' && (
-          <MasterDataSidebar onWidthChange={handleMasterWidthChange} />
+          <MasterDataSidebar />
         )}
       </div>
     </aside>

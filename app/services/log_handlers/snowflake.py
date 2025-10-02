@@ -94,17 +94,4 @@ class SnowflakeLogHandler(BaseLogHandler):
             return {"logs": logs_data, "total_count": total_count}
         except Exception as e:
             self.logger.error(f"Snowflakeからのログ取得中に予期せぬエラーが発生しました: {e}", exc_info=True)
-            return {"logs": [], "total_count": 0}
-
-    def clear_logs(self, user_id: Optional[str] = None):
-        """SnowflakeのSQL実行ログをクリアする"""
-        try:
-            sql = "DELETE FROM Log.TOOL_LOG WHERE TOOL_NAME = 'SQLDOJOWEB'"
-            if user_id:
-                sql += f" AND OPE_CODE = '{user_id}'"
-            
-            result = self.connection_manager.execute_query(sql, None)
-            if not result['success']:
-                self.logger.error(f"Snowflakeのログクリアに失敗: {result['error_message']}")
-        except Exception as e:
-            self.logger.error(f"Snowflakeのログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True) 
+            return {"logs": [], "total_count": 0} 

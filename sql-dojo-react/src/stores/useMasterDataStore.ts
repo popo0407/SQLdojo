@@ -2,9 +2,7 @@ import { create } from 'zustand';
 import { MasterDataService } from '../api/masterDataService';
 import type { 
   MasterDataUpdateResult, 
-  StationInfo, 
-  MasterDataFilterRequest,
-  MasterDataSqlRequest 
+  StationInfo
 } from '../api/masterDataService';
 import type { TableRow } from '../types/common';
 

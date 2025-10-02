@@ -30,7 +30,7 @@ class OracleLogHandler(BaseLogHandler):
             log_sql = """
             INSERT INTO HF3J8M01 (
                 MK_DATE, OPE_CODE, TOOL_NAME, OPTION_NO, 
-                SYSTEM_WORK_TIME, FROM_DATE, TO_DATE, TOOL_VER, CONNSERVER
+                SYSTEM_WORK_TIME, FROM_DATE, TO_DATE, TOOL_VER, CONN_SERVER
             ) VALUES (
                 ?, ?, 'SQLDOJOWEB', ?,
                 ?, ?, ?, ?, '98'
@@ -60,7 +60,7 @@ class OracleLogHandler(BaseLogHandler):
             total_count = count_result.data[0]['total_count'] if count_result.success and count_result.data else 0
 
             data_sql = f"""
-            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORK_TIME, CONNSERVER
+            SELECT MK_DATE, OPE_CODE, OPTION_NO, SYSTEM_WORK_TIME
             {base_sql} ORDER BY MK_DATE DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
             """
             params.extend([offset, limit])
@@ -76,7 +76,7 @@ class OracleLogHandler(BaseLogHandler):
                 "user_id": row.get("ope_code"),
                 "sql": row.get("option_no"),
                 "execution_time": row.get("system_work_time"),
-                "connserver": row.get("connserver", "98"),  # CONNSERVERカラムを追加
+                "connserver": "98",  # デフォルト値として固定で設定
                 "row_count": None,  # テーブルに存在しないためNone
                 "success": True,     # テーブルに存在しないためデフォルト値
                 "error_message": None,  # テーブルに存在しないためNone
@@ -86,19 +86,4 @@ class OracleLogHandler(BaseLogHandler):
             return {"logs": logs_data, "total_count": total_count}
         except Exception as e:
             self.logger.error(f"Oracleからのログ取得中に予期せぬエラーが発生しました: {e}", exc_info=True)
-            return {"logs": [], "total_count": 0}
-
-    def clear_logs(self, user_id: Optional[str] = None):
-        """OracleのSQL実行ログをクリアする"""
-        try:
-            sql = "DELETE FROM HF3J8M01 WHERE TOOL_NAME = 'SQLDOJOWEB'"
-            params = []
-            if user_id:
-                sql += " AND OPE_CODE = ?"
-                params.append(user_id)
-            
-            result = self.query_executor.execute_query(sql, tuple(params))
-            if not result.success:
-                self.logger.error(f"Oracleのログクリアに失敗: {result.error_message}")
-        except Exception as e:
-            self.logger.error(f"Oracleのログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True) 
+            return {"logs": [], "total_count": 0} 

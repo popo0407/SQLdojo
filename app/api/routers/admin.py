@@ -257,12 +257,6 @@ async def admin_get_all_sql_logs(current_admin: CurrentAdminDep, sql_log_service
     }
 
 
-@router.delete("/logs/sql")
-async def admin_clear_all_sql_logs(current_admin: CurrentAdminDep, sql_log_service: SQLLogServiceDep):
-    sql_log_service.clear_logs()
-    return {"message": "全SQL実行ログをクリアしました"}
-
-
 # Admin metadata raw endpoint under /admin
 @router.get("/metadata/all-raw")
 async def get_all_metadata_raw_admin_endpoint(current_admin: CurrentAdminDep, metadata_service: MetadataServiceDep):

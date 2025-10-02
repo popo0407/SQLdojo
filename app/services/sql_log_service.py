@@ -60,10 +60,3 @@ class SQLLogService:
         except Exception as e:
             self.logger.error(f"{self.log_storage_type}からのログ取得中に予期せぬエラーが発生しました: {e}", exc_info=True)
             return {"logs": [], "total_count": 0}
-
-    def clear_logs(self, user_id: Optional[str] = None):
-        """ログハンドラを使用してログをクリア"""
-        try:
-            self.log_handler.clear_logs(user_id)
-        except Exception as e:
-            self.logger.error(f"{self.log_storage_type}のログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True)

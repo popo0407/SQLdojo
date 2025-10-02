@@ -50,18 +50,6 @@ async def get_all_sql_logs(current_admin: CurrentAdminDep, sql_log_service: SQLL
     return SQLExecutionLogResponse(logs=logs, total_count=result["total_count"])
 
 
-@router.delete("/sql")
-async def clear_user_sql_logs(current_user: CurrentUserDep, sql_log_service: SQLLogServiceDep):
-    sql_log_service.clear_logs(user_id=current_user["user_id"])
-    return {"message": "SQL実行ログをクリアしました"}
-
-
-@router.delete("/admin/sql")
-async def clear_all_sql_logs(current_admin: CurrentAdminDep, sql_log_service: SQLLogServiceDep):
-    sql_log_service.clear_logs()
-    return {"message": "全SQL実行ログをクリアしました"}
-
-
 @router.get("/analytics")
 async def get_log_analytics(current_user: CurrentUserDep):
     raise HTTPException(status_code=501, detail="ログ分析APIは未実装です")

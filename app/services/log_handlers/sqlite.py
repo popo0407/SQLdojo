@@ -148,31 +148,4 @@ class SqliteLogHandler(BaseLogHandler):
                 return {"logs": logs_data, "total_count": total_count}
         except Exception as e:
             self.logger.error(f"SQLiteからのログ取得中に予期せぬエラーが発生しました: {e}", exc_info=True)
-            return {"logs": [], "total_count": 0}
-
-    def clear_logs(self, user_id: Optional[str] = None):
-        """SQLiteのSQL実行ログをクリアする"""
-        try:
-            with sqlite3.connect(self.db_path) as conn:
-                if self.settings.sqlite_tool_name:
-                    if user_id:
-                        conn.execute(
-                            "DELETE FROM TOOL_LOG WHERE TOOL_NAME = ? AND OPE_CODE = ?",
-                            (self.settings.sqlite_tool_name, user_id),
-                        )
-                    else:
-                        conn.execute(
-                            "DELETE FROM TOOL_LOG WHERE TOOL_NAME = ?",
-                            (self.settings.sqlite_tool_name,),
-                        )
-                else:
-                    if user_id:
-                        conn.execute(
-                            "DELETE FROM TOOL_LOG WHERE OPE_CODE = ?",
-                            (user_id,),
-                        )
-                    else:
-                        conn.execute("DELETE FROM TOOL_LOG")
-                conn.commit()
-        except Exception as e:
-            self.logger.error(f"SQLiteのログクリア中に予期せぬエラーが発生しました: {e}", exc_info=True) 
+            return {"logs": [], "total_count": 0} 
