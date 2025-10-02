@@ -105,7 +105,7 @@ class MasterDataService:
                 STA_NO2 AS sta_no2,
                 STA_NO3 AS sta_no3,
                 STEP AS step,
-                CONCAT('MEASURE_', TO_VARCHAR(ITEM_NO)) AS measure,
+                CONCAT('MEASURE_', LPAD(TO_VARCHAR(ITEM_NO), 2, '0')) AS measure,
                 ITEM_NAME AS item_name,
                 DIVISION_FIGURE AS division_figure,
                 MEASURE_INFO AS measure_info
@@ -137,7 +137,7 @@ class MasterDataService:
                 STA_NO2 AS sta_no2,
                 STA_NO3 AS sta_no3,
                 STEP AS step,
-                CONCAT('SETDATA_', TO_VARCHAR(ITEM_NO)) AS setdata,
+                CONCAT('SETDATA_', LPAD(TO_VARCHAR(ITEM_NO), 2, '0')) AS setdata,
                 ITEM_NAME AS item_name
             FROM HF1SIM01
             """
@@ -167,7 +167,7 @@ class MasterDataService:
                 STA_NO2 AS sta_no2,
                 STA_NO3 AS sta_no3,
                 STEP AS step,
-                CONCAT('FREEDATA_', TO_VARCHAR(ITEM_NO)) AS freedata,
+                CONCAT('FREEDATA_', LPAD(TO_VARCHAR(ITEM_NO), 2, '0')) AS freedata,
                 ITEM_NAME AS item_name
             FROM HF1SLM01
             """
@@ -197,7 +197,7 @@ class MasterDataService:
                 STA_NO2 AS sta_no2,
                 STA_NO3 AS sta_no3,
                 MAIN_PARTS_NAME AS main_parts_name,
-                CONCAT('SUB_SERIAL_', TO_VARCHAR(PARTS_NO)) AS sub_parts,
+                CONCAT('SUB_SERIAL_', LPAD(TO_VARCHAR(PARTS_NO), 2, '0')) AS sub_parts,
                 SUB_PARTS_NAME AS sub_parts_name
             FROM HF1SKM01
             """
