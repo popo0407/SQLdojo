@@ -137,6 +137,46 @@ class MetadataService:
             self.logger.error(f"メタデータキャッシュの更新に失敗: {str(e)}")
             raise MetadataError(f"メタデータキャッシュの更新に失敗しました: {str(e)}")
 
+    def refresh_full_metadata_and_master_cache(self, master_data_service) -> Dict[str, Any]:
+        """メタデータとマスター情報の両方を更新するメソッド
+        戻り値: 更新結果の詳細
+        """
+        self.logger.info("メタデータとマスター情報の一括更新を開始")
+        results = {}
+        
+        try:
+            # メタデータ更新
+            schema_count = self.refresh_full_metadata_cache()
+            results['metadata'] = {
+                'schema_count': schema_count,
+                'success': True
+            }
+            
+            # マスター情報更新
+            try:
+                master_results = master_data_service.update_all_master_data()
+                total_master_records = sum(master_results.values())
+                results['master_data'] = {
+                    'details': master_results,
+                    'total_count': total_master_records,
+                    'success': True
+                }
+                
+                self.logger.info(f"メタデータとマスター情報の一括更新が完了。メタデータ: {schema_count}スキーマ, マスター: {total_master_records}件")
+                
+            except Exception as master_error:
+                self.logger.error(f"マスター情報更新エラー: {master_error}")
+                results['master_data'] = {
+                    'success': False,
+                    'error': str(master_error)
+                }
+            
+            return results
+            
+        except Exception as e:
+            self.logger.error(f"メタデータとマスター情報の更新に失敗: {str(e)}")
+            raise MetadataError(f"メタデータとマスター情報の更新に失敗しました: {str(e)}")
+
     def get_schemas(self) -> List[Dict[str, Any]]:
         """スキーマ一覧を取得（キャッシュ優先）"""
         self.logger.info("スキーマ一覧取得開始")

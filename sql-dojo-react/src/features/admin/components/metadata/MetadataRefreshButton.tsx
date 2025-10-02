@@ -9,7 +9,7 @@ interface MetadataRefreshButtonProps {
 }
 
 /**
- * 管理者用メタデータ強制更新ボタン
+ * 管理者用メタデータ・マスター情報強制更新ボタン
  */
 const MetadataRefreshButton: React.FC<MetadataRefreshButtonProps> = ({
   className = '',
@@ -36,7 +36,7 @@ const MetadataRefreshButton: React.FC<MetadataRefreshButtonProps> = ({
         onClick={handleRefresh}
         disabled={refreshing}
         className="d-flex align-items-center"
-        title="データベースから最新のメタデータを取得します（処理時間: 最大5分）"
+        title="データベースから最新のメタデータとマスター情報を取得します（処理時間: 最大5分）"
       >
         {refreshing ? (
           <>
@@ -53,7 +53,7 @@ const MetadataRefreshButton: React.FC<MetadataRefreshButtonProps> = ({
         ) : (
           <>
             <i className="fas fa-sync-alt me-2" />
-            メタデータ更新
+            メタデータ・マスター更新
           </>
         )}
       </Button>

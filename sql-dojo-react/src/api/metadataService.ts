@@ -29,15 +29,15 @@ export const getAllMetadata = async (): Promise<Schema[]> => {
 };
 
 /**
- * 管理者による強制メタデータ更新
+ * 管理者による強制メタデータ・マスター情報更新
  */
 export const refreshMetadata = async (): Promise<Schema[]> => {
   try {
     const response = await apiClient.post<Schema[]>('/metadata/refresh', {});
-    console.info('メタデータ更新完了');
+    console.info('メタデータ・マスター情報更新完了');
     return response;
   } catch (error) {
-    console.error('メタデータ更新エラー:', error);
+    console.error('メタデータ・マスター情報更新エラー:', error);
     throw error;
   }
 };

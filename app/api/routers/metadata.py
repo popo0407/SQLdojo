@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 import asyncio
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 
 from app.api.models import UserInfo
 from app.dependencies import MetadataServiceDep, VisibilityControlServiceDep, CurrentUserDep
-from ._helpers import run_in_threadpool
+from ._helpers import run_in_threadpool, get_master_data_service
 from app.logger import Logger
 from app.exceptions import BaseAppException, MetadataError
 
@@ -56,27 +56,30 @@ async def get_all_metadata_raw_admin_endpoint(visibility_service: VisibilityCont
 
 
 @router.post("/refresh", response_model=List[Dict[str, Any]])
-async def refresh_all_metadata_endpoint(metadata_service: MetadataServiceDep):
-    """メタデータの強制更新。
+async def refresh_all_metadata_endpoint(
+    metadata_service: MetadataServiceDep,
+    master_data_service=Depends(get_master_data_service)
+):
+    """メタデータとマスター情報の強制更新。
 
     重い処理のため、即時にレスポンスを返す方針。
-    - まずバックグラウンドで更新を開始
+    - まずバックグラウンドでメタデータとマスター情報の更新を開始
     - 可能なら短時間だけ待機して完了を待つ
     - 間に合わなければ現在のキャッシュを返す（フロントのタイムアウトを避ける）
     """
-    logger.info("メタデータ強制更新要求(非同期起動)")
+    logger.info("メタデータとマスター情報の強制更新要求(非同期起動)")
     loop = asyncio.get_running_loop()
-    # バックグラウンドで開始
-    future = loop.run_in_executor(None, metadata_service.refresh_full_metadata_cache)
+    # バックグラウンドで開始（メタデータとマスター情報の両方を更新）
+    future = loop.run_in_executor(None, metadata_service.refresh_full_metadata_and_master_cache, master_data_service)
     try:
         # 短時間だけ待機（例: 2.5秒）
         await asyncio.wait_for(asyncio.shield(asyncio.wrap_future(future)), timeout=2.5)
-        logger.info("メタデータ強制更新: 短時間で完了")
+        logger.info("メタデータとマスター情報の強制更新: 短時間で完了")
     except asyncio.TimeoutError:
-        logger.warning("メタデータ強制更新: バックグラウンド継続中(タイムアウト)")
+        logger.warning("メタデータとマスター情報の強制更新: バックグラウンド継続中(タイムアウト)")
         # タスクは継続中。ここでは待たずに返す。
     except Exception as e:
-        logger.error(f"メタデータ強制更新エラー: {e}")
+        logger.error(f"メタデータとマスター情報の強制更新エラー: {e}")
         # エラー時も最新取得は試みる
     # 直近のキャッシュ（または更新済みなら最新）を返す
     return await run_in_threadpool(metadata_service.get_all_metadata)

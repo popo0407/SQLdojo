@@ -26,15 +26,15 @@ export const useMetadata = () => {
   const refreshMetadataForce = useCallback(async () => {
     try {
       dispatch({ type: 'REFRESH_START' });
-      console.info('メタデータ更新開始'); // ログ要件対応
+      console.info('メタデータ・マスター情報更新開始'); // ログ要件対応
       const data = await refreshMetadata();
       dispatch({ type: 'REFRESH_SUCCESS', payload: data });
-      console.info('メタデータ更新完了'); // ログ要件対応
+      console.info('メタデータ・マスター情報更新完了'); // ログ要件対応
       return data;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'メタデータの更新に失敗しました';
+      const errorMessage = error instanceof Error ? error.message : 'メタデータ・マスター情報の更新に失敗しました';
       dispatch({ type: 'REFRESH_ERROR', payload: errorMessage });
-      console.error('メタデータ更新エラー:', error); // ログ要件対応
+      console.error('メタデータ・マスター情報更新エラー:', error); // ログ要件対応
       throw error;
     }
   }, [dispatch]);

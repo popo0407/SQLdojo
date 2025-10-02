@@ -111,24 +111,18 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
 
   // 実際のエディタ操作関数（元エディタのuseEditorStoreと同じ実装）
   const getTabSelectedSQL = useCallback(() => {
-    console.log('🔍 getTabSelectedSQL called, editorInstance:', !!editorInstance);
     if (!editorInstance) return '';
 
     const selection = editorInstance.getSelection();
-    console.log('🔍 getTabSelectedSQL - selection:', selection);
     if (!selection || selection.isEmpty()) {
       // 選択範囲がない場合は全SQLを返す
-      const value = editorInstance.getValue();
-      console.log('🔍 getTabSelectedSQL - no selection, returning full value:', JSON.stringify(value));
-      return value;
+      return editorInstance.getValue();
     }
 
     const model = editorInstance.getModel();
     if (!model) return '';
 
-    const text = model.getValueInRange(selection);
-    console.log('🔍 getTabSelectedSQL - selection text:', JSON.stringify(text));
-    return text;
+    return model.getValueInRange(selection);
   }, [editorInstance]);
 
   const hasTabSelection = useCallback(() => {
@@ -211,10 +205,7 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
 
   // タブ固有のSQL実行（統合管理経由）
   const handleExecuteSql = async () => {
-    console.log('🔍 TabSQLEditor: handleExecuteSql called for tabId:', tabId);
     const currentTab = getTab(tabId);
-    console.log('🔍 TabSQLEditor: Current tab SQL before execution:', JSON.stringify(currentTab?.sql));
-    
     if (!currentTab) return;
 
     // SQLに<output>タグが含まれているかチェック
@@ -234,7 +225,6 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
         if (chartConfig) {
           const { setChartConfig } = useChartStore.getState();
           setChartConfig(chartConfig);
-          console.log('🔍 TabSQLEditor: Chart config set for browser display:', chartConfig);
         }
       }
     }
@@ -297,14 +287,9 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
   // SQL更新ハンドラー
   const handleSqlChange = (value: string | undefined) => {
     const newSql = value || '';
-    console.log('🔍 TabSQLEditor: handleSqlChange called with:', JSON.stringify(newSql));
     updateTabSql(tabId, newSql);
     // SQL変更時にプレースホルダーを即座に更新
     updateTabParameters(tabId, newSql);
-    
-    // タブストアの状態も確認
-    const currentTab = getTab(tabId);
-    console.log('🔍 TabSQLEditor: After updateTabSql, tab.sql is:', JSON.stringify(currentTab?.sql));
   };
 
   // SQLクリア
@@ -461,23 +446,15 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
 
   // エディタマウント処理（タブエディタ専用）
   const handleCombinedEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor, monacoApi: typeof monaco) => {
-    console.log('🔍 TabSQLEditor: handleCombinedEditorDidMount called for tabId:', tabId);
-    console.log('🔍 TabSQLEditor: editor:', !!editor, 'monacoApi:', !!monacoApi);
-    
     // エディタインスタンスを保存
     setEditorInstance(editor);
-    console.log('🔍 TabSQLEditor: editorInstance saved for tabId:', tabId);
     
     // タブエディタ専用の処理のみを実行
-    console.log('🔍 TabSQLEditor: About to call handleTabEditorDidMount for tabId:', tabId);
     try {
       handleTabEditorDidMount(editor, monacoApi);
-      console.log('🔍 TabSQLEditor: handleTabEditorDidMount completed for tabId:', tabId);
     } catch (error) {
-      console.error('🔍 TabSQLEditor: Error in handleTabEditorDidMount:', error);
+      console.error('TabSQLEditor: Error in handleTabEditorDidMount:', error);
     }
-    
-    console.log('🔍 TabSQLEditor: エディタマウント完了 for tabId:', tabId);
     
     // タブページストアにエディタAPIを登録（実際の関数を使用）
     const editorAPI = {
@@ -486,7 +463,6 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
       insertText: (text: string) => insertTabText(text)
     };
     tabPageStore.registerTabEditor(tabId, editorAPI);
-    console.log('🔍 TabSQLEditor: Editor API registered for tabId:', tabId);
   };
 
   return (
