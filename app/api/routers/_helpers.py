@@ -11,6 +11,7 @@ from app.dependencies import (
 )
 from app.services.master_data_service import MasterDataService
 from app.services.scheduler_service import SchedulerService
+from app.services.master_search_preference_service import MasterSearchPreferenceService
 
 # グローバル ThreadPoolExecutor（オリジナル互換: max_workers=4）
 _thread_pool = ThreadPoolExecutor(max_workers=4)
@@ -18,6 +19,7 @@ _thread_pool = ThreadPoolExecutor(max_workers=4)
 # サービスインスタンス（シングルトン）
 _master_data_service = None
 _scheduler_service = None
+_master_search_preference_service = None
 
 
 def run_in_threadpool(func, *args, **kwargs):
@@ -53,3 +55,12 @@ def get_scheduler_service():
         # MasterDataServiceの設定
         _scheduler_service.set_master_data_service(get_master_data_service())
     return _scheduler_service
+
+
+def get_master_search_preference_service():
+    """MasterSearchPreferenceServiceのインスタンスを取得（シングルトン）"""
+    global _master_search_preference_service
+    if _master_search_preference_service is None:
+        metadata_cache = get_metadata_cache_di()
+        _master_search_preference_service = MasterSearchPreferenceService(metadata_cache)
+    return _master_search_preference_service

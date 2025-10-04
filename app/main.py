@@ -42,6 +42,16 @@ async def lifespan(app: FastAPI):
     cache_cleanup_service = CacheCleanupService()
     await cache_cleanup_service.start_cleanup_task()
     
+    # マスター検索履歴テーブルの初期化
+    try:
+        from app.services.master_search_preference_service import MasterSearchPreferenceService
+        from app.dependencies import get_metadata_cache_di
+        metadata_cache = get_metadata_cache_di()
+        search_preference_service = MasterSearchPreferenceService(metadata_cache)
+        logger.info("マスター検索履歴テーブルを初期化しました")
+    except Exception as e:
+        logger.error("マスター検索履歴テーブル初期化エラー", exception=e)
+    
     # スケジューラーサービスを開始（一時的に無効化）
     # try:
     #     from app.api.routers._helpers import get_scheduler_service

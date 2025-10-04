@@ -6,9 +6,10 @@ from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from pydantic import BaseModel
 
-from app.api.routers._helpers import get_master_data_service, get_scheduler_service
+from app.api.routers._helpers import get_master_data_service, get_scheduler_service, get_master_search_preference_service
 from app.api.models import SuccessResponse, ErrorResponse
 from app.logger import get_logger
+from app.dependencies import get_current_user
 
 logger = get_logger(__name__)
 
@@ -38,6 +39,11 @@ class GenerateSQLRequest(BaseModel):
     sta_no1: str
     sta_no2: str
     sta_no3: str
+
+
+class MasterSearchPreferenceRequest(BaseModel):
+    sta_no1: str
+    sta_no2_first: str
 
 
 @router.post("/update", response_model=MasterDataUpdateResponse)
@@ -96,6 +102,59 @@ async def get_station_master_stations(
         raise HTTPException(
             status_code=500,
             detail=f"駅一覧の取得に失敗しました: {str(e)}"
+        )
+
+
+# マスター検索履歴エンドポイント（/{table_name}より前に配置）
+@router.post("/search-preferences")
+async def save_search_preference(
+    request: MasterSearchPreferenceRequest,
+    current_user=Depends(get_current_user),
+    search_preference_service=Depends(get_master_search_preference_service)
+):
+    """
+    マスター検索履歴を保存
+    """
+    try:
+        search_preference_service.save_search_preference(
+            current_user.get('user_id'), 
+            request.sta_no1, 
+            request.sta_no2_first
+        )
+        
+        return SuccessResponse(
+            message="マスター検索履歴を保存しました"
+        )
+        
+    except Exception as e:
+        logger.error("マスター検索履歴保存エラー", exception=e)
+        raise HTTPException(
+            status_code=500,
+            detail=f"検索履歴の保存に失敗しました: {str(e)}"
+        )
+
+
+@router.get("/search-preferences")
+async def get_search_preference(
+    current_user=Depends(get_current_user),
+    search_preference_service=Depends(get_master_search_preference_service)
+):
+    """
+    マスター検索履歴を取得
+    """
+    try:
+        preference = search_preference_service.get_search_preference(current_user.get('user_id'))
+        
+        return SuccessResponse(
+            message="マスター検索履歴を取得しました",
+            data=preference
+        )
+        
+    except Exception as e:
+        logger.error("マスター検索履歴取得エラー", exception=e)
+        raise HTTPException(
+            status_code=500,
+            detail=f"検索履歴の取得に失敗しました: {str(e)}"
         )
 
 
@@ -336,3 +395,5 @@ async def get_job_execution_history(
             status_code=500,
             detail=f"実行履歴の取得に失敗しました: {str(e)}"
         )
+
+

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { useSidebarMasterDataStore } from '../../stores/useSidebarMasterDataStore';
 import { useTabPageStore } from '../../stores/useTabPageStore';
 import { useTabStore } from '../../stores/useTabStore';
+import { MasterSearchPreferenceService } from '../../api/masterSearchPreferenceService';
 import styles from '../../styles/MasterDataSidebar.module.css';
 import type { MeasureMaster, SetMaster, FreeMaster, PartsMaster, TroubleMaster } from '../../types/masterData';
 
@@ -48,24 +49,8 @@ const MasterDataSidebar: React.FC = () => {
     setSelectedStation: setStoreSelectedStation
   } = useSidebarMasterDataStore();
 
-  useEffect(() => {
-    fetchAllMasterData();
-  }, [fetchAllMasterData]);
-
-  // 注意: サイズ変更は Sidebar コンポーネントの handleTabChange で行う
-  // useEffect(() => {
-  //   // マスター情報表示時は幅を1000pxに設定
-  //   console.log('MasterDataSidebar - useEffect setting width to 1000');
-  //   onWidthChange(1000);
-  //   return () => {
-  //     // クリーンアップ時は元の幅に戻す
-  //     console.log('MasterDataSidebar - cleanup setting width to 400');
-  //     onWidthChange(400);
-  //   };
-  // }, [onWidthChange]);
-
   // ステップ1: 重複を除去したSTA_NO1, PLACE_NAMEの表
-  const getStep1Data = () => {
+  const getStep1Data = useCallback(() => {
     if (!stationMaster || !Array.isArray(stationMaster)) {
       return [];
     }
@@ -80,7 +65,97 @@ const MasterDataSidebar: React.FC = () => {
       }
     });
     return Array.from(uniqueStations.values());
-  };
+  }, [stationMaster]);
+
+  useEffect(() => {
+    fetchAllMasterData();
+  }, [fetchAllMasterData]);
+
+  // 検索履歴を読み込んで自動選択
+  useEffect(() => {
+    const loadSearchPreference = async () => {
+      try {
+        const preference = await MasterSearchPreferenceService.getSearchPreference();
+        
+        if (preference && stationMaster && Array.isArray(stationMaster)) {
+          // STA_NO1とPLACE_NAMEを検索
+          const step1Data = getStep1Data();
+          const matchingStep1 = step1Data.find(station => station.sta_no1 === preference.sta_no1);
+          
+          if (matchingStep1) {
+            // ステップ1選択
+            setSelectedStation({
+              sta_no1: matchingStep1.sta_no1,
+              place_name: matchingStep1.place_name
+            });
+            setStoreSelectedStation({
+              sta_no1: matchingStep1.sta_no1,
+              place_name: matchingStep1.place_name
+            });
+            
+            // ステップ2のデータを準備して自動選択
+            const step2Data = stationMaster.filter(station => 
+              station.sta_no1 === preference.sta_no1 && 
+              station.place_name === matchingStep1.place_name
+            );
+            
+            const uniqueStep2 = new Map();
+            step2Data.forEach(station => {
+              const sta_no2_first = station.sta_no2.substring(0, 1);
+              const key = `${station.sta_no1}_${station.place_name}_${sta_no2_first}`;
+              if (!uniqueStep2.has(key)) {
+                uniqueStep2.set(key, {
+                  sta_no1: station.sta_no1,
+                  place_name: station.place_name,
+                  sta_no2_first: sta_no2_first
+                });
+              }
+            });
+            
+            const step2Array = Array.from(uniqueStep2.values());
+            const matchingStep2 = step2Array.find(station => station.sta_no2_first === preference.sta_no2_first);
+            
+            if (matchingStep2) {
+              // ステップ2も自動選択してステップ3に進む
+              setSelectedStation(prev => ({
+                ...prev!,
+                sta_no2: preference.sta_no2_first
+              }));
+              setStoreSelectedStation({
+                sta_no1: matchingStep1.sta_no1,
+                place_name: matchingStep1.place_name,
+                sta_no2: preference.sta_no2_first
+              });
+              setCurrentStep(3);
+            } else {
+              setCurrentStep(2);
+            }
+          }
+        } else {
+          // 検索履歴がない、またはstationMasterが未準備
+        }
+      } catch {
+        // エラーが発生してもデフォルトの動作を継続
+      }
+    };
+
+    // stationMasterが読み込まれてから検索履歴を処理
+    if (stationMaster && Array.isArray(stationMaster) && stationMaster.length > 0) {
+      loadSearchPreference();
+    }
+  }, [stationMaster, setStoreSelectedStation, getStep1Data]);
+
+  // 注意: サイズ変更は Sidebar コンポーネントの handleTabChange で行う
+  // useEffect(() => {
+  //   // マスター情報表示時は幅を1000pxに設定
+  //   console.log('MasterDataSidebar - useEffect setting width to 1000');
+  //   onWidthChange(1000);
+  //   return () => {
+  //     // クリーンアップ時は元の幅に戻す
+  //     console.log('MasterDataSidebar - cleanup setting width to 400');
+  //     onWidthChange(400);
+  //   };
+  // }, [onWidthChange]);
 
   // ステップ2: 選択されたSTA_NO1/PLACE_NAMEで絞り込み、STA_NO2の1桁目を追加
   const getStep2Data = () => {
@@ -216,6 +291,21 @@ const MasterDataSidebar: React.FC = () => {
           sta_no2: item.sta_no2_first
         };
         setStoreSelectedStation(newStation);
+        
+        // STA_NO2の一文字目選択時に検索履歴を保存
+        const savePreference = async () => {
+          try {
+            await MasterSearchPreferenceService.saveSearchPreference({
+              sta_no1: prev!.sta_no1,
+              sta_no2_first: item.sta_no2_first
+            });
+          } catch (error) {
+            console.error('検索履歴の保存に失敗:', error);
+            // エラーが発生してもUIの動作は継続
+          }
+        };
+        savePreference();
+        
         return newStation;
       });
       setCurrentStep(3);
