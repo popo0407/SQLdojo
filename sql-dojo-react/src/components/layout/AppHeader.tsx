@@ -103,16 +103,39 @@ const AppHeader: React.FC = () => {
     transition: 'all 0.2s ease'
   };
 
+  // アクティブなボタンのスタイル
+  const activeButtonStyle = {
+    ...buttonBaseStyle,
+    backgroundColor: '#6c757d',
+    color: '#ffffff',
+    border: '1px solid #5a6268',
+    fontWeight: '600'
+  };
+
+  // ページ判定関数
+  const isActivePage = (path: string) => {
+    return location.pathname === path;
+  };
+
   const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
-    e.currentTarget.style.backgroundColor = '#e9ecef';
-    e.currentTarget.style.borderColor = '#adb5bd';
+    const isActive = e.currentTarget.getAttribute('data-active') === 'true';
+    if (!isActive) {
+      e.currentTarget.style.backgroundColor = '#e9ecef';
+      e.currentTarget.style.borderColor = '#adb5bd';
+    }
     e.currentTarget.style.transform = 'translateY(-1px)';
     e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
   };
 
   const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
-    e.currentTarget.style.backgroundColor = '#f8f9fa';
-    e.currentTarget.style.borderColor = '#dee2e6';
+    const isActive = e.currentTarget.getAttribute('data-active') === 'true';
+    if (!isActive) {
+      e.currentTarget.style.backgroundColor = '#f8f9fa';
+      e.currentTarget.style.borderColor = '#dee2e6';
+    } else {
+      e.currentTarget.style.backgroundColor = '#6c757d';
+      e.currentTarget.style.borderColor = '#5a6268';
+    }
     e.currentTarget.style.transform = 'translateY(0)';
     e.currentTarget.style.boxShadow = 'none';
   };
@@ -162,7 +185,8 @@ const AppHeader: React.FC = () => {
               <Link 
                 to="/" 
                 className="btn me-2 text-decoration-none"
-                style={buttonBaseStyle}
+                style={isActivePage('/') ? activeButtonStyle : buttonBaseStyle}
+                data-active={isActivePage('/')}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
@@ -171,7 +195,8 @@ const AppHeader: React.FC = () => {
               <Link 
                 to="/manage-templates" 
                 className="btn me-2 text-decoration-none"
-                style={buttonBaseStyle}
+                style={isActivePage('/manage-templates') ? activeButtonStyle : buttonBaseStyle}
+                data-active={isActivePage('/manage-templates')}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
@@ -180,7 +205,8 @@ const AppHeader: React.FC = () => {
               <Link 
                 to="/sql-log" 
                 className="btn me-2 text-decoration-none"
-                style={buttonBaseStyle}
+                style={isActivePage('/sql-log') ? activeButtonStyle : buttonBaseStyle}
+                data-active={isActivePage('/sql-log')}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
@@ -201,7 +227,8 @@ const AppHeader: React.FC = () => {
                 <Link 
                   to="/admin" 
                   className="btn me-2 text-decoration-none"
-                  style={buttonBaseStyle}
+                  style={isActivePage('/admin') ? activeButtonStyle : buttonBaseStyle}
+                  data-active={isActivePage('/admin')}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
                 >
