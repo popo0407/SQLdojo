@@ -17,6 +17,16 @@ interface SidebarMasterDataState {
   partsMaster: PartsMaster[];
   troubleMaster: TroubleMaster[];
   
+  // 選択状態
+  selectedStation: {
+    sta_no1: string;
+    place_name: string;
+    sta_no2?: string;
+    line_name?: string;
+    sta_no3?: string;
+    st_name?: string;
+  } | null;
+  
   // 状態
   loading: boolean;
   error: string | null;
@@ -24,6 +34,14 @@ interface SidebarMasterDataState {
   // アクション
   fetchAllMasterData: () => Promise<void>;
   fetchMasterDataForStation: (sta_no1: string, sta_no2: string, sta_no3: string) => Promise<void>;
+  setSelectedStation: (station: {
+    sta_no1: string;
+    place_name: string;
+    sta_no2?: string;
+    line_name?: string;
+    sta_no3?: string;
+    st_name?: string;
+  } | null) => void;
   clearError: () => void;
 }
 
@@ -56,6 +74,7 @@ export const useSidebarMasterDataStore = create<SidebarMasterDataState>((set) =>
   freeMaster: [],
   partsMaster: [],
   troubleMaster: [],
+  selectedStation: null,
   loading: false,
   error: null,
 
@@ -112,6 +131,9 @@ export const useSidebarMasterDataStore = create<SidebarMasterDataState>((set) =>
       });
     }
   },
+
+  // 選択されたステーション情報を設定
+  setSelectedStation: (station) => set({ selectedStation: station }),
 
   clearError: () => set({ error: null })
 }));

@@ -1,17 +1,94 @@
 import React, { useState } from 'react';
 import { Navbar, Container, Nav } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useSidebarMasterDataStore } from '../../stores/useSidebarMasterDataStore';
 import LogoutButton from '../auth/LogoutButton';
 import AdminLoginModal from '../auth/AdminLoginModal';
 import logoImage from '../../assets/hint.png';
 
 const AppHeader: React.FC = () => {
   const { user, isAdmin } = useAuth();
+  const location = useLocation();
+  const { 
+    measureMaster, 
+    setMaster, 
+    freeMaster, 
+    partsMaster, 
+    troubleMaster,
+    selectedStation
+  } = useSidebarMasterDataStore();
   const [showAdminModal, setShowAdminModal] = useState(false);
 
   const handleAdminLogin = () => {
     setShowAdminModal(true);
+  };
+
+  // SQL生成AIボタンクリック時の処理
+  const handleSqlGenerateAI = async () => {
+    // ホームページ（メインワークスペース）でない場合は、リンクのみ開く
+    if (location.pathname !== '/') {
+      window.open(
+        'https://d3r0xupf0a2onu.cloudfront.net/use-case-builder/execute/05466c70-2ebc-49fd-9197-ad00905aaf02',
+        '_blank'
+      );
+      return;
+    }
+    
+    // ステーション選択チェック: 選択されたステーション情報があるかを確認
+    const hasSelectedStation = selectedStation !== null;
+    const hasMasterData = measureMaster.length > 0 || 
+                         setMaster.length > 0 || 
+                         freeMaster.length > 0 || 
+                         partsMaster.length > 0 || 
+                         troubleMaster.length > 0;
+    
+    if (!hasSelectedStation && !hasMasterData) {
+      // ステーション情報またはマスター情報がない場合は、ポップアップもコピーもせずにリンクのみ開く
+      window.open(
+        'https://d3r0xupf0a2onu.cloudfront.net/use-case-builder/execute/05466c70-2ebc-49fd-9197-ad00905aaf02',
+        '_blank'
+      );
+      return;
+    }
+
+    try {
+      // 選択されたステーション情報のみを含める
+      const selectedStationInfo = selectedStation ? [selectedStation] : [];
+      
+      // 選択されたステーション情報と全マスター情報をJSONとして準備
+      const masterDataForAI = {
+        selectedStation: selectedStationInfo,
+        masterData: {
+          measure: measureMaster,
+          set: setMaster,
+          free: freeMaster,
+          parts: partsMaster,
+          trouble: troubleMaster
+        }
+      };
+
+      // JSONを整形してクリップボードにコピー
+      const jsonString = JSON.stringify(masterDataForAI, null, 2);
+      await navigator.clipboard.writeText(jsonString);
+      
+      // コピー完了をユーザーに通知
+      alert('マスター情報をクリップボードにコピーしました');
+      
+      // SQL生成AIページを開く
+      window.open(
+        'https://d3r0xupf0a2onu.cloudfront.net/use-case-builder/execute/05466c70-2ebc-49fd-9197-ad00905aaf02',
+        '_blank'
+      );
+    } catch (error) {
+      console.error('クリップボードへのコピーに失敗しました:', error);
+      alert('クリップボードへのコピーに失敗しました');
+      // エラーが発生してもリンクは開く
+      window.open(
+        'https://d3r0xupf0a2onu.cloudfront.net/use-case-builder/execute/05466c70-2ebc-49fd-9197-ad00905aaf02',
+        '_blank'
+      );
+    }
   };
 
   // 共通のボタンスタイル
@@ -62,17 +139,15 @@ const AppHeader: React.FC = () => {
                   {user?.user_name} ({user?.user_id})
                 </Navbar.Text>
               </Nav.Item>
-              <a 
-                href="https://d3r0xupf0a2onu.cloudfront.net/use-case-builder/execute/05466c70-2ebc-49fd-9197-ad00905aaf02"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button 
+                onClick={handleSqlGenerateAI}
                 className="btn me-2 text-decoration-none"
                 style={buttonBaseStyle}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
                 SQL生成AI
-              </a>
+              </button>
               <a 
                 href="https://d3r0xupf0a2onu.cloudfront.net/use-case-builder/execute/846e7088-3c50-440c-9e8a-78dfaf0e8cc7"
                 target="_blank"

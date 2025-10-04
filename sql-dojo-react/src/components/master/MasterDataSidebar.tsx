@@ -44,7 +44,8 @@ const MasterDataSidebar: React.FC = () => {
     loading,
     error,
     fetchAllMasterData,
-    fetchMasterDataForStation
+    fetchMasterDataForStation,
+    setSelectedStation: setStoreSelectedStation
   } = useSidebarMasterDataStore();
 
   useEffect(() => {
@@ -201,23 +202,33 @@ const MasterDataSidebar: React.FC = () => {
     ]);
 
     if (step === 1) {
-      setSelectedStation({
+      const newStation = {
         sta_no1: item.sta_no1,
         place_name: item.place_name
-      });
+      };
+      setSelectedStation(newStation);
+      setStoreSelectedStation(newStation);
       setCurrentStep(2);
     } else if (step === 2) {
-      setSelectedStation(prev => ({
-        ...prev!,
-        sta_no2: item.sta_no2_first
-      }));
+      setSelectedStation(prev => {
+        const newStation = {
+          ...prev!,
+          sta_no2: item.sta_no2_first
+        };
+        setStoreSelectedStation(newStation);
+        return newStation;
+      });
       setCurrentStep(3);
     } else if (step === 3) {
-      setSelectedStation(prev => ({
-        ...prev!,
-        sta_no2: item.sta_no2,
-        line_name: item.line_name
-      }));
+      setSelectedStation(prev => {
+        const newStation = {
+          ...prev!,
+          sta_no2: item.sta_no2,
+          line_name: item.line_name
+        };
+        setStoreSelectedStation(newStation);
+        return newStation;
+      });
       setCurrentStep(4);
     } else if (step === 4) {
       setSelectedStation(prev => {
@@ -226,6 +237,9 @@ const MasterDataSidebar: React.FC = () => {
           sta_no3: item.sta_no3,
           st_name: item.st_name
         };
+        
+        // ストアの状態も更新
+        setStoreSelectedStation(newSelectedStation);
         
         // ステーション選択完了時に、そのステーションの専用マスターデータを取得
         if (newSelectedStation.sta_no1 && newSelectedStation.sta_no2 && newSelectedStation.sta_no3) {
@@ -253,17 +267,26 @@ const MasterDataSidebar: React.FC = () => {
         // selectedStationを前のステップに戻す
         if (prevStep.step === 1) {
           setSelectedStation(null);
+          setStoreSelectedStation(null);
         } else if (prevStep.step === 2) {
-          setSelectedStation(prev => ({
-            sta_no1: prev!.sta_no1,
-            place_name: prev!.place_name
-          }));
+          setSelectedStation(prev => {
+            const resetStation = {
+              sta_no1: prev!.sta_no1,
+              place_name: prev!.place_name
+            };
+            setStoreSelectedStation(resetStation);
+            return resetStation;
+          });
         } else if (prevStep.step === 3) {
-          setSelectedStation(prev => ({
-            sta_no1: prev!.sta_no1,
-            place_name: prev!.place_name,
-            sta_no2: prev!.sta_no2
-          }));
+          setSelectedStation(prev => {
+            const resetStation = {
+              sta_no1: prev!.sta_no1,
+              place_name: prev!.place_name,
+              sta_no2: prev!.sta_no2
+            };
+            setStoreSelectedStation(resetStation);
+            return resetStation;
+          });
         }
       }
     }
@@ -273,6 +296,7 @@ const MasterDataSidebar: React.FC = () => {
   const handleGoToStart = () => {
     setCurrentStep(1);
     setSelectedStation(null);
+    setStoreSelectedStation(null);
     setStepHistory([]);
     setCheckedItems(new Set());
   };
