@@ -14,6 +14,32 @@ const AppHeader: React.FC = () => {
     setShowAdminModal(true);
   };
 
+  // 共通のボタンスタイル
+  const buttonBaseStyle = {
+    backgroundColor: '#f8f9fa',
+    color: '#495057',
+    border: '1px solid #dee2e6',
+    borderRadius: '8px',
+    padding: '8px 16px',
+    fontSize: '0.9rem',
+    fontWeight: '500',
+    transition: 'all 0.2s ease'
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.backgroundColor = '#e9ecef';
+    e.currentTarget.style.borderColor = '#adb5bd';
+    e.currentTarget.style.transform = 'translateY(-1px)';
+    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.backgroundColor = '#f8f9fa';
+    e.currentTarget.style.borderColor = '#dee2e6';
+    e.currentTarget.style.transform = 'translateY(0)';
+    e.currentTarget.style.boxShadow = 'none';
+  };
+
   return (
     <>
       <Navbar bg="light" expand="lg" className="border-bottom">
@@ -36,16 +62,76 @@ const AppHeader: React.FC = () => {
                   {user?.user_name} ({user?.user_id})
                 </Navbar.Text>
               </Nav.Item>
-              <Nav.Link as={Link} to="/">SQLエディタ</Nav.Link>
-              <Nav.Link as={Link} to="/manage-templates">テンプレート管理</Nav.Link>
-              <Nav.Link as={Link} to="/sql-log">SQL実行履歴</Nav.Link>
+              <a 
+                href="https://d3r0xupf0a2onu.cloudfront.net/use-case-builder/execute/05466c70-2ebc-49fd-9197-ad00905aaf02"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn me-2 text-decoration-none"
+                style={buttonBaseStyle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                SQL生成AI
+              </a>
+              <a 
+                href="https://d3r0xupf0a2onu.cloudfront.net/use-case-builder/execute/846e7088-3c50-440c-9e8a-78dfaf0e8cc7"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn me-2 text-decoration-none"
+                style={buttonBaseStyle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                SQL解説AI
+              </a>
+              <Link 
+                to="/" 
+                className="btn me-2 text-decoration-none"
+                style={buttonBaseStyle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                SQLエディタ
+              </Link>
+              <Link 
+                to="/manage-templates" 
+                className="btn me-2 text-decoration-none"
+                style={buttonBaseStyle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                テンプレート管理
+              </Link>
+              <Link 
+                to="/sql-log" 
+                className="btn me-2 text-decoration-none"
+                style={buttonBaseStyle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                SQL実行履歴
+              </Link>
               {!isAdmin && (
-                <Nav.Link as="button" onClick={handleAdminLogin} style={{ border: 'none', background: 'none' }}>
+                <button 
+                  onClick={handleAdminLogin} 
+                  className="btn me-2"
+                  style={buttonBaseStyle}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
                   管理者ログイン
-                </Nav.Link>
+                </button>
               )}
               {isAdmin && (
-                <Nav.Link as={Link} to="/admin">管理者ページ</Nav.Link>
+                <Link 
+                  to="/admin" 
+                  className="btn me-2 text-decoration-none"
+                  style={buttonBaseStyle}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  管理者ページ
+                </Link>
               )}
               <LogoutButton />
             </Nav>
