@@ -20,8 +20,8 @@
 .homeContainer {
   display: flex;
   flex-direction: column;
-  /* 画面の高さいっぱいに広がるように指定を追加 */
-  height: 100vh;
+  /* 親要素（mainContent）の高さに合わせるように変更 */
+  height: 100%;
 }
 
 .resizeHandle {
@@ -38,7 +38,7 @@
 
 /* SQL実行履歴などの専用ページ用のスクロール可能なコンテナ */
 .scrollablePageContainer {
-  height: 100vh;
+  height: 100%;
   overflow-y: auto;
   padding-bottom: 2rem; /* 下部に余白を追加 */
 }
