@@ -98,7 +98,16 @@ export const TemplateDropdown: React.FC<TemplateDropdownProps> = ({
 
       {/* ドロップダウンメニュー */}
       {isOpen && !isLoading && (
-        <div className="dropdown-menu show" style={{ display: 'block', minWidth: '250px' }}>
+        <div 
+          className="dropdown-menu show" 
+          style={{ 
+            display: 'block', 
+            minWidth: '300px',
+            maxHeight: '400px',
+            overflowY: 'auto',
+            zIndex: 1000
+          }}
+        >
           {templates.length === 0 ? (
             <div className="dropdown-item-text text-muted">
               <i className="fas fa-info-circle me-2"></i>
@@ -142,7 +151,7 @@ export const TemplateDropdown: React.FC<TemplateDropdownProps> = ({
             maxWidth: '400px',
             maxHeight: '200px',
             overflow: 'auto',
-            zIndex: 1050,
+            zIndex: 1010,
             fontSize: '12px',
             boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
           }}

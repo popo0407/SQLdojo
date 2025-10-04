@@ -305,7 +305,21 @@ const TabSQLEditor: React.FC<TabSQLEditorProps> = ({ tabId }) => {
 
   // テンプレート選択ハンドラ（ツールバーのドロップダウン用）
   const handleSelectTemplateFromToolbar = (templateSql: string) => {
-    updateTabSql(tabId, templateSql);
+    const currentSql = tab.sql || '';
+    const selectedText = getTabSelectedSQL();
+    
+    if (selectedText) {
+      // 選択範囲がある場合は選択部分を置換
+      insertTabText(templateSql);
+    } else if (currentSql.trim()) {
+      // エディタに内容があるが選択がない場合は、末尾に追加
+      const separator = currentSql.endsWith('\n') ? '' : '\n\n';
+      const newSql = currentSql + separator + templateSql;
+      updateTabSql(tabId, newSql);
+    } else {
+      // エディタが空の場合は新規として設定
+      updateTabSql(tabId, templateSql);
+    }
   };
 
   // テンプレート保存ハンドラ

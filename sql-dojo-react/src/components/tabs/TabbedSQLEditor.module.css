@@ -16,17 +16,29 @@
 .editorPanel {
   background-color: #ffffff;
   border-bottom: 1px solid #dee2e6;
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
+  z-index: 10;
+}
+
+.tabEditorPanel {
+  background-color: #ffffff;
+  border-bottom: 1px solid #dee2e6;
+  overflow: visible;
+  position: relative;
+  z-index: 10;
 }
 
 .editorMaximized {
   /* 最大化時の特別なスタイル */
-  z-index: 10;
+  z-index: 20;
 }
 
 .resultsPanel {
   background-color: #ffffff;
   overflow-y: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .horizontalResizeHandle {

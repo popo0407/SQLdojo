@@ -114,7 +114,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
               フォーマット
             </Button>
             
-            <Dropdown>
+            <Dropdown style={{ position: 'relative', zIndex: 1000 }}>
               <Dropdown.Toggle
                 variant="outline-info"
                 size="sm"
@@ -125,7 +125,14 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
                 {isTemplatesLoading ? "読み込み中..." : `テンプレート選択 (${templates.length})`}
               </Dropdown.Toggle>
               
-              <Dropdown.Menu>
+              <Dropdown.Menu 
+                style={{ 
+                  position: 'fixed',
+                  maxHeight: '600px', 
+                  overflowY: 'auto',
+                  minWidth: '300px'
+                }}
+              >
                 {isTemplatesLoading ? (
                   <Dropdown.ItemText>読み込み中...</Dropdown.ItemText>
                 ) : templates.length === 0 ? (

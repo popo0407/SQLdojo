@@ -6,6 +6,8 @@
   background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
   gap: 12px;
+  position: relative;
+  z-index: 100;
 }
 
 .leftSection {
@@ -26,6 +28,17 @@
 .toolbar :global(.btn) {
   font-size: 0.875rem;
   padding: 0.375rem 0.75rem;
+}
+
+/* ドロップダウンメニューのz-index強制設定 */
+.toolbar :global(.dropdown-menu) {
+  position: fixed !important;
+  z-index: 99999 !important;
+}
+
+.toolbar :global(.dropdown) {
+  position: relative !important;
+  z-index: 1000 !important;
 }
 
 /* レスポンシブ対応 */
