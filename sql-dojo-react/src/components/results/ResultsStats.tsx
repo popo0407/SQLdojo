@@ -64,6 +64,7 @@ export const ResultsStats: React.FC<ResultsStatsProps> = ({
               {isDownloading ? "ダウンロード中..." : "CSV"}
             </Button>
           )}
+
           {onCreateChart && (
             <Button
               variant="outline-success"

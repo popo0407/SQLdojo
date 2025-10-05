@@ -322,8 +322,8 @@ class HybridSQLService:
                 logger.info(f"ODBC接続を解放しました: {conn_id}")
     
     def get_cached_data(self, session_id: str, page: int = 1, page_size: int = None,
-                        filters: Optional[Dict] = None, sort_by: Optional[str] = None,
-                        sort_order: str = 'ASC') -> Dict[str, Any]:
+                        filters: Optional[Dict] = None, extended_filters: Optional[List] = None, 
+                        sort_by: Optional[str] = None, sort_order: str = 'ASC') -> Dict[str, Any]:
         """キャッシュされたデータを取得"""
         # page_sizeが指定されていない場合は設定ファイルの値を使用
         if page_size is None:
@@ -337,7 +337,7 @@ class HybridSQLService:
             
             # キャッシュからデータを取得
             result = self.cache_service.get_cached_data(
-                session_id, page, page_size, filters, sort_by, sort_order
+                session_id, page, page_size, filters, extended_filters, sort_by, sort_order
             )
             # モック互換: dictでなければ属性アクセス/辞書化を試みる
             if not isinstance(result, dict):
@@ -413,6 +413,7 @@ class HybridSQLService:
         """セッションの状態を取得"""
         return self.cache_service.get_session_info(session_id)
     
-    def get_unique_values(self, session_id: str, column_name: str, limit: int = 100, filters: Optional[Dict] = None) -> dict:
+    def get_unique_values(self, session_id: str, column_name: str, limit: int = 100, 
+                         filters: Optional[Dict] = None, extended_filters: Optional[List] = None) -> dict:
         """キャッシュテーブルから指定カラムのユニーク値（最大limit件）を取得（連鎖フィルター対応）"""
-        return self.cache_service.get_unique_values(session_id, column_name, limit, filters)
+        return self.cache_service.get_unique_values(session_id, column_name, limit, filters, extended_filters)

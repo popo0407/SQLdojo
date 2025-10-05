@@ -14,18 +14,20 @@ import type { TableRow } from '../../types/common';
  * - 出力が現在のフィルタ・ソートを反映する旨の注記
  */
 export const ResultsHeaderExtras: React.FC = () => {
-  const { sortConfig, filters, setSortConfig, setFilters } = useResultsFilterStore();
+  const { sortConfig, filters, extendedFilters, setSortConfig, setFilters, clearExtendedFilters } = useResultsFilterStore();
   const sessionStore = useResultsSessionStore();
   const dataStore = useResultsDataStore();
 
   const hasActiveFilters = Object.values(filters).some(v => v && v.length > 0);
+  const hasExtendedFilters = extendedFilters && extendedFilters.length > 0;
   const hasSort = !!sortConfig;
-  const disabled = !hasActiveFilters && !hasSort;
+  const disabled = !hasActiveFilters && !hasExtendedFilters && !hasSort;
 
   const handleClearAll = useCallback(async () => {
     if (disabled) return;
     setSortConfig(null);
     setFilters({});
+    clearExtendedFilters();
 
     // セッションがあればサーバから再読込（ソート/フィルタ無しの先頭ページ）
     if (sessionStore.sessionId) {
@@ -33,7 +35,9 @@ export const ResultsHeaderExtras: React.FC = () => {
       const res = await readSqlCache({
         session_id: sessionStore.sessionId,
         page: 1,
-        page_size: pageSize
+        page_size: pageSize,
+        filters: {},
+        extended_filters: []
       });
       if (res.success && res.data && res.columns) {
         const newData = (res.data as unknown as unknown[][]).map((rowArr: unknown[]) =>
@@ -49,7 +53,7 @@ export const ResultsHeaderExtras: React.FC = () => {
       const raw = dataStore.rawData;
       dataStore.setAllData(raw);
     }
-  }, [disabled, setSortConfig, setFilters, sessionStore.sessionId, sessionStore.configSettings, dataStore]);
+  }, [disabled, setSortConfig, setFilters, clearExtendedFilters, sessionStore.sessionId, sessionStore.configSettings, dataStore]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>

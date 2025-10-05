@@ -545,9 +545,101 @@ class CacheService:
             logger.error(f"ユーザー({user_id})のセッションクリーンアップ中に予期せぬエラーが発生しました: {e}", exc_info=True)
             raise
     
+    def _build_extended_filter_conditions(self, extended_filters: List, params: List) -> List[str]:
+        """拡張フィルター条件からWHERE句の条件文を構築"""
+        if not extended_filters:
+            return []
+        
+        conditions = []
+        
+        for filter_condition in extended_filters:
+            # Pydanticモデルの場合は直接アトリビュートアクセス、辞書の場合は.get()メソッド
+            if hasattr(filter_condition, 'column_name'):
+                column_name = filter_condition.column_name
+                filter_type = filter_condition.filter_type
+            else:
+                column_name = filter_condition.get('column_name')
+                filter_type = filter_condition.get('filter_type')
+            
+            if not column_name or not filter_type:
+                continue
+                
+            safe_col = column_name.replace('"', '""')
+            
+            if filter_type == 'exact':
+                # 完全一致フィルター
+                if hasattr(filter_condition, 'values'):
+                    values = filter_condition.values
+                else:
+                    values = filter_condition.get('values', [])
+                    
+                if values:
+                    placeholders = ','.join(['?' for _ in values])
+                    condition = f'"{safe_col}" IN ({placeholders})'
+                    conditions.append(condition)
+                    params.extend(values)
+                    
+            elif filter_type == 'range':
+                # 範囲フィルター
+                if hasattr(filter_condition, 'min_value'):
+                    min_value = filter_condition.min_value
+                    max_value = filter_condition.max_value
+                    data_type = filter_condition.data_type
+                else:
+                    min_value = filter_condition.get('min_value')
+                    max_value = filter_condition.get('max_value')
+                    data_type = filter_condition.get('data_type', 'string')
+                
+                if min_value is not None and max_value is not None:
+                    if data_type in ['date', 'datetime']:
+                        condition = f'"{safe_col}" BETWEEN ? AND ?'
+                        conditions.append(condition)
+                        params.extend([min_value, max_value])
+                    elif data_type == 'number':
+                        condition = f'CAST("{safe_col}" AS REAL) BETWEEN ? AND ?'
+                        conditions.append(condition)
+                        params.extend([float(min_value), float(max_value)])
+                elif min_value is not None:
+                    if data_type in ['date', 'datetime']:
+                        condition = f'"{safe_col}" >= ?'
+                        conditions.append(condition)
+                        params.append(min_value)
+                    elif data_type == 'number':
+                        condition = f'CAST("{safe_col}" AS REAL) >= ?'
+                        conditions.append(condition)
+                        params.append(float(min_value))
+                elif max_value is not None:
+                    if data_type in ['date', 'datetime']:
+                        condition = f'"{safe_col}" <= ?'
+                        conditions.append(condition)
+                        params.append(max_value)
+                    elif data_type == 'number':
+                        condition = f'CAST("{safe_col}" AS REAL) <= ?'
+                        conditions.append(condition)
+                        params.append(float(max_value))
+                        
+            elif filter_type == 'text_search':
+                # 部分一致検索フィルター
+                if hasattr(filter_condition, 'search_text'):
+                    search_text = filter_condition.search_text
+                    case_sensitive = filter_condition.case_sensitive
+                else:
+                    search_text = filter_condition.get('search_text')
+                    case_sensitive = filter_condition.get('case_sensitive', False)
+                
+                if search_text:
+                    if case_sensitive:
+                        condition = f'"{safe_col}" LIKE ?'
+                    else:
+                        condition = f'LOWER("{safe_col}") LIKE LOWER(?)'
+                    conditions.append(condition)
+                    params.append(f'%{search_text}%')
+        
+        return conditions
+
     def get_cached_data(self, session_id: str, page: int = 1, page_size: int = None, 
-                        filters: Optional[Dict] = None, sort_by: Optional[str] = None, 
-                        sort_order: str = 'ASC') -> Dict[str, Any]:
+                        filters: Optional[Dict] = None, extended_filters: Optional[List] = None, 
+                        sort_by: Optional[str] = None, sort_order: str = 'ASC') -> Dict[str, Any]:
         """キャッシュされたデータを取得"""
         # page_sizeが指定されていない場合は設定ファイルの値を使用
         if page_size is None:
@@ -562,17 +654,26 @@ class CacheService:
             # WHERE句を構築
             where_clause = ""
             params = []
+            all_conditions = []
+            
+            # 従来のフィルター（後方互換性）
             if filters:
-                conditions = []
                 for col, values in filters.items():
                     if values and len(values) > 0:  # 空でない配列の場合のみ処理
                         safe_col = col.replace('"', '""')
                         # IN句を使用して複数の値に対応
                         placeholders = ','.join(['?' for _ in values])
-                        conditions.append(f'"{safe_col}" IN ({placeholders})')
+                        condition = f'"{safe_col}" IN ({placeholders})'
+                        all_conditions.append(condition)
                         params.extend(values)
-                if conditions:
-                    where_clause = f"WHERE {' AND '.join(conditions)}"
+            
+            # 拡張フィルター
+            if extended_filters:
+                extended_conditions = self._build_extended_filter_conditions(extended_filters, params)
+                all_conditions.extend(extended_conditions)
+                
+            if all_conditions:
+                where_clause = f"WHERE {' AND '.join(all_conditions)}"
             
             # ORDER BY句を構築
             order_clause = ""
@@ -632,7 +733,8 @@ class CacheService:
         
         return True, None
 
-    def get_unique_values(self, session_id: str, column_name: str, limit: int = 100, filters: Optional[Dict] = None) -> dict:
+    def get_unique_values(self, session_id: str, column_name: str, limit: int = 100, 
+                         filters: Optional[Dict] = None, extended_filters: Optional[List] = None) -> dict:
         """キャッシュテーブルから指定カラムのユニーク値（最大limit件）を取得（連鎖フィルター対応）"""
         # セッションIDからテーブル名を生成
         table_name = self._get_table_name_from_session_id(session_id)
@@ -646,17 +748,25 @@ class CacheService:
             # WHERE句を構築（連鎖フィルター用）
             where_clause = ""
             params = []
+            all_conditions = []
+            
+            # 従来のフィルター（後方互換性）
             if filters:
-                conditions = []
                 for col, values in filters.items():
                     if values and len(values) > 0:  # 空でない配列の場合のみ処理
                         safe_filter_col = col.replace('"', '""')
                         # IN句を使用して複数の値に対応
                         placeholders = ','.join(['?' for _ in values])
-                        conditions.append(f'"{safe_filter_col}" IN ({placeholders})')
+                        all_conditions.append(f'"{safe_filter_col}" IN ({placeholders})')
                         params.extend(values)
-                if conditions:
-                    where_clause = f"WHERE {' AND '.join(conditions)}"
+            
+            # 拡張フィルター
+            if extended_filters:
+                extended_conditions = self._build_extended_filter_conditions(extended_filters, params)
+                all_conditions.extend(extended_conditions)
+                
+            if all_conditions:
+                where_clause = f"WHERE {' AND '.join(all_conditions)}"
             
             # ユニーク値を取得
             sql = f'SELECT DISTINCT "{safe_col}" FROM {table_name} {where_clause} LIMIT ?'

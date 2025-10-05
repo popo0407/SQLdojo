@@ -1,6 +1,55 @@
 // 結果表示専用の型定義
 import type { TableRow, SortConfig, FilterConfig, FilterModalState } from './common';
 
+// 拡張フィルター用の型定義
+export type DataType = 'number' | 'date' | 'datetime' | 'string';
+
+export interface FilterCondition {
+  column_name: string;
+  filter_type: 'exact' | 'range' | 'text_search';
+}
+
+export interface ExactFilter extends FilterCondition {
+  filter_type: 'exact';
+  values: string[];
+}
+
+export interface RangeFilter extends FilterCondition {
+  filter_type: 'range';
+  min_value?: string | number;
+  max_value?: string | number;
+  data_type: DataType;
+}
+
+export interface TextSearchFilter extends FilterCondition {
+  filter_type: 'text_search';
+  search_text: string;
+  case_sensitive?: boolean;
+}
+
+export type ExtendedFilterCondition = ExactFilter | RangeFilter | TextSearchFilter;
+
+// フィルターモードの定義
+export type FilterMode = 'exact' | 'range' | 'text_search';
+
+// 拡張フィルターモーダルの状態
+export interface ExtendedFilterModalState {
+  show: boolean;
+  columnName: string;
+  dataType: DataType;
+  filterMode: FilterMode;
+  
+  // 完全一致フィルター用
+  currentFilters: string[];
+  
+  // 範囲フィルター用
+  minValue?: string | number;
+  maxValue?: string | number;
+  
+  // テキスト検索フィルター用
+  searchText?: string;
+}
+
 // 後方互換性のためのエイリアス（段階的移行期間中のみ）
 export type { TableRow, SortConfig, FilterConfig, FilterModalState };
 

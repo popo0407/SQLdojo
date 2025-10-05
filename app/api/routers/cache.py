@@ -69,6 +69,7 @@ async def read_cached_data_endpoint(request: CacheReadRequest = Body(...), hybri
             request.page,
             request.page_size,
             request.filters,
+            request.extended_filters,
             request.sort_by,
             request.sort_order,
         )
@@ -201,7 +202,7 @@ async def download_cached_csv_endpoint(request: CacheReadRequest = Body(...), hy
 @router.post("/unique-values", response_model=CacheUniqueValuesResponse)
 async def get_cache_unique_values(request: CacheUniqueValuesRequest, hybrid_sql_service: HybridSQLServiceDep):
     try:
-        result = hybrid_sql_service.get_unique_values(request.session_id, request.column_name, request.limit, request.filters)
+        result = hybrid_sql_service.get_unique_values(request.session_id, request.column_name, request.limit, request.filters, request.extended_filters)
         return CacheUniqueValuesResponse(values=result["values"], total_count=result["total_count"], is_truncated=result["is_truncated"])
     except Exception as e:
         logger.error(f"キャッシュユニーク値取得エラー: {e}")

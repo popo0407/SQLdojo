@@ -258,7 +258,7 @@ class TestHybridSQLService:
         
         # キャッシュサービスが正しい引数で呼ばれたかチェック
         mock_cache_service.get_cached_data.assert_called_once_with(
-            "test_session_123", 1, 10, filters, "column2", "DESC"
+            "test_session_123", 1, 10, filters, None, "column2", "DESC"
         )
     
     def test_execute_sql_with_cache_large_data_confirmation(self):

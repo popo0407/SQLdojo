@@ -173,7 +173,7 @@ class TestCacheReadAPI:
             # サービスが正しい引数で呼ばれたかチェック
             mock_service.get_cached_data.assert_called_once_with(
                 "test_session_123", 1, 10,
-                {"column1": ["filtered_value1"]}, "column2", "DESC"
+                {"column1": ["filtered_value1"]}, None, "column2", "DESC"
             )
         finally:
             app.dependency_overrides.clear()

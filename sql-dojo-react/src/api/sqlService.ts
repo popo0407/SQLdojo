@@ -15,6 +15,7 @@ export const readSqlCache = async ({
   page, 
   page_size, 
   filters, 
+  extended_filters,
   sort_by, 
   sort_order 
 }: { 
@@ -22,13 +23,14 @@ export const readSqlCache = async ({
   page: number; 
   page_size: number; 
   filters?: FilterConfig;
+  extended_filters?: any[];
   sort_by?: string;
   sort_order?: 'ASC' | 'DESC';
 }): Promise<CacheReadResponse> => {
   const response = await fetch(`${API_CONFIG.BASE_URL}/sql/cache/read`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ session_id, page, page_size, filters, sort_by, sort_order }),
+    body: JSON.stringify({ session_id, page, page_size, filters, extended_filters, sort_by, sort_order }),
   });
   return response.json();
 };

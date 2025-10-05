@@ -228,7 +228,7 @@ class TestCacheWorkflow:
         }
         
         # ページング・フィルタリング結果
-        def mock_get_cached_data(session_id, page, page_size, filters=None, sort_by=None, sort_order="ASC"):
+        def mock_get_cached_data(session_id, page, page_size, filters=None, extended_filters=None, sort_by=None, sort_order="ASC"):
             # フィルタ適用の模擬
             if filters and "status" in filters:
                 data = [["1", "active", "User1"], ["3", "active", "User3"]]

@@ -3,11 +3,38 @@
 APIモデル定義
 FastAPIで使用するPydanticモデル
 """
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from pydantic import BaseModel, Field
 from datetime import datetime
 import time
 from app.config_simplified import get_settings
+
+# 拡張フィルター用の型定義
+class FilterCondition(BaseModel):
+    """フィルター条件の基底クラス"""
+    column_name: str = Field(..., description="カラム名")
+    filter_type: str = Field(..., description="フィルタータイプ: 'exact', 'range', 'text_search'")
+
+class ExactFilter(FilterCondition):
+    """完全一致フィルター"""
+    filter_type: str = Field(default="exact", description="フィルタータイプ")
+    values: List[str] = Field(..., description="完全一致する値のリスト")
+
+class RangeFilter(FilterCondition):
+    """範囲フィルター（数値・日付用）"""
+    filter_type: str = Field(default="range", description="フィルタータイプ")
+    min_value: Optional[Union[str, float]] = Field(default=None, description="最小値")
+    max_value: Optional[Union[str, float]] = Field(default=None, description="最大値")
+    data_type: str = Field(..., description="データ型: 'number', 'date', 'datetime'")
+
+class TextSearchFilter(FilterCondition):
+    """部分一致検索フィルター"""
+    filter_type: str = Field(default="text_search", description="フィルタータイプ")
+    search_text: str = Field(..., description="検索テキスト")
+    case_sensitive: bool = Field(default=False, description="大文字小文字を区別するか")
+
+# 拡張フィルター型のUnion
+ExtendedFilterCondition = Union[ExactFilter, RangeFilter, TextSearchFilter]
 
 # 設定を取得
 settings = get_settings()
@@ -434,7 +461,8 @@ class CacheReadRequest(BaseModel):
     session_id: str = Field(..., description="セッションID")
     page: int = Field(default=1, description="ページ番号")
     page_size: int = Field(default=settings.default_page_size, description="1ページあたりの件数")  # 設定ファイルから取得
-    filters: Optional[Dict[str, List[str]]] = Field(default=None, description="フィルタ条件")
+    filters: Optional[Dict[str, List[str]]] = Field(default=None, description="従来のフィルタ条件（後方互換性）")
+    extended_filters: Optional[List[ExtendedFilterCondition]] = Field(default=None, description="拡張フィルタ条件")
     sort_by: Optional[str] = Field(default=None, description="ソート対象カラム")
     sort_order: str = Field(default="ASC", description="ソート順序")
 
@@ -480,7 +508,8 @@ class CacheUniqueValuesRequest(BaseModel):
     session_id: str = Field(..., description="セッションID")
     column_name: str = Field(..., description="ユニーク値を取得するカラム名")
     limit: int = Field(default=100, description="最大取得件数")
-    filters: Optional[Dict[str, List[str]]] = Field(default=None, description="連鎖フィルター用のフィルタ条件")
+    filters: Optional[Dict[str, List[str]]] = Field(default=None, description="従来のフィルタ条件（後方互換性）")
+    extended_filters: Optional[List[ExtendedFilterCondition]] = Field(default=None, description="拡張フィルタ条件")
 
 class CacheUniqueValuesResponse(BaseModel):
     values: list = Field(..., description="ユニーク値リスト")
