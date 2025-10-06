@@ -60,11 +60,11 @@ const AppHeader: React.FC = () => {
       const masterDataForAI = {
         selectedStation: selectedStationInfo,
         masterData: {
-          measure: measureMaster,
-          set: setMaster,
-          free: freeMaster,
-          parts: partsMaster,
-          trouble: troubleMaster
+          HF1RGM01の測定値マスタ: measureMaster,
+          HF1RGM01の設定値マスタ: setMaster,
+          HF1RGM01のフリーデータマスタ: freeMaster,
+          HF1REM01の部品マスタ: partsMaster,
+          HF1RFM01のトラブル・NGマスタ: troubleMaster
         }
       };
 

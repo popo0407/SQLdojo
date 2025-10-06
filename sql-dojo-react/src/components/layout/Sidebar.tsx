@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const { activeTabId } = useTabStore();
   const { applySelectionToEditor } = useSidebarStore();
   // 外部から activeTab が渡された場合はそれを使用、そうでなければ内部状態を使用
-  const [internalActiveTab, setInternalActiveTab] = useState<'db' | 'master'>('db');
+  const [internalActiveTab, setInternalActiveTab] = useState<'db' | 'master'>('master');
   const activeTab = externalActiveTab ?? internalActiveTab;
   
   // activeTabの変化をログに出力

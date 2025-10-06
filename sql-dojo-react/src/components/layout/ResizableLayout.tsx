@@ -6,9 +6,9 @@ import Sidebar from './Sidebar';
 import styles from '../../styles/ResizableLayout.module.css';
 
 export const ResizableLayout: React.FC = () => {
-  const [sidebarWidth, setSidebarWidth] = useState(400);
+  const [sidebarWidth, setSidebarWidth] = useState(1000);
   const [panelKey, setPanelKey] = useState(0); // パネル再マウント用
-  const [activeTab, setActiveTab] = useState<'db' | 'master'>('db'); // サイドバーのアクティブタブを管理
+  const [activeTab, setActiveTab] = useState<'db' | 'master'>('master'); // サイドバーのアクティブタブを管理
 
   const handleSidebarWidthChange = (width: number) => {
     setSidebarWidth(width);
