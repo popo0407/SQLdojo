@@ -437,6 +437,7 @@ class CacheSQLResponse(BaseModel):
     execution_time: Optional[float] = Field(default=None, description="実行時間（秒）")
     message: Optional[str] = Field(default=None, description="メッセージ")
     error_message: Optional[str] = Field(default=None, description="エラーメッセージ")
+    status: Optional[str] = Field(default=None, description="処理状態（processing, completed, error）")
 
 
 class DummyDataRequest(BaseModel):

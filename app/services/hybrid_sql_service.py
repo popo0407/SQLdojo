@@ -69,15 +69,21 @@ class HybridSQLService:
             if not self.cache_service.register_session(session_id, user_id):
                 raise SQLExecutionError("現在、他の処理を実行中です。しばらく待ってから再度お試しください。")
 
-            # 総件数を取得（大容量判定を先に行う）
-            total_count = self._get_total_count(sql)
+            # 総件数を取得（軽量チェックのため）
+            # 複雑なクエリの場合はCOUNTもスキップして高速化
+            try:
+                total_count = self._get_total_count(sql)
+            except Exception as e:
+                logger.warning(f"総件数取得エラー、推定値を使用: {e}")
+                total_count = -1  # 不明な件数として処理継続
 
             # 大容量データの条件分岐
             # 設定値をそのまま使用
             max_records_for_display = getattr(settings, 'max_records_for_display', 1000000)
             max_records_for_csv_download = getattr(settings, 'max_records_for_csv_download', 10000000)
 
-            if total_count > max_records_for_display:
+            # 総件数が不明(-1)の場合は処理を続行
+            if total_count > 0 and total_count > max_records_for_display:
                 logger.warning(f"大容量データ検出: {total_count}件, ユーザー: {user_id}")
 
                 # CSVダウンロードも不可な場合
@@ -192,15 +198,164 @@ class HybridSQLService:
                     logger.warning(f"finally句: 未完了セッションを強制クリーンアップ: {session_id}")
                     self.cache_service.cleanup_session(session_id)
 
+    def prepare_sql_execution(self, sql: str, user_id: str, limit: Optional[int] = None) -> Dict[str, Any]:
+        """軽量検証を行い、即座にsession_idを返却（対策案3: 軽量非同期対応）"""
+        try:
+            # セッションIDを生成
+            session_id = self.cache_service.generate_session_id(user_id)
+
+            # セッションを登録（同時実行制限チェック）
+            if not self.cache_service.register_session(session_id, user_id):
+                raise SQLExecutionError("現在、他の処理を実行中です。しばらく待ってから再度お試しください。")
+
+            # 総件数を取得（軽量チェックのため）
+            # 複雑なクエリの場合はCOUNTもスキップして高速化
+            try:
+                total_count = self._get_total_count(sql)
+            except Exception as e:
+                logger.warning(f"総件数取得エラー、推定値を使用: {e}")
+                total_count = -1  # 不明な件数として処理継続
+
+            # 大容量データの条件分岐
+            max_records_for_display = getattr(settings, 'max_records_for_display', 1000000)
+            max_records_for_csv_download = getattr(settings, 'max_records_for_csv_download', 10000000)
+
+            # 総件数が不明(-1)の場合は処理を続行
+            if total_count > 0 and total_count > max_records_for_display:
+                logger.warning(f"大容量データ検出: {total_count}件, ユーザー: {user_id}")
+
+                if total_count > max_records_for_csv_download:
+                    # 大容量すぎる場合はセッションクリーンアップ
+                    logger.warning(f"データ大容量すぎるためセッションクリーンアップ: {session_id}")
+                    self.cache_service.cleanup_session(session_id)
+                    raise SQLExecutionError(f"データが大きすぎます（{total_count:,}件）。クエリを制限してから再実行してください。")
+
+                # 確認要求の場合はセッションを一旦クリーンアップ
+                logger.info(f"大容量データ確認要求のためセッションクリーンアップ: {session_id}")
+                self.cache_service.cleanup_session(session_id)
+                
+                return {
+                    'status': 'requires_confirmation',
+                    'total_count': total_count,
+                    'message': f"大容量データです（{total_count:,}件）。条件を絞れない場合はCSVでダウンロードしてください"
+                }
+
+            # SQLバリデーション（常に実施）
+            validation_result = self.validator.validate_sql(sql)
+            if not validation_result.is_valid:
+                error_message = "; ".join(validation_result.errors)
+                
+                # バリデーションエラーの場合、セッションをクリーンアップ
+                logger.warning(f"SQLバリデーションエラー: {error_message}, セッション: {session_id}")
+                self.cache_service.cleanup_session(session_id)
+                
+                return {
+                    'success': False,
+                    'error_message': error_message,
+                    'message': error_message,
+                    'session_id': None,
+                    'total_count': 0,
+                    'processed_rows': 0,
+                    'execution_time': 0
+                }
+
+            # セッション情報を更新（開始状態）
+            self.cache_service.update_session_progress(session_id, 0, False)
+
+            # ストリーミング状態を初期化
+            if self.streaming_state_service:
+                self.streaming_state_service.create_streaming_state(session_id, total_count)
+
+            # 即座にsession_idを返却
+            return {
+                'success': True,
+                'session_id': session_id,
+                'total_count': total_count,
+                'processed_rows': 0,
+                'execution_time': 0,
+                'message': f"処理を開始しました。総件数: {total_count:,}件",
+                'status': 'processing'
+            }
+
+        except Exception as e:
+            logger.error(f"SQL準備エラー: {e}", exc_info=True)
+            # セッションが作成されていればクリーンアップ
+            if 'session_id' in locals():
+                self.cache_service.cleanup_session(session_id)
+            raise SQLExecutionError(f"SQL準備に失敗しました: {str(e)}")
+
+    def execute_sql_background(self, sql: str, session_id: str, user_id: str, limit: Optional[int] = None):
+        """バックグラウンドでSQL実行（対策案3: 軽量非同期対応）"""
+        start_time = datetime.now()
+        try:
+            logger.info(f"バックグラウンドSQL実行開始: {session_id}")
+
+            # データ取得・キャッシュ（カーソル方式で逐次取得に統一）
+            processed_rows = self._fetch_and_cache_data(sql, session_id, limit)
+
+            # 実行時間を計算
+            execution_time = (datetime.now() - start_time).total_seconds()
+
+            # セッション完了（実行時間を含む）
+            self.cache_service.update_session_progress(session_id, processed_rows, True, execution_time)
+
+            # メモリ上のアクティブセッションリストから削除
+            self.cache_service.complete_active_session(session_id)
+
+            # ストリーミング完了
+            if self.streaming_state_service:
+                self.streaming_state_service.complete_streaming(session_id, processed_rows)
+
+            logger.info(f"バックグラウンドSQL実行完了: {session_id}, 処理件数: {processed_rows}")
+
+        except Exception as e:
+            logger.error(f"バックグラウンドSQL実行エラー: {e}", exc_info=True)
+            
+            # エラーの種類に応じた処理
+            error_message = str(e)
+            
+            # 設定可能: エラー時の動作（即座削除 or エラーマーク）
+            cleanup_on_error = getattr(settings, 'cleanup_session_on_error', True)
+            
+            if cleanup_on_error:
+                # 即座クリーンアップ（デフォルト）
+                logger.info(f"エラー発生のためセッションを即座クリーンアップ: {session_id}")
+                self.cache_service.cleanup_session(session_id)
+            else:
+                # エラー状態でマーク（デバッグ・履歴保持用）
+                logger.info(f"エラー発生のためセッションをエラー状態にマーク: {session_id}")
+                self.cache_service.error_session(session_id, error_message)
+            
+            # 関連サービスのクリーンアップ
+            if self.session_service:
+                try:
+                    self.session_service.delete_session(session_id)
+                except Exception:
+                    logger.debug("session_service.delete_session で例外を無視")
+                    
+            if self.streaming_state_service:
+                self.streaming_state_service.error_streaming(session_id, error_message)
+
     def _get_total_count(self, sql: str) -> int:
-        """SQLの総件数を取得"""
-        count_sql = f"SELECT COUNT(*) FROM ({sql}) as count_query"
+        """SQLの総件数を取得（末尾セミコロンを除去してサブクエリ化）"""
+        sql_for_count = sql.rstrip(';')
+        count_sql = f"SELECT COUNT(*) FROM ({sql_for_count}) as count_query"
         
         try:
             conn_id, connection = self.connection_manager.get_connection()
             cursor = connection.cursor()
+            
+            # COUNT処理の開始時間を記録
+            count_start_time = datetime.now()
+            logger.info(f"総件数取得開始: {count_start_time}")
+            
             cursor.execute(count_sql)
             result = cursor.fetchone()
+            
+            # COUNT処理の完了時間を記録
+            count_end_time = datetime.now()
+            count_duration = (count_end_time - count_start_time).total_seconds()
+            logger.info(f"総件数取得完了: 処理時間={count_duration:.2f}秒")
             # さまざまなモック/実装に対応
             if result is None:
                 return 0
@@ -269,6 +424,10 @@ class HybridSQLService:
             
             # キャッシュテーブルを作成
             table_name = self.cache_service.create_cache_table(session_id, columns)
+            
+            # テーブル作成完了 - ここからデータダウンロード段階開始
+            if self.streaming_state_service:
+                self.streaming_state_service.update_phase(session_id, 'downloading')
             
             # チャンク単位でデータを取得・キャッシュ
             while True:

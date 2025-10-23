@@ -4,9 +4,9 @@ import type { SimpleChartConfig } from '../utils/chartUtils';
 import { apiClient } from './apiClient';
 import { API_CONFIG } from '../config/api';
 
-// SQL実行API
+// SQL実行API（非同期版 - プログレスバー対応）
 export const executeSqlOnCache = async ({ sql }: { sql: string }): Promise<ExecuteSqlResponse> => {
-  return apiClient.post<ExecuteSqlResponse>('/sql/cache/execute', { sql });
+  return apiClient.post<ExecuteSqlResponse>('/sql/cache/execute-async', { sql });
 };
 
 // SQLキャッシュ読み込みAPI

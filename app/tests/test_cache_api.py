@@ -51,6 +51,113 @@ class TestCacheSQLExecuteAPI:
             assert "execution_time" in data
         finally:
             app.dependency_overrides.clear()
+
+    def test_cache_execute_sql_async_success(self, client: TestClient, mock_user):
+        """軽量非同期SQL実行のテスト（対策案3）"""
+        mock_service = AsyncMock()
+        mock_service.prepare_sql_execution.return_value = {
+            "success": True,
+            "session_id": "async_session_123",
+            "total_count": 50000,
+            "processed_rows": 0,
+            "execution_time": 0,
+            "message": "処理を開始しました。総件数: 50,000件",
+            "status": "processing"
+        }
+        mock_service.execute_sql_background = Mock()  # バックグラウンド処理のモック
+        
+        app = client.app
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
+        app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
+        
+        try:
+            response = client.post(
+                "/api/v1/sql/cache/execute-async",
+                json={"sql": "SELECT * FROM large_table", "limit": 100000}
+            )
+            
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+            assert data["session_id"] == "async_session_123"
+            assert data["total_count"] == 50000
+            assert data["processed_rows"] == 0  # 開始時は0
+            assert data["execution_time"] == 0   # 開始時は0
+            assert "処理を開始しました" in data["message"]
+            assert data["status"] == "processing"
+            
+            # バックグラウンドタスクが呼び出されたことを確認
+            mock_service.prepare_sql_execution.assert_called_once_with(
+                "SELECT * FROM large_table", mock_user.user_id, 100000
+            )
+            
+        finally:
+            app.dependency_overrides.clear()
+
+    def test_cache_execute_sql_async_confirmation_required(self, client: TestClient, mock_user):
+        """軽量非同期SQL実行 - 大容量データ確認要求のテスト"""
+        mock_service = AsyncMock()
+        mock_service.prepare_sql_execution.return_value = {
+            "status": "requires_confirmation",
+            "total_count": 5000000,
+            "message": "大容量データです（5,000,000件）。条件を絞れない場合はCSVでダウンロードしてください"
+        }
+        
+        app = client.app
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
+        app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
+        
+        try:
+            response = client.post(
+                "/api/v1/sql/cache/execute-async",
+                json={"sql": "SELECT * FROM huge_table"}
+            )
+            
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is False
+            assert data["session_id"] is None
+            assert data["total_count"] == 5000000
+            assert data["processed_rows"] == 0
+            assert "大容量データです" in data["message"]
+            
+        finally:
+            app.dependency_overrides.clear()
+
+    def test_cache_execute_sql_async_validation_error(self, client: TestClient, mock_user):
+        """軽量非同期SQL実行 - バリデーションエラーのテスト"""
+        mock_service = AsyncMock()
+        mock_service.prepare_sql_execution.return_value = {
+            "success": False,
+            "error_message": "DROP文は使用できません",
+            "message": "DROP文は使用できません",
+            "session_id": None,
+            "total_count": 0,
+            "processed_rows": 0,
+            "execution_time": 0
+        }
+        
+        app = client.app
+        app.dependency_overrides[get_hybrid_sql_service_di] = lambda: mock_service
+        app.dependency_overrides[get_current_user] = lambda: {"user_id": mock_user.user_id, "user_name": mock_user.user_name}
+        app.dependency_overrides[get_sql_log_service_di] = lambda: Mock()
+        
+        try:
+            response = client.post(
+                "/api/v1/sql/cache/execute-async",
+                json={"sql": "DROP TABLE test_table"}
+            )
+            
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is False
+            assert data["session_id"] is None
+            assert data["error_message"] == "DROP文は使用できません"
+            
+        finally:
+            app.dependency_overrides.clear()
     
     def test_cache_execute_sql_requires_confirmation(self, client: TestClient, mock_user):
         """大容量データの確認要求のテスト"""

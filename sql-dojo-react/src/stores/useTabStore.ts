@@ -5,18 +5,26 @@ import { parsePlaceholders, replacePlaceholders } from '../features/parameters/P
 // タブ進捗ポーリング管理
 let tabProgressPollingInterval: NodeJS.Timeout | null = null;
 
-// タブ用進捗ポーリング開始
-const startTabProgressPolling = async (sessionId: string, progressStore: { updateProgress: Function; hideProgress: Function }) => {
+// タブ用進捗ポーリング開始（完了時のデータ読み込み対応）
+const startTabProgressPolling = async (sessionId: string, progressStore: { updateProgress: (data: { currentCount: number; progressPercentage: number; message: string }) => void; hideProgress: () => void }, tabId?: string) => {
   const { getSessionStatus } = await import('../api/sqlService');
   
   const pollProgress = async () => {
     try {
       const statusResponse = await getSessionStatus(sessionId);
       
+      // 段階に応じたメッセージ表示
+      let message = statusResponse.message || 'データを取得中...';
+      if (statusResponse.phase === 'executing') {
+        message = 'Snowflakeでクエリを実行中...';
+      } else if (statusResponse.phase === 'downloading') {
+        message = `データをダウンロード中... (${statusResponse.processed_count || 0}件)`;
+      }
+
       progressStore.updateProgress({
         currentCount: statusResponse.processed_count,
         progressPercentage: statusResponse.progress_percentage || 0,
-        message: statusResponse.message || 'データを取得中...'
+        message: message
       });
 
       if (statusResponse.status === 'completed' || statusResponse.status === 'error' || statusResponse.status === 'cancelled') {
@@ -24,7 +32,21 @@ const startTabProgressPolling = async (sessionId: string, progressStore: { updat
           clearInterval(tabProgressPollingInterval);
           tabProgressPollingInterval = null;
         }
-        progressStore.hideProgress();
+        
+        // 完了時の処理
+        if (statusResponse.status === 'completed' && tabId) {
+          // 完了時にデータを自動読み込み
+          await loadTabDataAfterCompletion(tabId, sessionId, progressStore);
+        } else {
+          // エラーまたはキャンセル時
+          progressStore.hideProgress();
+          if (statusResponse.status === 'error' && tabId) {
+            const { useUIStore } = await import('./useUIStore');
+            const uiStore = useUIStore.getState();
+            uiStore.setError(statusResponse.error_message || 'SQL実行でエラーが発生しました');
+            uiStore.stopLoading();
+          }
+        }
       }
     } catch {
       if (tabProgressPollingInterval) {
@@ -40,6 +62,90 @@ const startTabProgressPolling = async (sessionId: string, progressStore: { updat
 
   // 定期実行
   tabProgressPollingInterval = setInterval(pollProgress, 100);
+};
+
+// 完了時のデータ読み込み処理
+const loadTabDataAfterCompletion = async (tabId: string, sessionId: string, progressStore: { updateProgress: (data: { currentCount: number; progressPercentage: number; message: string }) => void; hideProgress: () => void }) => {
+  try {
+    const { readSqlCache } = await import('../api/sqlService');
+    const { useUIStore } = await import('./useUIStore');
+    const uiStore = useUIStore.getState();
+
+    // データ読み込み段階表示
+    progressStore.updateProgress({
+      currentCount: 0,
+      progressPercentage: 90,
+      message: '結果データを取得中...'
+    });
+
+    // タブ情報を取得
+    const tab = useTabStore.getState().tabs.find(t => t.id === tabId);
+    if (!tab) {
+      throw new Error('タブが見つかりません');
+    }
+
+    // 設定ページサイズを取得（デフォルト100）
+    const pageSize = tab.sessionState.configSettings?.default_page_size || 100;
+    
+    const readResult = await readSqlCache({
+      session_id: sessionId,
+      page: 1,
+      page_size: pageSize
+    });
+
+    if (readResult.success && readResult.data && readResult.columns) {
+      // データを変換
+      const newData = (readResult.data as unknown as unknown[][]).map((rowArr: unknown[]) => 
+        Object.fromEntries((readResult.columns || []).map((col: string, i: number) => [col, rowArr[i]]))
+      );
+
+      // 型安全なデータ変換
+      const typedData = newData.map(row => 
+        Object.fromEntries(
+          Object.entries(row).map(([key, value]) => [
+            key, 
+            value === null || value === undefined ? null : 
+            typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' ? value : String(value)
+          ])
+        )
+      ) as { [key: string]: string | number | boolean | null }[];
+
+      // タブ結果を更新
+      useTabStore.getState().updateTabResults(tabId, {
+        data: typedData,
+        columns: readResult.columns,
+        totalCount: readResult.total_count || 0,
+        executionTime: readResult.execution_time || 0,
+        lastExecutedSql: tab.sql,
+        error: null
+      });
+
+      // UI状態をクリア
+      uiStore.stopLoading();
+      progressStore.hideProgress();
+
+    } else {
+      throw new Error(readResult.error_message || 'データの読み込みに失敗しました');
+    }
+
+  } catch (error) {
+    console.error('データ読み込みエラー:', error);
+    const { useUIStore } = await import('./useUIStore');
+    const uiStore = useUIStore.getState();
+    
+    useTabStore.getState().updateTabResults(tabId, {
+      error: error instanceof Error ? error.message : 'データの読み込みに失敗しました',
+      data: null,
+      columns: [],
+      totalCount: 0,
+      executionTime: 0,
+      lastExecutedSql: useTabStore.getState().tabs.find(t => t.id === tabId)?.sql || ''
+    });
+    
+    uiStore.setError(error instanceof Error ? error.message : 'データの読み込みに失敗しました');
+    uiStore.stopLoading();
+    progressStore.hideProgress();
+  }
 };
 
 // タブの状態インターface
@@ -597,48 +703,41 @@ export const useTabStore = create<TabStoreState>((set, get) => ({
         return;
       }
 
-      // 進捗データが含まれている場合は進捗表示を開始
-      if (execResult.total_count && execResult.total_count > 0) {
+      // 非同期処理の場合は進捗ポーリング開始（データ取得は完了後）
+      if (execResult.status === 'processing' && execResult.session_id) {
+        // 進捗表示を開始
         progressStore.showProgress({
-          totalCount: execResult.total_count,
-          currentCount: execResult.current_count || 0,
-          progressPercentage: execResult.progress_percentage || 0,
+          totalCount: execResult.total_count || 0,
+          currentCount: 0,
+          progressPercentage: 0,
           message: 'データを取得中...'
         });
 
-        // セッションIDがある場合は進捗ポーリングを開始
-        if (execResult.session_id) {
-          const sessionId = execResult.session_id;
-          setTimeout(() => {
-            startTabProgressPolling(sessionId, progressStore);
-          }, 200);
-        }
-      }
-
-      // セッションIDを設定（グローバルセッションストアも更新）
-      if (execResult.session_id) {
+        // セッションIDを設定（グローバルセッションストアも更新）
         setTabSessionId(tabId, execResult.session_id);
         
-        // グローバルセッションストアも更新（元エディタと同等性確保）
         const { useResultsSessionStore } = await import('./useResultsSessionStore');
         const sessionStore = useResultsSessionStore.getState();
         sessionStore.setSessionId(execResult.session_id);
-      } else {
-        updateTabResults(tabId, {
-          error: 'session_idが返されませんでした',
-          data: null,
-          columns: [],
-          totalCount: 0,
-          executionTime: 0,
-          lastExecutedSql: sql
+
+        // 初期段階ではSQL実行中を表示
+        progressStore.updateProgress({
+          currentCount: 0,
+          progressPercentage: 10,
+          message: 'Snowflakeでクエリを実行中...'
         });
-        uiStore.setError('session_idが返されませんでした');
-        uiStore.stopLoading();
-        progressStore.hideProgress();
+
+        // 遅延後に進捗ポーリングを開始（テーブル作成を待つ）
+        const sessionId = execResult.session_id;
+        setTimeout(() => {
+          startTabProgressPolling(sessionId, progressStore, tabId);
+        }, 500);  // 500ms後に開始（SQL実行→テーブル作成の時間を考慮）
+
+        // 非同期処理なので、ここでは終了（データ読み込みは進捗完了後）
         return;
       }
 
-      // 初回データ取得
+      // 従来の同期処理の場合（フォールバック）
       if (execResult.session_id) {
         // 段階6: データ読み込み準備（高速）
         progressStore.updateProgress({

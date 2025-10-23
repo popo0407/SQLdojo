@@ -25,6 +25,7 @@ class StreamingStateService:
             state_info = {
                 'session_id': session_id,
                 'status': 'running',  # running, completed, error, cancelled
+                'phase': 'executing',  # executing, downloading, completed
                 'total_count': total_count,
                 'processed_count': 0,
                 'start_time': datetime.now(),
@@ -55,6 +56,15 @@ class StreamingStateService:
                         logger.error(f"コールバック実行エラー: {e}")
                 
                 logger.debug(f"進捗更新: {session_id}, {processed_count}/{state['total_count']}")
+    
+    def update_phase(self, session_id: str, phase: str):
+        """処理段階を更新 (executing -> downloading)"""
+        with self._lock:
+            if session_id in self._states:
+                state = self._states[session_id]
+                state['phase'] = phase
+                state['last_update'] = datetime.now()
+                logger.info(f"処理段階更新: {session_id}, phase: {phase}")
     
     def complete_streaming(self, session_id: str, final_count: int):
         """ストリーミング完了"""

@@ -18,10 +18,11 @@ from app.config_simplified import settings
 logger = get_logger("CacheService")
 
 class CacheService:
-    """ローカルキャッシュ管理サービス（改良ハイブリッド管理）"""
+    """ローカルキャッシュ管理サービス（改良ハイブリッド管理 - DB分離版）"""
     
-    def __init__(self, cache_db_path: str = "cache_data.db"):
-        self.cache_db_path = cache_db_path
+    def __init__(self, session_db_path: str = "session_manager.db"):
+        # セッション管理専用DBパス
+        self.session_db_path = session_db_path
         # 設定値からバッチサイズを取得
         self.batch_size = settings.cache_batch_size
         self._lock = threading.Lock()
@@ -30,35 +31,25 @@ class CacheService:
         self._last_sync_time = {}   # セッションID -> 最終同期時刻
         
         # バッチCOMMIT用の管理変数
-        self._batch_connections = {}  # セッションID -> 専用DB接続
+        self._batch_connections = {}  # セッションID -> 専用DB接続（各セッション専用DB）
         self._batch_counters = {}     # セッションID -> 現在のバッチ内チャンク数
         
-        self._init_cache_db()
+        self._init_session_db()
         self._restore_sessions_from_db()  # 起動時にDB→メモリ復旧
-        
-        self._init_cache_db()
 
-    def _get_table_name_from_session_id(self, session_id: str) -> str:
-        """セッションIDからテーブル名を生成"""
-        parts = session_id.split('_')
-        if len(parts) >= 4 and parts[0] == 'cache':
-            # 新形式: cache_hint0530_20250911231732_130
-            # この場合、テーブル名はセッションIDと同じ
-            table_name = session_id
-        elif len(parts) >= 3:
-            # 旧形式: user_timestamp_xxx
-            user_id = parts[0]
-            timestamp = parts[1]
-            dt = datetime.fromtimestamp(int(timestamp))
-            formatted_time = dt.strftime('%Y%m%d%H%M%S')
-            table_name = f"cache_{user_id}_{formatted_time}"
-        else:
-            table_name = f"cache_{session_id.replace('-', '_')}"
-        return table_name
+    def _get_session_db_path(self, session_id: str) -> str:
+        """セッションIDから専用DBファイルパスを生成"""
+        # cache_userid_timestamp_xxx -> cache_userid_timestamp_xxx.db
+        return f"{session_id}.db"
     
-    def _init_cache_db(self):
-        """キャッシュDBの初期化"""
-        with sqlite3.connect(self.cache_db_path) as conn:
+    def _get_table_name_from_session_id(self, session_id: str) -> str:
+        """セッションIDからテーブル名を生成（セッション専用DBでは固定名）"""
+        # 各セッション専用DBでは "cache_data" という固定テーブル名を使用
+        return "cache_data"
+    
+    def _init_session_db(self):
+        """セッション管理専用DBの初期化"""
+        with sqlite3.connect(self.session_db_path) as conn:
             cursor = conn.cursor()
             # セッション管理テーブル
             cursor.execute("""
@@ -82,14 +73,15 @@ class CacheService:
                 cursor.execute("ALTER TABLE cache_sessions ADD COLUMN execution_time REAL DEFAULT NULL")
             
             conn.commit()
+            logger.info(f"セッション管理DB初期化完了: {self.session_db_path}")
     
     def _restore_sessions_from_db(self):
-        """DB からアクティブセッションをメモリに復旧"""
+        """セッション管理DBからアクティブセッションをメモリに復旧"""
         with self._lock:
-            logger.info("DBからセッション情報を復旧中...")
+            logger.info("セッション管理DBからセッション情報を復旧中...")
             
             try:
-                with sqlite3.connect(self.cache_db_path) as conn:
+                with sqlite3.connect(self.session_db_path) as conn:
                     cursor = conn.cursor()
                     cursor.execute("""
                         SELECT session_id, user_id, created_at, last_accessed, 
@@ -131,9 +123,9 @@ class CacheService:
                 logger.error(f"セッション復旧エラー: {e}")
     
     def _mark_session_timeout_in_db(self, session_id: str):
-        """DBでセッションをタイムアウト状態にマーク"""
+        """セッション管理DBでセッションをタイムアウト状態にマーク"""
         try:
-            with sqlite3.connect(self.cache_db_path) as conn:
+            with sqlite3.connect(self.session_db_path) as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
                     UPDATE cache_sessions 
@@ -155,11 +147,13 @@ class CacheService:
         return f"cache_{user_id}_{formatted_time}_{microseconds:03d}"
     
     def create_cache_table(self, session_id: str, columns: List[str]) -> str:
-        """キャッシュテーブルを作成"""
-        # セッションIDからテーブル名を生成
+        """セッション専用DBにキャッシュテーブルを作成"""
+        # セッション専用DBパスを取得
+        session_db_path = self._get_session_db_path(session_id)
+        # テーブル名は固定
         table_name = self._get_table_name_from_session_id(session_id)
         
-        with sqlite3.connect(self.cache_db_path) as conn:
+        with sqlite3.connect(session_db_path) as conn:
             cursor = conn.cursor()
             
             # カラム定義を作成（SQLite用にエスケープ）
@@ -176,38 +170,30 @@ class CacheService:
             cursor.execute(create_sql)
             conn.commit()
         
+        logger.info(f"セッション専用DBにテーブル作成: {session_db_path} / {table_name}")
         return table_name
     
     def insert_chunk(self, table_name: str, data: List[List[Any]], session_id: Optional[str] = None) -> int:
-        """データチャンクを挿入（バッチCOMMIT対応）"""
+        """データチャンクを挿入（バッチCOMMIT対応 - セッション専用DB使用）"""
         if not data:
             return 0
         
-        # セッションIDが指定されている場合はバッチCOMMITを使用
-        if session_id:
-            return self._insert_chunk_with_batch(table_name, data, session_id)
+        # セッションIDが必須
+        if not session_id:
+            raise ValueError("session_idは必須です（セッション専用DB使用のため）")
         
-        # 従来の即座COMMIT方式（後方互換性のため）
-        with sqlite3.connect(self.cache_db_path) as conn:
-            cursor = conn.cursor()
-            
-            # プレースホルダーを作成
-            placeholders = ','.join(['?' for _ in data[0]])
-            insert_sql = f"INSERT INTO {table_name} VALUES ({placeholders})"
-            
-            cursor.executemany(insert_sql, data)
-            conn.commit()
-            
-            return len(data)
+        # バッチCOMMIT方式で挿入
+        return self._insert_chunk_with_batch(table_name, data, session_id)
     
     def _insert_chunk_with_batch(self, table_name: str, data: List[List[Any]], session_id: str) -> int:
-        """バッチCOMMIT方式でデータチャンクを挿入"""
+        """バッチCOMMIT方式でデータチャンクを挿入（セッション専用DB使用）"""
         with self._lock:
-            # セッション専用の接続を取得または作成
+            # セッション専用DBへの接続を取得または作成
             if session_id not in self._batch_connections:
-                self._batch_connections[session_id] = sqlite3.connect(self.cache_db_path)
+                session_db_path = self._get_session_db_path(session_id)
+                self._batch_connections[session_id] = sqlite3.connect(session_db_path)
                 self._batch_counters[session_id] = 0
-                logger.info(f"バッチCOMMIT開始: session={session_id}, batch_size={self.batch_size}")
+                logger.info(f"バッチCOMMIT開始: session={session_id}, db={session_db_path}, batch_size={self.batch_size}")
             
             conn = self._batch_connections[session_id]
             cursor = conn.cursor()
@@ -246,15 +232,15 @@ class CacheService:
                 logger.info(f"バッチセッション終了: session={session_id}")
     
     def get_session_info(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """セッション情報を取得（メモリ優先の高速アクセス）"""
+        """セッション情報を取得（メモリ優先の高速アクセス - セッション管理DB使用）"""
         with self._lock:
             # メモリから取得（高速）
             if session_id in self._active_sessions:
                 return self._active_sessions[session_id].copy()
             
-            # メモリにない場合はDBから取得（復旧のため）
+            # メモリにない場合はセッション管理DBから取得（復旧のため）
             try:
-                with sqlite3.connect(self.cache_db_path) as conn:
+                with sqlite3.connect(self.session_db_path) as conn:
                     cursor = conn.cursor()
                     cursor.execute("""
                         SELECT session_id, user_id, created_at, last_accessed, 
@@ -299,7 +285,7 @@ class CacheService:
             
             if should_sync:
                 try:
-                    with sqlite3.connect(self.cache_db_path) as conn:
+                    with sqlite3.connect(self.session_db_path) as conn:
                         cursor = conn.cursor()
                         if execution_time is not None:
                             cursor.execute("""
@@ -347,9 +333,9 @@ class CacheService:
             self._active_sessions[session_id] = session_info
             self._last_sync_time[session_id] = now
             
-            # DBに同期（即座同期）
+            # セッション管理DBに同期（即座同期）
             try:
-                with sqlite3.connect(self.cache_db_path) as conn:
+                with sqlite3.connect(self.session_db_path) as conn:
                     cursor = conn.cursor()
                     cursor.execute("""
                         INSERT INTO cache_sessions 
@@ -379,27 +365,42 @@ class CacheService:
                 self._active_sessions[session_id]['status'] = 'completed'
                 self._active_sessions[session_id]['is_complete'] = True
                 self._active_sessions[session_id]['last_accessed'] = datetime.now()
+                # 完了後も少し保持してフロントエンドのステータス確認に対応
+                self._active_sessions[session_id]['completed_at'] = datetime.now()
                 
                 logger.info(f"メモリセッション完了: {session_id}")
             else:
                 logger.warning(f"メモリにセッションが見つかりません: {session_id}")
 
-            # DB同期（即座同期）
+            # DBに反映（遅延同期可能、競合状態を回避）
             try:
-                with sqlite3.connect(self.cache_db_path) as conn:
+                with sqlite3.connect(self.session_db_path) as conn:
                     cursor = conn.cursor()
+                    
+                    # 現在の状態を確認
                     cursor.execute("""
-                        UPDATE cache_sessions 
-                        SET is_complete = 1, status = 'completed'
-                        WHERE session_id = ? AND is_complete = 0
+                        SELECT is_complete, status 
+                        FROM cache_sessions 
+                        WHERE session_id = ?
                     """, (session_id,))
-                    rows_affected = cursor.rowcount
-                    conn.commit()
-                
-                if rows_affected > 0:
-                    logger.info(f"DBセッション完了: {session_id}")
-                else:
-                    logger.warning(f"DBでセッションが見つかりません: {session_id}")
+                    current = cursor.fetchone()
+                    
+                    if current:
+                        current_complete, current_status = current
+                        if current_complete == 1 and current_status == 'completed':
+                            # 既に完了済み（高速処理による重複呼び出し）
+                            logger.debug(f"DBセッションは既に完了済み: {session_id}")
+                        else:
+                            # 更新が必要な場合のみ実行
+                            cursor.execute("""
+                                UPDATE cache_sessions 
+                                SET is_complete = 1, status = 'completed'
+                                WHERE session_id = ?
+                            """, (session_id,))
+                            conn.commit()
+                            logger.info(f"DBセッション完了: {session_id}")
+                    else:
+                        logger.warning(f"DBでセッションが見つかりません: {session_id}")
                     
             except Exception as e:
                 logger.error(f"セッション完了エラー: {e}")
@@ -436,22 +437,27 @@ class CacheService:
             # 同期時刻情報も削除
             self._last_sync_time.pop(session_id, None)
             
-            # セッションIDからテーブル名を生成
-            table_name = self._get_table_name_from_session_id(session_id)
-            
-            # キャッシュテーブルを削除
+            # セッション専用DBファイルを削除
+            session_db_path = self._get_session_db_path(session_id)
             try:
-                with sqlite3.connect(self.cache_db_path) as conn:
-                    cursor = conn.cursor()
-                    cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-                    conn.commit()
-                    logger.info(f"キャッシュテーブル削除: {table_name}")
+                import os
+                if os.path.exists(session_db_path):
+                    # バッチ接続がある場合はクローズ
+                    if session_id in self._batch_connections:
+                        self._batch_connections[session_id].close()
+                        del self._batch_connections[session_id]
+                        del self._batch_counters[session_id]
+                    
+                    os.remove(session_db_path)
+                    logger.info(f"セッション専用DBファイル削除: {session_db_path}")
+                else:
+                    logger.warning(f"セッション専用DBファイルが存在しません: {session_db_path}")
             except Exception as e:
-                logger.error(f"キャッシュテーブル削除エラー: {e}")
+                logger.error(f"セッション専用DBファイル削除エラー: {e}")
             
-            # セッション情報を削除
+            # セッション管理DBからセッション情報を削除
             try:
-                with sqlite3.connect(self.cache_db_path) as conn:
+                with sqlite3.connect(self.session_db_path) as conn:
                     cursor = conn.cursor()
                     cursor.execute("DELETE FROM cache_sessions WHERE session_id = ?", (session_id,))
                     rows_deleted = cursor.rowcount
@@ -481,9 +487,9 @@ class CacheService:
                 self._active_sessions[session_id]['last_accessed'] = datetime.now()
                 logger.info(f"メモリセッションエラー設定: {session_id}")
             
-            # DB同期（即座同期）
+            # セッション管理DBに同期（即座同期）
             try:
-                with sqlite3.connect(self.cache_db_path) as conn:
+                with sqlite3.connect(self.session_db_path) as conn:
                     cursor = conn.cursor()
                     cursor.execute("""
                         UPDATE cache_sessions 
@@ -508,11 +514,10 @@ class CacheService:
         """ユーザーの全セッションをクリーンアップ（効率化版）"""
         logger.info(f"ユーザー({user_id})の全セッションクリーンアップを開始します。")
         try:
-            # timeoutを設定してロック待ちの時間を制限
-            with sqlite3.connect(self.cache_db_path, timeout=10.0) as conn:
+            import os
+            # セッション管理DBから削除対象のセッションIDを取得
+            with sqlite3.connect(self.session_db_path, timeout=10.0) as conn:
                 cursor = conn.cursor()
-                
-                # 削除対象のセッションIDを取得
                 cursor.execute("SELECT session_id FROM cache_sessions WHERE user_id = ?", (user_id,))
                 sessions_to_delete = cursor.fetchall()
                 
@@ -522,20 +527,26 @@ class CacheService:
 
                 logger.info(f"ユーザー({user_id})の{len(sessions_to_delete)}件のセッションを削除します。")
 
+                # 各セッションの専用DBファイルを削除
                 for (session_id,) in sessions_to_delete:
-                    # セッションIDからテーブル名を生成
-                    table_name = self._get_table_name_from_session_id(session_id)
-                    
-                    # キャッシュテーブルを削除
-                    logger.debug(f"テーブルを削除します: {table_name}")
-                    cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+                    session_db_path = self._get_session_db_path(session_id)
+                    try:
+                        if os.path.exists(session_db_path):
+                            # バッチ接続がある場合はクローズ
+                            if session_id in self._batch_connections:
+                                self._batch_connections[session_id].close()
+                                del self._batch_connections[session_id]
+                                del self._batch_counters[session_id]
+                            
+                            os.remove(session_db_path)
+                            logger.debug(f"セッション専用DBファイル削除: {session_db_path}")
+                    except Exception as e:
+                        logger.error(f"セッション専用DBファイル削除エラー ({session_id}): {e}")
 
-                # セッション情報を一括削除
-                logger.debug(f"cache_sessionsテーブルからユーザー({user_id})のレコードを削除します。")
+                # セッション管理DBからセッション情報を一括削除
                 cursor.execute("DELETE FROM cache_sessions WHERE user_id = ?", (user_id,))
-                
                 conn.commit()
-                logger.info(f"ユーザー({user_id})のDBクリーンアップが完了しました。")
+                logger.info(f"ユーザー({user_id})のクリーンアップが完了しました。")
 
         except sqlite3.Error as e:
             # sqlite3.OperationalError: database is locked などのエラーを捕捉
@@ -645,10 +656,11 @@ class CacheService:
         if page_size is None:
             page_size = settings.default_page_size
             
-        # セッションIDからテーブル名を生成
+        # セッション専用DBに接続してデータを取得
+        session_db_path = self._get_session_db_path(session_id)
         table_name = self._get_table_name_from_session_id(session_id)
         
-        with sqlite3.connect(self.cache_db_path) as conn:
+        with sqlite3.connect(session_db_path) as conn:
             cursor = conn.cursor()
             
             # WHERE句を構築
@@ -736,12 +748,13 @@ class CacheService:
     def get_unique_values(self, session_id: str, column_name: str, limit: int = 100, 
                          filters: Optional[Dict] = None, extended_filters: Optional[List] = None) -> dict:
         """キャッシュテーブルから指定カラムのユニーク値（最大limit件）を取得（連鎖フィルター対応）"""
-        # セッションIDからテーブル名を生成
+        # セッション専用DBに接続
+        session_db_path = self._get_session_db_path(session_id)
         table_name = self._get_table_name_from_session_id(session_id)
         
-        logger.info(f"ユニーク値取得: session_id={session_id}, table_name={table_name}, column={column_name}")
+        logger.info(f"ユニーク値取得: session_id={session_id}, db={session_db_path}, column={column_name}")
 
-        with sqlite3.connect(self.cache_db_path) as conn:
+        with sqlite3.connect(session_db_path) as conn:
             cursor = conn.cursor()
             safe_col = column_name.replace('"', '""')
             

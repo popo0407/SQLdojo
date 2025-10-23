@@ -28,16 +28,19 @@ export interface ExecuteSqlResponse {
   columns?: string[];
   row_count?: number;
   execution_time?: number;
+  status?: 'processing' | 'completed' | 'error' | 'cancelled';  // 非同期実行状態
 }
 
 // 進捗状態レスポンス型
 export interface SessionStatusResponse {
   session_id: string;
   status: 'streaming' | 'completed' | 'error' | 'cancelled';
+  phase?: 'executing' | 'downloading' | 'completed';  // 処理段階
   total_count: number;
   processed_count: number;
   progress_percentage: number;
   message?: string;
+  error_message?: string;  // エラーメッセージ
 }
 
 // 設定型定義

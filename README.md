@@ -84,10 +84,11 @@ SQLdojo/
 ├── scripts/              # ユーティリティスクリプト
 ├── requirements.txt      # Python依存関係
 ├── *.db                  # SQLiteデータベースファイル
-│   ├── cache_data.db
-│   ├── metadata_cache.db
-│   ├── scheduler_jobs.db
-│   └── job_execution_history.db
+│   ├── session_manager.db       # セッション管理DB（セッションメタデータ）
+│   ├── cache_{user_id}_{session_id}.db  # セッション別データDB（複数）
+│   ├── metadata_cache.db        # メタデータキャッシュDB
+│   ├── scheduler_jobs.db        # スケジューラジョブDB
+│   └── job_execution_history.db # ジョブ実行履歴DB
 └── README.md            # このファイル
 ```
 
@@ -167,6 +168,8 @@ SQL Dojo は、企業のデータ分析業務を効率化するために開発�
 - **キャッシュクリア**: 手動および自動キャッシュクリア機能
 - **キャッシュ統計**: キャッシュヒット率・使用状況の監視
 - **バッチ処理最適化**: SQLite ジャーナルファイルによる効率的なデータ保存（大容量データ処理時は間欠的な COMMIT 実行で性能向上）
+- **セッション別DB分離**: セッションメタデータ（session_manager.db）とデータ（セッション別DB）を分離し、同時アクセスによる競合を回避
+- **性能向上**: セッションごとに独立したDBファイル（cache_{user_id}_{session_id}.db）を使用することで、ロック競合を最小化
 
 #### スケジューラー機能
 

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from fastapi import APIRouter, HTTPException, Body
+from fastapi import APIRouter, HTTPException, Body, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from typing import Optional
 from datetime import datetime
 import csv
 import io
 import inspect
+import asyncio
 
 from app.config_simplified import get_settings
 from app.api.models import (
@@ -59,6 +60,130 @@ async def execute_sql_with_cache_endpoint(
     if not result["success"]:
         return CacheSQLResponse(success=False, session_id=None, total_count=0, processed_rows=0, execution_time=result.get("execution_time", 0), message=None, error_message=result.get("error_message", "SQL実行に失敗しました"))
     return response
+
+@router.post("/execute-async", response_model=CacheSQLResponse)
+async def execute_sql_with_cache_async_endpoint(
+    request: CacheSQLRequest,
+    background_tasks: BackgroundTasks,
+    hybrid_sql_service: HybridSQLServiceDep,
+    current_user: CurrentUserDep,
+    sql_log_service: SQLLogServiceDep,
+):
+    """軽量非同期対応: 即座にsession_idを返却し、バックグラウンドで処理実行（対策案3）"""
+    if not request.sql:
+        raise HTTPException(status_code=400, detail="SQLクエリが無効です")
+    
+    start_time = datetime.now()
+    
+    try:
+        # 軽量検証を実行し、即座にsession_idを取得
+        maybe_prepare = hybrid_sql_service.prepare_sql_execution(
+            request.sql, current_user["user_id"], request.limit
+        )
+        prepare_result = await maybe_prepare if inspect.isawaitable(maybe_prepare) else maybe_prepare
+        
+        # 確認要求やエラーの場合は即座に返却
+        if prepare_result.get("status") == "requires_confirmation":
+            return CacheSQLResponse(
+                success=False, 
+                session_id=None, 
+                total_count=prepare_result["total_count"], 
+                processed_rows=0, 
+                execution_time=0, 
+                message=prepare_result["message"], 
+                error_message=None
+            )
+        
+        if not prepare_result.get("success", True):
+            return CacheSQLResponse(
+                success=False, 
+                session_id=None, 
+                total_count=0, 
+                processed_rows=0, 
+                execution_time=0, 
+                message=None, 
+                error_message=prepare_result.get("error_message", "SQL実行に失敗しました")
+            )
+        
+        session_id = prepare_result["session_id"]
+        
+        # バックグラウンドタスクでSQL実行を開始
+        background_tasks.add_task(
+            hybrid_sql_service.execute_sql_background,
+            request.sql,
+            session_id,
+            current_user["user_id"],
+            request.limit
+        )
+        
+        # バックグラウンドタスクでログ記録も追加
+        background_tasks.add_task(
+            log_sql_execution_async,
+            sql_log_service,
+            current_user["user_id"],
+            request.sql,
+            start_time,
+            session_id
+        )
+        
+        # 即座にsession_idとprocessing状態を返却
+        return CacheSQLResponse(
+            success=True,
+            session_id=session_id,
+            total_count=prepare_result["total_count"],
+            processed_rows=0,
+            execution_time=0,
+            message=prepare_result["message"],
+            error_message=None,
+            status="processing"
+        )
+        
+    except Exception as e:
+        logger.error(f"軽量非同期SQL実行エラー: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+async def log_sql_execution_async(
+    sql_log_service, 
+    user_id: str, 
+    sql: str, 
+    start_time: datetime, 
+    session_id: str
+):
+    """バックグラウンドでのSQL実行ログ記録"""
+    try:
+        # セッション完了まで待機（最大5分）
+        max_wait_time = 300  # 5分
+        wait_interval = 1    # 1秒間隔
+        
+        for _ in range(max_wait_time):
+            # セッション情報を取得してチェック
+            from app.dependencies import get_cache_service_di
+            cache_service = get_cache_service_di()
+            session_info = cache_service.get_session_info(session_id)
+            
+            if session_info and session_info.get('is_complete', False):
+                # 完了していればログ記録
+                execution_time = session_info.get('execution_time', 0)
+                processed_rows = session_info.get('processed_rows', 0)
+                
+                maybe_log = sql_log_service.add_log_to_db(
+                    user_id, sql, execution_time, start_time, processed_rows, True, None
+                )
+                if inspect.isawaitable(maybe_log):
+                    await maybe_log
+                
+                logger.info(f"バックグラウンドログ記録完了: {session_id}")
+                break
+            
+            # 1秒待機
+            await asyncio.sleep(wait_interval)
+        else:
+            # タイムアウトの場合
+            logger.warning(f"ログ記録タイムアウト: {session_id}")
+            
+    except Exception as e:
+        logger.error(f"バックグラウンドログ記録エラー: {e}")
 
 
 @router.post("/read", response_model=CacheReadResponse)
@@ -324,8 +449,8 @@ async def generate_dummy_data_endpoint(
             row = [item[col] for col in columns]
             data_rows.append(row)
         
-        # データを挿入
-        inserted_count = cache_service.insert_chunk(table_name, data_rows)
+        # データを挿入（session_idを指定）
+        inserted_count = cache_service.insert_chunk(table_name, data_rows, session_id=session_id)
         
         # セッションを完了状態に更新
         execution_time = (datetime.now() - start_time).total_seconds()

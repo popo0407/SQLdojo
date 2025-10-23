@@ -132,6 +132,7 @@ export interface ResultsExecutionActions {
   executeSql: (sql: string) => Promise<void>;
   startProgressPolling: (sessionId: string) => void;
   stopProgressPolling: () => void;
+  loadCompletedData: (sessionId: string) => Promise<void>;
 }
 
 // 統合されたストアの型定義（Facade用）

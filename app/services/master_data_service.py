@@ -197,7 +197,7 @@ class MasterDataService:
                 STA_NO2 AS sta_no2,
                 STA_NO3 AS sta_no3,
                 MAIN_PARTS_NAME AS main_parts_name,
-                CONCAT('SUB_SERIAL_', LPAD(TO_VARCHAR(PARTS_NO), 2, '0')) AS sub_parts,
+                CONCAT('S_SERIAL', LPAD(TO_VARCHAR(PARTS_NO), 2, '0')) AS sub_parts,
                 SUB_PARTS_NAME AS sub_parts_name
             FROM HF1SKM01
             """

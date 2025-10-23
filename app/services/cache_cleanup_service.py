@@ -15,10 +15,10 @@ logger = get_logger("CacheCleanupService")
 
 
 class CacheCleanupService:
-    """キャッシュセッション自動クリーンアップサービス"""
+    """キャッシュセッション自動クリーンアップサービス（DB分離版）"""
     
-    def __init__(self, cache_db_path: str = "cache_data.db"):
-        self.cache_db_path = cache_db_path
+    def __init__(self, session_db_path: str = "session_manager.db"):
+        self.session_db_path = session_db_path
         self._running = False
         self._task: Optional[asyncio.Task] = None
     
@@ -73,7 +73,8 @@ class CacheCleanupService:
         delete_count = 0
         
         try:
-            with sqlite3.connect(self.cache_db_path, timeout=10.0) as conn:
+            import os
+            with sqlite3.connect(self.session_db_path, timeout=10.0) as conn:
                 cursor = conn.cursor()
                 
                 # 現在時刻を取得
@@ -97,16 +98,18 @@ class CacheCleanupService:
                 sessions_to_delete = cursor.fetchall()
                 
                 if sessions_to_delete:
-                    # 対応するキャッシュテーブルを削除
+                    # 各セッションの専用DBファイルを削除
                     for session_id, user_id in sessions_to_delete:
                         try:
-                            # セッションIDからテーブル名を生成
-                            table_name = self._generate_table_name(session_id)
-                            cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+                            # セッション専用DBファイルを削除
+                            session_db_path = f"{session_id}.db"
+                            if os.path.exists(session_db_path):
+                                os.remove(session_db_path)
+                                logger.debug(f"セッション専用DBファイル削除: {session_db_path}")
                         except Exception as e:
-                            logger.error(f"キャッシュテーブル削除エラー (session: {session_id}): {e}")
+                            logger.error(f"セッション専用DBファイル削除エラー (session: {session_id}): {e}")
                     
-                    # セッションレコードを削除
+                    # セッション管理DBからセッションレコードを削除
                     cursor.execute("""
                         DELETE FROM cache_sessions 
                         WHERE created_at < ?
@@ -121,10 +124,9 @@ class CacheCleanupService:
         
         logger.info(f"キャッシュクリーンアップ処理が完了しました（タイムアウト: {timeout_count}件, 削除: {delete_count}件）")
     
-    def _generate_table_name(self, session_id: str) -> str:
-        """セッションIDからキャッシュテーブル名を生成"""
-        # 新しい設計ではセッションIDがそのままテーブル名
-        return session_id
+    def _get_session_db_path(self, session_id: str) -> str:
+        """セッションIDから専用DBファイルパスを生成"""
+        return f"{session_id}.db"
     
     async def manual_cleanup(self) -> dict:
         """手動クリーンアップの実行（管理用）"""
