@@ -4,13 +4,52 @@ import { parsePlaceholders, replacePlaceholders } from '../features/parameters/P
 
 // タブ進捗ポーリング管理
 let tabProgressPollingInterval: NodeJS.Timeout | null = null;
+let pollAttempts: number = 0;
+
+// ポーリング間隔を計算する（段階的増加: 1秒から最大5秒へ）
+const calculatePollInterval = (attempts: number): number => {
+  // 初期: 1秒(1000ms)
+  // 10回後: 1.2秒
+  // 20回後: 1.44秒
+  // ...徐々に増加して最大5秒に達する
+  let interval = 1000; // 開始: 1秒
+  if (attempts > 10) {
+    interval = Math.min(1000 * Math.pow(1.15, (attempts - 10) / 10), 5000); // 1.15倍で増加、最大5秒
+  }
+  return Math.floor(interval);
+};
+
+// タイムアウト管理（1320秒 = 22分）
+const POLLING_TIMEOUT_MS = 1320000; // 22分
 
 // タブ用進捗ポーリング開始（完了時のデータ読み込み対応）
 const startTabProgressPolling = async (sessionId: string, progressStore: { updateProgress: (data: { currentCount: number; progressPercentage: number; message: string }) => void; hideProgress: () => void }, tabId?: string) => {
   const { getSessionStatus } = await import('../api/sqlService');
   
+  let pollStartTime = Date.now();
+  let currentInterval = 1000; // 開始: 1秒
+  let attemptCount = 0;
+
   const pollProgress = async () => {
     try {
+      // タイムアウト判定（1320秒 = 22分超過）
+      if (Date.now() - pollStartTime > POLLING_TIMEOUT_MS) {
+        console.warn(`ポーリングタイムアウト（${POLLING_TIMEOUT_MS / 1000}秒）に達しました`);
+        if (tabProgressPollingInterval) {
+          clearInterval(tabProgressPollingInterval);
+          tabProgressPollingInterval = null;
+        }
+        
+        // タイムアウト時も一度データ取得を試行
+        if (tabId) {
+          console.log('タイムアウト時の緊急データ取得を試行...');
+          await loadTabDataAfterCompletion(tabId, sessionId, progressStore);
+        } else {
+          progressStore.hideProgress();
+        }
+        return;
+      }
+
       const statusResponse = await getSessionStatus(sessionId);
       
       // 段階に応じたメッセージ表示
@@ -27,7 +66,8 @@ const startTabProgressPolling = async (sessionId: string, progressStore: { updat
         message: message
       });
 
-      if (statusResponse.status === 'completed' || statusResponse.status === 'error' || statusResponse.status === 'cancelled') {
+      // 完了検知: status=completed かつ is_complete=true の場合
+      if ((statusResponse.status === 'completed' || statusResponse.status === 'error' || statusResponse.status === 'cancelled') && statusResponse.is_complete) {
         if (tabProgressPollingInterval) {
           clearInterval(tabProgressPollingInterval);
           tabProgressPollingInterval = null;
@@ -35,7 +75,7 @@ const startTabProgressPolling = async (sessionId: string, progressStore: { updat
         
         // 完了時の処理
         if (statusResponse.status === 'completed' && tabId) {
-          // 完了時にデータを自動読み込み
+          // 完了時に即座にデータを自動読み込み
           await loadTabDataAfterCompletion(tabId, sessionId, progressStore);
         } else {
           // エラーまたはキャンセル時
@@ -47,8 +87,21 @@ const startTabProgressPolling = async (sessionId: string, progressStore: { updat
             uiStore.stopLoading();
           }
         }
+        return;
       }
-    } catch {
+
+      // ポーリング間隔を段階的に増加
+      attemptCount++;
+      currentInterval = calculatePollInterval(attemptCount);
+      
+      // 次のポーリング再設定
+      if (tabProgressPollingInterval) {
+        clearInterval(tabProgressPollingInterval);
+      }
+      tabProgressPollingInterval = setInterval(pollProgress, currentInterval);
+
+    } catch (error) {
+      console.error('ポーリングエラー:', error);
       if (tabProgressPollingInterval) {
         clearInterval(tabProgressPollingInterval);
         tabProgressPollingInterval = null;
@@ -57,12 +110,8 @@ const startTabProgressPolling = async (sessionId: string, progressStore: { updat
     }
   };
 
-  // 初回実行
-  pollProgress();
-
-  // 定期実行
-  tabProgressPollingInterval = setInterval(pollProgress, 100);
-};
+  // 初回実行（1秒後）
+  setTimeout(pollProgress, currentInterval);};
 
 // 完了時のデータ読み込み処理
 const loadTabDataAfterCompletion = async (tabId: string, sessionId: string, progressStore: { updateProgress: (data: { currentCount: number; progressPercentage: number; message: string }) => void; hideProgress: () => void }) => {
@@ -87,11 +136,19 @@ const loadTabDataAfterCompletion = async (tabId: string, sessionId: string, prog
     // 設定ページサイズを取得（デフォルト100）
     const pageSize = tab.sessionState.configSettings?.default_page_size || 100;
     
-    const readResult = await readSqlCache({
+    // タイムアウト機構: 30秒でデータ取得を打ち切る
+    const readTimeoutMs = 30000;
+    const readPromise = readSqlCache({
       session_id: sessionId,
       page: 1,
       page_size: pageSize
     });
+
+    const timeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('データ取得タイムアウト')), readTimeoutMs)
+    );
+
+    const readResult = await Promise.race([readPromise, timeoutPromise]);
 
     if (readResult.success && readResult.data && readResult.columns) {
       // データを変換
@@ -133,8 +190,20 @@ const loadTabDataAfterCompletion = async (tabId: string, sessionId: string, prog
     const { useUIStore } = await import('./useUIStore');
     const uiStore = useUIStore.getState();
     
+    const errorMessage = error instanceof Error ? error.message : 'データの読み込みに失敗しました';
+    
+    // タイムアウトエラーの場合は特別な処理
+    if (errorMessage.includes('タイムアウト')) {
+      console.warn('データ取得がタイムアウトしましたが、セッションは保持されています');
+      // ユーザーへの通知: セッションIDで後から確認可能
+      const warningMessage = `データ取得がタイムアウトしました。セッションID: ${sessionId}。別途確認をお試しください。`;
+      uiStore.setError(warningMessage);
+    } else {
+      uiStore.setError(errorMessage);
+    }
+    
     useTabStore.getState().updateTabResults(tabId, {
-      error: error instanceof Error ? error.message : 'データの読み込みに失敗しました',
+      error: errorMessage,
       data: null,
       columns: [],
       totalCount: 0,
@@ -142,7 +211,6 @@ const loadTabDataAfterCompletion = async (tabId: string, sessionId: string, prog
       lastExecutedSql: useTabStore.getState().tabs.find(t => t.id === tabId)?.sql || ''
     });
     
-    uiStore.setError(error instanceof Error ? error.message : 'データの読み込みに失敗しました');
     uiStore.stopLoading();
     progressStore.hideProgress();
   }

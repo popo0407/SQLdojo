@@ -41,6 +41,7 @@ export interface SessionStatusResponse {
   progress_percentage: number;
   message?: string;
   error_message?: string;  // エラーメッセージ
+  is_complete?: boolean;  // 完了フラグ（true=完了確定）
 }
 
 // 設定型定義
